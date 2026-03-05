@@ -253,3 +253,138 @@ const loadInstructorDashboard = () => {
     dashboardContent.innerHTML = `
         <div class="dashboard-header">
             <h2>Instructor Dashboard</h2>
+            <button onclick="showCreateCourseModal()" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create New Course
+            </button>
+        </div>
+        
+        <div class="instructor-stats">
+            <div class="stat-card">
+                <h4>Total Students</h4>
+                <span class="stat-number">1,234</span>
+            </div>
+            <div class="stat-card">
+                <h4>Total Courses</h4>
+                <span class="stat-number">5</span>
+            </div>
+            <div class="stat-card">
+                <h4>Total Revenue</h4>
+                <span class="stat-number">$12,345</span>
+            </div>
+            <div class="stat-card">
+                <h4>Average Rating</h4>
+                <span class="stat-number">4.8</span>
+            </div>
+        </div>
+        
+        <div class="instructor-courses">
+            <h3>My Courses</h3>
+            <!-- Course list will go here -->
+        </div>
+    `;
+};
+
+// ===== LOAD SETTINGS =====
+const loadSettings = () => {
+    dashboardContent.innerHTML = `
+        <div class="dashboard-header">
+            <h2>Profile Settings</h2>
+        </div>
+        
+        <form id="profileForm" class="settings-form">
+            <div class="form-group">
+                <label for="profileName">Name</label>
+                <input type="text" id="profileName" value="${userData.name}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="profileEmail">Email</label>
+                <input type="email" id="profileEmail" value="${userData.email}" readonly disabled>
+            </div>
+            
+            <div class="form-group">
+                <label for="profileBio">Bio</label>
+                <textarea id="profileBio" rows="4">${userData.bio || ''}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="profileAvatar">Avatar URL</label>
+                <input type="url" id="profileAvatar" value="${userData.avatar || ''}">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+        
+        <div class="danger-zone">
+            <h3>Danger Zone</h3>
+            <button onclick="deleteAccount()" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444;">
+                Delete Account
+            </button>
+        </div>
+    `;
+    
+    // Add form handler
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+        profileForm.addEventListener('submit', handleProfileUpdate);
+    }
+};
+
+// ===== HANDLE PROFILE UPDATE =====
+const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    
+    try {
+        const name = document.getElementById('profileName').value;
+        const bio = document.getElementById('profileBio').value;
+        const avatar = document.getElementById('profileAvatar').value;
+        
+        const data = await apiCall('/users/profile', {
+            method: 'PUT',
+            body: JSON.stringify({ name, bio, avatar })
+        });
+        
+        if (data.success) {
+            showNotification('Profile updated successfully!', 'success');
+            loadDashboardData(); // Reload data
+        }
+    } catch (error) {
+        showNotification(error.message || 'Failed to update profile', 'error');
+    }
+};
+
+// ===== SHOW NOTIFICATION =====
+const showNotification = (message, type) => {
+    // Use same notification function from auth.js
+    if (window.showNotification) {
+        window.showNotification(message, type);
+    }
+};
+
+// ===== INITIALIZE DASHBOARD =====
+document.addEventListener('DOMContentLoaded', () => {
+    // Check authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // Load dashboard data
+    loadDashboardData();
+    
+    // Add click handlers to menu items
+    document.querySelectorAll('.dashboard-menu a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tab = link.getAttribute('data-tab');
+            if (tab) {
+                loadTab(tab);
+                // Update URL without reload
+                const url = new URL(window.location);
+                url.searchParams.set('tab', tab);
+                window.history.pushState({}, '', url);
+            }
+        });
+    });
+});
