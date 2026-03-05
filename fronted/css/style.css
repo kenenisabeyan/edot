@@ -1503,6 +1503,165 @@ section {
   }
 }
 
+/* ===== CONTACT PAGE ADDITIONS ===== */
+
+/* Form field focus states */
+.form-group.focused label {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Character counter */
+.char-counter {
+  transition: var(--transition);
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* Map container hover effect */
+.map-container {
+  transition: var(--transition);
+}
+
+.map-container:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* FAQ items hover effect */
+.faq-item {
+  transition: var(--transition);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+.faq-item:hover {
+  background-color: var(--bg-light);
+  padding-left: var(--space-md);
+}
+
+/* Social buttons animation */
+.social-btn {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.social-btn:hover {
+  transform: translateY(-5px) scale(1.1);
+}
+
+/* Contact cards icon animation */
+.contact-icon {
+  transition: var(--transition);
+}
+
+.contact-card:hover .contact-icon {
+  transform: rotateY(360deg);
+}
+
+/* Form input icons (if you want to add them) */
+.input-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  pointer-events: none;
+}
+
+.form-group {
+  position: relative;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group select,
+.form-group textarea {
+  padding-left: 15px;
+}
+
+/* Success animation for form submission */
+@keyframes successPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+.btn-success {
+  animation: successPulse 1s ease;
+  background-color: var(--accent) !important;
+}
+
+/* Loading state for button */
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.btn-loading i {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive adjustments for contact page */
+@media (max-width: 768px) {
+  .contact-cards {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .contact-card {
+    padding: var(--space-lg);
+  }
+
+  .contact-form-container {
+    padding: var(--space-lg);
+  }
+
+  .contact-sidebar {
+    margin-top: var(--space-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header h1 {
+    font-size: 32px;
+  }
+
+  .page-header p {
+    font-size: 16px;
+  }
+
+  .contact-card {
+    padding: var(--space-md);
+  }
+
+  .contact-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .contact-icon i {
+    font-size: 28px;
+  }
+
+  .contact-card h3 {
+    font-size: 20px;
+  }
+
+  .social-buttons {
+    justify-content: center;
+  }
+}
+
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 1024px) {
 
