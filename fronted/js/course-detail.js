@@ -273,3 +273,100 @@ const updateReviews = () => {
         
         reviewsList.innerHTML = sampleReviews.map(review => `
             <div class="review-item">
+                <img src="${review.avatar}" alt="${review.name}">
+                <div class="review-content">
+                    <div class="review-header">
+                        <h4>${review.name}</h4>
+                        <span class="review-date">${review.date}</span>
+                    </div>
+                    <div class="review-rating">
+                        ${Array(5).fill(0).map((_, i) => `
+                            <i class="fas fa-star ${i < review.rating ? 'active' : ''}"></i>
+                        `).join('')}
+                    </div>
+                    <p>${review.comment}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+};
+
+// ===== UPDATE SIDEBAR =====
+const updateSidebar = () => {
+    const priceElement = document.getElementById('coursePrice');
+    const levelElement = document.getElementById('courseLevel');
+    const durationElement = document.getElementById('courseDuration');
+    const studentsElement = document.getElementById('totalStudents');
+    const lessonsElement = document.getElementById('totalLessons');
+    
+    if (priceElement) {
+        priceElement.innerHTML = courseData.price === 0 ? 
+            '<span class="free">Free</span>' : 
+            `<span>$${courseData.price}</span>`;
+    }
+    
+    if (levelElement) levelElement.textContent = courseData.level || 'Beginner';
+    if (durationElement) durationElement.textContent = `${courseData.duration || 0} hours`;
+    if (studentsElement) studentsElement.textContent = `${courseData.totalStudents || 0} students`;
+    if (lessonsElement) lessonsElement.textContent = courseData.lessons?.length || 0;
+};
+
+// ===== ENROLL IN COURSE =====
+window.enrollInCourse = async () => {
+    if (!isAuthenticated) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    if (isEnrolled) {
+        window.location.href = `lesson.html?course=${courseId}`;
+        return;
+    }
+    
+    try {
+        const data = await apiCall(`/courses/${courseId}/enroll`, {
+            method: 'POST'
+        });
+        
+        if (data.success) {
+            showNotification('Successfully enrolled in course!', 'success');
+            isEnrolled = true;
+            
+            const enrollBtn = document.getElementById('enrollBtn');
+            enrollBtn.innerHTML = '<i class="fas fa-check"></i> Enrolled';
+            enrollBtn.classList.add('enrolled');
+            
+            // Redirect to lesson page after 2 seconds
+            setTimeout(() => {
+                window.location.href = `lesson.html?course=${courseId}`;
+            }, 2000);
+        }
+    } catch (error) {
+        showNotification(error.message || 'Failed to enroll', 'error');
+    }
+};
+
+// ===== TOGGLE WISHLIST =====
+window.toggleWishlist = () => {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    
+    if (isInWishlist) {
+        const index = wishlist.indexOf(courseId);
+        if (index > -1) {
+            wishlist.splice(index, 1);
+        }
+        showNotification('Removed from wishlist', 'info');
+    } else {
+        wishlist.push(courseId);
+        showNotification('Added to wishlist', 'success');
+    }
+    
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    isInWishlist = !isInWishlist;
+    checkWishlistStatus();
+};
+
+// ===== INITIALIZE =====
+document.addEventListener('DOMContentLoaded', () => {
+    loadCourseDetails();
+});
