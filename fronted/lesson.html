@@ -146,4 +146,124 @@
       </section>
 
       <!-- Resources -->
-      <section class="lesson-resources" aria-labelledby="
+      <section class="lesson-resources" aria-labelledby="resources-title">
+        <h3 id="resources-title">
+          <i class="fas fa-download" aria-hidden="true"></i>
+          Resources & Downloads
+        </h3>
+        <ul id="resourcesList" role="list">
+          <!-- Resources will be loaded dynamically -->
+        </ul>
+      </section>
+
+      <!-- Discussion -->
+      <section class="lesson-discussion" aria-labelledby="discussion-title">
+        <h3 id="discussion-title">
+          <i class="fas fa-comments" aria-hidden="true"></i>
+          Discussion
+        </h3>
+        <div class="comments-section" id="commentsSection">
+          <!-- Comments will be loaded dynamically -->
+        </div>
+        <div class="add-comment">
+          <textarea placeholder="Ask a question or share your thoughts..." aria-label="Add comment"></textarea>
+          <button class="btn btn-primary btn-small">Post Comment</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Keyboard Shortcuts Help Modal -->
+  <div class="shortcuts-modal" id="shortcutsModal" style="display: none;" role="dialog" aria-label="Keyboard shortcuts">
+    <div class="modal-content">
+      <h3>Keyboard Shortcuts</h3>
+      <button class="close-btn" onclick="closeShortcuts()" aria-label="Close">&times;</button>
+      <ul class="shortcuts-list">
+        <li><kbd>Space</kbd> Play/Pause</li>
+        <li><kbd>←</kbd> Previous lesson</li>
+        <li><kbd>→</kbd> Next lesson</li>
+        <li><kbd>M</kbd> Mark complete</li>
+        <li><kbd>Ctrl + S</kbd> Save notes</li>
+        <li><kbd>F</kbd> Fullscreen</li>
+        <li><kbd>?</kbd> Show shortcuts</li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/lesson.js"></script>
+  <script>
+    // Video player controls
+    function togglePlayPause() {
+      const video = document.getElementById('videoPlayer');
+      const icon = document.querySelector('.play-pause i');
+      if (video.paused) {
+        video.play();
+        icon.className = 'fas fa-pause';
+      } else {
+        video.pause();
+        icon.className = 'fas fa-play';
+      }
+    }
+
+    function toggleMute() {
+      const video = document.getElementById('videoPlayer');
+      const icon = document.querySelector('.volume i');
+      video.muted = !video.muted;
+      icon.className = video.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+    }
+
+    function toggleFullscreen() {
+      const container = document.getElementById('videoContainer');
+      const icon = document.querySelector('.fullscreen i');
+      if (!document.fullscreenElement) {
+        container.requestFullscreen();
+        icon.className = 'fas fa-compress';
+      } else {
+        document.exitFullscreen();
+        icon.className = 'fas fa-expand';
+      }
+    }
+
+    function downloadNotes() {
+      const notes = document.getElementById('lessonNotes').value;
+      const lessonTitle = document.getElementById('lessonTitle').textContent;
+      const blob = new Blob([notes], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${lessonTitle} - Notes.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function showShortcuts() {
+      document.getElementById('shortcutsModal').style.display = 'flex';
+    }
+
+    function closeShortcuts() {
+      document.getElementById('shortcutsModal').style.display = 'none';
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('input, textarea, select')) return;
+
+      if (e.key === '?') {
+        e.preventDefault();
+        showShortcuts();
+      }
+    });
+
+    // Update last saved time
+    function updateLastSaved() {
+      const lastSaved = document.getElementById('lastSaved');
+      if (lastSaved) {
+        const now = new Date();
+        lastSaved.textContent = `Last saved: ${now.toLocaleTimeString()}`;
+      }
+    }
+  </script>
+</body>
+
+</html>
