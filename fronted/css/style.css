@@ -3,6 +3,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Poppins", Arial, sans-serif;
 }
 
 :root {
@@ -436,12 +437,10 @@ img {
   width: 100%;
 }
 
+/* Logo with image */
 .logo {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--primary);
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
   text-decoration: none;
   transition: var(--transition-fast);
 }
@@ -449,6 +448,12 @@ img {
 .logo:hover {
   opacity: 0.9;
   transform: scale(1.02);
+}
+
+.home-logo {
+  max-height: 50px;
+  width: auto;
+  display: block;
 }
 
 .nav-menu {
@@ -597,7 +602,6 @@ img {
   position: relative;
 }
 
-/* No border around hero image */
 .hero-image img {
   width: 100%;
   height: auto;
@@ -2940,7 +2944,7 @@ section {
   top: 0;
 }
 
-/* ===== PAGE HEADER ===== */
+/* ===== PAGE HEADER (shared) ===== */
 .page-header {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: var(--white);
@@ -2977,7 +2981,7 @@ section {
   z-index: 1;
 }
 
-/* ===== FILTERS SECTION ===== */
+/* ===== FILTERS SECTION (courses page) ===== */
 .filters-section {
   padding: var(--space-6) 0;
   background: var(--white);
