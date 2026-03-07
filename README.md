@@ -66,8 +66,8 @@
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/edot-platform.git
-cd edot-platform
+git clone https://github.com/kenenisabeyan/edot.git
+cd edot
 2. Install Backend Dependencies
 bash
 cd backend
@@ -151,9 +151,11 @@ Open a Pull Request.
 Distributed under the MIT License. See LICENSE for more information.
 
 📬 Contact
-Your Name – @your_twitter – your.email@example.com
+ in/keno05 
+ @kenenisa94931 
+ beyankenenisa@gmail.com
 
-Project Link: https://github.com/yourusername/edot-platform
+Project Link: https://github.com/kenenisabeyan/edot
 
 🙏 Acknowledgements
 Unsplash for placeholder images
