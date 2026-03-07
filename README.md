@@ -1,171 +1,302 @@
-# 🎓 EDOT - Education Digital Online Tutorials
+# 🎓 EDOT – Education Digital Online Tutorials
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen)](https://nodejs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-4.4+-green)](https://www.mongodb.com/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/edot-platform?style=social)](https://github.com/yourusername/edot-platform)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
+[![GitHub stars](https://img.shields.io/github/stars/kenenisabeyan/edot?style=social)](https://github.com/kenenisabeyan/edot)
 
-**EDOT** is a modern, full‑stack educational platform inspired by Coursera. It empowers students to discover, enroll in, and learn from high‑quality courses, while instructors have dedicated tools to create and manage their content. Built with the MERN stack (MongoDB, Express.js, vanilla JavaScript for the frontend), it’s designed for scalability, performance, and an excellent user experience.
+EDOT (**Education Digital Online Tutorials**) is a modern full-stack educational platform inspired by large learning platforms such as Coursera.
+It enables students to discover courses, enroll, and track their learning progress, while instructors can create and manage educational content.
 
-![EDOT Homepage Screenshot](https://via.placeholder.com/1200x600?text=EDOT+Homepage+Screenshot+Placeholder)
+The project is built using a **MERN-style architecture**:
 
----
+* **MongoDB** – Database
+* **Express.js** – Backend framework
+* **Node.js** – Server runtime
+* **Vanilla JavaScript + HTML/CSS** – Frontend
 
-## ✨ Features
-
-- **User Authentication** – Secure sign‑up / login with JWT, password hashing (bcrypt), and role‑based access (student / instructor).
-- **Course Catalog** – Browse all courses with advanced filtering (by category, level) and search.
-- **Course Details** – View detailed information, curriculum, instructor bio, and student reviews.
-- **Enrollment & Progress Tracking** – Enroll in courses, mark lessons as complete, and track your learning progress.
-- **Interactive Lesson Player** – Watch video lessons, take notes, and download resources – all within a custom‑built player with keyboard shortcuts.
-- **Student Dashboard** – Overview of enrolled courses, progress statistics, wishlist, and profile settings.
-- **Instructor Dashboard** – Create and manage courses, view analytics, and interact with students.
-- **Responsive Design** – Fully optimized for mobile, tablet, and desktop devices.
-- **Modern UI** – Clean, minimalist design with smooth animations and a professional color palette.
-- **Contact Page** – Functional contact form with validation and Google Maps integration (Adama, Ethiopia).
+The platform is designed with **scalability, performance, and a clean user experience in mind.**
 
 ---
 
-## 🛠️ Tech Stack
+# 📸 Preview
 
-| Frontend          | Backend           | Database         | Authentication | Other Tools          |
-| ----------------- | ----------------- | ---------------- | -------------- | -------------------- |
-| HTML5             | Node.js           | MongoDB          | JWT            | Mongoose (ODM)       |
-| CSS3 (Flex/Grid)  | Express.js        |                  | bcrypt.js      | express‑validator    |
-| JavaScript (ES6+) | REST API          |                  |                | cors, dotenv         |
-| Font Awesome Icons|                   |                  |                | nodemon (dev)        |
+![EDOT Homepage](https://via.placeholder.com/1200x600?text=EDOT+Homepage+Preview)
 
 ---
 
-## 🚀 Live Demo
+# ✨ Key Features
 
-🔗 [Coming Soon] – Deploy the app and add your live link here.
+## 🔐 Authentication System
+
+* Secure user registration and login
+* Password hashing using **bcrypt**
+* **JWT authentication**
+* Role-based access:
+
+  * Student
+  * Instructor
+
+## 📚 Course Management
+
+* Browse and search courses
+* Filter by category and difficulty level
+* View detailed course curriculum
+* Instructor profile and reviews
+
+## 🎓 Student Experience
+
+* Enroll in courses
+* Track lesson progress
+* Personal learning dashboard
+* Wishlist and saved courses
+
+## 👨‍🏫 Instructor Tools
+
+* Create and manage courses
+* Upload lessons
+* Track student enrollments
+* View course analytics
+
+## 🎥 Lesson Player
+
+* Custom video lesson player
+* Downloadable resources
+* Keyboard shortcuts
+* Notes support (planned)
+
+## 📱 Responsive Design
+
+* Mobile friendly
+* Tablet optimized
+* Desktop optimized
+
+## 📬 Contact System
+
+* Form validation
+* Google Maps integration
+* Location: **Adama, Ethiopia**
 
 ---
 
-## 📸 Screenshots
+# 🛠 Tech Stack
 
-| Homepage | Courses Page | Course Detail |
-|----------|--------------|---------------|
-| ![Home](https://via.placeholder.com/400x250?text=Home) | ![Courses](https://via.placeholder.com/400x250?text=Courses) | ![Detail](https://via.placeholder.com/400x250?text=Course+Detail) |
-
-| Lesson Player | Student Dashboard | Instructor Dashboard |
-|---------------|-------------------|----------------------|
-| ![Lesson](https://via.placeholder.com/400x250?text=Lesson+Player) | ![Dashboard](https://via.placeholder.com/400x250?text=Dashboard) | ![Instructor](https://via.placeholder.com/400x250?text=Instructor) |
+| Layer                 | Technology                                      |
+| --------------------- | ----------------------------------------------- |
+| **Frontend**          | HTML5, CSS3 (Flexbox & Grid), JavaScript (ES6+) |
+| **Backend**           | Node.js, Express.js                             |
+| **Database**          | MongoDB, Mongoose                               |
+| **Authentication**    | JWT, bcrypt                                     |
+| **Validation**        | express-validator                               |
+| **Development Tools** | Nodemon, dotenv, cors                           |
+| **Icons & Fonts**     | Font Awesome, Google Fonts                      |
 
 ---
 
-## 📦 Installation & Setup
+# 📁 Project Structure
 
-### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB (local or Atlas)
-- npm or yarn
-- Git
+```
+edot/
+│
+├── frontend/
+│   │
+│   ├── css/
+│   │   ├── base.css
+│   │   ├── auth.css
+│   │   ├── dashboard.css
+│   │   └── courses.css
+│   │
+│   ├── js/
+│   │   ├── auth.js
+│   │   ├── session.js
+│   │   ├── dashboard.js
+│   │   └── courses.js
+│   │
+│   ├── pages/
+│   │   ├── login.html
+│   │   ├── register.html
+│   │   ├── dashboard.html
+│   │   ├── courses.html
+│   │   └── profile.html
+│   │
+│   └── index.html
+│
+├── backend/
+│   │
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── courseController.js
+│   │   └── userController.js
+│   │
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Course.js
+│   │   └── Lesson.js
+│   │
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   ├── courseRoutes.js
+│   │   └── userRoutes.js
+│   │
+│   ├── middleware/
+│   │   └── authMiddleware.js
+│   │
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── server.js
+│   └── package.json
+│
+├── README.md
+└── LICENSE
+```
 
-### 1. Clone the Repository
-```bash
+---
+
+# 🚀 Installation & Setup
+
+## 1️⃣ Clone Repository
+
+```
 git clone https://github.com/kenenisabeyan/edot.git
 cd edot
-2. Install Backend Dependencies
-bash
+```
+
+---
+
+## 2️⃣ Install Backend Dependencies
+
+```
 cd backend
 npm install
-3. Configure Environment Variables
-Create a .env file inside the backend folder:
+```
 
-env
+---
+
+## 3️⃣ Configure Environment Variables
+
+Create `.env` inside **backend/**
+
+```
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/edot
-JWT_SECRET=your_super_secret_key_here
+JWT_SECRET=your_super_secret_key
 JWT_EXPIRE=7d
-If you use MongoDB Atlas, replace the URI with your connection string.
+```
 
-4. Start MongoDB
-Local: Ensure MongoDB is running (mongod).
+---
 
-Atlas: Already running – just use the URI above.
+## 4️⃣ Start Backend Server
 
-5. Run the Backend Server
-bash
+```
 npm run dev
-The API will be available at http://localhost:5000/api.
+```
 
-6. Serve the Frontend
-Open a new terminal and navigate to the frontend folder:
+Backend API:
 
-bash
-cd ../frontend
-# Use any static server, e.g. live-server
+```
+http://localhost:5000/api
+```
+
+---
+
+## 5️⃣ Run Frontend
+
+Open a new terminal:
+
+```
+cd frontend
 npx live-server
-Or open index.html via VS Code Live Server.
+```
 
-The application will open in your browser (usually at http://127.0.0.1:5500).
+Or use **VS Code Live Server** extension.
 
-🧪 Usage
-Register a new account (choose “Student” or “Instructor”).
+---
 
-Browse courses on the “Courses” page, filter by category/level.
+# 🧪 Basic Usage
 
-Enroll in a course (requires login).
+1. Register a new account
+2. Browse available courses
+3. Enroll in a course
+4. Watch lessons and track progress
+5. Instructors can create and manage courses
 
-Watch lessons and track your progress on the “Dashboard”.
+---
 
-Instructors can create courses from the instructor dashboard.
+# 📚 API Overview
 
-Contact us via the contact form (simulated, but ready for real email integration).
+| Method | Endpoint                | Description      | Access     |
+| ------ | ----------------------- | ---------------- | ---------- |
+| POST   | /api/auth/register      | Register user    | Public     |
+| POST   | /api/auth/login         | Login user       | Public     |
+| GET    | /api/auth/me            | Get logged user  | Private    |
+| GET    | /api/courses            | List courses     | Public     |
+| GET    | /api/courses/:id        | Course details   | Public     |
+| POST   | /api/courses            | Create course    | Instructor |
+| POST   | /api/courses/:id/enroll | Enroll in course | Student    |
+| GET    | /api/users/profile      | User profile     | Private    |
+| PUT    | /api/users/profile      | Update profile   | Private    |
 
-📚 API Documentation
-The backend exposes a RESTful API. Below are the main endpoints:
+---
 
-Method	Endpoint	Description	Access
-POST	/api/auth/register	Register a new user	Public
-POST	/api/auth/login	Login and get JWT token	Public
-GET	/api/auth/me	Get current user profile	Private
-GET	/api/courses	List all courses (with filters)	Public
-GET	/api/courses/:id	Get single course details	Public
-POST	/api/courses	Create a new course	Instructor
-POST	/api/courses/:id/enroll	Enroll in a course	Student
-POST	/api/courses/:courseId/lessons/:lessonId/complete	Mark lesson complete	Student
-GET	/api/users/profile	Get user profile with enrolled courses	Private
-PUT	/api/users/profile	Update user profile	Private
-GET	/api/users/mycourses	Get user's enrolled courses	Private
-Full documentation available in the Postman collection.
+# 🤝 Contributing
 
-🤝 Contributing
-Contributions, issues, and feature requests are welcome!
-Feel free to check the issues page.
+Contributions are welcome.
 
-Fork the project.
+Steps:
 
-Create your feature branch (git checkout -b feature/AmazingFeature).
+1. Fork the project
+2. Create feature branch
 
-Commit your changes (git commit -m 'Add some AmazingFeature').
+```
+git checkout -b feature/AmazingFeature
+```
 
-Push to the branch (git push origin feature/AmazingFeature).
+3. Commit changes
 
-Open a Pull Request.
+```
+git commit -m "Add AmazingFeature"
+```
 
-📄 License
-Distributed under the MIT License. See LICENSE for more information.
+4. Push branch
 
-📬 Contact
- in/keno05 
- @kenenisa94931 
- beyankenenisa@gmail.com
+```
+git push origin feature/AmazingFeature
+```
 
-Project Link: https://github.com/kenenisabeyan/edot
+5. Open Pull Request
 
-🙏 Acknowledgements
-Unsplash for placeholder images
+---
 
-Font Awesome for icons
+# 📄 License
 
-Google Fonts for typography
+Distributed under the **MIT License**.
 
-Express.js and MongoDB communities
+---
 
-text
+# 📬 Contact
 
-Just copy the entire content above into your `README.md` file and push it to GitHub. Replace placeholders (like your username, email, and screenshot URLs) with your actual information.
+**Kenenisa Beyan**
+
+GitHub
+https://github.com/kenenisabeyan
+
+LinkedIn
+https://linkedin.com/in/keno05
+
+Email
+[beyankenenisa@gmail.com](mailto:beyankenenisa@gmail.com)
+
+Project Repository
+https://github.com/kenenisabeyan/edot
+
+---
+
+# 🙏 Acknowledgements
+
+* Unsplash – placeholder images
+* Font Awesome – icons
+* Google Fonts – typography
+* Express.js community
+* MongoDB community
