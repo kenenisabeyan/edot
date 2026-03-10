@@ -12,7 +12,6 @@ import DashboardLayout from './layouts/DashboardLayout';
 // Public Pages
 import HomePage from './pages/HomePage';
 import CoursesPage from './pages/CoursesPage';
-import { CoursesPage } from './pages/CoursesPage';
 import CourseDetailsPage from './pages/CourseDetailsPage';
 import TutorProfilePage from './pages/TutorProfilePage';
 import PricingPage from './pages/PricingPage';
