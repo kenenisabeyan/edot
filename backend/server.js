@@ -6,12 +6,12 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-// Import routes
-const authRoutes = require('./routes/authRoutes');
-const courseRoutes = require('./routes/courseRoutes');
-const userRoutes = require('./routes/userRoutes');
-const sessionRoutes = require('./routes/sessionRoutes');
-const lessonRoutes = require('./routes/lessonRoutes');
+// Import routes - FIX: Add ./src/ to paths
+const authRoutes = require('./src/routes/authRoutes');
+const courseRoutes = require('./src/routes/courseRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const sessionRoutes = require('./src/routes/sessionRoutes');
+const lessonRoutes = require('./src/routes/lessonRoutes');
 
 const app = express();
 
