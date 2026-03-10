@@ -1,7 +1,6 @@
-// frontend/src/App.jsx
-import CoursesPage from "./pages/CoursesPage";
+// frontend/src/App.jsx - Fix the imports
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 
@@ -11,7 +10,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 
 // Public Pages
 import HomePage from './pages/HomePage';
-import CoursesPage from './pages/CoursesPage';
+import CoursesPage from './pages/CoursesPage';  // Keep only this one
 import CourseDetailsPage from './pages/CourseDetailsPage';
 import TutorProfilePage from './pages/TutorProfilePage';
 import PricingPage from './pages/PricingPage';
