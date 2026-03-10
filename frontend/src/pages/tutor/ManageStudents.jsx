@@ -54,4 +54,34 @@ const ManageStudents = () => {
                 <td className="px-6 py-4">
                   <div>
                     <div className="font-semibold text-textPrimary">{student.name}</div>
-                    <div className="text-sm text-textSecondary
+                    <div className="text-sm text-textSecondary">{student.email}</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-textSecondary">{student.course}</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-textSecondary">{student.progress}%</span>
+                    <div className="w-24 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full"
+                        style={{ width: `${student.progress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-textSecondary">{student.lastActive}</td>
+                <td className="px-6 py-4">
+                  <button className="text-primary hover:text-blue-800">
+                    Message
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default ManageStudents;
