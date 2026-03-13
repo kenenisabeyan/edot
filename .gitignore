@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.db
+*.sqlite
+
+# Uploads
+uploads/
+/public/uploads
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backend
+backend/node_modules/
+backend/package-lock.json
+
+# Frontend
+frontend/node_modules/
+frontend/package-lock.json
+frontend/.cache
