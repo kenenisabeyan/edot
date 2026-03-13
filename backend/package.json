@@ -1,7 +1,7 @@
 {
   "name": "edot-backend",
   "version": "1.0.0",
-  "description": "EDOT Educational Platform Backend",
+  "description": "EDOT Educational Platform Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,7 +14,6 @@
     "jsonwebtoken": "^9.0.2",
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",
-    "multer": "^1.4.5-lts.1",
     "express-validator": "^7.0.1"
   },
   "devDependencies": {
