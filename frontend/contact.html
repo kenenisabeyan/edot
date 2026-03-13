@@ -1,342 +1,298 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Contact Us - EDOT Learning Platform</title>
 
+  <!-- Meta Tags -->
   <meta name="description"
-    content="Contact the EDOT team for questions, partnerships, or support related to our online learning platform.">
+    content="Get in touch with the EDOT team. We're here to help with any questions about our courses or platform.">
 
-  <!-- Google Font -->
+  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Font Awesome -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Main CSS -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-
-  <style>
-    body {
-      font-family: "Poppins", Arial, sans-serif;
-    }
-  </style>
-
 </head>
 
 <body data-page="Contact">
-
+  <!-- Skip to content -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
+  <!-- Navigation -->
   <nav class="navbar" aria-label="Main navigation">
-
     <div class="container">
-
       <div class="nav-container">
-
-        <a href="index.html" class="logo">
-          <img class="home-logo" src="images/logo.png" alt="EDOT Logo">
-        </a>
-
+        <a href="index.html" class="logo"><img class="home-logo" src="images/logo.png" alt="EDOT Logo"></a>
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
           <i class="fas fa-bars"></i>
         </button>
-
         <ul class="nav-menu" id="navMenu">
-
           <li><a href="index.html" class="nav-link">Home</a></li>
-
           <li><a href="courses.html" class="nav-link">Courses</a></li>
-
           <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
-
           <li><a href="about.html" class="nav-link">About</a></li>
-
           <li><a href="contact.html" class="nav-link active">Contact</a></li>
-
         </ul>
-
         <div class="nav-buttons" id="navButtons">
-
           <a href="login.html" class="btn btn-outline">Login</a>
-
           <a href="register.html" class="btn btn-primary">Sign Up</a>
-
         </div>
-
       </div>
-
     </div>
-
   </nav>
 
-
   <main id="main-content">
-
+    <!-- Page Header -->
     <section class="page-header">
-
       <div class="container">
-
         <h1>Contact Us</h1>
-
         <p>Get in touch with our team. We're here to help!</p>
-
       </div>
-
     </section>
 
-
-
+    <!-- Contact Info Cards -->
     <section class="contact-info">
-
       <div class="container">
-
         <div class="contact-cards">
-
-
           <div class="contact-card">
-
             <div class="contact-icon">
               <i class="fas fa-map-marker-alt"></i>
             </div>
-
             <h3>Visit Us</h3>
-
-            <p>
-              Adama Science and Technology University<br>
-              Adama, Ethiopia
-            </p>
-
+            <p>Adama Science and Technology University<br>Adama, Ethiopia</p>
           </div>
 
-
           <div class="contact-card">
-
             <div class="contact-icon">
               <i class="fas fa-phone-alt"></i>
             </div>
-
             <h3>Call Us</h3>
-
             <p>+251 123 456 789</p>
             <p>Mon-Fri, 9am-6pm</p>
-
           </div>
 
-
           <div class="contact-card">
-
             <div class="contact-icon">
               <i class="fas fa-envelope"></i>
             </div>
-
             <h3>Email Us</h3>
-
             <p>support@edot.com</p>
             <p>info@edot.com</p>
-
           </div>
 
-
           <div class="contact-card">
-
             <div class="contact-icon">
               <i class="fas fa-clock"></i>
             </div>
-
             <h3>Office Hours</h3>
-
-            <p>Monday-Friday: 9am-6pm</p>
-            <p>Saturday: 10am-4pm</p>
+            <p>Monday - Friday: 9am - 6pm</p>
+            <p>Saturday: 10am - 4pm</p>
             <p>Sunday: Closed</p>
-
           </div>
-
         </div>
-
       </div>
-
     </section>
 
-
-
+    <!-- Contact Form Section -->
     <section class="contact-form-section">
-
       <div class="container">
-
         <div class="contact-grid">
-
-
+          <!-- Contact Form -->
           <div class="contact-form-container">
-
             <h2>Send Us a Message</h2>
-
-            <p>
-              Have a question or need assistance? Fill out the form below and our team will respond within 24 hours.
+            <p>Have a question or need assistance? Fill out the form below and we'll get back to you within 24 hours.
             </p>
 
-
             <form id="contactForm" class="contact-form">
-
               <div class="form-row">
-
                 <div class="form-group">
-
                   <label for="name">Your Name *</label>
-
                   <input type="text" id="name" name="name" placeholder="Enter your full name" required>
-
                 </div>
-
 
                 <div class="form-group">
-
                   <label for="email">Email Address *</label>
-
                   <input type="email" id="email" name="email" placeholder="Enter your email" required>
-
                 </div>
-
               </div>
-
-
 
               <div class="form-row">
-
                 <div class="form-group">
-
                   <label for="phone">Phone Number</label>
-
                   <input type="tel" id="phone" name="phone" placeholder="Enter your phone number">
-
                 </div>
-
 
                 <div class="form-group">
-
                   <label for="subject">Subject *</label>
-
                   <select id="subject" name="subject" required>
-
-                    <option value="">Select subject</option>
-
+                    <option value="">Select a subject</option>
                     <option value="general">General Inquiry</option>
-
                     <option value="support">Technical Support</option>
-
                     <option value="billing">Billing Question</option>
-
                     <option value="courses">Course Information</option>
-
                     <option value="partnership">Partnership Opportunity</option>
-
                     <option value="other">Other</option>
-
                   </select>
-
                 </div>
-
               </div>
-
-
 
               <div class="form-group">
-
                 <label for="message">Message *</label>
-
-                <textarea id="message" name="message" rows="6" placeholder="Tell us how we can help you..." required>
-</textarea>
-
+                <textarea id="message" name="message" rows="6" placeholder="Tell us how we can help you..."
+                  required></textarea>
               </div>
-
-
 
               <div class="form-group form-checkbox">
-
                 <input type="checkbox" id="newsletter" name="newsletter">
-
-                <label for="newsletter">
-                  Subscribe to our newsletter for updates
-                </label>
-
+                <label for="newsletter">Subscribe to our newsletter for updates and offers</label>
               </div>
-
-
 
               <button type="submit" class="btn btn-primary btn-large">
-
-                <i class="fas fa-paper-plane"></i>
-                Send Message
-
+                <i class="fas fa-paper-plane"></i> Send Message
               </button>
-
             </form>
-
           </div>
 
-
+          <!-- Map and Additional Info -->
           <div class="contact-sidebar">
-
+            <!-- Map -->
             <div class="map-container">
-
               <h3>Find Us</h3>
-
               <div class="map">
-
-                <iframe src="https://www.google.com/maps?q=Adama%20Science%20and%20Technology%20University&output=embed"
-                  width="100%" height="250" style="border:0;" loading="lazy">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3940.869530907332!2d39.263274!3d8.540004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b1f2f8b8b8b8b%3A0x8b8b8b8b8b8b8b8b!2sAdama%20Science%20and%20Technology%20University!5e0!3m2!1sen!2sus!4v1620000000000!5m2!1sen!2sus"
+                  width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy">
                 </iframe>
-
               </div>
-
             </div>
 
+            <!-- FAQ Preview -->
+            <div class="faq-preview">
+              <h3>Frequently Asked Questions</h3>
+              <div class="faq-item">
+                <h4>How do I enroll in a course?</h4>
+                <p>Simply browse our courses, click on any course, and hit the "Enroll Now" button. It's that easy!</p>
+              </div>
+              <div class="faq-item">
+                <h4>What payment methods do you accept?</h4>
+                <p>We accept all major credit cards, PayPal, and bank transfers for enterprise customers.</p>
+              </div>
+              <div class="faq-item">
+                <h4>Can I get a refund?</h4>
+                <p>Yes, we offer a 30-day money-back guarantee on all our courses.</p>
+              </div>
+              <a href="faq.html" class="btn btn-outline btn-block">View All FAQs <i class="fas fa-arrow-right"></i></a>
+            </div>
 
+            <!-- Social Connect -->
+            <div class="social-connect">
+              <h3>Connect With Us</h3>
+              <div class="social-buttons">
+                <a href="#" class="social-btn facebook">
+                  <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="social-btn twitter">
+                  <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="social-btn linkedin">
+                  <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="#" class="social-btn instagram">
+                  <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="social-btn youtube">
+                  <i class="fab fa-youtube"></i>
+                </a>
+              </div>
+            </div>
           </div>
-
         </div>
-
       </div>
-
     </section>
-
   </main>
 
-
-
+  <!-- Footer -->
   <footer class="footer">
-
     <div class="container">
-
-      <div class="footer-bottom">
-
-        <p>&copy; 2024 EDOT. All rights reserved.</p>
-
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3 class="footer-logo">EDOT</h3>
+          <p>Empowering learners worldwide with quality education and expert-led courses.</p>
+          <div class="social-links">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="courses.html">All Courses</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="blog.html">Blog</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Categories</h4>
+          <ul>
+            <li><a href="#">Programming</a></li>
+            <li><a href="#">Mathematics</a></li>
+            <li><a href="#">Science</a></li>
+            <li><a href="#">Exam Prep</a></li>
+            <li><a href="#">Languages</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="faq.html">FAQs</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+          </ul>
+        </div>
       </div>
-
+      <div class="footer-bottom">
+        <p>&copy; 2024 EDOT. All rights reserved. | <a href="sitemap.html">Sitemap</a></p>
+      </div>
     </div>
-
   </footer>
 
-
-
-  <button id="backToTop" class="back-to-top">
-
+  <!-- Back to top button -->
+  <button id="backToTop" class="back-to-top" aria-label="Back to top">
     <i class="fas fa-arrow-up"></i>
-
   </button>
 
-
-
+  <!-- JavaScript -->
   <script src="js/app.js"></script>
   <script src="js/contact.js"></script>
-
+  <script>
+    // Back to top
+    const backToTop = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      backToTop.classList.toggle('visible', window.scrollY > 300);
+    });
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
 </body>
 
 </html>

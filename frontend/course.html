@@ -1,301 +1,303 @@
-<!DOCTYPE html>
-<html lang="en">
+// ================================
+// EDOT COURSE DETAIL ENGINE
+// Scalable Course Page System
+// ================================
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Course Details - EDOT Learning Platform</title>
+// Simulated Course Database
+const coursesDB = [
+{
+id: 1,
+title: "Full Stack Web Development (MERN)",
+description:
+"Master modern web development using MongoDB, Express, React, and Node.js. Build scalable real-world applications.",
+price: "$49.99",
+level: "Intermediate",
+duration: "42 hours",
+students: 1250,
+lessons: 120,
+instructor: {
+name: "Kenenisa Beyan",
+title: "Full Stack Developer",
+bio: "Software Engineer and MERN stack developer with strong experience building scalable web platforms.",
+image: "images/instructor.jpg"
+},
+learn: [
+"Build full stack MERN applications",
+"Develop REST APIs with Node.js",
+"Design scalable database schemas",
+"Deploy applications to production",
+"Authentication and security"
+],
+requirements: [
+"Basic HTML & CSS",
+"Basic JavaScript knowledge",
+"Computer with internet connection"
+],
+curriculum: [
+{
+title: "Introduction to Web Development",
+lessons: 5,
+duration: "1h 20m"
+},
+{
+title: "JavaScript Fundamentals",
+lessons: 10,
+duration: "3h"
+},
+{
+title: "Node.js Backend Development",
+lessons: 20,
+duration: "8h"
+},
+{
+title: "React Frontend Development",
+lessons: 25,
+duration: "12h"
+},
+{
+title: "MongoDB Database",
+lessons: 10,
+duration: "4h"
+}
+],
+reviews: [
+{
+name: "Abel T.",
+rating: 5,
+comment: "Excellent course. Very clear explanation."
+},
+{
+name: "Sara M.",
+rating: 4,
+comment: "Very practical and useful."
+}
+]
+}
+];
 
-  <!-- Meta Tags -->
-  <meta name="description"
-    content="View detailed course information, curriculum, instructor details, and enroll in your next learning adventure.">
+// ================================
+// Load Course
+// ================================
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Course Details - EDOT">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://edot.com/course">
+function loadCourse() {
 
-  <!-- Fonts & Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+const course = coursesDB[0];
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-</head>
+renderHeader(course);
+renderDescription(course);
+renderLearn(course);
+renderCurriculum(course);
+renderRequirements(course);
+renderInstructor(course);
+renderSidebar(course);
+renderReviews(course);
+}
 
-<body data-page="CourseDetail">
-  <!-- Skip to content -->
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+document.addEventListener("DOMContentLoaded", loadCourse);
 
-  <!-- Navigation -->
-  <nav class="navbar" aria-label="Main navigation">
-    <div class="container">
-      <div class="nav-container">
-        <a href="index.html" class="logo"><img class="home-logo" src="images/logo.png" alt="EDOT Logo"></a>
-        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
-          <i class="fas fa-bars"></i>
-        </button>
-        <ul class="nav-menu" id="navMenu">
-          <li><a href="index.html" class="nav-link">Home</a></li>
-          <li><a href="courses.html" class="nav-link active">Courses</a></li>
-          <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
-          <li><a href="about.html" class="nav-link">About</a></li>
-          <li><a href="contact.html" class="nav-link">Contact</a></li>
-        </ul>
-        <div class="nav-buttons" id="navButtons">
-          <a href="login.html" class="btn btn-outline">Login</a>
-          <a href="register.html" class="btn btn-primary">Sign Up</a>
-        </div>
-      </div>
-    </div>
-  </nav>
 
-  <main id="main-content">
-    <!-- Course Header -->
-    <section class="course-header" aria-labelledby="course-title">
-      <div class="container">
-        <div class="course-header-content" id="courseHeaderContent">
-          <div class="loading-spinner" aria-label="Loading course details"></div>
-        </div>
-        <div class="course-header-image" id="courseHeaderImage">
-          <div class="loading-skeleton" style="height: 300px;"></div>
-        </div>
-      </div>
-    </section>
+// ================================
+// Header
+// ================================
 
-    <!-- Course Content -->
-    <section class="course-detail" aria-label="Course details">
-      <div class="container">
-        <div class="course-detail-grid">
-          <!-- Main Content -->
-          <div class="course-main">
-            <!-- Description -->
-            <article class="course-section" id="courseDescription">
-              <h2>About This Course</h2>
-              <div class="loading-skeleton" style="height: 100px;"></div>
-            </article>
+function renderHeader(course) {
 
-            <!-- What You'll Learn -->
-            <article class="course-section" id="whatYouLearn">
-              <h2>What You'll Learn</h2>
-              <div class="learn-grid" id="learnGrid">
-                <!-- Will be populated dynamically -->
-              </div>
-            </article>
+const header = document.getElementById("courseHeaderContent");
 
-            <!-- Curriculum -->
-            <article class="course-section" id="courseCurriculum">
-              <h2>Course Curriculum</h2>
-              <div class="curriculum-list" id="curriculumList">
-                <!-- Will be populated dynamically -->
-              </div>
-            </article>
+header.innerHTML = `
+<h1 id="course-title">${course.title}</h1>
+<p>${course.description}</p>
+`;
+}
 
-            <!-- Requirements -->
-            <article class="course-section" id="courseRequirements">
-              <h2>Requirements</h2>
-              <ul class="requirements-list" id="requirementsList">
-                <!-- Will be populated dynamically -->
-              </ul>
-            </article>
 
-            <!-- Instructor -->
-            <article class="course-section" id="instructorSection">
-              <h2>Your Instructor</h2>
-              <div class="instructor-card" id="instructorCard">
-                <!-- Will be populated dynamically -->
-              </div>
-            </article>
+// ================================
+// Description
+// ================================
 
-            <!-- Reviews -->
-            <article class="course-section" id="reviewsSection">
-              <h2>Student Reviews</h2>
-              <div class="reviews-summary" id="reviewsSummary">
-                <!-- Will be populated dynamically -->
-              </div>
-              <div class="reviews-list" id="reviewsList">
-                <!-- Will be populated dynamically -->
-              </div>
+function renderDescription(course) {
 
-              <!-- Review Form (for enrolled students) -->
-              <div class="review-form" id="reviewForm" style="display: none;">
-                <h3>Write a Review</h3>
-                <form onsubmit="submitReview(event)">
-                  <div class="rating-input">
-                    <label>Your Rating</label>
-                    <div class="star-rating">
-                      <input type="radio" name="rating" id="star5" value="5">
-                      <label for="star5"><i class="fas fa-star"></i></label>
-                      <input type="radio" name="rating" id="star4" value="4">
-                      <label for="star4"><i class="fas fa-star"></i></label>
-                      <input type="radio" name="rating" id="star3" value="3">
-                      <label for="star3"><i class="fas fa-star"></i></label>
-                      <input type="radio" name="rating" id="star2" value="2">
-                      <label for="star2"><i class="fas fa-star"></i></label>
-                      <input type="radio" name="rating" id="star1" value="1">
-                      <label for="star1"><i class="fas fa-star"></i></label>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="reviewComment">Your Review</label>
-                    <textarea id="reviewComment" rows="4"
-                      placeholder="Share your experience with this course..."></textarea>
-                  </div>
-                  <button type="submit" class="btn btn-primary">Submit Review</button>
-                </form>
-              </div>
-            </article>
-          </div>
+const section = document.getElementById("courseDescription");
 
-          <!-- Sidebar -->
-          <aside class="course-sidebar">
-            <div class="sidebar-card">
-              <div class="course-price" id="coursePrice">
-                <!-- Price will be loaded dynamically -->
-              </div>
+section.innerHTML += `
+<p>${course.description}</p>
+`;
+}
 
-              <button class="btn btn-primary btn-block" id="enrollBtn" onclick="enrollInCourse()">
-                <i class="fas fa-shopping-cart"></i> Enroll Now
-              </button>
 
-              <button class="btn btn-outline btn-block" id="wishlistBtn" onclick="toggleWishlist()">
-                <i class="far fa-heart"></i> Add to Wishlist
-              </button>
+// ================================
+// What You Learn
+// ================================
 
-              <div class="course-includes">
-                <h4>This course includes:</h4>
-                <ul>
-                  <li><i class="fas fa-video"></i> <span id="totalLessons">0</span> hours on-demand video</li>
-                  <li><i class="fas fa-file"></i> Downloadable resources</li>
-                  <li><i class="fas fa-mobile-alt"></i> Access on mobile and TV</li>
-                  <li><i class="fas fa-trophy"></i> Certificate of completion</li>
-                  <li><i class="fas fa-infinity"></i> Full lifetime access</li>
-                </ul>
-              </div>
+function renderLearn(course) {
 
-              <div class="course-meta-info">
-                <div class="meta-item">
-                  <i class="fas fa-signal"></i>
-                  <span id="courseLevel">Beginner</span>
-                </div>
-                <div class="meta-item">
-                  <i class="fas fa-clock"></i>
-                  <span id="courseDuration">0 hours</span>
-                </div>
-                <div class="meta-item">
-                  <i class="fas fa-users"></i>
-                  <span id="totalStudents">0 students</span>
-                </div>
-                <div class="meta-item">
-                  <i class="fas fa-language"></i>
-                  <span>English</span>
-                </div>
-                <div class="meta-item">
-                  <i class="fas fa-closed-captioning"></i>
-                  <span>Subtitles</span>
-                </div>
-              </div>
+const grid = document.getElementById("learnGrid");
 
-              <div class="share-course">
-                <h4>Share this course</h4>
-                <div class="share-buttons">
-                  <a href="#" onclick="shareCourse('facebook')" class="share-btn facebook"
-                    aria-label="Share on Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                  </a>
-                  <a href="#" onclick="shareCourse('twitter')" class="share-btn twitter" aria-label="Share on Twitter">
-                    <i class="fab fa-twitter"></i>
-                  </a>
-                  <a href="#" onclick="shareCourse('linkedin')" class="share-btn linkedin"
-                    aria-label="Share on LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
-                  </a>
-                  <a href="#" onclick="shareCourse('email')" class="share-btn email" aria-label="Share via Email">
-                    <i class="fas fa-envelope"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </section>
+grid.innerHTML = course.learn.map(item => `
+<div class="learn-item">
+  <i class="fas fa-check"></i>
+  <span>${item}</span>
+</div>
+`).join("");
 
-    <!-- Related Courses -->
-    <section class="related-courses" aria-labelledby="related-title">
-      <div class="container">
-        <h2 id="related-title" class="section-title">You May Also Like</h2>
-        <div class="courses-grid" id="relatedCoursesGrid">
-          <!-- Related courses will be loaded dynamically -->
-        </div>
-      </div>
-    </section>
-  </main>
+}
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-bottom">
-        <p>&copy; 2024 EDOT. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
 
-  <!-- Back to top -->
-  <button id="backToTop" class="back-to-top" aria-label="Back to top">
-    <i class="fas fa-arrow-up"></i>
-  </button>
+// ================================
+// Curriculum
+// ================================
 
-  <script src="js/app.js"></script>
-  <script src="js/course-detail.js"></script>
-  <script>
-    // Share functionality
-    function shareCourse(platform) {
-      const url = encodeURIComponent(window.location.href);
-      const title = encodeURIComponent(document.title);
+function renderCurriculum(course) {
 
-      let shareUrl;
-      switch (platform) {
-        case 'facebook':
-          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-          break;
-        case 'twitter':
-          shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
-          break;
-        case 'linkedin':
-          shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
-          break;
-        case 'email':
-          shareUrl = `mailto:?subject=${title}&body=Check out this course: ${url}`;
-          break;
-      }
+const list = document.getElementById("curriculumList");
 
-      if (shareUrl) {
-        window.open(shareUrl, '_blank', 'width=600,height=400');
-      }
-    }
+list.innerHTML = course.curriculum.map(section => `
+<div class="curriculum-item">
+  <h4>${section.title}</h4>
+  <p>${section.lessons} lessons • ${section.duration}</p>
+</div>
+`).join("");
 
-    // Star rating interaction
-    document.querySelectorAll('.star-rating label').forEach(label => {
-      label.addEventListener('mouseover', function () {
-        const rating = this.getAttribute('for').replace('star', '');
-        highlightStars(rating);
-      });
-    });
+}
 
-    function highlightStars(rating) {
-      document.querySelectorAll('.star-rating label').forEach((label, index) => {
-        const starRating = 5 - index;
-        label.style.color = starRating <= rating ? '#fbbf24' : '#d1d5db';
-      });
-    }
-  </script>
-</body>
 
-</html>
+// ================================
+// Requirements
+// ================================
+
+function renderRequirements(course) {
+
+const list = document.getElementById("requirementsList");
+
+list.innerHTML = course.requirements.map(req => `
+<li>${req}</li>
+`).join("");
+
+}
+
+
+// ================================
+// Instructor
+// ================================
+
+function renderInstructor(course) {
+
+const card = document.getElementById("instructorCard");
+
+card.innerHTML = `
+<div class="instructor-info">
+  <img src="${course.instructor.image}" alt="${course.instructor.name}">
+  <div>
+    <h3>${course.instructor.name}</h3>
+    <p>${course.instructor.title}</p>
+    <p>${course.instructor.bio}</p>
+  </div>
+</div>
+`;
+
+}
+
+
+// ================================
+// Sidebar
+// ================================
+
+function renderSidebar(course) {
+
+document.getElementById("coursePrice").innerHTML = `
+<h2>${course.price}</h2>
+`;
+
+document.getElementById("courseLevel").textContent = course.level;
+document.getElementById("courseDuration").textContent = course.duration;
+document.getElementById("totalStudents").textContent = course.students + " students";
+document.getElementById("totalLessons").textContent = course.lessons;
+
+}
+
+
+// ================================
+// Reviews
+// ================================
+
+function renderReviews(course) {
+
+const list = document.getElementById("reviewsList");
+
+list.innerHTML = course.reviews.map(r => `
+<div class="review">
+  <h4>${r.name}</h4>
+  <p>${generateStars(r.rating)}</p>
+  <p>${r.comment}</p>
+</div>
+`).join("");
+
+}
+
+function generateStars(rating) {
+
+let stars = "";
+
+for (let i = 0; i < 5; i++) { if (i < rating) { stars +=`<i class="fas fa-star"></i>`;
+  } else {
+  stars += `<i class="far fa-star"></i>`;
+  }
+  }
+
+  return stars;
+
+  }
+
+
+  // ================================
+  // Enroll System
+  // ================================
+
+  function enrollInCourse() {
+
+  alert("Enrollment successful! Welcome to the course.");
+
+  }
+
+
+  // ================================
+  // Wishlist System
+  // ================================
+
+  function toggleWishlist() {
+
+  const btn = document.getElementById("wishlistBtn");
+
+  if (btn.classList.contains("active")) {
+
+  btn.classList.remove("active");
+  btn.innerHTML = `<i class="far fa-heart"></i> Add to Wishlist`;
+
+  } else {
+
+  btn.classList.add("active");
+  btn.innerHTML = `<i class="fas fa-heart"></i> Added to Wishlist`;
+
+  }
+
+  }
+
+
+  // ================================
+  // Review Submission
+  // ================================
+
+  function submitReview(event) {
+
+  event.preventDefault();
+
+  const comment = document.getElementById("reviewComment").value;
+
+  if (!comment) {
+  alert("Please write a review");
+  return;
+  }
+
+  alert("Review submitted successfully!");
+
+  }
