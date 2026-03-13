@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Details - EDOT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-container">
+        <a href="index.html" class="logo">EDOT</a>
+        <ul class="nav-menu">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="courses.html" class="nav-link active">Courses</a></li>
+          <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        </ul>
+        <div class="nav-buttons" id="navButtons">
+          <a href="login.html" class="btn btn-outline">Login</a>
+          <a href="register.html" class="btn btn-primary">Sign Up</a>
+        </div>
+        <button class="mobile-menu-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Course Header -->
+  <section class="course-header">
+    <div class="container">
+      <div class="course-header-content" id="courseHeaderContent">
+        <!-- Course header will be loaded dynamically -->
+        <div class="loading-spinner"></div>
+      </div>
+      <div class="course-header-image" id="courseHeaderImage">
+        <!-- Course image will be loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Course Content -->
+  <section class="course-detail">
+    <div class="container">
+      <div class="course-detail-grid">
+        <!-- Main Content -->
+        <div class="course-main">
+          <!-- Description -->
+          <div class="course-section" id="courseDescription">
+            <h2>About This Course</h2>
+            <div class="loading-skeleton" style="height: 100px;"></div>
+          </div>
+
+          <!-- What You'll Learn -->
+          <div class="course-section" id="whatYouLearn">
+            <h2>What You'll Learn</h2>
+            <div class="learn-grid" id="learnGrid">
+              <!-- Will be populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Curriculum -->
+          <div class="course-section" id="courseCurriculum">
+            <h2>Course Curriculum</h2>
+            <div class="curriculum-list" id="curriculumList">
+              <!-- Will be populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Requirements -->
+          <div class="course-section" id="courseRequirements">
+            <h2>Requirements</h2>
+            <ul class="requirements-list" id="requirementsList">
+              <!-- Will be populated dynamically -->
+            </ul>
+          </div>
+
+          <!-- Instructor -->
+          <div class="course-section" id="instructorSection">
+            <h2>Your Instructor</h2>
+            <div class="instructor-card" id="instructorCard">
+              <!-- Will be populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Reviews -->
+          <div class="course-section" id="reviewsSection">
+            <h2>Student Reviews</h2>
+            <div class="reviews-summary" id="reviewsSummary">
+              <!-- Will be populated dynamically -->
+            </div>
+            <div class="reviews-list" id="reviewsList">
+              <!-- Will be populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="course-sidebar">
+          <div class="sidebar-card">
+            <div class="course-price" id="coursePrice">
+              <!-- Price will be loaded dynamically -->
+            </div>
+
+            <button class="btn btn-primary btn-block" id="enrollBtn" onclick="enrollInCourse()">
+              <i class="fas fa-shopping-cart"></i> Enroll Now
+            </button>
+
+            <button class="btn btn-outline btn-block" id="wishlistBtn" onclick="toggleWishlist()">
+              <i class="far fa-heart"></i> Add to Wishlist
+            </button>
+
+            <div class="course-includes">
+              <h4>This course includes:</h4>
+              <ul>
+                <li><i class="fas fa-video"></i> <span id="totalLessons">0</span> hours on-demand video</li>
+                <li><i class="fas fa-file"></i> Downloadable resources</li>
+                <li><i class="fas fa-mobile-alt"></i> Access on mobile and TV</li>
+                <li><i class="fas fa-trophy"></i> Certificate of completion</li>
+              </ul>
+            </div>
+
+            <div class="course-meta-info">
+              <div class="meta-item">
+                <i class="fas fa-signal"></i>
+                <span id="courseLevel">Beginner</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-clock"></i>
+                <span id="courseDuration">0 hours</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-users"></i>
+                <span id="totalStudents">0 students</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-language"></i>
+                <span>English</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2024 EDOT. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script src="js/course-detail.js"></script>
+</body>
+
+</html>
