@@ -1,77 +1,151 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
+const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
+const generateToken = require('../utils/generateToken');
+const { protect } = require('../middleware/auth');
 
-// @route   GET /api/users/profile
-// @desc    Get user profile
-// @access  Private
-router.get('/profile', protect, async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id)
-      .select('-password')
-      .populate({
-        path: 'enrolledCourses.course',
-        populate: {
-          path: 'lessons'
+// @route   POST /api/auth/register
+// @desc    Register a new user
+// @access  Public
+router.post('/register', [
+    body('name').notEmpty().withMessage('Name is required').trim(),
+    body('email').isEmail().withMessage('Please provide a valid email').normalizeEmail(),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    body('role').optional().isIn(['student', 'instructor']).withMessage('Invalid role')
+], async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            errors: errors.array()
+        });
+    }
+
+    const { name, email, password, role } = req.body;
+
+    try {
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists with this email'
+            });
         }
-      });
-    
-    res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Server error' });
-  }
+
+        // Create new user
+        const user = await User.create({
+            name,
+            email,
+            password,
+            role: role || 'student'
+        });
+
+        // Generate token
+        const token = generateToken(user._id);
+
+        res.status(201).json({
+            success: true,
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error during registration'
+        });
+    }
 });
 
-// @route   PUT /api/users/profile
-// @desc    Update user profile
-// @access  Private
-router.put('/profile', protect, async (req, res) => {
-  try {
-    const { name, bio, avatar } = req.body;
-    
-    const user = await User.findById(req.user._id);
-    
-    if (name) user.name = name;
-    if (bio) user.bio = bio;
-    if (avatar) user.avatar = avatar;
-    
-    await user.save();
-    
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      bio: user.bio,
-      avatar: user.avatar
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Server error' });
-  }
+// @route   POST /api/auth/login
+// @desc    Login user
+// @access  Public
+router.post('/login', [
+    body('email').isEmail().withMessage('Please provide a valid email').normalizeEmail(),
+    body('password').notEmpty().withMessage('Password is required')
+], async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            errors: errors.array()
+        });
+    }
+
+    const { email, password } = req.body;
+
+    try {
+        // Check if user exists
+        const user = await User.findOne({ email }).select('+password');
+        
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid email or password'
+            });
+        }
+
+        // Check password
+        const isPasswordMatch = await user.comparePassword(password);
+        
+        if (!isPasswordMatch) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid email or password'
+            });
+        }
+
+        // Generate token
+        const token = generateToken(user._id);
+
+        res.json({
+            success: true,
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error during login'
+        });
+    }
 });
 
-// @route   GET /api/users/mycourses
-// @desc    Get user's enrolled courses
+// @route   GET /api/auth/me
+// @desc    Get current logged in user
 // @access  Private
-router.get('/mycourses', protect, async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id)
-      .populate({
-        path: 'enrolledCourses.course',
-        populate: {
-          path: 'instructor',
-          select: 'name'
-        }
-      });
-    
-    res.json(user.enrolledCourses);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Server error' });
-  }
+router.get('/me', protect, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id)
+            .select('-password')
+            .populate('enrolledCourses.course');
+        
+        res.json({
+            success: true,
+            user
+        });
+    } catch (error) {
+        console.error('Get profile error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
 });
 
 module.exports = router;
