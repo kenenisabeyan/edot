@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson - EDOT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- Simple Navigation for Lesson Page -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-container">
+        <a href="index.html" class="logo">EDOT</a>
+        <div class="nav-buttons">
+          <a href="dashboard.html" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Lesson Container -->
+  <div class="lesson-container">
+    <!-- Lesson Sidebar -->
+    <aside class="lesson-sidebar">
+      <h3 id="courseTitle">Course Title</h3>
+      <div class="course-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="courseProgress" style="width: 0%"></div>
+        </div>
+        <p><span id="completedLessons">0</span>/<span id="totalLessons">0</span> Lessons Completed</p>
+      </div>
+
+      <ul class="lesson-list" id="lessonList">
+        <!-- Lessons will be loaded dynamically -->
+        <li class="loading-skeleton" style="height: 50px;"></li>
+        <li class="loading-skeleton" style="height: 50px;"></li>
+        <li class="loading-skeleton" style="height: 50px;"></li>
+      </ul>
+    </aside>
+
+    <!-- Lesson Main Content -->
+    <main class="lesson-main">
+      <!-- Video Player -->
+      <div class="video-container" id="videoContainer">
+        <video id="videoPlayer" controls>
+          <source src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <!-- Lesson Info -->
+      <div class="lesson-info">
+        <h2 id="lessonTitle">Lesson Title</h2>
+        <p id="lessonDescription">Lesson description will appear here.</p>
+      </div>
+
+      <!-- Lesson Navigation -->
+      <div class="lesson-navigation">
+        <button class="btn btn-outline" id="prevLesson" onclick="navigateLesson('prev')">
+          <i class="fas fa-arrow-left"></i> Previous Lesson
+        </button>
+
+        <button class="btn btn-primary" id="markComplete" onclick="markLessonComplete()">
+          <i class="fas fa-check-circle"></i> Mark as Completed
+        </button>
+
+        <button class="btn btn-outline" id="nextLesson" onclick="navigateLesson('next')">
+          Next Lesson <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- Lesson Notes -->
+      <div class="lesson-notes">
+        <h3>
+          <i class="fas fa-sticky-note"></i>
+          Your Notes
+        </h3>
+        <textarea id="lessonNotes" placeholder="Take notes while watching the lesson..."></textarea>
+        <button class="btn btn-primary btn-small" onclick="saveNotes()">
+          <i class="fas fa-save"></i> Save Notes
+        </button>
+      </div>
+
+      <!-- Resources -->
+      <div class="lesson-resources">
+        <h3>
+          <i class="fas fa-download"></i>
+          Resources
+        </h3>
+        <ul id="resourcesList">
+          <!-- Resources will be loaded dynamically -->
+        </ul>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/lesson.js"></script>
+</body>
+
+</html>
