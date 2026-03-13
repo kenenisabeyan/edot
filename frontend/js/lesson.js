@@ -1,196 +1,380 @@
-// ===== EDOT Platform - Lesson Module =====
+/**
+ * EDOT Platform - Lesson Player Module
+ * @version 1.0.0
+ */
 
-// Get parameters from URL
-const urlParams = new URLSearchParams(window.location.search);
-const courseId = urlParams.get('course');
-const lessonId = urlParams.get('lesson');
+// ===== STATE =====
+const LessonState = {
+    courseId: null,
+    lessonId: null,
+    courseData: null,
+    lessons: [],
+    currentLessonIndex: 0,
+    notes: {},
+    videoProgress: {},
+    isCompleted: false,
+    autoPlay: true,
+};
 
-// State
-let courseData = null;
-let currentLessonIndex = 0;
-let lessons = [];
-let notes = {};
+// ===== DOM ELEMENTS =====
+const LessonElements = {
+    container: document.querySelector('.lesson-container'),
+    sidebar: document.querySelector('.lesson-sidebar'),
+    lessonList: document.getElementById('lessonList'),
+    videoPlayer: document.getElementById('videoPlayer'),
+    videoContainer: document.getElementById('videoContainer'),
+    lessonTitle: document.getElementById('lessonTitle'),
+    lessonDescription: document.getElementById('lessonDescription'),
+    courseTitle: document.getElementById('courseTitle'),
+    courseProgress: document.getElementById('courseProgress'),
+    completedLessons: document.getElementById('completedLessons'),
+    totalLessons: document.getElementById('totalLessons'),
+    prevBtn: document.getElementById('prevLesson'),
+    nextBtn: document.getElementById('nextLesson'),
+    markCompleteBtn: document.getElementById('markComplete'),
+    notesTextarea: document.getElementById('lessonNotes'),
+    resourcesList: document.getElementById('resourcesList'),
+};
 
-// ===== LOAD LESSON DATA =====
-const loadLessonData = async () => {
-    if (!courseId) {
+// ===== INITIALIZATION =====
+const initLesson = async () => {
+    // Check authentication
+    if (!AppState.isAuthenticated) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // Get parameters from URL
+    const params = new URLSearchParams(window.location.search);
+    LessonState.courseId = params.get('course');
+    LessonState.lessonId = params.get('lesson');
+    
+    if (!LessonState.courseId) {
         window.location.href = 'dashboard.html';
         return;
     }
+    
+    await loadLessonData();
+    initEventListeners();
+    initVideoEvents();
+    loadSavedNotes();
+    loadVideoProgress();
+    
+    // Auto-save notes every 30 seconds
+    setInterval(saveNotes, 30000);
+};
 
+// ===== LOAD LESSON DATA =====
+const loadLessonData = async () => {
     try {
-        // Load course details with lessons
-        const data = await apiCall(`/courses/${courseId}`);
-        courseData = data.course;
-        lessons = courseData.lessons || [];
+        // Show loading state
+        showLoading();
         
-        // Load saved notes
-        loadSavedNotes();
+        // Load course details with lessons
+        const data = await API.get(`/courses/${LessonState.courseId}`);
+        LessonState.courseData = data.course;
+        LessonState.lessons = data.course.lessons || [];
         
         // Find current lesson
-        if (lessonId) {
-            currentLessonIndex = lessons.findIndex(l => l._id === lessonId);
+        if (LessonState.lessonId) {
+            LessonState.currentLessonIndex = LessonState.lessons.findIndex(
+                l => l._id === LessonState.lessonId
+            );
         }
         
-        if (currentLessonIndex === -1 && lessons.length > 0) {
-            currentLessonIndex = 0;
+        if (LessonState.currentLessonIndex === -1 && LessonState.lessons.length > 0) {
+            LessonState.currentLessonIndex = 0;
         }
         
         // Update UI
         updateSidebar();
         updateLessonContent();
         updateNavigation();
-        updateProgress();
+        await updateProgress();
         
     } catch (error) {
-        console.error('Failed to load lesson:', error);
-        showError('Failed to load lesson. Please try again.');
-    }
-};
-
-// ===== LOAD SAVED NOTES =====
-const loadSavedNotes = () => {
-    const savedNotes = localStorage.getItem(`notes_${courseId}`);
-    if (savedNotes) {
-        notes = JSON.parse(savedNotes);
+        handleLessonError(error);
     }
 };
 
 // ===== UPDATE SIDEBAR =====
 const updateSidebar = () => {
-    const courseTitle = document.getElementById('courseTitle');
-    const lessonList = document.getElementById('lessonList');
-    const totalLessonsSpan = document.getElementById('totalLessons');
-    
-    if (courseTitle) {
-        courseTitle.textContent = courseData.title;
+    if (LessonElements.courseTitle) {
+        LessonElements.courseTitle.textContent = LessonState.courseData.title;
     }
     
-    if (totalLessonsSpan) {
-        totalLessonsSpan.textContent = lessons.length;
+    if (LessonElements.totalLessons) {
+        LessonElements.totalLessons.textContent = LessonState.lessons.length;
     }
     
-    if (lessonList) {
-        lessonList.innerHTML = lessons.map((lesson, index) => {
-            const isActive = index === currentLessonIndex;
+    if (LessonElements.lessonList) {
+        LessonElements.lessonList.innerHTML = LessonState.lessons.map((lesson, index) => {
+            const isActive = index === LessonState.currentLessonIndex;
             const isCompleted = checkLessonCompleted(lesson._id);
             
             return `
                 <li class="lesson-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}"
-                    onclick="navigateToLesson(${index})">
+                    data-index="${index}" data-id="${lesson._id}">
                     <i class="fas ${isCompleted ? 'fa-check-circle' : 'fa-play-circle'}"></i>
                     <div class="lesson-info">
-                        <span class="lesson-title">${lesson.title}</span>
-                        <span class="lesson-duration">${lesson.duration || 10} min</span>
+                        <span class="lesson-title">${escapeHtml(lesson.title)}</span>
+                        <span class="lesson-duration">${Formatters.duration(lesson.duration || 10)}</span>
                     </div>
                 </li>
             `;
         }).join('');
+        
+        // Add click handlers to lesson items
+        document.querySelectorAll('.lesson-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const index = parseInt(item.dataset.index);
+                navigateToLesson(index);
+            });
+        });
     }
 };
 
 // ===== UPDATE LESSON CONTENT =====
 const updateLessonContent = () => {
-    if (lessons.length === 0) return;
+    if (LessonState.lessons.length === 0) return;
     
-    const lesson = lessons[currentLessonIndex];
+    const lesson = LessonState.lessons[LessonState.currentLessonIndex];
     
-    const lessonTitle = document.getElementById('lessonTitle');
-    const lessonDescription = document.getElementById('lessonDescription');
-    const videoPlayer = document.getElementById('videoPlayer');
-    const notesTextarea = document.getElementById('lessonNotes');
-    const resourcesList = document.getElementById('resourcesList');
-    
-    if (lessonTitle) {
-        lessonTitle.textContent = lesson.title;
+    if (LessonElements.lessonTitle) {
+        LessonElements.lessonTitle.textContent = lesson.title;
     }
     
-    if (lessonDescription) {
-        lessonDescription.textContent = lesson.description || 'No description available.';
+    if (LessonElements.lessonDescription) {
+        LessonElements.lessonDescription.textContent = 
+            lesson.description || 'No description available.';
     }
     
-    if (videoPlayer) {
-        // Update video source
-        const source = videoPlayer.querySelector('source');
-        if (source) {
-            source.src = lesson.videoUrl || '';
-            videoPlayer.load();
-        }
+    // Update video
+    updateVideoPlayer(lesson);
+    
+    // Update notes
+    if (LessonElements.notesTextarea) {
+        LessonElements.notesTextarea.value = LessonState.notes[lesson._id] || '';
     }
     
-    if (notesTextarea) {
-        notesTextarea.value = notes[lesson._id] || '';
-    }
+    // Update resources
+    updateResources(lesson);
     
-    if (resourcesList) {
-        const resources = lesson.resources || [];
-        if (resources.length > 0) {
-            resourcesList.innerHTML = resources.map(resource => `
-                <li>
-                    <a href="${resource.fileUrl}" target="_blank">
-                        <i class="fas fa-file-${resource.type || 'download'}"></i>
-                        ${resource.title}
-                    </a>
-                </li>
-            `).join('');
-        } else {
-            resourcesList.innerHTML = '<li>No resources available for this lesson.</li>';
-        }
-    }
-    
-    // Update URL without reload
+    // Update URL
     const url = new URL(window.location);
     url.searchParams.set('lesson', lesson._id);
     window.history.pushState({}, '', url);
+    
+    // Mark as viewed for progress tracking
+    trackLessonView(lesson._id);
 };
 
-// ===== UPDATE NAVIGATION =====
-const updateNavigation = () => {
-    const prevBtn = document.getElementById('prevLesson');
-    const nextBtn = document.getElementById('nextLesson');
+const updateVideoPlayer = (lesson) => {
+    if (!LessonElements.videoPlayer) return;
     
-    if (prevBtn) {
-        prevBtn.disabled = currentLessonIndex === 0;
-    }
-    
-    if (nextBtn) {
-        nextBtn.disabled = currentLessonIndex === lessons.length - 1;
+    // If video element exists, update source
+    if (LessonElements.videoPlayer.tagName === 'VIDEO') {
+        const source = LessonElements.videoPlayer.querySelector('source');
+        if (source) {
+            source.src = lesson.videoUrl || '';
+            LessonElements.videoPlayer.load();
+            
+            // Restore progress if exists
+            if (LessonState.videoProgress[lesson._id]) {
+                LessonElements.videoPlayer.currentTime = LessonState.videoProgress[lesson._id];
+            }
+        }
+    } else {
+        // If iframe (YouTube/Vimeo), update src
+        LessonElements.videoPlayer.src = lesson.videoUrl || '';
     }
 };
 
-// ===== UPDATE PROGRESS =====
+const updateResources = (lesson) => {
+    if (!LessonElements.resourcesList) return;
+    
+    const resources = lesson.resources || [];
+    
+    if (resources.length > 0) {
+        LessonElements.resourcesList.innerHTML = resources.map(resource => `
+            <li>
+                <a href="${escapeHtml(resource.fileUrl)}" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-${getFileIcon(resource.type)}"></i>
+                    ${escapeHtml(resource.title)}
+                </a>
+            </li>
+        `).join('');
+    } else {
+        LessonElements.resourcesList.innerHTML = '<li>No resources available for this lesson.</li>';
+    }
+};
+
+const getFileIcon = (type) => {
+    const icons = {
+        pdf: 'pdf',
+        video: 'video',
+        audio: 'audio',
+        image: 'image',
+        link: 'link',
+        file: 'download',
+    };
+    return icons[type] || 'download';
+};
+
+// ===== PROGRESS TRACKING =====
 const updateProgress = async () => {
     try {
-        const data = await apiCall('/users/mycourses');
-        const enrollment = data.enrolledCourses.find(e => e.course._id === courseId);
+        const data = await API.get('/users/mycourses');
+        const enrollment = data.enrolledCourses.find(
+            e => e.course._id === LessonState.courseId
+        );
         
         if (enrollment) {
-            const progressBar = document.getElementById('courseProgress');
-            const completedSpan = document.getElementById('completedLessons');
-            
-            if (progressBar) {
-                progressBar.style.width = `${enrollment.progress}%`;
+            if (LessonElements.courseProgress) {
+                LessonElements.courseProgress.style.width = `${enrollment.progress}%`;
             }
             
-            if (completedSpan) {
-                completedSpan.textContent = enrollment.completedLessons.length;
+            if (LessonElements.completedLessons) {
+                LessonElements.completedLessons.textContent = enrollment.completedLessons.length;
             }
+            
+            // Update lesson completion status
+            LessonState.lessons.forEach(lesson => {
+                lesson.completed = enrollment.completedLessons.includes(lesson._id);
+            });
+            
+            // Re-render sidebar to update completion icons
+            updateSidebar();
         }
     } catch (error) {
         console.error('Failed to update progress:', error);
     }
 };
 
-// ===== CHECK LESSON COMPLETED =====
 const checkLessonCompleted = (lessonId) => {
-    // This will be checked against user's completed lessons
-    return false; // Placeholder
+    return LessonState.lessons.find(l => l._id === lessonId)?.completed || false;
 };
 
-// ===== NAVIGATE TO LESSON =====
-window.navigateToLesson = (index) => {
-    if (index >= 0 && index < lessons.length) {
-        currentLessonIndex = index;
+const trackLessonView = (lessonId) => {
+    // Track view for analytics
+    console.log('Viewing lesson:', lessonId);
+};
+
+// ===== VIDEO PROGRESS =====
+const initVideoEvents = () => {
+    if (!LessonElements.videoPlayer) return;
+    
+    if (LessonElements.videoPlayer.tagName === 'VIDEO') {
+        // Save progress every 10 seconds
+        LessonElements.videoPlayer.addEventListener('timeupdate', 
+            Debouncer.debounce(() => {
+                const lesson = LessonState.lessons[LessonState.currentLessonIndex];
+                if (lesson) {
+                    LessonState.videoProgress[lesson._id] = LessonElements.videoPlayer.currentTime;
+                    saveVideoProgress();
+                }
+            }, 10000)
+        );
+        
+        // Mark as completed when video ends
+        LessonElements.videoPlayer.addEventListener('ended', () => {
+            if (confirm('Lesson completed! Would you like to mark it as complete?')) {
+                markLessonComplete();
+            }
+        });
+        
+        // Autoplay next lesson
+        LessonElements.videoPlayer.addEventListener('ended', () => {
+            if (LessonState.autoPlay && LessonState.currentLessonIndex < LessonState.lessons.length - 1) {
+                setTimeout(() => {
+                    navigateToLesson(LessonState.currentLessonIndex + 1);
+                }, 3000);
+            }
+        });
+    }
+};
+
+const saveVideoProgress = () => {
+    try {
+        localStorage.setItem(
+            `video_progress_${LessonState.courseId}`,
+            JSON.stringify(LessonState.videoProgress)
+        );
+    } catch (error) {
+        console.error('Failed to save video progress:', error);
+    }
+};
+
+const loadVideoProgress = () => {
+    try {
+        const saved = localStorage.getItem(`video_progress_${LessonState.courseId}`);
+        if (saved) {
+            LessonState.videoProgress = JSON.parse(saved);
+        }
+    } catch (error) {
+        console.error('Failed to load video progress:', error);
+    }
+};
+
+// ===== NOTES =====
+const loadSavedNotes = () => {
+    try {
+        const saved = localStorage.getItem(`notes_${LessonState.courseId}`);
+        if (saved) {
+            LessonState.notes = JSON.parse(saved);
+        }
+    } catch (error) {
+        console.error('Failed to load notes:', error);
+    }
+};
+
+const saveNotes = () => {
+    const lesson = LessonState.lessons[LessonState.currentLessonIndex];
+    if (!lesson || !LessonElements.notesTextarea) return;
+    
+    LessonState.notes[lesson._id] = LessonElements.notesTextarea.value;
+    
+    try {
+        localStorage.setItem(
+            `notes_${LessonState.courseId}`,
+            JSON.stringify(LessonState.notes)
+        );
+        UI.showNotification('Notes saved!', 'success', 2000);
+    } catch (error) {
+        console.error('Failed to save notes:', error);
+    }
+};
+
+// ===== NAVIGATION =====
+const updateNavigation = () => {
+    if (LessonElements.prevBtn) {
+        LessonElements.prevBtn.disabled = LessonState.currentLessonIndex === 0;
+    }
+    
+    if (LessonElements.nextBtn) {
+        LessonElements.nextBtn.disabled = 
+            LessonState.currentLessonIndex === LessonState.lessons.length - 1;
+    }
+    
+    // Update mark complete button
+    if (LessonElements.markCompleteBtn) {
+        const currentLesson = LessonState.lessons[LessonState.currentLessonIndex];
+        const isCompleted = currentLesson?.completed;
+        
+        LessonElements.markCompleteBtn.innerHTML = isCompleted ?
+            '<i class="fas fa-check-circle"></i> Completed' :
+            '<i class="fas fa-check-circle"></i> Mark as Completed';
+        
+        LessonElements.markCompleteBtn.classList.toggle('btn-success', isCompleted);
+    }
+};
+
+const navigateToLesson = (index) => {
+    if (index >= 0 && index < LessonState.lessons.length) {
+        // Save current video progress before navigating
+        saveVideoProgress();
+        
+        LessonState.currentLessonIndex = index;
         updateSidebar();
         updateLessonContent();
         updateNavigation();
@@ -200,90 +384,185 @@ window.navigateToLesson = (index) => {
     }
 };
 
-// ===== NAVIGATE LESSON =====
 window.navigateLesson = (direction) => {
-    if (direction === 'prev' && currentLessonIndex > 0) {
-        navigateToLesson(currentLessonIndex - 1);
-    } else if (direction === 'next' && currentLessonIndex < lessons.length - 1) {
-        navigateToLesson(currentLessonIndex + 1);
+    if (direction === 'prev' && LessonState.currentLessonIndex > 0) {
+        navigateToLesson(LessonState.currentLessonIndex - 1);
+    } else if (direction === 'next' && 
+               LessonState.currentLessonIndex < LessonState.lessons.length - 1) {
+        navigateToLesson(LessonState.currentLessonIndex + 1);
     }
 };
 
-// ===== MARK LESSON COMPLETE =====
-window.markLessonComplete = async () => {
-    const lesson = lessons[currentLessonIndex];
+// ===== LESSON COMPLETION =====
+const markLessonComplete = async () => {
+    const lesson = LessonState.lessons[LessonState.currentLessonIndex];
+    
+    if (!lesson) return;
     
     try {
-        const data = await apiCall(`/courses/${courseId}/lessons/${lesson._id}/complete`, {
-            method: 'POST'
-        });
+        LessonElements.markCompleteBtn.disabled = true;
+        LessonElements.markCompleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         
-        if (data.success) {
-            showNotification('Lesson completed!', 'success');
-            updateSidebar();
-            updateProgress();
-            
-            // Auto-navigate to next lesson
-            if (currentLessonIndex < lessons.length - 1) {
-                setTimeout(() => {
-                    navigateToLesson(currentLessonIndex + 1);
-                }, 1500);
+        await API.post(`/courses/${LessonState.courseId}/lessons/${lesson._id}/complete`);
+        
+        lesson.completed = true;
+        await updateProgress();
+        
+        UI.showNotification('Lesson marked as complete!', 'success');
+        
+        // Auto-navigate to next lesson
+        if (LessonState.currentLessonIndex < LessonState.lessons.length - 1) {
+            setTimeout(() => {
+                navigateToLesson(LessonState.currentLessonIndex + 1);
+            }, 2000);
+        }
+        
+    } catch (error) {
+        UI.showNotification('Failed to mark lesson as complete', 'error');
+    } finally {
+        LessonElements.markCompleteBtn.disabled = false;
+        updateNavigation();
+    }
+};
+
+window.markLessonComplete = markLessonComplete;
+
+// ===== KEYBOARD SHORTCUTS =====
+const initKeyboardShortcuts = () => {
+    document.addEventListener('keydown', (e) => {
+        // Don't trigger if user is typing in an input
+        if (e.target.matches('input, textarea, select')) return;
+        
+        switch(e.key) {
+            case 'ArrowLeft':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    navigateLesson('prev');
+                }
+                break;
+            case 'ArrowRight':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    navigateLesson('next');
+                }
+                break;
+            case ' ':
+                // Toggle play/pause for video
+                if (LessonElements.videoPlayer?.tagName === 'VIDEO') {
+                    e.preventDefault();
+                    if (LessonElements.videoPlayer.paused) {
+                        LessonElements.videoPlayer.play();
+                    } else {
+                        LessonElements.videoPlayer.pause();
+                    }
+                }
+                break;
+            case 'm':
+            case 'M':
+                // Mark complete
+                e.preventDefault();
+                markLessonComplete();
+                break;
+            case 's':
+            case 'S':
+                // Save notes
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    saveNotes();
+                }
+                break;
+        }
+    });
+};
+
+// ===== EVENT LISTENERS =====
+const initEventListeners = () => {
+    if (LessonElements.prevBtn) {
+        LessonElements.prevBtn.addEventListener('click', () => navigateLesson('prev'));
+    }
+    
+    if (LessonElements.nextBtn) {
+        LessonElements.nextBtn.addEventListener('click', () => navigateLesson('next'));
+    }
+    
+    if (LessonElements.markCompleteBtn) {
+        LessonElements.markCompleteBtn.addEventListener('click', markLessonComplete);
+    }
+    
+    if (LessonElements.notesTextarea) {
+        // Auto-save when user stops typing
+        LessonElements.notesTextarea.addEventListener('input', 
+            Debouncer.debounce(saveNotes, 2000)
+        );
+    }
+    
+    initKeyboardShortcuts();
+    
+    // Handle browser back/forward
+    window.addEventListener('popstate', () => {
+        const params = new URLSearchParams(window.location.search);
+        const lessonId = params.get('lesson');
+        
+        if (lessonId && lessonId !== LessonState.lessonId) {
+            const index = LessonState.lessons.findIndex(l => l._id === lessonId);
+            if (index !== -1) {
+                navigateToLesson(index);
             }
         }
-    } catch (error) {
-        showNotification(error.message || 'Failed to mark lesson complete', 'error');
+    });
+};
+
+// ===== UTILITY FUNCTIONS =====
+const showLoading = () => {
+    // Show loading skeletons
+    if (LessonElements.lessonList) {
+        LessonElements.lessonList.innerHTML = Array(3).fill(0).map(() => `
+            <li class="loading-skeleton" style="height: 50px; margin-bottom: 4px;"></li>
+        `).join('');
     }
 };
 
-// ===== SAVE NOTES =====
-window.saveNotes = () => {
-    const lesson = lessons[currentLessonIndex];
-    const notesTextarea = document.getElementById('lessonNotes');
+const handleLessonError = (error) => {
+    console.error('Lesson error:', error);
     
-    if (lesson && notesTextarea) {
-        notes[lesson._id] = notesTextarea.value;
-        localStorage.setItem(`notes_${courseId}`, JSON.stringify(notes));
-        showNotification('Notes saved!', 'success');
+    if (!LessonElements.container) return;
+    
+    let message = 'Failed to load lesson. Please try again.';
+    
+    if (error instanceof APIError) {
+        if (error.status === 403) {
+            message = 'You are not enrolled in this course.';
+        } else if (error.status === 404) {
+            message = 'Lesson not found.';
+        }
     }
+    
+    LessonElements.container.innerHTML = `
+        <div class="empty-state" style="grid-column: 1/-1;">
+            <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+            <h3>Something went wrong</h3>
+            <p>${message}</p>
+            <a href="dashboard.html" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    `;
 };
 
-// ===== SHOW ERROR =====
-const showError = (message) => {
-    const main = document.querySelector('.lesson-main');
-    if (main) {
-        main.innerHTML = `
-            <div class="alert alert-error">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>${message}</p>
-                <button onclick="location.reload()" class="btn btn-primary">Retry</button>
-            </div>
-        `;
-    }
-};
-
-// ===== SHOW NOTIFICATION =====
-const showNotification = (message, type) => {
-    // Use same notification function from auth.js
-    if (window.showNotification) {
-        window.showNotification(message, type);
-    }
+const escapeHtml = (text) => {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 };
 
 // ===== INITIALIZE =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Check authentication
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = 'login.html';
-        return;
-    }
-    
-    loadLessonData();
+    initLesson();
 });
 
-// Auto-save notes every 30 seconds
-setInterval(() => {
-    if (document.getElementById('lessonNotes')) {
-        saveNotes();
-    }
-}, 30000);
+// ===== EXPORT =====
+window.initLesson = initLesson;
+window.saveNotes = saveNotes;
+window.navigateLesson = navigateLesson;
+window.markLessonComplete = markLessonComplete;
