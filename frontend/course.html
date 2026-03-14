@@ -1,201 +1,262 @@
-<!-- Course Header -->
-<section class="course-header" aria-labelledby="course-title">
-  <div class="container">
-    <div class="course-header-content" id="courseHeaderContent">
-      <h1 id="course-title">Mathematics Mastery for High School Students</h1>
-      <p>
-        This EDOT course helps students build strong mathematical foundations.
-        Through interactive lessons, real-life examples, quizzes, and guided exercises,
-        students will understand algebra, geometry, and problem-solving techniques.
-      </p>
+<!DOCTYPE html>
+<html lang="en">
 
-      <div class="course-meta">
-        <span><i class="fas fa-star"></i> 4.8 Student Rating</span>
-        <span><i class="fas fa-users"></i> 1,250 Students Enrolled</span>
-        <span><i class="fas fa-clock"></i> 20 Hours Learning Content</span>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDOT Platform Course Details</title>
+
+  <!-- Meta Tags -->
+  <meta name="description"
+    content="Explore EDOT Platform course details, curriculum, instructor guidance, and enroll to start your learning journey.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="EDOT Platform Course Details">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://edot.com/course">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body data-page="CourseDetail">
+  <!-- Skip to content -->
+  <a href="#main-content" class="skip-link">Skip to EDOT learning content</a>
+
+  <!-- Navigation -->
+  <nav class="navbar" aria-label="Main navigation">
+    <div class="container">
+      <div class="nav-container">
+        <a href="index.html" class="logo"><img class="home-logo" src="images/logo.png" alt="EDOT Platform Logo"></a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html" class="nav-link">EDOT Home</a></li>
+          <li><a href="courses.html" class="nav-link active">EDOT Courses</a></li>
+          <li><a href="dashboard.html" class="nav-link">Student Dashboard</a></li>
+          <li><a href="about.html" class="nav-link">About EDOT Platform</a></li>
+          <li><a href="contact.html" class="nav-link">Contact EDOT</a></li>
+        </ul>
+        <div class="nav-buttons" id="navButtons">
+          <a href="login.html" class="btn btn-outline">Student Login</a>
+          <a href="register.html" class="btn btn-primary">Create EDOT Account</a>
+        </div>
       </div>
-
-      <p>
-        Instructor: <strong>EDOT Certified Mathematics Instructor</strong>
-      </p>
     </div>
+  </nav>
 
-    <div class="course-header-image" id="courseHeaderImage">
-      <img src="images/math-course.jpg" alt="Mathematics Course EDOT Platform">
+  <main id="main-content">
+    <!-- Course Header -->
+    <section class="course-header" aria-labelledby="course-title">
+      <div class="container">
+        <div class="course-header-content" id="courseHeaderContent">
+          <div class="loading-spinner" aria-label="Loading EDOT course details"></div>
+        </div>
+        <div class="course-header-image" id="courseHeaderImage">
+          <div class="loading-skeleton" style="height: 300px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Course Content -->
+    <section class="course-detail" aria-label="Course details">
+      <div class="container">
+        <div class="course-detail-grid">
+          <!-- Main Content -->
+          <div class="course-main">
+            <!-- Description -->
+            <article class="course-section" id="courseDescription">
+              <h2>About This EDOT Course</h2>
+              <div class="loading-skeleton" style="height: 100px;"></div>
+            </article>
+
+            <!-- What You'll Learn -->
+            <article class="course-section" id="whatYouLearn">
+              <h2>What Students Will Learn on the EDOT Platform</h2>
+              <div class="learn-grid" id="learnGrid">
+                <!-- Will be populated dynamically -->
+              </div>
+            </article>
+
+            <!-- Curriculum -->
+            <article class="course-section" id="courseCurriculum">
+              <h2>EDOT Course Curriculum</h2>
+              <div class="curriculum-list" id="curriculumList">
+                <!-- Will be populated dynamically -->
+              </div>
+            </article>
+
+            <!-- Requirements -->
+            <article class="course-section" id="courseRequirements">
+              <h2>Learning Requirements</h2>
+              <ul class="requirements-list" id="requirementsList">
+                <!-- Will be populated dynamically -->
+              </ul>
+            </article>
+
+            <!-- Instructor -->
+            <article class="course-section" id="instructorSection">
+              <h2>Your EDOT Instructor</h2>
+              <div class="instructor-card" id="instructorCard">
+                <!-- Will be populated dynamically -->
+              </div>
+            </article>
+
+            <!-- Reviews -->
+            <article class="course-section" id="reviewsSection">
+              <h2>Student Reviews on EDOT Learning</h2>
+              <div class="reviews-summary" id="reviewsSummary">
+                <!-- Will be populated dynamically -->
+              </div>
+              <div class="reviews-list" id="reviewsList">
+                <!-- Will be populated dynamically -->
+              </div>
+
+              <!-- Review Form (for enrolled students) -->
+              <div class="review-form" id="reviewForm" style="display: none;">
+                <h3>Write Your EDOT Course Review</h3>
+                <form onsubmit="submitReview(event)">
+                  <div class="rating-input">
+                    <label>Your Course Rating</label>
+                    <div class="star-rating">
+                      <input type="radio" name="rating" id="star5" value="5">
+                      <label for="star5"><i class="fas fa-star"></i></label>
+                      <input type="radio" name="rating" id="star4" value="4">
+                      <label for="star4"><i class="fas fa-star"></i></label>
+                      <input type="radio" name="rating" id="star3" value="3">
+                      <label for="star3"><i class="fas fa-star"></i></label>
+                      <input type="radio" name="rating" id="star2" value="2">
+                      <label for="star2"><i class="fas fa-star"></i></label>
+                      <input type="radio" name="rating" id="star1" value="1">
+                      <label for="star1"><i class="fas fa-star"></i></label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="reviewComment">Your Learning Experience</label>
+                    <textarea id="reviewComment" rows="4"
+                      placeholder="Share your learning experience with this EDOT course..."></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Submit EDOT Review</button>
+                </form>
+              </div>
+            </article>
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="course-sidebar">
+            <div class="sidebar-card">
+              <div class="course-price" id="coursePrice">
+                <!-- Price will be loaded dynamically -->
+              </div>
+
+              <button class="btn btn-primary btn-block" id="enrollBtn" onclick="enrollInCourse()">
+                <i class="fas fa-shopping-cart"></i> Enroll in EDOT Course
+              </button>
+
+              <button class="btn btn-outline btn-block" id="wishlistBtn" onclick="toggleWishlist()">
+                <i class="far fa-heart"></i> Save Course to Wishlist
+              </button>
+
+              <div class="course-includes">
+                <h4>This EDOT course includes:</h4>
+                <ul>
+                  <li><i class="fas fa-video"></i> <span id="totalLessons">0</span> hours of EDOT learning videos</li>
+                  <li><i class="fas fa-file"></i> Downloadable learning materials</li>
+                  <li><i class="fas fa-mobile-alt"></i> Access on mobile and computer</li>
+                  <li><i class="fas fa-trophy"></i> EDOT certificate of completion</li>
+                  <li><i class="fas fa-infinity"></i> Lifetime access to course lessons</li>
+                </ul>
+              </div>
+
+              <div class="course-meta-info">
+                <div class="meta-item">
+                  <i class="fas fa-signal"></i>
+                  <span id="courseLevel">Beginner Level</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-clock"></i>
+                  <span id="courseDuration">0 hours learning time</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-users"></i>
+                  <span id="totalStudents">0 EDOT students enrolled</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-language"></i>
+                  <span>English Language</span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-closed-captioning"></i>
+                  <span>Video subtitles available</span>
+                </div>
+              </div>
+
+              <div class="share-course">
+                <h4>Share this EDOT course</h4>
+                <div class="share-buttons">
+                  <a href="#" onclick="shareCourse('facebook')" class="share-btn facebook"
+                    aria-label="Share EDOT course on Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                  </a>
+                  <a href="#" onclick="shareCourse('twitter')" class="share-btn twitter"
+                    aria-label="Share EDOT course on Twitter">
+                    <i class="fab fa-twitter"></i>
+                  </a>
+                  <a href="#" onclick="shareCourse('linkedin')" class="share-btn linkedin"
+                    aria-label="Share EDOT course on LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                  </a>
+                  <a href="#" onclick="shareCourse('email')" class="share-btn email"
+                    aria-label="Share EDOT course via Email">
+                    <i class="fas fa-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Related Courses -->
+    <section class="related-courses" aria-labelledby="related-title">
+      <div class="container">
+        <h2 id="related-title" class="section-title">More Courses on the EDOT Platform</h2>
+        <div class="courses-grid" id="relatedCoursesGrid">
+          <!-- Related courses will be loaded dynamically -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 EDOT Platform. All rights reserved.</p>
+      </div>
     </div>
-  </div>
-</section>
+  </footer>
 
+  <!-- Back to top -->
+  <button id="backToTop" class="back-to-top" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
 
-<!-- Description -->
-<article class="course-section" id="courseDescription">
-  <h2>About This Course</h2>
-  <p>
-    The EDOT Platform provides structured digital tutorials designed for students
-    who want to strengthen their academic knowledge and improve exam performance.
-    This course focuses on mathematics concepts taught in secondary schools and
-    prepares students for national examinations.
-  </p>
+  <script src="js/app.js"></script>
+  <script src="js/course-detail.js"></script>
 
-  <p>
-    Students will learn through step-by-step video lessons, practice exercises,
-    and assessments designed to reinforce understanding. The course also integrates
-    real-life problem solving so learners understand how mathematics is used in
-    everyday situations.
-  </p>
+</body>
 
-  <p>
-    By the end of this course, students will have improved their analytical thinking,
-    confidence in solving mathematical problems, and readiness for higher level studies.
-  </p>
-</article>
-
-
-<!-- What You'll Learn -->
-<article class="course-section" id="whatYouLearn">
-  <h2>What You'll Learn</h2>
-  <div class="learn-grid" id="learnGrid">
-
-    <div class="learn-item">
-      <i class="fas fa-check"></i>
-      <span>Understand algebraic expressions and equations</span>
-    </div>
-
-    <div class="learn-item">
-      <i class="fas fa-check"></i>
-      <span>Solve real-life mathematics problems confidently</span>
-    </div>
-
-    <div class="learn-item">
-      <i class="fas fa-check"></i>
-      <span>Master geometry concepts including angles, triangles, and circles</span>
-    </div>
-
-    <div class="learn-item">
-      <i class="fas fa-check"></i>
-      <span>Improve logical thinking and analytical skills</span>
-    </div>
-
-    <div class="learn-item">
-      <i class="fas fa-check"></i>
-      <span>Prepare effectively for school exams and national tests</span>
-    </div>
-
-  </div>
-</article>
-
-
-<!-- Curriculum -->
-<article class="course-section" id="courseCurriculum">
-  <h2>Course Curriculum</h2>
-
-  <div class="curriculum-list" id="curriculumList">
-
-    <div class="curriculum-item">
-      <h4>Module 1: Introduction to Algebra</h4>
-      <p>Understanding variables, expressions, and algebraic operations.</p>
-    </div>
-
-    <div class="curriculum-item">
-      <h4>Module 2: Linear Equations</h4>
-      <p>Solving equations and applying them to real-world situations.</p>
-    </div>
-
-    <div class="curriculum-item">
-      <h4>Module 3: Geometry Fundamentals</h4>
-      <p>Angles, triangles, polygons, and geometric relationships.</p>
-    </div>
-
-    <div class="curriculum-item">
-      <h4>Module 4: Problem Solving Strategies</h4>
-      <p>Techniques for solving complex mathematics problems step by step.</p>
-    </div>
-
-    <div class="curriculum-item">
-      <h4>Module 5: Practice and Assessment</h4>
-      <p>Quizzes, exercises, and evaluation to measure student progress.</p>
-    </div>
-
-  </div>
-</article>
-
-
-<!-- Requirements -->
-<article class="course-section" id="courseRequirements">
-  <h2>Requirements</h2>
-
-  <ul class="requirements-list" id="requirementsList">
-    <li>Basic understanding of primary school mathematics</li>
-    <li>A notebook and calculator for practice exercises</li>
-    <li>Internet connection for accessing EDOT online lessons</li>
-    <li>Motivation to practice and solve mathematical problems</li>
-  </ul>
-
-</article>
-
-
-<!-- Instructor -->
-<article class="course-section" id="instructorSection">
-  <h2>Your Instructor</h2>
-
-  <div class="instructor-card" id="instructorCard">
-
-    <img src="images/instructor.jpg" alt="EDOT Instructor">
-
-    <div class="instructor-info">
-      <h3>EDOT Certified Mathematics Tutor</h3>
-
-      <p>
-        Our instructors on the EDOT Platform are qualified educators with
-        strong experience in teaching mathematics to primary and secondary
-        school students.
-      </p>
-
-      <p>
-        They focus on clear explanations, interactive teaching methods,
-        and practical examples to ensure every student understands
-        difficult concepts easily.
-      </p>
-
-    </div>
-
-  </div>
-
-</article>
-
-
-<!-- Reviews -->
-<article class="course-section" id="reviewsSection">
-
-  <h2>Student Reviews</h2>
-
-  <div class="reviews-summary" id="reviewsSummary">
-
-    <p>
-      Students who enrolled in this course reported improved understanding
-      of mathematics concepts and higher confidence during exams.
-    </p>
-
-  </div>
-
-  <div class="reviews-list" id="reviewsList">
-
-    <div class="review-item">
-      <h4>Abel T.</h4>
-      <p>
-        The explanations are very clear and easy to understand.
-        This course helped me improve my mathematics score.
-      </p>
-    </div>
-
-    <div class="review-item">
-      <h4>Sara M.</h4>
-      <p>
-        I love the step-by-step lessons and practice questions.
-        EDOT made learning mathematics easier for me.
-      </p>
-    </div>
-
-  </div>
-
-</article>
+</html>
