@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -8,13 +9,17 @@ dotenv.config();
 const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const userRoutes = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const instructorRoutes = require('./routes/instructorRoutes');
+const studentRoutes = require('./routes/studentRoutes');
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors({
-    origin: "http://127.0.0.1:5500", // Remove trailing slash for strict matching
+    origin: ["http://127.0.0.1:5500", "http://localhost:5173", "http://127.0.0.1:5173"], 
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
 }));
@@ -22,6 +27,9 @@ app.use(cors({
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/instructor', instructorRoutes);
+app.use('/api/student', studentRoutes);
 
 app.get('/', (req, res) => {
   res.json({

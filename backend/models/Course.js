@@ -75,6 +75,11 @@ const courseSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    status: {
+        type: String,
+        enum: ['draft', 'pending', 'approved', 'rejected'],
+        default: 'draft'
+    },
     tags: [String]
 }, {
     timestamps: true,
