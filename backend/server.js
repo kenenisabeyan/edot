@@ -13,7 +13,11 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+    origin: "http://127.0.0.1:5500", // Remove trailing slash for strict matching
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true
+}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
