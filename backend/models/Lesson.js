@@ -14,11 +14,7 @@ const lessonSchema = new mongoose.Schema({
     },
     videoUrl: {
         type: String,
-        required: [true, 'Please provide a video URL'],
-        match: [
-            /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
-            'Please provide a valid URL'
-        ]
+        required: [true, 'Please provide a video URL']
     },
     duration: {
         type: Number,

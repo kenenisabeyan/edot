@@ -12,8 +12,7 @@ const { protect } = require('../middleware/auth');
 router.post('/register', [
   body('name').not().isEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Please include a valid email'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('role').isIn(['student', 'instructor']).withMessage('Invalid role')
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -33,7 +32,7 @@ router.post('/register', [
       name,
       email,
       password,
-      role
+      role: 'student' // Always force new registrants to be 'student'
     });
 
     await user.save();
@@ -51,8 +50,7 @@ router.post('/register', [
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role,
-      token
+      role: user.role
     });
   } catch (err) {
     console.error(err.message);
@@ -104,8 +102,7 @@ router.post('/login', [
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role,
-      token
+      role: user.role
     });
   } catch (err) {
     console.error(err.message);
@@ -122,11 +119,22 @@ router.get('/me', protect, async (req, res) => {
       .select('-password')
       .populate('enrolledCourses.course');
     
-    res.json(user);
+    res.json({ user });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+// @route   POST /api/auth/logout
+// @desc    Logout user / clear cookie
+// @access  Public
+router.post('/logout', (req, res) => {
+  res.cookie('token', 'none', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true
+  });
+  res.status(200).json({ success: true, message: 'User logged out successfully' });
 });
 
 module.exports = router;

@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
         } = req.query;
 
         // Build query
-        let query = { isPublished: true };
+        let query = { isPublished: true, status: 'approved' };
         
         if (category) query.category = category;
         if (level) query.level = level;
