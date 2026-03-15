@@ -27,10 +27,11 @@ const DashboardElements = {
 // ===== INITIALIZATION =====
 const initDashboard = async () => {
     // Check authentication
-    if (!AppState.isAuthenticated) {
-        window.location.href = 'login.html';
-        return;
-    }
+
+    // if (!AppState.isAuthenticated) {
+    //     window.location.href = 'login.html';
+    //     return;
+    // }
     
     await loadDashboardData();
     initEventListeners();
