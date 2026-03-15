@@ -58,6 +58,7 @@ const initLoginForm = () => {
         try {
             const data = await API.login({ email, password });
             
+            console.log(data)
             // Save email if remember me is checked
             if (remember) {
                 Storage.set('remembered_email', email);
@@ -69,7 +70,7 @@ const initLoginForm = () => {
             
             // Redirect based on role
             setTimeout(() => {
-                if (data.user.role === 'instructor') {
+                if (data.role === 'instructor') {
                     window.location.href = 'dashboard.html?tab=instructor';
                 } else {
                     window.location.href = 'dashboard.html';
@@ -135,7 +136,7 @@ const initRegisterForm = () => {
             await API.register(userData);
             
             UI.showNotification('Account created successfully! Welcome to EDOT!', 'success');
-            
+
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
             }, 1500);

@@ -7,7 +7,7 @@
 const CONFIG = {
     API_BASE_URL: window.location.hostname === 'localhost' 
         ? 'http://localhost:5000/api' 
-        : 'https://api.edot.com/api',
+        : 'http://localhost:5000/api',
     TOKEN_KEY: 'edot_token',
     USER_KEY: 'edot_user',
     THEME_KEY: 'edot_theme',
@@ -35,6 +35,7 @@ const AppState = {
         try {
             this.token = localStorage.getItem(CONFIG.TOKEN_KEY);
             const userData = localStorage.getItem(CONFIG.USER_KEY);
+            // if (userData) {
             if (userData) {
                 this.user = JSON.parse(userData);
                 this.isAuthenticated = true;
@@ -130,6 +131,7 @@ const API = {
             clearTimeout(timeoutId);
             
             const data = await response.json();
+
             
             if (!response.ok) {
                 throw new APIError(
