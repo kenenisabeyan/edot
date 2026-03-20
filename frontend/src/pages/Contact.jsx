@@ -9,7 +9,6 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoadingSubmit(true);
-    // Simulate sending an email
     setTimeout(() => {
       setSubmitted(true);
       setLoadingSubmit(false);
@@ -25,9 +24,12 @@ export default function Contact() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center mb-16 max-w-2xl mx-auto">
-          <h1 className="text-4xl font-display font-bold text-slate-900 mb-4 inline-block relative after:content-[''] after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-blue-600 after:to-blue-400 after:rounded-full">Get in Touch</h1>
+          <h1 className="text-4xl font-display font-bold text-slate-900 mb-4 inline-block relative after:content-[''] after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-blue-600 after:to-blue-400 after:rounded-full">
+            Connect with EDOT
+          </h1>
           <p className="text-lg text-slate-600 mt-8">
-            Have questions about our platform or need support? We're here to help. Send us a message and we'll respond as soon as possible.
+            Whether you're a student, instructor, or partner, EDOT is here to support your learning journey. 
+            Reach out to us for guidance, collaboration, or technical support — our team is ready to assist you.
           </p>
         </div>
 
@@ -40,9 +42,11 @@ export default function Contact() {
                 <Mail className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Email Us</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">Email Support</h3>
                 <p className="text-slate-600">support@edot.com</p>
-                <p className="text-slate-500 text-sm mt-1">We aim to reply within 24 hours.</p>
+                <p className="text-slate-500 text-sm mt-1">
+                  Get help with courses, accounts, or platform issues within 24 hours.
+                </p>
               </div>
             </div>
 
@@ -51,9 +55,11 @@ export default function Contact() {
                 <Phone className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Call Us</h3>
-                <p className="text-slate-600">+1 (555) 123-4567</p>
-                <p className="text-slate-500 text-sm mt-1">Mon-Fri from 9am to 6pm EST.</p>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">Call Assistance</h3>
+                <p className="text-slate-600">+251 900 000 000</p>
+                <p className="text-slate-500 text-sm mt-1">
+                  Available Monday to Friday to support your learning experience.
+                </p>
               </div>
             </div>
 
@@ -62,11 +68,11 @@ export default function Contact() {
                 <MapPin className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Visit Us</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">Our Location</h3>
                 <p className="text-slate-600">
-                  123 Education Lane<br/>
-                  Knowledge City, ED 10001<br/>
-                  United States
+                  Adama Science and Technology Area<br/>
+                  Oromia Region<br/>
+                  Ethiopia
                 </p>
               </div>
             </div>
@@ -80,22 +86,22 @@ export default function Contact() {
                   <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6">
                     <CheckCircle2 className="w-10 h-10 text-green-500" />
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Sent!</h3>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Successfully Sent</h3>
                   <p className="text-slate-600 max-w-sm mx-auto">
-                    Thank you for reaching out. We have received your message and will get back to you shortly.
+                    Your message has been received by the EDOT team. We’ll review it and respond shortly to support your learning needs.
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
                       <input 
                         type="text" 
                         value={formData.name} 
                         onChange={e => setFormData({...formData, name: e.target.value})} 
                         required 
-                        placeholder="John Doe"
+                        placeholder="Enter your full name"
                         className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow" 
                       />
                     </div>
@@ -106,7 +112,7 @@ export default function Contact() {
                         value={formData.email} 
                         onChange={e => setFormData({...formData, email: e.target.value})} 
                         required 
-                        placeholder="john@example.com"
+                        placeholder="Enter your email"
                         className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow" 
                       />
                     </div>
@@ -119,7 +125,7 @@ export default function Contact() {
                       value={formData.subject} 
                       onChange={e => setFormData({...formData, subject: e.target.value})} 
                       required 
-                      placeholder="How can we help you?"
+                      placeholder="What would you like to discuss?"
                       className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow" 
                     />
                   </div>
@@ -131,7 +137,7 @@ export default function Contact() {
                       value={formData.message} 
                       onChange={e => setFormData({...formData, message: e.target.value})} 
                       required 
-                      placeholder="Write your message here..."
+                      placeholder="Write your message, question, or feedback here..."
                       className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow resize-y"
                     ></textarea>
                   </div>
@@ -146,7 +152,7 @@ export default function Contact() {
                     ) : (
                       <Send className="w-5 h-5" />
                     )}
-                    {loadingSubmit ? 'Sending...' : 'Send Message'}
+                    {loadingSubmit ? 'Sending your message...' : 'Send Message to EDOT'}
                   </button>
                 </form>
               )}
