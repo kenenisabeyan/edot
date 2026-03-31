@@ -335,8 +335,8 @@ export default function SchoolHubDashboard() {
              </div>
              <div className="space-y-4">
                {[
-                 { time: '09:00 AM - 10:00 AM', title: 'Review Recent Test Results', id: 1 },
-                 { time: '11:00 AM - 12:00 PM', title: 'Homeroom and Announcement', color: 'bg-indigo-50 border-indigo-200', text: 'text-indigo-800', id: 2 },
+                 { time: '09:00 AM - 10:00 AM', title: 'Meeting with Ato Abebe', id: 1 },
+                 { time: '11:00 AM - 12:00 PM', title: 'Meskel Celebration Prep', color: 'bg-indigo-50 border-indigo-200', text: 'text-indigo-800', id: 2 },
                  { time: '01:00 PM - 02:00 PM', title: 'Prepare for Tomorrow\'s Debate', id: 3 }
                ].map(agenda => (
                  <div key={agenda.id} className={`p-4 rounded-2xl border ${agenda.color || 'bg-slate-50 border-slate-100'}`}>

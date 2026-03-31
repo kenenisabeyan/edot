@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
     enum: ['student', 'instructor', 'admin'],
     default: 'student'
   },
+  phone: {
+    type: String,
+    trim: true,
+  },
   enrolledCourses: [{
     course: {
       type: mongoose.Schema.Types.ObjectId,

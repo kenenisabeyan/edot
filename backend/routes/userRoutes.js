@@ -36,13 +36,14 @@ router.get('/profile', protect, async (req, res) => {
 // @access  Private
 router.put('/profile', protect, async (req, res) => {
     try {
-        const { name, bio, avatar } = req.body;
+        const { name, bio, avatar, phone } = req.body;
 
         const user = await User.findById(req.user.id);
 
         if (name) user.name = name;
         if (bio) user.bio = bio;
         if (avatar) user.avatar = avatar;
+        if (phone) user.phone = phone;
 
         await user.save();
 
@@ -54,7 +55,8 @@ router.put('/profile', protect, async (req, res) => {
                 email: user.email,
                 role: user.role,
                 bio: user.bio,
-                avatar: user.avatar
+                avatar: user.avatar,
+                phone: user.phone
             }
         });
     } catch (error) {

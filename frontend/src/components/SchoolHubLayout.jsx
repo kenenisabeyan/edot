@@ -16,7 +16,8 @@ import {
   ChevronDown,
   Search,
   Bell,
-  Menu
+  Menu,
+  Award
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -73,6 +74,7 @@ export default function SchoolHubLayout() {
         { name: 'Notice', icon: BellRing, path: '/dashboard/notice' },
         { name: 'Library', icon: BookOpen, path: '/dashboard/library' },
         { name: 'Message', icon: MessageSquare, path: '/dashboard/messages' },
+        { name: 'Certificates', icon: Award, path: '/dashboard/certificates' },
       ],
       showFinance: false
     }
