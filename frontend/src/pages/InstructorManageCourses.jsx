@@ -118,25 +118,25 @@ export default function InstructorManageCourses() {
                       
                       <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                         {(c.status === 'draft' || c.status === 'rejected') && (
-                          <>
-                            <button 
-                            onClick={() => navigate('/dashboard/builder/' + c._id)} 
-                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 hover:border-indigo-300 hover:text-indigo-600 transition-all shadow-sm text-sm"
-                            >
-                              <Edit3 className="w-4 h-4" /> Edit Course
-                            </button>
-                            <button 
+                          <button 
                             onClick={() => handleSubmitReview(c._id)} 
                             className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#4338ca] text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm text-sm"
-                            >
-                              <Send className="w-4 h-4" /> Submit for Review
-                            </button>
-                          </>
+                          >
+                            <Send className="w-4 h-4" /> Submit for Review
+                          </button>
                         )}
                         {c.status === 'approved' && (
                             <span className="inline-flex items-center gap-2 text-emerald-700 text-sm font-bold bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-100">
                               <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Live for Students
                             </span>
+                        )}
+                        {c.status !== 'pending' && (
+                          <button 
+                            onClick={() => navigate('/dashboard/builder/' + c._id)} 
+                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 hover:border-indigo-300 hover:text-indigo-600 transition-all shadow-sm text-sm"
+                          >
+                            <Edit3 className="w-4 h-4" /> Edit Update
+                          </button>
                         )}
                         {c.status === 'pending' && (
                             <span className="inline-flex items-center gap-2 text-amber-700 text-sm font-bold bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-100">

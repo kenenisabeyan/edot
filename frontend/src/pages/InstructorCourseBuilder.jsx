@@ -4,8 +4,9 @@ import api from '../utils/api';
 import { 
   ArrowLeft, CheckCircle2, ChevronRight, Save, 
   BookOpen, LayoutList, DollarSign, PlusCircle, 
-  PlayCircle, Trash2, Tag, Image as ImageIcon, Send
+  PlayCircle, Trash2, Tag, Image as ImageIcon, Send, FileText
 } from 'lucide-react';
+import QuizBuilder from '../components/QuizBuilder';
 
 export default function InstructorCourseBuilder() {
   const navigate = useNavigate();
@@ -27,12 +28,14 @@ export default function InstructorCourseBuilder() {
     price: 0,
     requirements: [''],
     whatYouWillLearn: [''],
-    tags: ['']
+    tags: [''],
+    isExamRequired: false,
+    finalExam: []
   });
 
   // Step 3 Data (Lessons)
   const [lessons, setLessons] = useState([]);
-  const [lessonForm, setLessonForm] = useState({ title: '', description: '', videoUrl: '', duration: 10 });
+  const [lessonForm, setLessonForm] = useState({ title: '', description: '', videoUrl: '', duration: 10, readingMaterials: '', quiz: [] });
   const [showLessonForm, setShowLessonForm] = useState(false);
 
   useEffect(() => {
@@ -56,7 +59,9 @@ export default function InstructorCourseBuilder() {
           price: data.course.price || 0,
           requirements: data.course.requirements?.length ? data.course.requirements : [''],
           whatYouWillLearn: data.course.whatYouWillLearn?.length ? data.course.whatYouWillLearn : [''],
-          tags: data.course.tags?.length ? data.course.tags : ['']
+          tags: data.course.tags?.length ? data.course.tags : [''],
+          isExamRequired: data.course.isExamRequired || false,
+          finalExam: data.course.finalExam || []
         });
         setLessons(data.course.lessons || []);
       }
@@ -132,7 +137,7 @@ export default function InstructorCourseBuilder() {
     try {
       const { data } = await api.post(`/instructor/courses/${courseId}/lessons`, lessonForm);
       setLessons([...lessons, data.data]);
-      setLessonForm({ title: '', description: '', videoUrl: '', duration: 10 });
+      setLessonForm({ title: '', description: '', videoUrl: '', duration: 10, readingMaterials: '', quiz: [] });
       setShowLessonForm(false);
     } catch (err) {
       console.error('Failed to add lesson', err);
@@ -487,7 +492,24 @@ export default function InstructorCourseBuilder() {
                             />
                           </div>
                         </div>
-                        <div className="flex gap-3 pt-2">
+
+                        <div>
+                          <label className="block text-sm font-medium text-purple-900 mb-1.5 flex items-center gap-1.5"><FileText className="w-4 h-4"/> Reading Materials & Notes</label>
+                          <textarea 
+                            value={lessonForm.readingMaterials}
+                            onChange={e => setLessonForm({...lessonForm, readingMaterials: e.target.value})}
+                            className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none bg-white min-h-[100px]"
+                            placeholder="Add markdown notes, links, or text for students to read."
+                          ></textarea>
+                        </div>
+                        
+                        <QuizBuilder 
+                          quiz={lessonForm.quiz} 
+                          setQuiz={(newQuiz) => setLessonForm({...lessonForm, quiz: newQuiz})} 
+                          title="End of Lesson Mini-Quiz" 
+                        />
+
+                        <div className="flex gap-3 pt-4">
                           <button 
                             type="button" 
                             onClick={() => setShowLessonForm(false)}
@@ -538,6 +560,30 @@ export default function InstructorCourseBuilder() {
                         <p className="mt-3 text-sm text-emerald-700">Set to 0 to make this course free for all students.</p>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8">
+                    <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                       <CheckCircle2 className="w-5 h-5 text-indigo-600" /> Final Course Certification Exam
+                    </h3>
+                    <p className="text-sm text-slate-500 mb-4">You can require a final exam for students to earn their certificate.</p>
+                    <label className="flex items-center gap-3 mb-6 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.isExamRequired}
+                        onChange={e => setFormData({...formData, isExamRequired: e.target.checked})}
+                        className="w-5 h-5 text-indigo-600 rounded"
+                      />
+                      <span className="font-medium text-slate-800">Require Final Exam for Certification</span>
+                    </label>
+
+                    {formData.isExamRequired && (
+                      <QuizBuilder 
+                        quiz={formData.finalExam} 
+                        setQuiz={(newQuiz) => setFormData({...formData, finalExam: newQuiz})} 
+                        title="Comprehensive Final Exam Questions" 
+                      />
+                    )}
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">

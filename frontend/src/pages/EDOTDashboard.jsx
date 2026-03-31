@@ -16,7 +16,7 @@ import {
   PieChart, Pie, Cell, Legend
 } from 'recharts';
 
-export default function SchoolHubDashboard() {
+export default function EDOTDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);

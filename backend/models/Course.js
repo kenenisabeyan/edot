@@ -65,12 +65,32 @@ const courseSchema = new mongoose.Schema({
         default: 0,
         min: 0
     },
+    materials: [{
+        title: String,
+        url: String,
+        type: { type: String, enum: ['PDF', 'Note', 'Other'] }
+    }],
     lessons: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Lesson'
+        lesson_id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+        title: String,
+        video_url: String,
+        duration: Number,
+        lesson_exam: {
+            exam_id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+            passing_score: { type: Number, default: 70 }
+        }
     }],
     requirements: [String],
     whatYouWillLearn: [String],
+    isExamRequired: {
+        type: Boolean,
+        default: false
+    },
+    finalExam: [{
+        question: String,
+        options: [String],
+        correctAnswer: Number // Index of the correct option
+    }],
     isPublished: {
         type: Boolean,
         default: false

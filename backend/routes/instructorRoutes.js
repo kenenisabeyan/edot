@@ -52,6 +52,12 @@ router.put('/courses/:id', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Not authorized to update this course' });
         }
 
+        // If an approved course is edited, it must go back through the approval process
+        if (course.status === 'approved') {
+            req.body.status = 'draft';
+            req.body.isPublished = false;
+        }
+
         course = await Course.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true

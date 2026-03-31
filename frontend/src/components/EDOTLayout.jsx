@@ -20,8 +20,9 @@ import {
   Award
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
-export default function SchoolHubLayout() {
+export default function EDOTLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [financeOpen, setFinanceOpen] = useState(false);
@@ -113,7 +114,7 @@ export default function SchoolHubLayout() {
           <div className="bg-[#4338ca] w-8 h-8 rounded-lg flex items-center justify-center text-white">
             S
           </div>
-          SchoolHub
+          EDOT Platform
         </div>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-slate-500">
           <Menu className="w-6 h-6" />
@@ -130,7 +131,7 @@ export default function SchoolHubLayout() {
              <div className="bg-[#4338ca] w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg">
                S
              </div>
-             SchoolHub
+             EDOT Platform
            </div>
 
            <div className="overflow-y-auto pr-2 -mr-2 space-y-6 h-[calc(100vh-140px)] scrollbar-hide">
@@ -225,10 +226,7 @@ export default function SchoolHubLayout() {
           
           {/* Right side actions */}
           <div className="flex items-center gap-4 ml-auto">
-            <button className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
+            <NotificationBell />
             <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
               <div className="hidden md:block text-right">
                 <p className="text-sm font-bold text-slate-900">{user?.name || 'Admin User'}</p>
