@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+const path = require('path');
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ const studentRoutes = require('./routes/studentRoutes');
 const noticeRoutes = require('./routes/noticeRoutes');
 const libraryRoutes = require('./routes/libraryRoutes');
 const calendarRoutes = require('./routes/calendarRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
@@ -36,6 +38,10 @@ app.use('/api/student', studentRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/library', libraryRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// Static file serving for uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
   res.json({
