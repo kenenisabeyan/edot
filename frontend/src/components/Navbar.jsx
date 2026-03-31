@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Menu, X, LogOut, BookOpen, LayoutDashboard, Info, Mail, LogIn, UserPlus } from 'lucide-react';
+import edotLogo from '../assets/edot-logo.jpg';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -28,9 +29,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl leading-none">E</span>
-              </div>
+              <img src={edotLogo} alt="EDOT Logo" className="h-8 w-auto" />
               <span className="font-display font-bold text-xl tracking-tight text-slate-900">EDOT</span>
             </Link>
           </div>

@@ -17,6 +17,7 @@ const noticeRoutes = require('./routes/noticeRoutes');
 const libraryRoutes = require('./routes/libraryRoutes');
 const calendarRoutes = require('./routes/calendarRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const progressRoutes = require('./routes/progressRoutes');
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use('/api/notices', noticeRoutes);
 app.use('/api/library', libraryRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/progress', progressRoutes);
 
 // Static file serving for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -76,4 +78,4 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => {
     console.error('❌ MongoDB connection error:', err);
     process.exit(1);
-  });
+  });

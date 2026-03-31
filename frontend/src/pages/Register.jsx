@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { User, Mail, Lock, Eye, EyeOff, AlertCircle, UserPlus, CheckCircle } from 'lucide-react';
+import edotLogo from '../assets/edot-logo.jpg';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -49,10 +50,8 @@ export default function Register() {
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-slate-50 py-12">
       <div className="w-full max-w-lg bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <UserPlus className="w-6 h-6" />
-          </div>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img src={edotLogo} alt="EDOT Logo" className="h-12 w-auto mb-4" />
           <h2 className="text-3xl font-display font-bold text-slate-900 mb-2">Create Account</h2>
           <p className="text-slate-500">Join EDOT and start learning today</p>
         </div>

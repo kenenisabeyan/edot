@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, LogIn } from 'lucide-react';
+import edotLogo from '../assets/edot-logo.jpg';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -32,7 +33,8 @@ export default function Login() {
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-slate-50">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img src={edotLogo} alt="EDOT Logo" className="h-12 w-auto mb-4" />
           <h2 className="text-3xl font-display font-bold text-slate-900 mb-2">Welcome Back!</h2>
           <p className="text-slate-500">Login to continue your learning journey</p>
         </div>

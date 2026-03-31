@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
+import edotLogo from '../assets/edot-logo.jpg';
 
 export default function EDOTLayout() {
   const { user, logout } = useAuth();
@@ -111,10 +112,8 @@ export default function EDOTLayout() {
       {/* Mobile Header */}
       <div className="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center sticky top-0 z-30">
         <div className="flex items-center gap-2 font-bold text-xl text-[#4338ca]">
-          <div className="bg-[#4338ca] w-8 h-8 rounded-lg flex items-center justify-center text-white">
-            S
-          </div>
-          EDOT Platform
+          <img src={edotLogo} alt="EDOT Logo" className="h-8 w-auto" />
+          EDOT
         </div>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-slate-500">
           <Menu className="w-6 h-6" />
@@ -128,10 +127,8 @@ export default function EDOTLayout() {
       `}>
         <div className="p-6 border-b border-transparent">
            <div className="flex items-center gap-2 font-bold text-2xl text-[#4338ca] mb-8">
-             <div className="bg-[#4338ca] w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg">
-               S
-             </div>
-             EDOT Platform
+             <img src={edotLogo} alt="EDOT Logo" className="h-10 w-auto" />
+             EDOT
            </div>
 
            <div className="overflow-y-auto pr-2 -mr-2 space-y-6 h-[calc(100vh-140px)] scrollbar-hide">

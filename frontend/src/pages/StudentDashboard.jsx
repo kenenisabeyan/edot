@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import edotLogo from '../assets/edot-logo.jpg';
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
@@ -38,7 +39,14 @@ export default function StudentDashboard() {
     navigate('/');
   };
 
-  const handleDownloadCertificate = (courseName) => {
+  const handleDownloadCertificate = async (courseName) => {
+    const img = new Image();
+    img.src = '/edot-logo.png';
+    await new Promise(resolve => {
+      img.onload = resolve;
+      img.onerror = resolve; // Continue even if logo fails
+    });
+
     const doc = new jsPDF('landscape');
     const dateCompleted = new Date().toLocaleDateString();
     
@@ -48,6 +56,10 @@ export default function StudentDashboard() {
     doc.setDrawColor(59, 130, 246);
     doc.setLineWidth(2);
     doc.rect(10, 10, 277, 190);
+
+    try {
+      doc.addImage(img, 'PNG', 133.5, 20, 30, 25);
+    } catch(e) {}
     
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(15, 23, 42);
@@ -392,6 +404,10 @@ export default function StudentDashboard() {
       {/* Sidebar Layout */}
       <aside className="w-full md:w-72 bg-slate-900 text-white shrink-0 flex flex-col md:h-screen">
         <div className="p-6 border-b border-slate-800">
+           <div className="flex items-center gap-2 mb-6 w-full px-2">
+             <img src={edotLogo} alt="EDOT Logo" className="h-10 w-auto" />
+           </div>
+           
            <div className="flex items-center gap-4 mb-8">
              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/20 uppercase font-bold text-xl">
                {user?.name?.charAt(0)}
