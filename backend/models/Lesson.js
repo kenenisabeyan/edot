@@ -41,6 +41,15 @@ const lessonSchema = new mongoose.Schema({
             default: 'link'
         }
     }],
+    quiz: [{
+        question: String,
+        options: [String],
+        correctAnswer: Number
+    }],
+    readingMaterials: {
+        type: String,
+        default: ''
+    },
     isPreview: {
         type: Boolean,
         default: false

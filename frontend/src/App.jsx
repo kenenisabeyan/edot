@@ -18,8 +18,8 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import { useAuth } from './context/AuthContext';
 
-import SchoolHubLayout from './components/SchoolHubLayout';
-import SchoolHubDashboard from './pages/SchoolHubDashboard';
+import EDOTLayout from './components/EDOTLayout';
+import EDOTDashboard from './pages/EDOTDashboard';
 import TeachersList from './pages/TeachersList';
 import FinanceFees from './pages/FinanceFees';
 import CalendarView from './pages/CalendarView';
@@ -77,14 +77,14 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* New SchoolHub Dashboard Layout (Full UI, no main Navbar/Footer) */}
+      {/* New EDOT Dashboard Layout (Full UI, no main Navbar/Footer) */}
       <Route path="/dashboard" element={
         <ErrorBoundary>
           <ProtectedRoute />
         </ErrorBoundary>
       }>
-        <Route element={<SchoolHubLayout />}>
-          <Route index element={<SchoolHubDashboard />} />
+        <Route element={<EDOTLayout />}>
+          <Route index element={<EDOTDashboard />} />
           <Route path="teachers" element={<TeachersList />} />
           <Route path="students" element={<div className="p-8 text-slate-500 font-medium">Students page under construction...</div>} />
           <Route path="courses" element={<StudentCourses />} />

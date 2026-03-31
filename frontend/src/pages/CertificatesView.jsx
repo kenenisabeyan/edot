@@ -14,7 +14,12 @@ export default function CertificatesView() {
       try {
         const { data } = await api.get('/users/mycourses');
         const enrolled = data.enrolledCourses || [];
-        const completed = enrolled.filter(e => e.progress === 100);
+        const completed = enrolled.filter(e => {
+            if (e.progress < 100) return false;
+            // Strict Validation: If course requires exam, student must pass it
+            if (e.course?.isExamRequired && !e.passedFinalExam) return false;
+            return true;
+        });
         setCompletedCourses(completed);
       } catch (err) {
         console.error('Failed to fetch user completed courses', err);
@@ -90,7 +95,7 @@ export default function CertificatesView() {
              <Award className="w-10 h-10" />
            </div>
            <h3 className="text-xl font-bold text-slate-900 mb-2">No certificates yet</h3>
-           <p className="text-slate-500 max-w-sm mb-6">Complete a course 100% to earn your first certificate.</p>
+           <p className="text-slate-500 max-w-sm mb-6">Complete a course 100% and pass the final exam (if required) to earn your first certificate.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -77,6 +77,31 @@ router.post('/courses/:courseId/lessons/:lessonId/complete', async (req, res) =>
     }
 });
 
+// @route   POST /api/student/courses/:courseId/exam/complete
+// @desc    Mark a final exam as passed
+router.post('/courses/:courseId/exam/complete', async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const user = await User.findById(req.user.id);
+        
+        const enrollment = user.enrolledCourses.find(
+            (e) => e.course.toString() === courseId
+        );
+
+        if (!enrollment) {
+            return res.status(400).json({ success: false, message: 'Not enrolled in this course' });
+        }
+
+        enrollment.passedFinalExam = true;
+        await user.save();
+
+        res.status(200).json({ success: true, passedFinalExam: true });
+    } catch (error) {
+        console.error('Submit exam error:', error);
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
 // @route   GET /api/student/dashboard
 // @desc    Get student dashboard statistics
 router.get('/dashboard', async (req, res) => {

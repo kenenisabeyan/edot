@@ -51,7 +51,19 @@ const userSchema = new mongoose.Schema({
     completedLessons: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Lesson'
-    }]
+    }],
+    watchedVideos: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Lesson'
+    }],
+    passedQuizzes: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Lesson'
+    }],
+    passedFinalExam: {
+      type: Boolean,
+      default: false
+    }
   }],
   avatar: {
     type: String,
