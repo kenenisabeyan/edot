@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import edotLogo from '../assets/edot-logo.jpg';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -450,6 +451,10 @@ export default function AdminDashboard() {
       {/* Sidebar Layout */}
       <aside className="w-full md:w-72 bg-slate-900 text-white shrink-0 flex flex-col md:h-screen">
         <div className="p-6 border-b border-slate-800">
+           <div className="flex items-center gap-2 mb-6 w-full px-2">
+             <img src={edotLogo} alt="EDOT Logo" className="h-10 w-auto" />
+           </div>
+           
            <div className="flex items-center gap-4 mb-8">
              <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-red-500/20">
                <ShieldAlert className="w-6 h-6 text-white" />

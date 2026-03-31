@@ -3,6 +3,12 @@ import { Link } from 'react-router-dom';
 import { Users, Award, MonitorPlay, ArrowRight, PlayCircle, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import kenoImg from '../assets/keno.jpg';
+import firoImg from '../assets/firo.jpg';
+import bettyImg from '../assets/betty.jpg';
+import yobsanImg from '../assets/yobsan.jpg';
+
+
 export default function About() {
   const [counts, setCounts] = useState({ students: 0, courses: 0, success: 0 });
 
@@ -22,9 +28,30 @@ export default function About() {
   }, []);
 
   const team = [
-    { name: 'John Doe', role: 'Founder', img: 'https://randomuser.me/api/portraits/men/1.jpg' },
-    { name: 'Sara Ali', role: 'Instructor', img: 'https://randomuser.me/api/portraits/women/2.jpg' },
-    { name: 'Michael Lee', role: 'Developer', img: 'https://randomuser.me/api/portraits/men/3.jpg' }
+    { 
+      name: 'Kenenisa Beyan', 
+      role: 'CEO & Founder / IT Security Officer', 
+      img: kenoImg,
+      desc: 'Leads the company vision and focuses on cyber security. Monitors network access to ensure a secure platform.'
+    },
+    { 
+      name: 'Firomsa Guteta', 
+      role: 'Visionary & Lead Fullstack Developer', 
+      img: firoImg,
+      desc: 'Oversees the entire ecosystem, from the 3D Portfolio marketing to the MERN backend architecture of EDOT.'
+    },
+    { 
+      name: 'Bethelhem Yehuala', 
+      role: 'Academic Director (Curriculum)', 
+      img: bettyImg,
+      desc: 'Reviews courses to ensure all lessons and quizzes meet EDOT\'s high educational standards before they go live.'
+    },
+    { 
+      name: 'Yobsan Girma', 
+      role: 'Financial Controller & Registrar', 
+      img: yobsanImg,
+      desc: 'Oversees tuition payments, instructor payouts, student enrollments, progress validation, and certificate issuance.'
+    }
   ];
 
   const testimonials = [
@@ -72,12 +99,15 @@ export default function About() {
       {/* TEAM */}
       <section className="py-20">
         <h2 className="text-3xl font-bold text-center mb-10">Meet Our Team</h2>
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-4">
           {team.map((member, i) => (
-            <motion.div key={i} whileHover={{ scale: 1.05 }} className="text-center">
-              <img src={member.img} className="w-32 h-32 rounded-full mx-auto mb-4" />
-              <h4 className="font-bold">{member.name}</h4>
-              <p className="text-gray-500">{member.role}</p>
+            <motion.div key={i} whileHover={{ y: -5 }} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-center flex flex-col h-full">
+              <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-blue-50 shadow-md">
+                <img src={member.img} alt={member.name} className="w-full h-full object-cover" />
+              </div>
+              <h4 className="font-bold text-xl text-slate-900 mb-1">{member.name}</h4>
+              <p className="text-blue-600 font-semibold text-sm mb-4">{member.role}</p>
+              <p className="text-slate-500 text-sm leading-relaxed flex-1">{member.desc}</p>
             </motion.div>
           ))}
         </div>

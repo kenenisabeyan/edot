@@ -8,6 +8,7 @@ import {
   AlertCircle, XSquare, PlayCircle, Send
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import edotLogo from '../assets/edot-logo.jpg';
 
 export default function InstructorDashboard() {
   const { user, logout } = useAuth();
@@ -490,6 +491,10 @@ export default function InstructorDashboard() {
       {/* Sidebar Layout */}
       <aside className="w-full md:w-72 bg-slate-900 text-white shrink-0 flex flex-col md:h-screen">
         <div className="p-6 border-b border-slate-800">
+           <div className="flex items-center gap-2 mb-6 w-full px-2">
+             <img src={edotLogo} alt="EDOT Logo" className="h-10 w-auto" />
+           </div>
+           
            <div className="flex items-center gap-4 mb-8">
              <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-purple-600/20 overflow-hidden font-bold text-xl uppercase">
                {user?.name?.charAt(0) || 'I'}

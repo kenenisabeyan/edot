@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Linkedin, Youtube, Instagram, BookOpen } from 'lucide-react';
+import edotLogo from '../assets/edot-logo.jpg';
 
 export default function Footer() {
   return (
@@ -10,9 +11,7 @@ export default function Footer() {
           
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl leading-none">E</span>
-              </div>
+              <img src={edotLogo} alt="EDOT Logo" className="h-8 w-auto" />
               <span className="font-display font-bold text-2xl tracking-tight text-white">EDOT</span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs">

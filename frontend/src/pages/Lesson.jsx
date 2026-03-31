@@ -25,12 +25,18 @@ export default function Lesson() {
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
 
+  // Heartbeat tracking
+  const [lastPingedBlock, setLastPingedBlock] = useState(-1);
+  const [progressData, setProgressData] = useState(null);
+
   useEffect(() => {
     setIsVideoFinished(false);
     setQuizAnswers({});
     setQuizSubmitted(false);
     setQuizScore(0);
     setActiveTab('overview');
+    setLastPingedBlock(-1);
+    setProgressData(null);
   }, [id]);
 
   const [qaList, setQaList] = useState([
@@ -197,9 +203,32 @@ export default function Lesson() {
             height="100%" 
             controls={true}
             onEnded={() => setIsVideoFinished(true)}
-            onProgress={({ played }) => {
-                // strict fallback, if played > 0.95, count as finished
+            onProgress={async ({ played, playedSeconds }) => {
                 if (played > 0.98 && !isVideoFinished) setIsVideoFinished(true);
+
+                // Heartbeat logic: execute every 30 seconds of play
+                const currentBlock = Math.floor(playedSeconds / 30) * 30;
+                
+                if (currentBlock > lastPingedBlock && currentBlock >= 0) {
+                    setLastPingedBlock(currentBlock);
+                    try {
+                        const { data } = await api.post('/progress/ping', {
+                            courseId,
+                            lessonId: id,
+                            currentSecond: currentBlock
+                        });
+                        
+                        if (data.success && data.data) {
+                            setProgressData(data.data);
+                            // If backend confirms 100% completion based on tracked time
+                            if (data.data.isComplete && !isVideoFinished) {
+                                setIsVideoFinished(true);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Failed to ping progress server', err);
+                    }
+                }
             }}
           />
         </div>
@@ -316,6 +345,11 @@ export default function Lesson() {
                  <ul className="text-sm text-slate-600 space-y-1 mt-2">
                    <li className="flex items-center gap-2">
                      <CheckCircle2 className={`w-4 h-4 ${isVideoFinished || isCompleted ? 'text-emerald-500' : 'text-slate-400'}`} /> Watch the entire video
+                     {progressData && !isVideoFinished && (
+                         <span className="text-xs ml-2 text-indigo-500">
+                             ({Math.round((progressData.watchedSeconds / progressData.requiredSeconds) * 100)}% Verified by Server)
+                         </span>
+                     )}
                    </li>
                    {lesson.quiz && lesson.quiz.length > 0 && (
                      <li className="flex items-center gap-2">

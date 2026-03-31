@@ -30,7 +30,14 @@ export default function CertificatesView() {
     fetchCertificates();
   }, []);
 
-  const handleDownloadCertificate = (courseName) => {
+  const handleDownloadCertificate = async (courseName) => {
+    const img = new Image();
+    img.src = '/edot-logo.png';
+    await new Promise(resolve => {
+      img.onload = resolve;
+      img.onerror = resolve; // Continue even if logo fails
+    });
+
     const doc = new jsPDF('landscape');
     const dateCompleted = new Date().toLocaleDateString();
     
@@ -40,6 +47,10 @@ export default function CertificatesView() {
     doc.setDrawColor(59, 130, 246);
     doc.setLineWidth(2);
     doc.rect(10, 10, 277, 190);
+
+    try {
+      doc.addImage(img, 'PNG', 133.5, 20, 30, 25);
+    } catch(e) {}
     
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(15, 23, 42);
