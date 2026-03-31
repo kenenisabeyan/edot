@@ -18,47 +18,85 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import { useAuth } from './context/AuthContext';
 
-export default function App() {
+import SchoolHubLayout from './components/SchoolHubLayout';
+import SchoolHubDashboard from './pages/SchoolHubDashboard';
+import TeachersList from './pages/TeachersList';
+import FinanceFees from './pages/FinanceFees';
+import CalendarView from './pages/CalendarView';
+import MessagesView from './pages/MessagesView';
+import StudentCourses from './pages/StudentCourses';
+import InstructorClasses from './pages/InstructorClasses';
+import { Outlet } from 'react-router-dom';
+
+import ErrorBoundary from './components/ErrorBoundary';
+
+function MainLayout() {
   return (
     <>
       <Navbar />
       <main id="main-content">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/course/:id" element={<CourseDetails />} />
-          <Route path="/lesson/:id" element={<Lesson />} />
-          <Route path="/quiz/:id" element={<QuizViewer />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          {/* Dashboard Route Redirects base on Auth */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute />
-          }>
-             <Route index element={<DashboardRouter />} />
-          </Route>
-
-          {/* Role-Protected Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-            <Route path="/admin/*" element={<AdminDashboard />} />
-          </Route>
-          
-          <Route element={<ProtectedRoute allowedRoles={['instructor']} />}>
-            <Route path="/instructor/builder" element={<InstructorCourseBuilder />} />
-            <Route path="/instructor/builder/:id" element={<InstructorCourseBuilder />} />
-            <Route path="/instructor/*" element={<InstructorDashboard />} />
-          </Route>
-          
-          <Route element={<ProtectedRoute allowedRoles={['student']} />}>
-            <Route path="/student/*" element={<StudentDashboard />} />
-          </Route>
-        </Routes>
+        <Outlet />
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      {/* Public / Landing Pages with Navbar & Footer */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/course/:id" element={<CourseDetails />} />
+        <Route path="/lesson/:id" element={<Lesson />} />
+        <Route path="/quiz/:id" element={<QuizViewer />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        {/* Keeping old protected routes available for legacy functionality */}
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route path="/admin/*" element={<AdminDashboard />} />
+        </Route>
+        
+        <Route element={<ProtectedRoute allowedRoles={['instructor']} />}>
+          <Route path="/instructor/builder" element={<InstructorCourseBuilder />} />
+          <Route path="/instructor/builder/:id" element={<InstructorCourseBuilder />} />
+          <Route path="/instructor/*" element={<InstructorDashboard />} />
+        </Route>
+        
+        <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+          <Route path="/student/*" element={<StudentDashboard />} />
+        </Route>
+      </Route>
+
+      {/* New SchoolHub Dashboard Layout (Full UI, no main Navbar/Footer) */}
+      <Route path="/dashboard" element={
+        <ErrorBoundary>
+          <ProtectedRoute />
+        </ErrorBoundary>
+      }>
+        <Route element={<SchoolHubLayout />}>
+          <Route index element={<SchoolHubDashboard />} />
+          <Route path="teachers" element={<TeachersList />} />
+          <Route path="students" element={<div className="p-8 text-slate-500 font-medium">Students page under construction...</div>} />
+          <Route path="courses" element={<StudentCourses />} />
+          <Route path="classes" element={<InstructorClasses />} />
+          <Route path="attendance" element={<div className="p-8 text-slate-500 font-medium">Attendance page under construction...</div>} />
+          <Route path="finance/fees" element={<FinanceFees />} />
+          <Route path="finance/expenses" element={<div className="p-8 text-slate-500 font-medium">Expenses page under construction...</div>} />
+          <Route path="notice" element={<div className="p-8 text-slate-500 font-medium">Notice page under construction...</div>} />
+          <Route path="calendar" element={<CalendarView />} />
+          <Route path="library" element={<div className="p-8 text-slate-500 font-medium">Library page under construction...</div>} />
+          <Route path="messages" element={<MessagesView />} />
+          <Route path="profile" element={<div className="p-8 text-slate-500 font-medium">Profile page under construction...</div>} />
+          <Route path="settings" element={<div className="p-8 text-slate-500 font-medium">Settings page under construction...</div>} />
+        </Route>
+      </Route>
+    </Routes>
   );
 }
 

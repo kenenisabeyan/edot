@@ -121,4 +121,38 @@ router.put('/courses/:id/submit', async (req, res) => {
     }
 });
 
+// @route   GET /api/instructor/dashboard
+// @desc    Get instructor dashboard statistics
+router.get('/dashboard', async (req, res) => {
+    try {
+        const courses = await Course.find({ instructor: req.user.id });
+        const totalCourses = courses.length;
+        const activeCourses = courses.filter(c => c.isPublished).length;
+        
+        // Count total students enrolled across all their courses
+        let totalStudents = 0;
+        courses.forEach(course => {
+            totalStudents += (course.totalStudents || 0); // Assuming totalStudents is updated on enrollment
+        });
+
+        // Add a mock for teaching activity or lesson count
+        let totalLessons = 0;
+        courses.forEach(course => {
+            totalLessons += course.lessons.length;
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                totalCourses,
+                activeCourses,
+                totalStudents,
+                totalLessons
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
 module.exports = router;

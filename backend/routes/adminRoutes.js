@@ -69,4 +69,41 @@ router.put('/courses/:id/status', async (req, res) => {
     }
 });
 
+// @route   GET /api/admin/dashboard
+// @desc    Get admin dashboard statistics
+router.get('/dashboard', async (req, res) => {
+    try {
+        const totalUsers = await User.countDocuments();
+        const totalStudents = await User.countDocuments({ role: 'student' });
+        const totalInstructors = await User.countDocuments({ role: 'instructor' });
+        
+        const courses = await Course.find();
+        const totalCourses = courses.length;
+        const pendingCourses = courses.filter(c => c.status === 'pending').length;
+        
+        // Mocking revenue: summing up price of all published courses multiplied by their student count
+        // If we had an Orders/Payments table this would aggregate from there
+        let totalRevenue = 0;
+        courses.forEach(course => {
+            if (course.isPublished && course.price && course.totalStudents) {
+                totalRevenue += (course.price * course.totalStudents);
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                totalUsers,
+                totalStudents,
+                totalInstructors,
+                totalCourses,
+                pendingCourses,
+                totalRevenue
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
 module.exports = router;

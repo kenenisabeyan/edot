@@ -77,4 +77,48 @@ router.post('/courses/:courseId/lessons/:lessonId/complete', async (req, res) =>
     }
 });
 
+// @route   GET /api/student/dashboard
+// @desc    Get student dashboard statistics
+router.get('/dashboard', async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).populate({
+            path: 'enrolledCourses.course'
+        });
+
+        const enrollments = user.enrolledCourses || [];
+        const totalEnrolled = enrollments.length;
+        
+        let totalProgress = 0;
+        let completedLessons = 0;
+        let completedCourses = 0;
+        
+        enrollments.forEach(enrollment => {
+            totalProgress += (enrollment.progress || 0);
+            completedLessons += (enrollment.completedLessons ? enrollment.completedLessons.length : 0);
+            if (enrollment.progress === 100) {
+                completedCourses++;
+            }
+        });
+        
+        const averageProgress = totalEnrolled > 0 ? Math.round(totalProgress / totalEnrolled) : 0;
+
+        res.status(200).json({
+            success: true,
+            data: {
+                totalEnrolled,
+                averageProgress,
+                completedLessons,
+                completedCourses,
+                recentEnrollments: enrollments.slice(-3).map(e => ({
+                    courseId: e.course._id,
+                    courseTitle: e.course.title,
+                    progress: e.progress
+                }))
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
 module.exports = router;
