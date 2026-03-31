@@ -26,6 +26,8 @@ import CalendarView from './pages/CalendarView';
 import MessagesView from './pages/MessagesView';
 import StudentCourses from './pages/StudentCourses';
 import InstructorClasses from './pages/InstructorClasses';
+import InstructorManageCourses from './pages/InstructorManageCourses';
+import AdminCourseApprovals from './pages/AdminCourseApprovals';
 import CertificatesView from './pages/CertificatesView';
 import NoticeView from './pages/NoticeView';
 import LibraryView from './pages/LibraryView';
@@ -61,15 +63,13 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
-        {/* Keeping old protected routes available for legacy functionality */}
+        {/* Old Standalone routes mapping to null or removed to force dashboard usage */}
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-          <Route path="/admin/*" element={<AdminDashboard />} />
+          <Route path="/admin/*" element={<Navigate to="/dashboard" replace />} />
         </Route>
         
         <Route element={<ProtectedRoute allowedRoles={['instructor']} />}>
-          <Route path="/instructor/builder" element={<InstructorCourseBuilder />} />
-          <Route path="/instructor/builder/:id" element={<InstructorCourseBuilder />} />
-          <Route path="/instructor/*" element={<InstructorDashboard />} />
+          <Route path="/instructor/*" element={<Navigate to="/dashboard" replace />} />
         </Route>
         
         <Route element={<ProtectedRoute allowedRoles={['student']} />}>
@@ -89,6 +89,10 @@ export default function App() {
           <Route path="students" element={<div className="p-8 text-slate-500 font-medium">Students page under construction...</div>} />
           <Route path="courses" element={<StudentCourses />} />
           <Route path="classes" element={<InstructorClasses />} />
+          <Route path="my-courses" element={<InstructorManageCourses />} />
+          <Route path="builder" element={<InstructorCourseBuilder />} />
+          <Route path="builder/:id" element={<InstructorCourseBuilder />} />
+          <Route path="approvals" element={<AdminCourseApprovals />} />
           <Route path="attendance" element={<div className="p-8 text-slate-500 font-medium">Attendance page under construction...</div>} />
           <Route path="finance/fees" element={<FinanceFees />} />
           <Route path="finance/expenses" element={<div className="p-8 text-slate-500 font-medium">Expenses page under construction...</div>} />

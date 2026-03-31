@@ -38,6 +38,7 @@ export default function SchoolHubLayout() {
     admin: {
       menu1: [
         { name: 'Dashboard', icon: Home, path: '/dashboard', exact: true },
+        { name: 'Approvals', icon: ClipboardCheck, path: '/dashboard/approvals' },
         { name: 'Teachers', icon: UserSquare, path: '/dashboard/teachers' },
         { name: 'Students', icon: Users, path: '/dashboard/students' },
         { name: 'Attendance', icon: ClipboardCheck, path: '/dashboard/attendance' },
@@ -53,6 +54,8 @@ export default function SchoolHubLayout() {
     instructor: {
       menu1: [
         { name: 'Dashboard', icon: Home, path: '/dashboard', exact: true },
+        { name: 'Create Course', icon: BookOpen, path: '/dashboard/builder' },
+        { name: 'Manage Courses', icon: ClipboardCheck, path: '/dashboard/my-courses' },
         { name: 'My Classes', icon: BookOpen, path: '/dashboard/classes' },
         { name: 'Students', icon: Users, path: '/dashboard/students' },
         { name: 'Attendance', icon: ClipboardCheck, path: '/dashboard/attendance' },

@@ -96,7 +96,7 @@ export default function InstructorCourseBuilder() {
       if (!courseId) {
         const { data } = await api.post('/instructor/courses', cleanedData);
         setCourseId(data.data._id);
-        navigate(`/instructor/builder/${data.data._id}`, { replace: true });
+        navigate(`/dashboard/builder/${data.data._id}`, { replace: true });
       } else {
         await api.put(`/instructor/courses/${courseId}`, cleanedData);
       }
@@ -148,7 +148,7 @@ export default function InstructorCourseBuilder() {
       setSaving(true);
       try {
         await api.put(`/instructor/courses/${courseId}/submit`);
-        navigate('/instructor'); // Go back to dashboard after submitting
+        navigate('/dashboard/my-courses'); // Go back to dashboard after submitting
       } catch (err) {
         console.error('Failed to submit course', err);
       } finally {
@@ -179,7 +179,7 @@ export default function InstructorCourseBuilder() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
-              onClick={() => navigate('/instructor')}
+              onClick={() => navigate('/dashboard/my-courses')}
               className="text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1.5 font-medium text-sm border-r border-slate-200 pr-4"
             >
               <ArrowLeft className="w-4 h-4" /> Exit

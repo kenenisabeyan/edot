@@ -57,6 +57,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'default-avatar.png'
   },
+  coverPhoto: {
+    type: String,
+    default: ''
+  },
   bio: {
     type: String,
     maxlength: [500, 'Bio cannot exceed 500 characters']

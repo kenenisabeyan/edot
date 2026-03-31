@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import { User, Mail, Phone, MapPin, Save, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Save, AlertCircle, CircleCheck, Camera, Loader2 } from 'lucide-react';
 
 export default function ProfileView() {
   const { user, login } = useAuth();
@@ -9,10 +9,13 @@ export default function ProfileView() {
     name: user?.name || '',
     email: user?.email || '',
     phone: '',
-    bio: ''
+    bio: '',
+    avatar: '',
+    coverPhoto: ''
   });
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -25,7 +28,9 @@ export default function ProfileView() {
             name: data.user.name || '',
             email: data.user.email || '',
             phone: data.user.phone || '',
-            bio: data.user.bio || ''
+            bio: data.user.bio || '',
+            avatar: data.user.avatar || '',
+            coverPhoto: data.user.coverPhoto || ''
           });
         }
       } catch (err) {
@@ -39,6 +44,31 @@ export default function ProfileView() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageUpload = async (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const imageData = new FormData();
+    imageData.append('image', file);
+
+    setUploadingImage(true);
+    setError('');
+    
+    try {
+      const { data } = await api.post('/upload', imageData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (data.success) {
+        setFormData((prev) => ({ ...prev, [field]: data.filePath }));
+        setMessage(`${field === 'avatar' ? 'Profile picture' : 'Cover photo'} uploaded successfully! Remember to save.`);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleUpdate = async (e) => {
@@ -59,7 +89,9 @@ export default function ProfileView() {
       const { data } = await api.put('/users/profile', {
         name: formData.name,
         bio: formData.bio,
-        phone: formData.phone
+        phone: formData.phone,
+        avatar: formData.avatar,
+        coverPhoto: formData.coverPhoto
       });
       if (data.success) {
         setMessage('Profile updated successfully!');
@@ -90,15 +122,50 @@ export default function ProfileView() {
       </div>
 
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="h-32 bg-indigo-600"></div>
+        <div 
+          className="h-32 bg-indigo-600 relative group"
+          style={{ 
+            backgroundImage: formData.coverPhoto ? `url(http://localhost:5000${formData.coverPhoto})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          <label htmlFor="cover-upload" className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full cursor-pointer transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center backdrop-blur-sm">
+            <Camera className="w-5 h-5" />
+            <input 
+              id="cover-upload" 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              onChange={(e) => handleImageUpload(e, 'coverPhoto')}
+              disabled={uploadingImage}
+            />
+          </label>
+        </div>
         <div className="px-8 pb-8 relative">
            
-           <div className="absolute -top-16 border-4 border-white rounded-full w-32 h-32 bg-slate-200 flex items-center justify-center overflow-hidden">
-              <User className="w-16 h-16 text-slate-400" />
+           <div className="absolute -top-16 border-4 border-white rounded-full w-32 h-32 bg-slate-200 flex items-center justify-center overflow-hidden group">
+              {formData.avatar && formData.avatar !== 'default-avatar.png' ? (
+                <img src={`http://localhost:5000${formData.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-16 h-16 text-slate-400" />
+              )}
+              
+              <label htmlFor="avatar-upload" className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity backdrop-blur-sm">
+                {uploadingImage ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-6 h-6" />}
+                <input 
+                  id="avatar-upload" 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={(e) => handleImageUpload(e, 'avatar')}
+                  disabled={uploadingImage}
+                />
+              </label>
            </div>
 
            <div className="pt-20">
-             {message && <div className="mb-6 p-4 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium border border-emerald-100 flex items-center gap-2"><CheckCircle className="w-4 h-4" /> {message}</div>}
+             {message && <div className="mb-6 p-4 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium border border-emerald-100 flex items-center gap-2"><CircleCheck className="w-4 h-4" /> {message}</div>}
              {error && <div className="mb-6 p-4 bg-rose-50 text-rose-700 rounded-xl text-sm font-medium border border-rose-100 flex items-center gap-2"><AlertCircle className="w-4 h-4" /> {error}</div>}
 
              <form onSubmit={handleUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-6">
