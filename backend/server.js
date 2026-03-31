@@ -12,6 +12,9 @@ const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const instructorRoutes = require('./routes/instructorRoutes');
 const studentRoutes = require('./routes/studentRoutes');
+const noticeRoutes = require('./routes/noticeRoutes');
+const libraryRoutes = require('./routes/libraryRoutes');
+const calendarRoutes = require('./routes/calendarRoutes');
 
 const app = express();
 
@@ -30,6 +33,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/instructor', instructorRoutes);
 app.use('/api/student', studentRoutes);
+app.use('/api/notices', noticeRoutes);
+app.use('/api/library', libraryRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 app.get('/', (req, res) => {
   res.json({

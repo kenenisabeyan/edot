@@ -26,6 +26,10 @@ import CalendarView from './pages/CalendarView';
 import MessagesView from './pages/MessagesView';
 import StudentCourses from './pages/StudentCourses';
 import InstructorClasses from './pages/InstructorClasses';
+import CertificatesView from './pages/CertificatesView';
+import NoticeView from './pages/NoticeView';
+import LibraryView from './pages/LibraryView';
+import ProfileView from './pages/ProfileView';
 import { Outlet } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -88,11 +92,13 @@ export default function App() {
           <Route path="attendance" element={<div className="p-8 text-slate-500 font-medium">Attendance page under construction...</div>} />
           <Route path="finance/fees" element={<FinanceFees />} />
           <Route path="finance/expenses" element={<div className="p-8 text-slate-500 font-medium">Expenses page under construction...</div>} />
-          <Route path="notice" element={<div className="p-8 text-slate-500 font-medium">Notice page under construction...</div>} />
+          <Route path="notice" element={<NoticeView />} />
           <Route path="calendar" element={<CalendarView />} />
-          <Route path="library" element={<div className="p-8 text-slate-500 font-medium">Library page under construction...</div>} />
+          <Route path="schedule" element={<CalendarView />} />
+          <Route path="library" element={<LibraryView />} />
           <Route path="messages" element={<MessagesView />} />
-          <Route path="profile" element={<div className="p-8 text-slate-500 font-medium">Profile page under construction...</div>} />
+          <Route path="certificates" element={<CertificatesView />} />
+          <Route path="profile" element={<ProfileView />} />
           <Route path="settings" element={<div className="p-8 text-slate-500 font-medium">Settings page under construction...</div>} />
         </Route>
       </Route>
