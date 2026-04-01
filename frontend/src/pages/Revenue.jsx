@@ -47,7 +47,6 @@ export default function Revenue() {
         <SummaryCard 
           title="Total Net Revenue" 
           value={`$${kpis.total.toLocaleString()}`} 
-          percentage={kpis.growth} 
           isPositive={true} 
           icon={CircleDollarSign} 
           colorTheme="blue" 
@@ -55,7 +54,7 @@ export default function Revenue() {
         <SummaryCard 
           title="Active Subscriptions" 
           value={kpis.activeLearners} 
-          percentage={5} 
+          percentage={null} 
           isPositive={true} 
           icon={ArrowUpRight} 
           colorTheme="green" 
@@ -63,7 +62,6 @@ export default function Revenue() {
         <SummaryCard 
           title="Refunded" 
           value="$0" 
-          percentage={0} 
           isPositive={false} 
           icon={ArrowDownRight} 
           colorTheme="orange" 

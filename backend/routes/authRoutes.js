@@ -38,21 +38,13 @@ router.post('/register', [
 
     await user.save();
 
-    const token = generateToken(user._id);
-
-    res.cookie('token', token, {
-        httpOnly: true,  // Prevents JavaScript from reading the cookie (Security)
-        secure: false,   // Set to true in production (HTTPS)
-        sameSite: 'lax', // Helps prevent CSRF attacks
-        maxAge: 3600000  // 1 hour in milliseconds
-    });
-
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
-      status: user.status
+      status: user.status,
+      message: 'Account created successfully. Awaiting administrator approval.'
     });
   } catch (err) {
     console.error(err.message);

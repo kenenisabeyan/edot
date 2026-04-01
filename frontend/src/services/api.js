@@ -13,7 +13,7 @@ export const revenueService = {
     const { data } = await api.get(`/${role}/analytics/detailed`);
     return {
        total: data.data.totalRevenue,
-       growth: 12, // Example trend
+       growth: null, 
        activeLearners: data.data.totalActiveLearners
     };
   }

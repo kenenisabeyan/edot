@@ -11,6 +11,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [usersList, setUsersList] = useState([]);
   const [pendingCourses, setPendingCourses] = useState([]);
+  const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [analytics, setAnalytics] = useState(null);
@@ -61,6 +62,16 @@ export default function AdminDashboard() {
       fetchUsers();
     } catch (err) {
       console.error('Failed to update role', err);
+    }
+  };
+
+  const assignInstructor = async (studentId, instructorId) => {
+    if (!instructorId) return;
+    try {
+      await api.put(`/admin/student/${studentId}/assign`, { instructorId });
+      fetchUsers();
+    } catch (err) {
+      console.error('Failed to assign instructor', err);
     }
   };
 
@@ -241,6 +252,7 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 font-semibold">Email</th>
                       <th className="px-6 py-4 font-semibold">Joined</th>
                       <th className="px-6 py-4 font-semibold">Role</th>
+                      <th className="px-6 py-4 font-semibold">Assign Instructor</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -274,6 +286,24 @@ export default function AdminDashboard() {
                             <option value="instructor">Instructor</option>
                             <option value="admin">Admin</option>
                           </select>
+                        </td>
+                        <td className="px-6 py-4">
+                           {u.role === 'student' ? (
+                              <select 
+                                value={u.assignedInstructor?._id || u.assignedInstructor || ''}
+                                onChange={(e) => assignInstructor(u._id, e.target.value)}
+                                className="px-3 py-1.5 rounded-lg border text-sm font-semibold bg-slate-50 text-slate-700 border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer w-full max-w-[150px]"
+                              >
+                                <option value="" disabled>Select Inst...</option>
+                                {usersList.filter(user => user.role === 'instructor').map(inst => (
+                                  <option key={inst._id} value={inst._id}>
+                                    {inst.name}
+                                  </option>
+                                ))}
+                              </select>
+                           ) : (
+                             <span className="text-slate-300 text-sm italic">N/A</span>
+                           )}
                         </td>
                       </tr>
                     ))}

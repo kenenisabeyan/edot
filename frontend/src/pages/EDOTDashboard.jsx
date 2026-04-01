@@ -34,10 +34,10 @@ export default function EDOTDashboard() {
   const [loading, setLoading] = useState(true);
   const [agendaEvents, setAgendaEvents] = useState([]);
   const [attendanceStats, setAttendanceStats] = useState([
-    { name: 'Present', value: 80, color: '#818cf8' },
-    { name: 'Absent', value: 20, color: '#fbbf24' }
+    { name: 'Present', value: 0, color: '#818cf8' },
+    { name: 'Absent', value: 0, color: '#fbbf24' }
   ]);
-  const [attendancePercentage, setAttendancePercentage] = useState('80%');
+  const [attendancePercentage, setAttendancePercentage] = useState('0%');
   const [showAgendaModal, setShowAgendaModal] = useState(false);
   const [chartFilter, setChartFilter] = useState('Weekly');
 
@@ -61,8 +61,8 @@ export default function EDOTDashboard() {
              const attRes = await api.get('/attendance/aggregate');
              if (attRes.data.success && attRes.data.raw) {
                 setAttendanceStats([
-                   { name: 'Present', value: attRes.data.raw.present || 80, color: '#818cf8' },
-                   { name: 'Absent', value: attRes.data.raw.total - attRes.data.raw.present || 20, color: '#fbbf24' }
+                   { name: 'Present', value: attRes.data.raw.present || 0, color: '#818cf8' },
+                   { name: 'Absent', value: (attRes.data.raw.total || 0) - (attRes.data.raw.present || 0), color: '#fbbf24' }
                 ]);
                 const { present, total } = attRes.data.raw;
                 if (total > 0) {
@@ -137,14 +137,27 @@ export default function EDOTDashboard() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-xl dark:shadow-slate-900/50 border border-slate-100 dark:border-slate-700">
-          <p className="font-bold text-slate-800 dark:text-white mb-2">{label}</p>
-          {payload.map((entry, index) => (
-            <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></span>
-              {entry.name}: <span className="font-bold text-slate-900 dark:text-white">{entry.value}</span>
-            </div>
-          ))}
+        <div className="bg-slate-900/90 backdrop-blur-xl p-5 rounded-2xl shadow-2xl border border-white/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-indigo-500/20 to-purple-500/0 rounded-full blur-xl pointer-events-none"></div>
+          <p className="font-extrabold text-white mb-3 tracking-wide">{label}</p>
+          <div className="space-y-2 relative z-10">
+            {payload.map((entry, index) => {
+               let displayName = entry.name;
+               if (entry.dataKey === 'value1' && classNames[0]) displayName = classNames[0];
+               if (entry.dataKey === 'value2' && classNames[1]) displayName = classNames[1];
+               if (entry.dataKey === 'value3' && classNames[2]) displayName = classNames[2];
+               
+               return (
+                <div key={index} className="flex items-center justify-between gap-4 text-sm font-medium">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.3)]" style={{ backgroundColor: entry.color }}></span>
+                    <span className="text-slate-200">{displayName}</span>
+                  </div>
+                  <span className="font-extrabold text-white bg-white/10 px-2 py-0.5 rounded-md">{entry.value}</span>
+                </div>
+               );
+            })}
+          </div>
         </div>
       );
     }
@@ -228,15 +241,15 @@ export default function EDOTDashboard() {
         ) : userRole === 'parent' && stats ? (
           <>
             <SmartCard title="Total Learners" value={stats.totalLearners} icon={Users} colorTheme="blue" />
-            <SmartCard title="Enrolled Courses" value={stats.totalEnrolledCourses} percentage="5" isPositive={true} icon={BookOpen} colorTheme="purple" />
-            <SmartCard title="Average Progress" value={`${stats.averageProgress}%`} percentage="12" isPositive={true} icon={TrendingUp} colorTheme="green" /> 
-            <SmartCard title="Completed Lessons" value={stats.completedLessons} percentage="3" isPositive={true} icon={Award} colorTheme="orange" />
+            <SmartCard title="Enrolled Courses" value={stats.totalEnrolledCourses} icon={BookOpen} colorTheme="purple" />
+            <SmartCard title="Average Progress" value={`${stats.averageProgress}%`} icon={TrendingUp} colorTheme="green" /> 
+            <SmartCard title="Completed Lessons" value={stats.completedLessons} icon={Award} colorTheme="orange" />
           </>
         ) : stats ? (
           <>
             <SmartCard title="Enrolled Courses" value={stats.totalEnrolled} icon={BookOpen} colorTheme="blue" />
-            <SmartCard title="Average Progress" value={`${stats.averageProgress}%`} percentage="8" isPositive={true} icon={TrendingUp} colorTheme="green" />
-            <SmartCard title="Completed Lessons" value={stats.completedLessons} percentage="15" isPositive={true} icon={Award} colorTheme="purple" /> 
+            <SmartCard title="Average Progress" value={`${stats.averageProgress}%`} icon={TrendingUp} colorTheme="green" />
+            <SmartCard title="Completed Lessons" value={stats.completedLessons} icon={Award} colorTheme="purple" /> 
             <SmartCard title="Certificates" value={stats.completedCourses || 0} icon={CheckCircle} colorTheme="orange" />
           </>
         ) : (
@@ -285,8 +298,7 @@ export default function EDOTDashboard() {
                      </ResponsiveContainer>
                      {/* Center Label */}
                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                        <span className="text-4xl font-extrabold text-slate-800 dark:text-white">{attendancePercentage}</span>
-                        <span className="text-xs font-semibold text-emerald-500 mt-1 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> 2%</span>
+                        <span className="text-4xl font-extrabold text-slate-800 dark:text-white drop-shadow-md">{attendancePercentage}</span>
                      </div>
                   </div>
                   <div className="flex justify-center gap-6 mt-4">
@@ -326,8 +338,12 @@ export default function EDOTDashboard() {
                         </BarChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="flex h-full items-center justify-center text-slate-400 font-medium text-sm text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
-                         No performance data found in records
+                      <div className="flex flex-col h-full items-center justify-center text-center p-6 border-2 border-dashed border-indigo-100 dark:border-slate-800 rounded-3xl bg-indigo-50/50 dark:bg-slate-800/20">
+                          <div className="w-16 h-16 mb-4 rounded-full bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500 shadow-inner">
+                             <Award className="w-8 h-8 opacity-75" />
+                          </div>
+                          <h4 className="font-bold text-slate-700 dark:text-slate-300 mb-1">Awaiting Scores</h4>
+                          <p className="text-xs text-slate-500 max-w-xs leading-relaxed">System metrics will automatically generate breathtaking charts here once student assessments are logged.</p>
                       </div>
                     )}
                   </div>
@@ -393,8 +409,13 @@ export default function EDOTDashboard() {
                         </AreaChart>
                      </ResponsiveContainer>
                    ) : (
-                     <div className="flex h-full items-center justify-center text-slate-400 font-medium text-sm text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
-                         No activity logs found for aggregation
+                     <div className="flex flex-col h-full items-center justify-center text-center p-8 border-2 border-dashed border-purple-100 dark:border-slate-800 rounded-3xl bg-gradient-to-b from-purple-50/50 to-transparent dark:from-slate-800/20 relative overflow-hidden">
+                         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl"></div>
+                         <div className="w-20 h-20 mb-4 rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-purple-500/10 flex items-center justify-center text-purple-500 relative z-10 border border-purple-50 dark:border-slate-700">
+                            <TrendingUp className="w-10 h-10 opacity-80" />
+                         </div>
+                         <h4 className="font-extrabold text-lg text-slate-800 dark:text-slate-200 mb-2 relative z-10">Data Collection Active</h4>
+                         <p className="text-sm text-slate-500 max-w-sm leading-relaxed relative z-10">We are currently gathering platform interaction data. A dynamic growth pipeline will seamlessly render here once thresholds are met.</p>
                      </div>
                    )}
                 </div>
