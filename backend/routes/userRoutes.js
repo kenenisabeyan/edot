@@ -36,15 +36,25 @@ router.get('/profile', protect, async (req, res) => {
 // @access  Private
 router.put('/profile', protect, async (req, res) => {
     try {
-        const { name, bio, avatar, coverPhoto, phone } = req.body;
+        const { 
+            name, bio, avatar, coverPhoto, phone,
+            gender, dateOfBirth, address, emergencyContact, department, specialization, occupation 
+        } = req.body;
 
         const user = await User.findById(req.user.id);
 
-        if (name) user.name = name;
-        if (bio) user.bio = bio;
-        if (avatar) user.avatar = avatar;
-        if (coverPhoto) user.coverPhoto = coverPhoto;
-        if (phone) user.phone = phone;
+        if (name !== undefined) user.name = name;
+        if (bio !== undefined) user.bio = bio;
+        if (avatar !== undefined) user.avatar = avatar;
+        if (coverPhoto !== undefined) user.coverPhoto = coverPhoto;
+        if (phone !== undefined) user.phone = phone;
+        if (gender !== undefined) user.gender = gender;
+        if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
+        if (address !== undefined) user.address = address;
+        if (emergencyContact !== undefined) user.emergencyContact = emergencyContact;
+        if (department !== undefined) user.department = department;
+        if (specialization !== undefined) user.specialization = specialization;
+        if (occupation !== undefined) user.occupation = occupation;
 
         await user.save();
 
@@ -58,7 +68,14 @@ router.put('/profile', protect, async (req, res) => {
                 bio: user.bio,
                 avatar: user.avatar,
                 coverPhoto: user.coverPhoto,
-                phone: user.phone
+                phone: user.phone,
+                gender: user.gender,
+                dateOfBirth: user.dateOfBirth,
+                address: user.address,
+                emergencyContact: user.emergencyContact,
+                department: user.department,
+                specialization: user.specialization,
+                occupation: user.occupation
             }
         });
     } catch (error) {

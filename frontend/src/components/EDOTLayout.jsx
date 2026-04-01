@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   Home, 
@@ -28,6 +28,18 @@ export default function EDOTLayout() {
   const navigate = useNavigate();
   const [financeOpen, setFinanceOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -239,14 +251,64 @@ export default function EDOTLayout() {
           {/* Right side actions */}
           <div className="flex items-center gap-4 ml-auto">
             <NotificationBell />
-            <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
-              <div className="hidden md:block text-right">
-                <p className="text-sm font-bold text-slate-900">{user?.name || 'Admin User'}</p>
-                <p className="text-xs text-slate-500 font-medium capitalize">{user?.role || 'Admin'}</p>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-indigo-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-indigo-600 font-bold">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-              </div>
+            <div className="relative" ref={profileDropdownRef}>
+              <button 
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center gap-3 pl-4 border-l border-slate-200 focus:outline-none cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <div className="hidden md:block text-right">
+                  <p className="text-sm font-bold text-slate-900">{user?.name || 'Admin User'}</p>
+                  <p className="text-xs text-slate-500 font-medium capitalize">{user?.role || 'Admin'}</p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-indigo-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-indigo-600 font-bold">
+                  {user?.avatar && user.avatar !== 'default-avatar.png' ? (
+                    <img src={`http://localhost:5000${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    user?.name ? user.name.charAt(0).toUpperCase() : 'A'
+                  )}
+                </div>
+              </button>
+
+              {profileOpen && (
+                <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-4 border-b border-slate-100 flex items-start gap-3 bg-slate-50/50">
+                    <div className="w-12 h-12 rounded-full bg-indigo-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-indigo-600 font-bold shrink-0">
+                      {user?.avatar && user.avatar !== 'default-avatar.png' ? (
+                        <img src={`http://localhost:5000${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        user?.name ? user.name.charAt(0).toUpperCase() : 'A'
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-800 text-sm">{user?.name || 'Admin User'}</h3>
+                      <p className="text-xs text-slate-500 mt-0.5">{user?.department || user?.specialization || 'EDOT Platform'}</p>
+                      <p className="text-xs font-semibold text-indigo-600 mt-1 capitalize">{user?.role || 'Admin'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-2">
+                    <button 
+                      onClick={() => { setProfileOpen(false); navigate('/dashboard/profile'); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors text-left"
+                    >
+                      <User className="w-4 h-4" /> My Profile
+                    </button>
+                    <button 
+                      onClick={() => { setProfileOpen(false); navigate('/dashboard/settings'); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors text-left"
+                    >
+                      <Settings className="w-4 h-4" /> Change Password
+                    </button>
+                    <div className="h-px bg-slate-100 my-1 mx-2"></div>
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" /> Log out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>
