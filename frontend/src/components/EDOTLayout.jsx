@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 import { 
   Home, 
   Users, 
@@ -30,6 +31,30 @@ export default function EDOTLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileDropdownRef = useRef(null);
+  
+  const [metrics, setMetrics] = useState({
+    unreadMessages: 0,
+    pendingApprovals: 0,
+    pendingCourses: 0,
+    newCertificates: 0
+  });
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const { data } = await api.get('/users/dashboard-metrics');
+        if (data.success && data.metrics) {
+          setMetrics(data.metrics);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dashboard metrics', err);
+      }
+    };
+    if (user) {
+      fetchMetrics();
+      // Optionally, set up an interval or listen to socket here if we need real-time
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -115,23 +140,38 @@ export default function EDOTLayout() {
   const navItemsMenu1 = currentConfig.menu1;
   const navItemsMenu2 = currentConfig.menu2;
   const showFinance = currentConfig.showFinance || false;
-  const NavItem = ({ item }) => (
-    <NavLink
-      to={item.path}
-      end={item.exact}
-      onClick={() => setMobileMenuOpen(false)}
-      className={({ isActive }) =>
-        `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium ${
-          isActive
-            ? 'bg-[#4338ca] text-white shadow-md shadow-indigo-500/20'
-            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-        }`
-      }
-    >
-      <item.icon className="w-5 h-5 shrink-0" />
-      {item.name}
-    </NavLink>
-  );
+  const NavItem = ({ item }) => {
+    let badgeCount = 0;
+    if (item.path.includes('/messages')) badgeCount = metrics.unreadMessages;
+    else if (item.path.includes('/approvals')) badgeCount = metrics.pendingApprovals;
+    else if (item.path.includes('/my-courses')) badgeCount = metrics.pendingCourses;
+    else if (item.path.includes('/certificates')) badgeCount = metrics.newCertificates;
+
+    return (
+      <NavLink
+        to={item.path}
+        end={item.exact}
+        onClick={() => setMobileMenuOpen(false)}
+        className={({ isActive }) =>
+          `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-medium ${
+            isActive
+              ? 'bg-[#4338ca] text-white shadow-md shadow-indigo-500/20'
+              : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+          }`
+        }
+      >
+        <div className="flex items-center gap-3">
+          <item.icon className="w-5 h-5 shrink-0" />
+          {item.name}
+        </div>
+        {badgeCount > 0 && (
+          <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">
+            {badgeCount > 99 ? '99+' : badgeCount}
+          </span>
+        )}
+      </NavLink>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#f8f9ff] flex flex-col md:flex-row font-sans text-slate-800">

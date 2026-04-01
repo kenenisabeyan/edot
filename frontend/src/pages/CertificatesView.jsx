@@ -21,6 +21,13 @@ export default function CertificatesView() {
             return true;
         });
         setCompletedCourses(completed);
+
+        // Mark certificates as seen to clear navbar notification badges
+        try {
+          await api.put('/users/mark-certificates-seen');
+        } catch (markErr) {
+          console.error('Failed to mark certificates as seen', markErr);
+        }
       } catch (err) {
         console.error('Failed to fetch user completed courses', err);
       } finally {
