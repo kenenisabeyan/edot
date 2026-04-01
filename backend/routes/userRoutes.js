@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
 const User = require('../models/User');
+const Message = require('../models/Message');
+const Course = require('../models/Course');
+const Certificate = require('../models/Certificate');
 
 // @route   GET /api/users/profile
 // @desc    Get user profile
@@ -116,6 +119,61 @@ router.get('/mycourses', protect, async (req, res) => {
             success: false,
             message: 'Server error'
         });
+    }
+});
+
+// @route   GET /api/users/dashboard-metrics
+// @desc    Get counts of unread messages, pending courses, unseen certificates
+// @access  Private
+router.get('/dashboard-metrics', protect, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const role = req.user.role;
+
+        // Count unread messages (all roles)
+        const unreadMessages = await Message.countDocuments({ receiverId: userId, isRead: false });
+        
+        // Count role-specific metrics
+        let pendingCourses = 0;
+        let pendingApprovals = 0;
+        let newCertificates = 0;
+
+        if (role === 'admin') {
+            pendingApprovals = await Course.countDocuments({ status: 'pending' });
+        } else if (role === 'instructor') {
+            pendingCourses = await Course.countDocuments({ instructor: userId, status: 'pending' });
+        } else if (role === 'student' || role === 'parent') { // just in case parent has certificates too later
+            newCertificates = await Certificate.countDocuments({ user_id: userId, isSeen: false });
+        }
+
+        res.json({
+            success: true,
+            metrics: {
+                unreadMessages,
+                pendingApprovals,
+                pendingCourses,
+                newCertificates
+            }
+        });
+    } catch (error) {
+        console.error('Metrics error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// @route   PUT /api/users/mark-certificates-seen
+// @desc    Mark all certificates for user as seen
+// @access  Private
+router.put('/mark-certificates-seen', protect, async (req, res) => {
+    try {
+        await Certificate.updateMany(
+            { user_id: req.user.id, isSeen: false },
+            { $set: { isSeen: true } }
+        );
+        res.json({ success: true, message: 'Certificates marked as seen' });
+    } catch (error) {
+        console.error('Mark certs error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 
