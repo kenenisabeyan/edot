@@ -88,6 +88,7 @@ export default function EDOTDashboard() {
           <h1 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
             {user?.role === 'admin' ? `Welcome back, Admin ${user?.name || ''}` :
              user?.role === 'instructor' ? `Your teaching classes are performing great!` :
+             user?.role === 'parent' ? `Welcome, ${user?.name || ''}! Monitor your learners' progress.` :
              `Welcome back, ${user?.name || ''}! Ready to learn?`}
           </h1>
           <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 py-2.5 rounded-full font-medium transition-colors border border-white/30">
@@ -114,6 +115,13 @@ export default function EDOTDashboard() {
             <StatCard title="Total Students" value={stats.totalStudents} isPositive={true} />
             <StatCard title="Total Lessons" value={stats.totalLessons} isPositive={true} /> 
             <StatCard title="Total Drafts" value={stats.totalCourses - stats.activeCourses} isPositive={false} />
+          </>
+        ) : user?.role === 'parent' && stats ? (
+          <>
+            <StatCard title="Total Learners" value={stats.totalLearners} isPositive={true} />
+            <StatCard title="Total Enrolled Courses" value={stats.totalEnrolledCourses} isPositive={true} />
+            <StatCard title="Average Progress" value={`${stats.averageProgress}%`} isPositive={true} /> 
+            <StatCard title="Completed Lessons" value={stats.completedLessons} isPositive={true} />
           </>
         ) : stats ? (
           <>

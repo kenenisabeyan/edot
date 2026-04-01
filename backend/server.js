@@ -19,6 +19,7 @@ const calendarRoutes = require('./routes/calendarRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const progressRoutes = require('./routes/progressRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const parentRoutes = require('./routes/parentRoutes');
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/calendar', calendarRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/parent', parentRoutes);
 
 // Static file serving for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
