@@ -38,8 +38,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         const data = await registerUser(userData);
-        setUser(data.user || data);
-        setIsAuthenticated(true);
+        // Do not automatically authenticate because the account is pending approval
         return data;
     };
 

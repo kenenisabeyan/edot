@@ -4,23 +4,10 @@ import { ChevronDown, Search, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 
 export default function FinanceFees() {
   const collectionData = [
-    { name: 'Jan', collection: 4000, expenses: 2400 },
-    { name: 'Feb', collection: 3000, expenses: 1398 },
-    { name: 'Mar', collection: 2000, expenses: 9800 },
-    { name: 'Apr', collection: 2780, expenses: 3908 },
-    { name: 'May', collection: 1890, expenses: 4800 },
-    { name: 'Jun', collection: 2390, expenses: 3800 },
-    { name: 'Jul', collection: 3490, expenses: 4300 },
+    { name: 'Jan', collection: 0, expenses: 0 }
   ];
 
-  const studentFees = [
-    { id: 1, name: 'Rachel Wilson', date: '2023-01-20', class: '7A', tuition: '$4,500', action: '$500', misc: '$1,000', amount: '$6,000', status: 'Paid' },
-    { id: 2, name: 'Michael Jones', date: '2023-01-20', class: '7B', tuition: '$4,500', action: '$500', misc: '$1,000', amount: '$6,000', status: 'Pending' },
-    { id: 3, name: 'Victoria Green', date: '2023-01-20', class: 'Advanced', tuition: '$4,500', action: '$500', misc: '$1,000', amount: '$6,000', status: 'Paid' },
-    { id: 4, name: 'John Smith', date: '2023-01-20', class: '8A', tuition: '$4,500', action: '$500', misc: '$1,000', amount: '$6,000', status: 'Overdue' },
-    { id: 5, name: 'Robert Fox', date: '2023-01-20', class: '9A', tuition: '$4,500', action: '$500', misc: '$1,000', amount: '$6,000', status: 'Paid' },
-    { id: 6, name: 'Isabella Garcia', date: '2023-01-20', class: '8B', tuition: '$4,500', action: '$500', misc: '$1,000', amount: '$6,000', status: 'Pending' }
-  ];
+  const studentFees = [];
 
   const StatBox = ({ title, value, percentage, type }) => (
     <div className={`p-6 rounded-3xl border border-slate-100 shadow-sm ${type === 'primary' ? 'bg-indigo-600 text-white' : 'bg-white'}`}>
@@ -59,8 +46,8 @@ export default function FinanceFees() {
            </div>
            
            <div className="text-center mb-4">
-             <p className="text-slate-500 text-sm font-medium">994.767</p>
-             <p className="text-2xl font-bold text-slate-800">Jun 10, 2024</p>
+             <p className="text-slate-500 text-sm font-medium">Pending Financial API integration</p>
+             <p className="text-2xl font-bold text-slate-800">Current Scope</p>
            </div>
            
            <div className="h-64">
@@ -84,12 +71,12 @@ export default function FinanceFees() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 lg:grid-rows-2">
            <div className="grid grid-cols-2 gap-4">
-             <StatBox title="Total" value="$126,480" percentage="+6.5" type="primary" />
-             <StatBox title="Paid" value="$67,200" percentage="+1.2" type="default" />
+             <StatBox title="Total" value="$0" type="primary" />
+             <StatBox title="Paid" value="$0" type="default" />
            </div>
            <div className="grid grid-cols-2 gap-4">
-             <StatBox title="Pending" value="$8,000" percentage="-1.5" type="default" />
-             <StatBox title="Overdue" value="$4,150" percentage="+10" type="default" />
+             <StatBox title="Pending" value="$0" type="default" />
+             <StatBox title="Overdue" value="$0" type="default" />
            </div>
         </div>
       </div>
@@ -134,7 +121,7 @@ export default function FinanceFees() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {studentFees.map(fee => (
+              {studentFees.length > 0 ? studentFees.map(fee => (
                 <tr key={fee.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-4">
                     <input type="checkbox" className="rounded text-indigo-500 focus:ring-indigo-500" />
@@ -170,7 +157,11 @@ export default function FinanceFees() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              )) : (
+                 <tr className="border-b border-slate-50 dark:border-slate-800/50">
+                    <td colSpan="9" className="p-8 text-center text-slate-500 font-medium">No fee collection data recorded yet.</td>
+                 </tr>
+              )}
             </tbody>
           </table>
         </div>

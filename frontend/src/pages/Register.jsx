@@ -38,7 +38,9 @@ export default function Register() {
         password: formData.password,
         role: 'student' // Hardcode to student automatically
       });
-      navigate('/dashboard');
+      // Registration successful but pending
+      alert("Registration successful! Your account is pending administrator approval.");
+      navigate('/login');
     } catch (err) {
       const errorData = err.response?.data || err.data;
       setError(errorData?.message || errorData?.errors?.[0]?.msg || err.message || 'Failed to register account.');
