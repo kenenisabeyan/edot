@@ -12,27 +12,34 @@ import {
   Bell,
   CheckCircle,
   Clock,
-  Award
+  Award,
+  TrendingUp,
+  TrendingDown,
+  Download,
+  Filter
 } from 'lucide-react';
 import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   BarChart, Bar,
   PieChart, Pie, Cell, Legend,
   LineChart, Line
 } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 import AgendaCreationModal from '../components/AgendaCreationModal';
 
 export default function EDOTDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [agendaEvents, setAgendaEvents] = useState([]);
   const [attendanceStats, setAttendanceStats] = useState([
-    { name: 'Present', value: 80, color: '#a78bfa' },
-    { name: 'Absent', value: 20, color: '#fcd34d' }
+    { name: 'Present', value: 80, color: '#818cf8' },
+    { name: 'Absent', value: 20, color: '#fbbf24' }
   ]);
   const [attendancePercentage, setAttendancePercentage] = useState('80%');
   const [showAgendaModal, setShowAgendaModal] = useState(false);
+  const [chartFilter, setChartFilter] = useState('Weekly');
 
   const userRole = user?.role ? user.role.toLowerCase().trim() : 'student';
 
@@ -53,7 +60,10 @@ export default function EDOTDashboard() {
           try {
              const attRes = await api.get('/attendance/aggregate');
              if (attRes.data.success && attRes.data.raw) {
-                setAttendanceStats(attRes.data.data);
+                setAttendanceStats([
+                   { name: 'Present', value: attRes.data.raw.present || 80, color: '#818cf8' },
+                   { name: 'Absent', value: attRes.data.raw.total - attRes.data.raw.present || 20, color: '#fbbf24' }
+                ]);
                 const { present, total } = attRes.data.raw;
                 if (total > 0) {
                    setAttendancePercentage(`${Math.round((present / total) * 100)}%`);
@@ -67,7 +77,6 @@ export default function EDOTDashboard() {
              console.error('Failed to fetch aggregate or calendar data', error);
           }
        } else if (userRole === 'student' || userRole === 'parent') {
-          // Students also need agenda
           try {
              const calRes = await api.get('/calendar');
              if (calRes.data.success) {
@@ -103,113 +112,170 @@ export default function EDOTDashboard() {
     { name: 'Jun', value: 65 },
   ];
 
-  // Removed static attendanceData array
+  const SmartCard = ({ title, value, percentage, isPositive, icon: Icon, colorTheme }) => {
+    const colorClasses = {
+      blue: 'from-blue-500 to-indigo-500 text-blue-500 bg-blue-50 dark:bg-blue-500/10',
+      green: 'from-emerald-400 to-teal-500 text-teal-500 bg-teal-50 dark:bg-teal-500/10',
+      purple: 'from-purple-500 to-fuchsia-500 text-purple-500 bg-purple-50 dark:bg-purple-500/10',
+      orange: 'from-orange-400 to-amber-500 text-orange-500 bg-orange-50 dark:bg-orange-500/10',
+    };
+    const theme = colorClasses[colorTheme] || colorClasses.blue;
+    const gradient = theme.split(' text-')[0];
+    const textBg = 'text-' + theme.split(' text-')[1];
 
-  const StatCard = ({ title, value, percentage, isPositive, icon: Icon, iconColor, bgColor }) => (
-    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-slate-500 font-medium text-sm">{title}</h3>
-        {percentage && (
-           <span className={`text-xs font-bold px-2 py-1 rounded-full ${isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-             {isPositive ? '+' : '-'}{percentage}%
-           </span>
-        )}
+    return (
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+        {/* Decorative corner glow */}
+        <div className={`absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br ${gradient} rounded-full opacity-10 group-hover:opacity-20 blur-xl transition-opacity`}></div>
+        
+        <div className="flex justify-between items-start mb-4 relative z-10">
+          <div className="flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${textBg} transition-transform group-hover:scale-110 duration-300`}>
+              {Icon && <Icon className="w-6 h-6" />}
+            </div>
+            <h3 className="text-slate-500 dark:text-slate-400 font-semibold text-sm">{title}</h3>
+          </div>
+          {percentage && (
+             <div className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm ${isPositive ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'}`}>
+               {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+               {percentage}%
+             </div>
+          )}
+        </div>
+        <div className="flex justify-between items-end relative z-10 mt-2">
+          <h2 className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">{value}</h2>
+        </div>
       </div>
-      <div className="flex justify-between items-end">
-        <h2 className="text-3xl font-bold text-slate-800">{value}</h2>
-      </div>
-    </div>
-  );
+    );
+  };
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-xl dark:shadow-slate-900/50 border border-slate-100 dark:border-slate-700">
+          <p className="font-bold text-slate-800 dark:text-white mb-2">{label}</p>
+          {payload.map((entry, index) => (
+            <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></span>
+              {entry.name}: <span className="font-bold text-slate-900 dark:text-white">{entry.value}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="space-y-6">
       
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-[#2dd4bf] to-[#6366f1] rounded-3xl p-8 text-white relative overflow-hidden shadow-lg">
-        <div className="relative z-10 max-w-lg">
-          <p className="text-teal-100 font-medium mb-2 uppercase tracking-wider text-sm">Dashboard</p>
-          <h1 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
-            {userRole === 'admin' ? `Welcome back, Admin ${user?.name || ''}` :
-             userRole === 'instructor' ? `Your teaching classes are performing great!` :
-             userRole === 'parent' ? (stats?.primaryLearner ? `Welcome back! You’re supporting ${stats.primaryLearner.name} 👋` : `Welcome back, Parent 👋`) :
-             `Welcome back, ${user?.name || ''}! Ready to learn?`}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-[2rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl shadow-indigo-500/20">
+        <div className="relative z-10 max-w-2xl">
+          <p className="text-indigo-200 font-bold mb-3 uppercase tracking-widest text-xs flex items-center gap-2">
+             <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+             Dashboard Overview
+          </p>
+          <h1 className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight tracking-tight">
+            {userRole === 'admin' ? `Welcome back, Admin ${user?.name || ''} 👋` :
+             userRole === 'instructor' ? `Your classes are performing great! 🚀` :
+             userRole === 'parent' ? (stats?.primaryLearner ? `Supporting ${stats.primaryLearner.name}'s journey 👋` : `Welcome back, Parent 👋`) :
+             `Welcome back, ${user?.name || ''}! Ready to learn? 💡`}
           </h1>
           
           {userRole === 'parent' && stats?.primaryLearner ? (
-            <div className="flex items-center gap-4 mt-2 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl w-max">
-               <div className="w-12 h-12 rounded-full border-2 border-white shadow-sm overflow-hidden shrink-0 bg-indigo-50 flex items-center justify-center">
-                  <img 
-                    src={`http://localhost:5000/uploads/avatars/${stats.primaryLearner.avatar || 'default-avatar.png'}`} 
-                    alt={stats.primaryLearner.name} 
-                    className="w-full h-full object-cover" 
-                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(stats.primaryLearner.name) + '&background=random'; }}
-                  />
-               </div>
-               <div>
-                  <p className="text-teal-50 font-medium text-sm">Here is {stats.primaryLearner.name}'s latest learning progress and activities.</p>
-                  <p className="text-xs text-white/80 font-bold mt-1 tracking-wide">{stats.averageProgress}% Average Progress &bull; {stats.completedLessons} Lessons Completed</p>
-               </div>
-            </div>
+             <div className="flex items-center gap-4 mt-6 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl w-max shadow-lg">
+                <div className="w-14 h-14 rounded-full border-2 border-white/80 shadow-md overflow-hidden shrink-0 bg-indigo-200 flex items-center justify-center">
+                   <img 
+                     src={`http://localhost:5000/uploads/avatars/${stats.primaryLearner.avatar || 'default-avatar.png'}`} 
+                     alt={stats.primaryLearner.name} 
+                     className="w-full h-full object-cover" 
+                     onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(stats.primaryLearner.name) + '&background=random'; }}
+                   />
+                </div>
+                <div>
+                   <p className="text-indigo-50 font-medium text-sm flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-emerald-400" />
+                      {stats.primaryLearner.name} is on a 5-day streak!
+                   </p>
+                   <p className="text-xs text-white/90 font-bold mt-1 tracking-wide bg-black/20 py-1 px-2 rounded-lg inline-block">
+                     {stats.averageProgress}% Avg Progress &bull; {stats.completedLessons} Lessons
+                   </p>
+                </div>
+             </div>
           ) : (
-             <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 py-2.5 rounded-full font-medium transition-colors border border-white/30">
-               View Details
+             <p className="text-indigo-100 font-medium max-w-lg leading-relaxed mb-6">
+                Here's what's happening with your platform today. <span onClick={() => navigate('/dashboard/notice')} className="underline decoration-indigo-400 underline-offset-4 cursor-pointer hover:text-white transition-colors">
+                  {((stats?.recentActivity?.length || 0) + (agendaEvents?.length || 0)) > 0 
+                    ? `You have ${stats?.recentActivity?.length || 0} new notifications and ${agendaEvents?.length || 0} upcoming events` 
+                    : "You are all caught up for today! No new notifications"}
+                </span> to review.
+             </p>
+          )}
+          {userRole !== 'parent' && (
+             <button onClick={() => navigate('/dashboard/analytics')} className="bg-white text-indigo-600 hover:bg-indigo-50 px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
+               View Detailed Report <TrendingUp className="w-4 h-4" />
              </button>
           )}
         </div>
-        {/* Decorative elements to mimic the 3D illustration in the image */}
-        <div className="absolute right-[-20px] top-[-30px] w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute right-[10%] bottom-[-20px] w-40 h-40 bg-indigo-500/40 rounded-full blur-2xl"></div>
+        {/* Decorative Modern Abstract Shapes */}
+        <div className="absolute -right-20 -top-20 w-[400px] h-[400px] bg-white/5 rounded-full blur-3xl mix-blend-overlay"></div>
+        <div className="absolute right-[10%] -bottom-32 w-[300px] h-[300px] bg-purple-500/40 rounded-full blur-3xl mix-blend-overlay"></div>
+        <div className="absolute left-1/2 top-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Modern Smart Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {userRole === 'admin' && stats ? (
           <>
-            <StatCard title="Total Courses" value={stats.totalCourses} isPositive={true} />
-            <StatCard title="Total Students" value={stats.totalStudents} isPositive={true} />
-            <StatCard title="Total Instructors" value={stats.totalInstructors} isPositive={true} /> 
-            <StatCard title="Total Income" value={`$${(stats.totalRevenue || 0).toLocaleString()}`} isPositive={true} />
+            <SmartCard title="Total Courses" value={stats.totalCourses} percentage="12" isPositive={true} icon={BookOpen} colorTheme="blue" />
+            <SmartCard title="Active Students" value={stats.totalStudents} percentage="5" isPositive={true} icon={Users} colorTheme="purple" />
+            <SmartCard title="Instructors" value={stats.totalInstructors} percentage="2" isPositive={true} icon={GraduationCap} colorTheme="green" /> 
+            <SmartCard title="Total Revenue" value={`$${(stats.totalRevenue || 0).toLocaleString()}`} percentage="8" isPositive={true} icon={CircleDollarSign} colorTheme="orange" />
           </>
         ) : userRole === 'instructor' && stats ? (
           <>
-            <StatCard title="Active Classes" value={stats.activeCourses} isPositive={true} />
-            <StatCard title="Total Students" value={stats.totalStudents} isPositive={true} />
-            <StatCard title="Total Lessons" value={stats.totalLessons} isPositive={true} /> 
-            <StatCard title="Total Drafts" value={stats.totalCourses - stats.activeCourses} isPositive={false} />
+            <SmartCard title="Active Classes" value={stats.activeCourses} percentage="15" isPositive={true} icon={BookOpen} colorTheme="blue" />
+            <SmartCard title="Total Students" value={stats.totalStudents} percentage="8" isPositive={true} icon={Users} colorTheme="purple" />
+            <SmartCard title="Total Lessons" value={stats.totalLessons} percentage="4" isPositive={true} icon={GraduationCap} colorTheme="green" /> 
+            <SmartCard title="Draft Courses" value={stats.totalCourses - stats.activeCourses} percentage="2" isPositive={false} icon={CircleDollarSign} colorTheme="orange" />
           </>
         ) : userRole === 'parent' && stats ? (
           <>
-            <StatCard title="Total Learners" value={stats.totalLearners} isPositive={true} />
-            <StatCard title="Total Enrolled Courses" value={stats.totalEnrolledCourses} isPositive={true} />
-            <StatCard title="Average Progress" value={`${stats.averageProgress}%`} isPositive={true} /> 
-            <StatCard title="Completed Lessons" value={stats.completedLessons} isPositive={true} />
+            <SmartCard title="Total Learners" value={stats.totalLearners} icon={Users} colorTheme="blue" />
+            <SmartCard title="Enrolled Courses" value={stats.totalEnrolledCourses} percentage="5" isPositive={true} icon={BookOpen} colorTheme="purple" />
+            <SmartCard title="Average Progress" value={`${stats.averageProgress}%`} percentage="12" isPositive={true} icon={TrendingUp} colorTheme="green" /> 
+            <SmartCard title="Completed Lessons" value={stats.completedLessons} percentage="3" isPositive={true} icon={Award} colorTheme="orange" />
           </>
         ) : stats ? (
           <>
-            <StatCard title="Enrolled Courses" value={stats.totalEnrolled} isPositive={true} />
-            <StatCard title="Average Progress" value={`${stats.averageProgress}%`} isPositive={true} />
-            <StatCard title="Completed Lessons" value={stats.completedLessons} isPositive={true} /> 
-            <StatCard title="Certificates" value={stats.completedCourses || 0} isPositive={true} />
+            <SmartCard title="Enrolled Courses" value={stats.totalEnrolled} icon={BookOpen} colorTheme="blue" />
+            <SmartCard title="Average Progress" value={`${stats.averageProgress}%`} percentage="8" isPositive={true} icon={TrendingUp} colorTheme="green" />
+            <SmartCard title="Completed Lessons" value={stats.completedLessons} percentage="15" isPositive={true} icon={Award} colorTheme="purple" /> 
+            <SmartCard title="Certificates" value={stats.completedCourses || 0} icon={CheckCircle} colorTheme="orange" />
           </>
         ) : (
-          <div className="col-span-full text-center py-4 text-slate-500">Loading stats...</div>
+          <div className="col-span-full text-center py-10 text-slate-500 font-medium animate-pulse">Loading dashboard elements...</div>
         )}
       </div>
 
       {/* Main Content Split */}
       <div className="flex flex-col xl:flex-row gap-6">
         
-        {/* Left Column - Charts */}
+        {/* Left Column - Advanced Analytics */}
         <div className="flex-1 space-y-6">
           
           {(userRole === 'admin' || userRole === 'instructor') && (
             <>
               <div className="flex flex-col lg:flex-row gap-6">
-                {/* Student Attendance */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1">
+                {/* Advanced Student Attendance pie */}
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex-1 hover:shadow-md transition-shadow cursor-pointer relative" onClick={() => navigate('/dashboard/attendance')}>
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-bold text-lg text-slate-800">{user?.role === 'admin' ? 'Global Attendance' : 'Class Attendance'}</h3>
-                    <button className="text-slate-400 hover:text-slate-600"><MoreVertical className="w-5 h-5" /></button>
+                    <div>
+                      <h3 className="font-bold text-lg text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">{user?.role === 'admin' ? 'Global Attendance' : 'Class Attendance'}</h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Real-time presence tracking</p>
+                    </div>
+                    <button className="p-2 text-slate-400 hover:text-indigo-600 bg-slate-50 dark:bg-slate-800 rounded-xl transition-colors"><MoreVertical className="w-5 h-5" /></button>
                   </div>
                   <div className="h-64 flex flex-col justify-center items-center relative">
                      <ResponsiveContainer width="100%" height="100%">
@@ -218,97 +284,120 @@ export default function EDOTDashboard() {
                            data={attendanceStats}
                            cx="50%"
                            cy="50%"
-                           innerRadius={70}
-                           outerRadius={95}
+                           innerRadius={75}
+                           outerRadius={100}
                            paddingAngle={5}
                            dataKey="value"
                            stroke="none"
+                           cornerRadius={8}
                          >
                            {attendanceStats.map((entry, index) => (
                              <Cell key={`cell-${index}`} fill={entry.color} />
                            ))}
                          </Pie>
-                         <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                         <RechartsTooltip content={<CustomTooltip />} />
                        </PieChart>
                      </ResponsiveContainer>
                      {/* Center Label */}
-                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-3xl font-bold text-slate-800">{attendancePercentage}</span>
+                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                        <span className="text-4xl font-extrabold text-slate-800 dark:text-white">{attendancePercentage}</span>
+                        <span className="text-xs font-semibold text-emerald-500 mt-1 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> 2%</span>
                      </div>
                   </div>
                   <div className="flex justify-center gap-6 mt-4">
-                     <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                        <span className="w-3 h-3 rounded-full bg-[#a78bfa]"></span> Present
+                     <div className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300">
+                        <span className="w-3.5 h-3.5 rounded-full bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)]"></span> Present
                      </div>
-                     <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                        <span className="w-3 h-3 rounded-full bg-[#fcd34d]"></span> Absent
+                     <div className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300">
+                        <span className="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]"></span> Absent
                      </div>
                   </div>
                 </div>
 
-                {/* Student Performance */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1">
+                {/* Performance Analytics Bar Chart */}
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex-1 hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-bold text-lg text-slate-800">Student Performance</h3>
-                    <button className="flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-indigo-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-                      Weekly <ChevronDown className="w-4 h-4" />
-                    </button>
+                    <div onClick={() => navigate('/dashboard/analytics')} className="cursor-pointer group">
+                       <h3 className="font-bold text-lg text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">Performance Insights</h3>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 cursor-pointer">Average scores per subject</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <button onClick={() => navigate('/dashboard/analytics')} className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+                         <Filter className="w-3.5 h-3.5" /> Filter
+                       </button>
+                    </div>
                   </div>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={studentPerformanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barSize={10}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                        <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                        <Bar dataKey="value1" fill="#818cf8" radius={[10, 10, 0, 0]} />
-                        <Bar dataKey="value2" fill="#fbbf24" radius={[10, 10, 0, 0]} />
-                        <Bar dataKey="value3" fill="#38bdf8" radius={[10, 10, 0, 0]} />
+                      <BarChart data={studentPerformanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barSize={12}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} />
+                        <RechartsTooltip cursor={{fill: 'rgba(99, 102, 241, 0.05)'}} content={<CustomTooltip />} />
+                        <Bar dataKey="value1" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                        <Bar dataKey="value2" fill="#a855f7" radius={[6, 6, 0, 0]} />
+                        <Bar dataKey="value3" fill="#14b8a6" radius={[6, 6, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="flex justify-center gap-6 mt-4">
                      {classNames[0] && (
-                       <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                          <span className="w-3 h-3 rounded-full bg-[#818cf8]"></span> {classNames[0]}
+                       <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                          <span className="w-3 h-3 rounded-full bg-indigo-500"></span> {classNames[0]}
                        </div>
                      )}
                      {classNames[1] && (
-                       <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                          <span className="w-3 h-3 rounded-full bg-[#fbbf24]"></span> {classNames[1]}
+                       <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                          <span className="w-3 h-3 rounded-full bg-purple-500"></span> {classNames[1]}
                        </div>
                      )}
                      {classNames[2] && (
-                       <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                          <span className="w-3 h-3 rounded-full bg-[#38bdf8]"></span> {classNames[2]}
+                       <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                          <span className="w-3 h-3 rounded-full bg-teal-500"></span> {classNames[2]}
                        </div>
                      )}
                   </div>
                 </div>
               </div>
 
-              {/* Teaching Activity Line Chart */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-bold text-lg text-slate-800">{user?.role === 'admin' ? 'Platform Growth' : 'Teaching Activity'}</h3>
-                  <button className="flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-indigo-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-                    Monthly <ChevronDown className="w-4 h-4" />
-                  </button>
+              {/* Teaching Activity Line Chart - Advanced */}
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-center mb-6">
+                    <div onClick={() => navigate('/dashboard/analytics')} className="cursor-pointer group">
+                      <h3 className="font-bold text-xl text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">{user?.role === 'admin' ? 'Platform Growth Analytics' : 'Teaching Activity Trends'}</h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Measure your reach over time</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex text-xs font-bold">
+                         {['Weekly', 'Monthly', 'Yearly'].map(filter => (
+                           <button 
+                             key={filter}
+                             onClick={() => setChartFilter(filter)}
+                             className={`px-4 py-1.5 rounded-lg transition-colors ${chartFilter === filter ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                           >
+                             {filter}
+                           </button>
+                         ))}
+                      </div>
+                      <button onClick={() => navigate('/dashboard/analytics')} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
+                        <Download className="w-4 h-4" /> Export
+                      </button>
+                    </div>
                 </div>
-                <div className="h-[280px]">
+                <div className="h-[300px]">
                    <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={teachingActivityData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                         <defs>
                           <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#fbbf24" stopOpacity={0}/>
+                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                        <Area type="monotone" dataKey="value" stroke="#fbbf24" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 13, fontWeight: 600}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 13, fontWeight: 600}} />
+                        <RechartsTooltip content={<CustomTooltip />} />
+                        <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorValue)" activeDot={{ r: 8, fill: '#6366f1', stroke: '#fff', strokeWidth: 3 }} />
                       </AreaChart>
                    </ResponsiveContainer>
                 </div>
@@ -318,34 +407,37 @@ export default function EDOTDashboard() {
 
           {/* PARENT SPECIFIC VIEW: Performance Tracking Line Chart */}
           {userRole === 'parent' && stats && (
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-lg text-slate-800">Learner Performance Progress</h3>
-                <button className="flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-indigo-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-                  Last 7 Weeks <ChevronDown className="w-4 h-4" />
+                <div onClick={() => navigate('/dashboard/analytics')} className="cursor-pointer group">
+                  <h3 className="font-bold text-xl text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">Learner Progress Journey</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Track actual vs target goals</p>
+                </div>
+                <button onClick={() => navigate('/dashboard/analytics')} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
+                  <Download className="w-4 h-4" /> Report
                 </button>
               </div>
-              <div className="h-[280px]">
+              <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={stats.performanceTimeline || []} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                      <Tooltip 
-                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} 
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} />
+                      <RechartsTooltip 
+                        content={<CustomTooltip />}
                         formatter={(value, name) => [value + '%', name === 'progress' ? 'Actual Progress' : 'Target Progress']}
                       />
-                      <Line type="monotone" dataKey="progress" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                      <Line type="monotone" dataKey="target" stroke="#94a3b8" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                      <Line type="monotone" dataKey="progress" stroke="#8b5cf6" strokeWidth={4} dot={{ r: 5, fill: '#8b5cf6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8 }} />
+                      <Line type="monotone" dataKey="target" stroke="#94a3b8" strokeWidth={3} strokeDasharray="6 6" dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
               </div>
-              <div className="flex items-center justify-center gap-6 mt-4">
-                 <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                    <span className="w-3 h-3 rounded-full bg-indigo-600"></span> Actual Progress
+              <div className="flex items-center justify-center gap-8 mt-6">
+                 <div className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300">
+                    <span className="w-4 h-4 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(139,92,246,0.5)]"></span> Actual Progress
                  </div>
-                 <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                    <span className="w-3 h-3 rounded-full bg-slate-400 border border-slate-400 border-dashed"></span> Target Goal
+                 <div className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300">
+                    <span className="w-4 h-4 rounded-full bg-slate-300 dark:bg-slate-600 border-2 border-slate-400 dark:border-slate-500 border-dashed"></span> Target Goal
                  </div>
               </div>
             </div>
@@ -354,44 +446,60 @@ export default function EDOTDashboard() {
           {(!user || userRole === 'student') && (
             <>
               {/* Student Weekly Learning Activity */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-bold text-lg text-slate-800">Weekly Learning Activity</h3>
-                  <button className="flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-indigo-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-                    This Week <ChevronDown className="w-4 h-4" />
-                  </button>
+                  <div>
+                    <h3 className="font-bold text-lg text-slate-800 dark:text-white">Weekly Learning Activity</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Time spent learning</p>
+                  </div>
+                  <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex text-xs font-bold">
+                     <button className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm">This Week</button>
+                     <button className="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400">Last Week</button>
+                  </div>
                 </div>
                 <div className="h-[280px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={[
                         { name: 'Mon', minutes: 45 }, { name: 'Tue', minutes: 0 }, { name: 'Wed', minutes: 60 }, { name: 'Thu', minutes: 120 }, { name: 'Fri', minutes: 30 }, { name: 'Sat', minutes: 90 }, { name: 'Sun', minutes: 15 }
                     ]} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                      <Tooltip cursor={{fill: '#f8fafc'}} formatter={(value) => [`${value} mins`, 'Time Spent']} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                      <Bar dataKey="minutes" fill="#818cf8" radius={[6, 6, 0, 0]} maxBarSize={40} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} />
+                      <RechartsTooltip cursor={{fill: 'rgba(99, 102, 241, 0.05)'}} formatter={(value) => [`${value} mins`, 'Time Spent']} content={<CustomTooltip />} />
+                      <Bar dataKey="minutes" fill="#6366f1" radius={[8, 8, 0, 0]} maxBarSize={45}>
+                        {
+                          [45, 0, 60, 120, 30, 90, 15].map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry === 120 ? '#8b5cf6' : '#6366f1'} />
+                          ))
+                        }
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
                {/* Course Progress Summary */}
-               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                  <h3 className="font-bold text-lg text-slate-800 mb-6">Current Course Progress</h3>
+               <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="font-bold text-lg text-slate-800 dark:text-white">Current Course Progress</h3>
+                    <button className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 transition-colors">View All Course</button>
+                  </div>
                   <div className="space-y-6">
                     {(stats?.recentEnrollments && stats.recentEnrollments.length > 0 ? stats.recentEnrollments : [
-                      { courseTitle: 'Introduction to React', progress: 75 },
-                      { courseTitle: 'Advanced UI/UX Design', progress: 40 },
-                      { courseTitle: 'Backend Development Node.js', progress: 15 }
+                      { courseTitle: 'Introduction to React', progress: 75, color: 'bg-indigo-500' },
+                      { courseTitle: 'Advanced UI/UX Design', progress: 40, color: 'bg-purple-500' },
+                      { courseTitle: 'Backend Development Node.js', progress: 15, color: 'bg-teal-500' }
                     ]).map((course, idx) => (
-                      <div key={idx} className="space-y-2">
-                        <div className="flex justify-between text-sm font-medium text-slate-700">
-                          <span>{course.courseTitle}</span>
-                          <span className="text-indigo-600">{course.progress}%</span>
+                      <div key={idx} className="space-y-3">
+                        <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
+                          <span className="flex items-center gap-2">
+                             <div className={`w-2 h-2 rounded-full ${course.color || 'bg-indigo-500'}`}></div>
+                             {course.courseTitle}
+                          </span>
+                          <span className={`${course.color ? course.color.replace('bg-', 'text-') : 'text-indigo-600'}`}>{course.progress}%</span>
                         </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${course.progress}%` }}></div>
+                        <div className="h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                          <div className={`h-full rounded-full transition-all duration-1000 ease-out ${course.color || 'bg-indigo-500'}`} style={{ width: `${course.progress}%` }}></div>
                         </div>
                       </div>
                     ))}
@@ -402,120 +510,124 @@ export default function EDOTDashboard() {
 
         </div>
 
-        {/* Right Column - Widgets */}
-        <div className="w-full xl:w-[320px] shrink-0 space-y-6">
+        {/* Right Column - Smart Widgets */}
+        <div className="w-full xl:w-[360px] shrink-0 space-y-6">
            
-           {/* Mini Calendar Widget */}
-           <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-             <div className="flex justify-between items-center mb-6">
-               <h3 className="font-bold text-lg text-slate-800">March 2030</h3>
-               <button className="text-slate-400 hover:text-slate-600"><CalendarDays className="w-5 h-5" /></button>
-             </div>
-             
-             <div className="grid grid-cols-7 gap-1 text-xs font-medium text-slate-400 mb-2">
-               <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
-             </div>
-             <div className="grid grid-cols-7 gap-1 text-sm font-semibold text-slate-700">
-               {/* Just mocking days perfectly aligned to show intent */}
-               <div className="p-2 text-slate-300">24</div>
-               <div className="p-2 text-slate-300">25</div>
-               <div className="p-2 text-slate-300">26</div>
-               <div className="p-2 text-slate-300">27</div>
-               <div className="p-2 text-slate-300">28</div>
-               <div className="p-2 text-slate-300">1</div>
-               <div className="p-2">2</div>
-               {Array.from({length: 28}, (_, i) => (
-                 <div key={i} className={`p-2 rounded-full flex items-center justify-center ${
-                   i + 3 === 20 ? 'bg-indigo-600 text-white' : 
-                   i + 3 === 14 ? 'bg-amber-100 text-amber-600' : 
-                   ''
-                 }`}>
-                   {i + 3}
-                 </div>
-               ))}
-               <div className="p-2 text-slate-300">1</div>
-             </div>
-           </div>
-
            {/* Agenda Widget */}
-           <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-full max-h-[500px]">
+           <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full max-h-[500px]">
              <div className="flex justify-between items-center mb-6 shrink-0">
-               <h3 className="font-bold text-lg text-slate-800">Agenda</h3>
+               <div onClick={() => navigate('/dashboard/calendar')} className="cursor-pointer group">
+                  <h3 className="font-bold text-xl text-slate-800 dark:text-white flex items-center gap-2 group-hover:text-indigo-600 transition-colors"><CalendarDays className="w-5 h-5 text-indigo-500" /> Agenda</h3>
+                  <p className="text-xs text-slate-500 mt-1">Your upcoming events</p>
+               </div>
                <div className="flex gap-2">
                  {(userRole === 'admin' || userRole === 'instructor') && (
                    <button 
                      onClick={() => setShowAgendaModal(true)}
-                     className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                     className="text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-2 rounded-xl transition-colors shadow-sm shadow-indigo-500/30 flex items-center gap-1"
                    >
                      + Create
                    </button>
                  )}
-                 <button className="text-slate-400 hover:text-slate-600"><MoreVertical className="w-5 h-5" /></button>
                </div>
              </div>
-             <div className="space-y-4 overflow-y-auto flex-1 pr-2">
+             
+             <div className="space-y-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
                  {agendaEvents.length > 0 ? (
                   agendaEvents.map(event => {
                     const isMeeting = event.type === 'meeting';
                     const isExam = event.type === 'exam';
                     const isAdvice = event.type === 'advice';
                     const isSupport = event.type === 'support';
-                    const iconColorClass = isExam ? 'text-rose-500' : isMeeting ? 'text-blue-500' : isAdvice ? 'text-amber-500' : isSupport ? 'text-emerald-500' : 'text-indigo-500';
+                    
+                    const colorMap = {
+                      meeting: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 border-blue-100 dark:border-blue-900',
+                      exam: 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 border-rose-100 dark:border-rose-900',
+                      advice: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border-amber-100 dark:border-amber-900',
+                      support: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900',
+                      default: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900'
+                    };
+
+                    const styleClass = colorMap[event.type] || colorMap.default;
 
                     return (
-                      <div key={event._id} className="p-4 rounded-2xl border bg-white border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex justify-between items-start mb-2">
-                          <p className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
-                            <span className={`w-2 h-2 rounded-full ${event.color || 'bg-indigo-500'}`}></span>
-                            {new Date(event.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
-                          </p>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${event.color ? event.color.replace('bg-', 'text-').replace('-500', '-600') + ' bg-slate-50' : 'text-indigo-600 bg-indigo-50'}`}>
-                            {event.type || 'announcement'}
-                          </span>
+                      <div key={event._id} className={`p-4 rounded-2xl border bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all group flex gap-4 ${styleClass.split(' ')[4]}`}>
+                        <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 ${styleClass.split(' ').slice(0,4).join(' ')}`}>
+                           <span className="text-[10px] font-bold uppercase">{new Date(event.date).toLocaleString('en-US', { month: 'short' })}</span>
+                           <span className="text-lg font-extrabold">{new Date(event.date).getDate()}</span>
                         </div>
-                        <h4 className="font-bold text-slate-800 leading-tight mb-1" title={event.title}>{event.title}</h4>
-                        {event.description && <p className="text-xs text-slate-500 line-clamp-2">{event.description}</p>}
+                        <div>
+                           <div className="flex justify-between items-start mb-1">
+                             <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest ${styleClass.split(' ').slice(0,4).join(' ')}`}>
+                               {event.type || 'Announcement'}
+                             </span>
+                           </div>
+                           <h4 className="font-bold text-sm text-slate-800 dark:text-white leading-tight mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" title={event.title}>{event.title}</h4>
+                           <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-semibold"><Clock className="w-3 h-3" /> {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
                       </div>
                     )
                   })
                 ) : (
-                  <div className="p-4 rounded-2xl border bg-slate-50 border-slate-100 text-center text-slate-500 text-sm font-medium">
-                    No upcoming events.
+                  <div onClick={() => navigate('/dashboard/calendar')} className="h-full flex flex-col items-center justify-center p-6 text-center cursor-pointer group">
+                    <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 rounded-full flex items-center justify-center mb-3 transition-colors">
+                       <CalendarDays className="w-8 h-8 text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors" />
+                    </div>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium text-sm group-hover:text-indigo-500 transition-colors">You have a clear schedule today!</p>
                   </div>
                 )}
              </div>
-             <button className="w-full mt-4 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors">
-                View All
+             
+             <button onClick={() => navigate('/dashboard/calendar')} className="w-full mt-4 py-3.5 text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
+                View Full Calendar
              </button>
+             
            </div>
 
-            {/* PARENT SPECIFIC WIDGET: Smart Notifications */}
-            {userRole === 'parent' && stats && (
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <div className="flex justify-between items-center mb-6">
-                  <div className="flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-indigo-500" />
-                    <h3 className="font-bold text-lg text-slate-800">Smart Alerts</h3>
+            {/* Smart Alerts / Activity Timeline */}
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-center mb-6">
+                <div onClick={() => navigate('/dashboard/notice')} className="flex items-center gap-2 cursor-pointer group">
+                  <div className="relative">
+                    <Bell className="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-ping"></span>
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
                   </div>
-                  <span className="bg-rose-100 text-rose-600 text-xs font-bold px-2 py-0.5 rounded-full">{stats.recentActivity?.length || 0} New</span>
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">Recent Activity</h3>
                 </div>
-                <div className="space-y-4">
-                  {(stats.recentActivity || []).map(activity => (
-                    <div key={activity.id} className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-start flex-col">
-                      <div className="flex items-center gap-2 mb-1 w-full text-xs font-bold uppercase tracking-wide">
-                        {activity.type === 'course_completed' && <span className="text-emerald-500 flex items-center gap-1"><Award className="w-3 h-3" /> COMPLETED</span>}
-                        {activity.type === 'quiz_passed' && <span className="text-amber-500 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> PASSED QUIZ</span>}
-                        {activity.type === 'lesson_watched' && <span className="text-indigo-500 flex items-center gap-1"><Clock className="w-3 h-3" /> RECENT ACTIVITY</span>}
-                      </div>
-                      <h4 className="text-slate-800 font-bold text-sm mb-1">{activity.studentName} {activity.type === 'course_completed' ? 'finished the course:' : activity.type.includes('quiz') ? 'scored '+ activity.score+'% on' : 'just finished watching'} <span className="text-indigo-600">{activity.title}</span></h4>
-                      <p className="text-xs text-slate-500 bg-white border border-slate-200 px-2 py-1 rounded inline-block mt-1">
-                        {new Date(activity.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                <span onClick={() => navigate('/dashboard/notice')} className="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-[10px] font-extrabold px-2 py-1 rounded-lg uppercase tracking-wider cursor-pointer hover:bg-indigo-200 transition-colors">{stats?.recentActivity?.length || 3} New</span>
               </div>
-            )}
+              <div className="space-y-5 border-l-2 border-slate-100 dark:border-slate-800 ml-2 pl-4">
+                {stats?.recentActivity && stats.recentActivity.length > 0 ? (
+                  stats.recentActivity.map((activity, idx) => (
+                    <div key={activity.id || idx} className="relative group">
+                      {/* Timeline Node */}
+                      <div className={`absolute -left-[23px] w-4 h-4 rounded-full border-4 border-white dark:border-slate-900 ${
+                         activity.type === 'course_completed' ? 'bg-emerald-500' :
+                         activity.type === 'quiz_passed' ? 'bg-amber-500' : 'bg-indigo-500'
+                      }`}></div>
+                      
+                      <div className="flex flex-col">
+                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-1">
+                          {new Date(activity.date).toLocaleDateString([], { month: 'short', day: 'numeric' })} &bull; {new Date(activity.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                        <h4 className="text-slate-800 dark:text-slate-200 font-semibold text-sm leading-tight">
+                          <span className="text-indigo-600 dark:text-indigo-400 font-bold">{activity.studentName || activity.name || 'A user'}</span> 
+                          {activity.type === 'course_completed' ? ' completed the course ' : 
+                           activity.type.includes('quiz') ? ` scored ${activity.score || 0}% on ` : ' engaged with '} 
+                          <span className="font-bold">"{activity.title || activity.itemTitle || 'content'}"</span>
+                        </h4>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-6 text-center">
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">No recent activity detected.</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">When your platform gets busy, action logs will appear here.</p>
+                  </div>
+                )}
+              </div>
+            </div>
          </div>
       </div>
 
@@ -523,7 +635,6 @@ export default function EDOTDashboard() {
          isOpen={showAgendaModal} 
          onClose={() => setShowAgendaModal(false)} 
          onAgendaCreated={(newEvent) => {
-            // Unshift new event into the array to show it immediately (optimistic UI)
             setAgendaEvents(prev => [newEvent, ...prev].slice(0, 4));
          }}
       />
