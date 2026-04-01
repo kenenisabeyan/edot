@@ -102,6 +102,30 @@ router.post('/courses/:courseId/exam/complete', async (req, res) => {
     }
 });
 
+// @route   GET /api/student/analytics/detailed
+// @desc    Get detailed analytics for student (currently minimal fallback)
+router.get('/analytics/detailed', async (req, res) => {
+    try {
+        const student = await User.findById(req.user.id).select('enrolledCourses');
+        // Provide baseline mock/empty analytics structure
+        res.status(200).json({
+            success: true,
+            data: {
+                revenueData: [],
+                engagementData: [],
+                courseCompletionData: [
+                   { name: 'Enrolled', value: student?.enrolledCourses?.length || 1, color: '#10b981' }
+                ],
+                totalRevenue: 0,
+                totalActiveLearners: 1,
+                totalCourseCompletions: 0
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
 // @route   GET /api/student/dashboard
 // @desc    Get student dashboard statistics
 router.get('/dashboard', async (req, res) => {

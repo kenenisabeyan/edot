@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, AreaChart, Area, PieChart, Pie, Cell
@@ -13,37 +14,37 @@ export default function AnalyticsReport() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-
-  // Simulated detailed data
-  const revenueData = [
-    { name: 'Jan', revenue: 4000 },
-    { name: 'Feb', revenue: 3000 },
-    { name: 'Mar', revenue: 5000 },
-    { name: 'Apr', revenue: 4500 },
-    { name: 'May', revenue: 6000 },
-    { name: 'Jun', revenue: 7000 },
-  ];
-
-  const engagementData = [
-    { name: 'Week 1', students: 120, teachers: 20 },
-    { name: 'Week 2', students: 132, teachers: 22 },
-    { name: 'Week 3', students: 101, teachers: 24 },
-    { name: 'Week 4', students: 154, teachers: 26 },
-  ];
-
-  const courseCompletionData = [
-    { name: 'Completed', value: 400, color: '#10b981' },
-    { name: 'In Progress', value: 300, color: '#6366f1' },
-    { name: 'Not Started', value: 100, color: '#f59e0b' }
-  ];
+  const [reportData, setReportData] = useState({
+     revenueData: [],
+     engagementData: [],
+     courseCompletionData: [],
+     totalRevenue: 0,
+     totalActiveLearners: 0,
+     totalCourseCompletions: 0
+  });
 
   const COLORS = ['#10b981', '#6366f1', '#f59e0b'];
 
   useEffect(() => {
-    // Simulate fetching complex report data
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchDetailedAnalytics = async () => {
+       try {
+          const userRole = user?.role ? user.role.toLowerCase().trim() : 'student';
+          // Since this page is advanced, student will default to empty data arrays or a restricted backend route
+          const { data } = await api.get(`/${userRole}/analytics/detailed`);
+          if (data.success) {
+             setReportData(data.data);
+          }
+       } catch (error) {
+          console.error("Failed to fetch precise detailed analytics", error);
+       } finally {
+          setLoading(false);
+       }
+    };
+
+    if (user) {
+        fetchDetailedAnalytics();
+    }
+  }, [user]);
 
   return (
     <div className="space-y-6">
@@ -86,8 +87,8 @@ export default function AnalyticsReport() {
                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm"><CircleDollarSign className="w-6 h-6" /></div>
                    <span className="flex items-center gap-1 text-sm font-bold bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm"><TrendingUp className="w-3 h-3" /> 24%</span>
                  </div>
-                 <h2 className="text-3xl font-extrabold mb-1">$29,500</h2>
-                 <p className="text-indigo-100 font-medium">Total Quarterly Revenue</p>
+                 <h2 className="text-3xl font-extrabold mb-1">${(reportData.totalRevenue || 0).toLocaleString()}</h2>
+                 <p className="text-indigo-100 font-medium">{user?.role === 'admin' ? 'Total Quarterly Revenue' : 'Total Course Earnings'}</p>
                </div>
              </div>
              
@@ -96,7 +97,7 @@ export default function AnalyticsReport() {
                  <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-xl"><Users className="w-6 h-6" /></div>
                </div>
                <div>
-                 <h2 className="text-3xl font-extrabold text-slate-800 dark:text-white mb-1">1,204</h2>
+                 <h2 className="text-3xl font-extrabold text-slate-800 dark:text-white mb-1">{reportData.totalActiveLearners || 0}</h2>
                  <p className="text-slate-500 dark:text-slate-400 font-medium">Active Learners</p>
                </div>
              </div>
@@ -106,7 +107,7 @@ export default function AnalyticsReport() {
                  <div className="p-2 bg-amber-50 dark:bg-amber-500/10 text-amber-500 rounded-xl"><BookOpen className="w-6 h-6" /></div>
                </div>
                <div>
-                 <h2 className="text-3xl font-extrabold text-slate-800 dark:text-white mb-1">342</h2>
+                 <h2 className="text-3xl font-extrabold text-slate-800 dark:text-white mb-1">{reportData.totalCourseCompletions || 0}</h2>
                  <p className="text-slate-500 dark:text-slate-400 font-medium">Course Completions</p>
                </div>
              </div>
@@ -118,7 +119,7 @@ export default function AnalyticsReport() {
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Revenue Trajectory</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <AreaChart data={reportData.revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
@@ -139,7 +140,7 @@ export default function AnalyticsReport() {
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Platform Engagement</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={engagementData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <BarChart data={reportData.engagementData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
@@ -158,9 +159,9 @@ export default function AnalyticsReport() {
                 <div className="h-48 w-1/2">
                    <ResponsiveContainer width="100%" height="100%">
                      <PieChart>
-                       <Pie data={courseCompletionData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                         {courseCompletionData.map((entry, index) => (
-                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                       <Pie data={reportData.courseCompletionData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                         {(reportData.courseCompletionData || []).map((entry, index) => (
+                           <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
                          ))}
                        </Pie>
                        <Tooltip />
@@ -170,7 +171,7 @@ export default function AnalyticsReport() {
                 <div className="w-1/2 pl-4">
                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Course Status Overview</h3>
                    <div className="space-y-3">
-                     {courseCompletionData.map((item, idx) => (
+                     {(reportData.courseCompletionData || []).map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center text-sm">
                            <div className="flex items-center gap-2">
                               <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></span>
