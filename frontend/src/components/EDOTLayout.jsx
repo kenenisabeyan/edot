@@ -34,7 +34,7 @@ export default function EDOTLayout() {
     navigate('/');
   };
 
-  const role = user?.role || 'student';
+  const role = user?.role ? user.role.toLowerCase().trim() : 'student';
 
   const roleNavConfig = {
     admin: {
@@ -86,11 +86,14 @@ export default function EDOTLayout() {
     parent: {
       menu1: [
         { name: 'Dashboard', icon: Home, path: '/dashboard', exact: true },
-        { name: 'My Learners', icon: Users, path: '/dashboard/learners' },
+        { name: 'My Child', icon: Users, path: '/dashboard/child' },
+        { name: 'Progress Report', icon: ClipboardCheck, path: '/dashboard/progress' },
+        { name: 'Schedule', icon: CalendarDays, path: '/dashboard/schedule' },
       ],
       menu2: [
-        { name: 'Notice', icon: BellRing, path: '/dashboard/notice' },
-        { name: 'Message', icon: MessageSquare, path: '/dashboard/messages' },
+        { name: 'Messages', icon: MessageSquare, path: '/dashboard/messages' },
+        { name: 'Notifications', icon: BellRing, path: '/dashboard/notice' },
+        { name: 'Library', icon: BookOpen, path: '/dashboard/library' },
       ],
       showFinance: false
     }

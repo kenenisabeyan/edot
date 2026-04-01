@@ -48,14 +48,40 @@ exports.getParentDashboardStats = async (req, res) => {
 
     const averageProgress = progressCount > 0 ? Math.round(totalProgress / progressCount) : 0;
 
+    // Generate Mock Timeline Data for charts
+    const performanceTimeline = [
+      { name: 'Week 1', progress: 10, target: 15 },
+      { name: 'Week 2', progress: 25, target: 30 },
+      { name: 'Week 3', progress: 35, target: 45 },
+      { name: 'Week 4', progress: 50, target: 60 },
+      { name: 'Week 5', progress: 75, target: 75 },
+      { name: 'Week 6', progress: 85, target: 90 },
+      { name: 'Week 7', progress: 95, target: 100 },
+    ];
+
+    // Generate Mock Recent Activity
+    const recentActivity = [
+      { id: 1, type: 'course_completed', title: 'React Fundamentals', studentName: children[0]?.name || 'Student', date: new Date(Date.now() - 86400000).toISOString() },
+      { id: 2, type: 'quiz_passed', title: 'JavaScript Basics Quiz', score: 95, studentName: children[0]?.name || 'Student', date: new Date(Date.now() - 172800000).toISOString() },
+      { id: 3, type: 'lesson_watched', title: 'Introduction to Hooks', studentName: children[0]?.name || 'Student', date: new Date(Date.now() - 259200000).toISOString() },
+    ];
+
+    const primaryLearner = children.length > 0 ? {
+      name: children[0].name,
+      avatar: children[0].avatar
+    } : null;
+
     res.json({
       success: true,
       data: {
+        primaryLearner,
         totalLearners,
         totalEnrolledCourses,
         averageProgress,
         completedLessons,
-        completedCourses
+        completedCourses,
+        performanceTimeline,
+        recentActivity
       }
     });
   } catch (error) {

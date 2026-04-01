@@ -8,12 +8,17 @@ import {
   CircleDollarSign,
   MoreVertical,
   ChevronDown,
-  CalendarDays
+  CalendarDays,
+  Bell,
+  CheckCircle,
+  Clock,
+  Award
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar,
-  PieChart, Pie, Cell, Legend
+  PieChart, Pie, Cell, Legend,
+  LineChart, Line
 } from 'recharts';
 
 export default function EDOTDashboard() {
@@ -21,11 +26,12 @@ export default function EDOTDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const userRole = user?.role ? user.role.toLowerCase().trim() : 'student';
+
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const role = user?.role || 'student';
-        const { data } = await api.get(`/${role}/dashboard`);
+        const { data } = await api.get(`/${userRole}/dashboard`);
         setStats(data.data);
       } catch (err) {
         console.error('Error fetching dashboard stats', err);
@@ -36,7 +42,7 @@ export default function EDOTDashboard() {
     if (user) {
         fetchDashboardStats();
     }
-  }, [user]);
+  }, [user, userRole]);
 
   // Mock Data
   const studentPerformanceData = [
@@ -73,7 +79,6 @@ export default function EDOTDashboard() {
       </div>
       <div className="flex justify-between items-end">
         <h2 className="text-3xl font-bold text-slate-800">{value}</h2>
-        {/* We can put an icon or graphic here if strictly adhering, mockups show numbers boldly. */}
       </div>
     </div>
   );
@@ -86,14 +91,32 @@ export default function EDOTDashboard() {
         <div className="relative z-10 max-w-lg">
           <p className="text-teal-100 font-medium mb-2 uppercase tracking-wider text-sm">Dashboard</p>
           <h1 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
-            {user?.role === 'admin' ? `Welcome back, Admin ${user?.name || ''}` :
-             user?.role === 'instructor' ? `Your teaching classes are performing great!` :
-             user?.role === 'parent' ? `Welcome, ${user?.name || ''}! Monitor your learners' progress.` :
+            {userRole === 'admin' ? `Welcome back, Admin ${user?.name || ''}` :
+             userRole === 'instructor' ? `Your teaching classes are performing great!` :
+             userRole === 'parent' ? (stats?.primaryLearner ? `Welcome back! You’re supporting ${stats.primaryLearner.name} 👋` : `Welcome back, Parent 👋`) :
              `Welcome back, ${user?.name || ''}! Ready to learn?`}
           </h1>
-          <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 py-2.5 rounded-full font-medium transition-colors border border-white/30">
-            View Details
-          </button>
+          
+          {userRole === 'parent' && stats?.primaryLearner ? (
+            <div className="flex items-center gap-4 mt-2 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl w-max">
+               <div className="w-12 h-12 rounded-full border-2 border-white shadow-sm overflow-hidden shrink-0 bg-indigo-50 flex items-center justify-center">
+                  <img 
+                    src={`http://localhost:5000/uploads/avatars/${stats.primaryLearner.avatar || 'default-avatar.png'}`} 
+                    alt={stats.primaryLearner.name} 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(stats.primaryLearner.name) + '&background=random'; }}
+                  />
+               </div>
+               <div>
+                  <p className="text-teal-50 font-medium text-sm">Here is {stats.primaryLearner.name}'s latest learning progress and activities.</p>
+                  <p className="text-xs text-white/80 font-bold mt-1 tracking-wide">{stats.averageProgress}% Average Progress &bull; {stats.completedLessons} Lessons Completed</p>
+               </div>
+            </div>
+          ) : (
+             <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 py-2.5 rounded-full font-medium transition-colors border border-white/30">
+               View Details
+             </button>
+          )}
         </div>
         {/* Decorative elements to mimic the 3D illustration in the image */}
         <div className="absolute right-[-20px] top-[-30px] w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
@@ -102,21 +125,21 @@ export default function EDOTDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {user?.role === 'admin' && stats ? (
+        {userRole === 'admin' && stats ? (
           <>
             <StatCard title="Total Courses" value={stats.totalCourses} isPositive={true} />
             <StatCard title="Total Students" value={stats.totalStudents} isPositive={true} />
             <StatCard title="Total Instructors" value={stats.totalInstructors} isPositive={true} /> 
             <StatCard title="Total Income" value={`$${(stats.totalRevenue || 0).toLocaleString()}`} isPositive={true} />
           </>
-        ) : user?.role === 'instructor' && stats ? (
+        ) : userRole === 'instructor' && stats ? (
           <>
             <StatCard title="Active Classes" value={stats.activeCourses} isPositive={true} />
             <StatCard title="Total Students" value={stats.totalStudents} isPositive={true} />
             <StatCard title="Total Lessons" value={stats.totalLessons} isPositive={true} /> 
             <StatCard title="Total Drafts" value={stats.totalCourses - stats.activeCourses} isPositive={false} />
           </>
-        ) : user?.role === 'parent' && stats ? (
+        ) : userRole === 'parent' && stats ? (
           <>
             <StatCard title="Total Learners" value={stats.totalLearners} isPositive={true} />
             <StatCard title="Total Enrolled Courses" value={stats.totalEnrolledCourses} isPositive={true} />
@@ -141,7 +164,7 @@ export default function EDOTDashboard() {
         {/* Left Column - Charts */}
         <div className="flex-1 space-y-6">
           
-          {(user?.role === 'admin' || user?.role === 'instructor') && (
+          {(userRole === 'admin' || userRole === 'instructor') && (
             <>
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Student Attendance */}
@@ -249,7 +272,42 @@ export default function EDOTDashboard() {
             </>
           )}
 
-          {(!user || user?.role === 'student') && (
+          {/* PARENT SPECIFIC VIEW: Performance Tracking Line Chart */}
+          {userRole === 'parent' && stats && (
+            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-bold text-lg text-slate-800">Learner Performance Progress</h3>
+                <button className="flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-indigo-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                  Last 7 Weeks <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="h-[280px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={stats.performanceTimeline || []} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} 
+                        formatter={(value, name) => [value + '%', name === 'progress' ? 'Actual Progress' : 'Target Progress']}
+                      />
+                      <Line type="monotone" dataKey="progress" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="target" stroke="#94a3b8" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+              </div>
+              <div className="flex items-center justify-center gap-6 mt-4">
+                 <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <span className="w-3 h-3 rounded-full bg-indigo-600"></span> Actual Progress
+                 </div>
+                 <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <span className="w-3 h-3 rounded-full bg-slate-400 border border-slate-400 border-dashed"></span> Target Goal
+                 </div>
+              </div>
+            </div>
+          )}
+
+          {(!user || userRole === 'student') && (
             <>
               {/* Student Weekly Learning Activity */}
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
@@ -342,14 +400,18 @@ export default function EDOTDashboard() {
                <button className="text-slate-400 hover:text-slate-600"><MoreVertical className="w-5 h-5" /></button>
              </div>
              <div className="space-y-4">
-               {[
-                 { time: '09:00 AM - 10:00 AM', title: 'Meeting with Ato Abebe', id: 1 },
-                 { time: '11:00 AM - 12:00 PM', title: 'Meskel Celebration Prep', color: 'bg-indigo-50 border-indigo-200', text: 'text-indigo-800', id: 2 },
-                 { time: '01:00 PM - 02:00 PM', title: 'Prepare for Tomorrow\'s Debate', id: 3 }
-               ].map(agenda => (
+               {(userRole === 'parent' && stats?.primaryLearner ? [
+                 { time: 'Tomorrow, 10:00 AM', title: `${stats.primaryLearner.name.split(' ')[0]}'s Math Final Exam`, color: 'bg-rose-50 border-rose-200', text: 'text-rose-800', dot: 'bg-rose-500', id: 1 },
+                 { time: 'Friday, 02:00 PM', title: 'Parent-Teacher Meeting', color: 'bg-indigo-50 border-indigo-200', text: 'text-indigo-800', dot: 'bg-indigo-500', id: 2 },
+                 { time: 'Next Monday', title: 'Science Project Due', color: 'bg-amber-50 border-amber-200', text: 'text-amber-800', dot: 'bg-amber-500', id: 3 }
+               ] : [
+                 { time: '09:00 AM - 10:00 AM', title: 'Meeting with Ato Abebe', id: 1, dot: 'bg-slate-400' },
+                 { time: '11:00 AM - 12:00 PM', title: 'Meskel Celebration Prep', color: 'bg-indigo-50 border-indigo-200', text: 'text-indigo-800', dot: 'bg-indigo-500', id: 2 },
+                 { time: '01:00 PM - 02:00 PM', title: 'Prepare for Tomorrow\'s Debate', id: 3, dot: 'bg-slate-400' }
+               ]).map(agenda => (
                  <div key={agenda.id} className={`p-4 rounded-2xl border ${agenda.color || 'bg-slate-50 border-slate-100'}`}>
                    <p className="text-xs font-semibold text-slate-500 mb-1 flex items-center gap-1.5 uppercase tracking-wide">
-                     <span className={`w-2 h-2 rounded-full ${agenda.color ? 'bg-indigo-500' : 'bg-slate-400'}`}></span>
+                     <span className={`w-2 h-2 rounded-full ${agenda.dot}`}></span>
                      {agenda.time}
                    </p>
                    <h4 className={`font-bold ${agenda.text || 'text-slate-800'} leading-tight`}>{agenda.title}</h4>
@@ -357,10 +419,38 @@ export default function EDOTDashboard() {
                ))}
              </div>
              <button className="w-full mt-4 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors">
-               View All
+                View All
              </button>
            </div>
-        </div>
+
+            {/* PARENT SPECIFIC WIDGET: Smart Notifications */}
+            {userRole === 'parent' && stats && (
+              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-indigo-500" />
+                    <h3 className="font-bold text-lg text-slate-800">Smart Alerts</h3>
+                  </div>
+                  <span className="bg-rose-100 text-rose-600 text-xs font-bold px-2 py-0.5 rounded-full">{stats.recentActivity?.length || 0} New</span>
+                </div>
+                <div className="space-y-4">
+                  {(stats.recentActivity || []).map(activity => (
+                    <div key={activity.id} className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-start flex-col">
+                      <div className="flex items-center gap-2 mb-1 w-full text-xs font-bold uppercase tracking-wide">
+                        {activity.type === 'course_completed' && <span className="text-emerald-500 flex items-center gap-1"><Award className="w-3 h-3" /> COMPLETED</span>}
+                        {activity.type === 'quiz_passed' && <span className="text-amber-500 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> PASSED QUIZ</span>}
+                        {activity.type === 'lesson_watched' && <span className="text-indigo-500 flex items-center gap-1"><Clock className="w-3 h-3" /> RECENT ACTIVITY</span>}
+                      </div>
+                      <h4 className="text-slate-800 font-bold text-sm mb-1">{activity.studentName} {activity.type === 'course_completed' ? 'finished the course:' : activity.type.includes('quiz') ? 'scored '+ activity.score+'% on' : 'just finished watching'} <span className="text-indigo-600">{activity.title}</span></h4>
+                      <p className="text-xs text-slate-500 bg-white border border-slate-200 px-2 py-1 rounded inline-block mt-1">
+                        {new Date(activity.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+         </div>
       </div>
     </div>
   );
