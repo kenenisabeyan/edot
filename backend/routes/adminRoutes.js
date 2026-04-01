@@ -12,9 +12,70 @@ router.use(authorize('admin'));
 // @desc    Get all users
 router.get('/users', async (req, res) => {
     try {
-        const users = await User.find().select('-password').sort({ createdAt: -1 });
-        res.status(200).json({ success: true, count: users.length, data: users });
+        const users = await User.find()
+            .select('-password')
+            .populate('enrolledCourses.course', 'title status')
+            .sort({ createdAt: -1 })
+            .lean();
+        
+        // Find courses to map to instructors natively
+        const allCourses = await Course.find().select('title instructor status isPublished');
+        
+        const enhancedUsers = users.map(user => {
+            if (user.role === 'instructor') {
+                user.taughtCourses = allCourses.filter(c => 
+                    c.instructor && c.instructor.toString() === user._id.toString()
+                );
+            }
+            return user;
+        });
+
+        res.status(200).json({ success: true, count: enhancedUsers.length, data: enhancedUsers });
     } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   POST /api/admin/users
+// @desc    Create a new user manually
+// @access  Private/Admin
+router.post('/users', async (req, res) => {
+    try {
+        const { name, email, password, role, batch, section, department, specialization, phone } = req.body;
+        
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ success: false, message: 'User with this email already exists' });
+        }
+
+        const user = await User.create({
+            name,
+            email,
+            password, // Hook automatically salts in the mongoose pre-save logic.
+            role: role || 'student',
+            batch,
+            section,
+            department,
+            specialization,
+            phone
+        });
+
+        // Safe return (no passport/jwt overriding)
+        res.status(201).json({
+            success: true,
+            data: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                batch: user.batch,
+                section: user.section,
+                department: user.department,
+                createdAt: user.createdAt
+            }
+        });
+    } catch (error) {
+        console.error('Admin Create User error:', error);
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 });
