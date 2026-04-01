@@ -35,6 +35,9 @@ import LibraryView from './pages/LibraryView';
 import ProfileView from './pages/ProfileView';
 import ParentLearners from './pages/ParentLearners';
 import AttendanceManagement from './pages/AttendanceManagement';
+import Revenue from './pages/Revenue';
+import Performance from './pages/Performance';
+import TeachingActivity from './pages/TeachingActivity';
 import AnalyticsReport from './pages/AnalyticsReport';
 import { Outlet } from 'react-router-dom';
 
@@ -100,6 +103,9 @@ export default function App() {
           <Route path="builder/:id" element={<InstructorCourseBuilder />} />
           <Route path="approvals" element={<AdminCourseApprovals />} />
           <Route path="attendance" element={<AttendanceManagement />} />
+          <Route path="revenue" element={<Revenue />} />
+          <Route path="performance" element={<Performance />} />
+          <Route path="teaching" element={<TeachingActivity />} />
           <Route path="analytics" element={<AnalyticsReport />} />
           <Route path="finance/fees" element={<FinanceFees />} />
           <Route path="finance/expenses" element={<div className="p-8 text-slate-500 font-medium">Expenses page under construction...</div>} />

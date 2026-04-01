@@ -213,7 +213,7 @@ export default function EDOTDashboard() {
              </p>
           )}
           {userRole !== 'parent' && (
-             <button onClick={() => navigate('/dashboard/analytics')} className="bg-white text-indigo-600 hover:bg-indigo-50 px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
+             <button onClick={() => navigate(userRole === 'admin' ? '/dashboard/revenue' : '/dashboard/performance')} className="bg-white text-indigo-600 hover:bg-indigo-50 px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
                View Detailed Report <TrendingUp className="w-4 h-4" />
              </button>
           )}
@@ -317,12 +317,12 @@ export default function EDOTDashboard() {
                 {/* Performance Analytics Bar Chart */}
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex-1 hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-center mb-6">
-                    <div onClick={() => navigate('/dashboard/analytics')} className="cursor-pointer group">
+                    <div onClick={() => navigate('/dashboard/performance')} className="cursor-pointer group">
                        <h3 className="font-bold text-lg text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">Performance Insights</h3>
                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 cursor-pointer">Average scores per subject</p>
                     </div>
                     <div className="flex items-center gap-2">
-                       <button onClick={() => navigate('/dashboard/analytics')} className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+                       <button onClick={() => navigate('/dashboard/performance')} className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
                          <Filter className="w-3.5 h-3.5" /> Filter
                        </button>
                     </div>
@@ -363,7 +363,7 @@ export default function EDOTDashboard() {
               {/* Teaching Activity Line Chart - Advanced */}
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-center mb-6">
-                    <div onClick={() => navigate('/dashboard/analytics')} className="cursor-pointer group">
+                    <div onClick={() => navigate('/dashboard/teaching')} className="cursor-pointer group">
                       <h3 className="font-bold text-xl text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">{user?.role === 'admin' ? 'Platform Growth Analytics' : 'Teaching Activity Trends'}</h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Measure your reach over time</p>
                     </div>
@@ -379,7 +379,7 @@ export default function EDOTDashboard() {
                            </button>
                          ))}
                       </div>
-                      <button onClick={() => navigate('/dashboard/analytics')} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
+                      <button onClick={() => navigate('/dashboard/teaching')} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
                         <Download className="w-4 h-4" /> Export
                       </button>
                     </div>
@@ -409,11 +409,11 @@ export default function EDOTDashboard() {
           {userRole === 'parent' && stats && (
             <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
               <div className="flex justify-between items-center mb-6">
-                <div onClick={() => navigate('/dashboard/analytics')} className="cursor-pointer group">
+                <div onClick={() => navigate('/dashboard/performance')} className="cursor-pointer group">
                   <h3 className="font-bold text-xl text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">Learner Progress Journey</h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Track actual vs target goals</p>
                 </div>
-                <button onClick={() => navigate('/dashboard/analytics')} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
+                <button onClick={() => navigate('/dashboard/performance')} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl font-bold text-xs hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
                   <Download className="w-4 h-4" /> Report
                 </button>
               </div>

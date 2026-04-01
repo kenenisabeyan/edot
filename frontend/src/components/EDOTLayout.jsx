@@ -22,7 +22,8 @@ import {
   Moon,
   Sun,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
@@ -108,6 +109,9 @@ export default function EDOTLayout() {
         { name: 'Teachers', icon: UserSquare, path: '/dashboard/teachers' },
         { name: 'Students', icon: Users, path: '/dashboard/students' },
         { name: 'Attendance', icon: ClipboardCheck, path: '/dashboard/attendance' },
+        { name: 'Revenue', icon: TrendingUp, path: '/dashboard/revenue' },
+        { name: 'Performance', icon: Award, path: '/dashboard/performance' },
+        { name: 'Teaching Trends', icon: BookOpen, path: '/dashboard/teaching' },
       ],
       menu2: [
         { name: 'Notice', icon: BellRing, path: '/dashboard/notice' },
@@ -129,6 +133,8 @@ export default function EDOTLayout() {
         { name: 'My Classes', icon: BookOpen, path: '/dashboard/classes' },
         { name: 'Students', icon: Users, path: '/dashboard/students' },
         { name: 'Attendance', icon: ClipboardCheck, path: '/dashboard/attendance' },
+        { name: 'Performance', icon: Award, path: '/dashboard/performance' },
+        { name: 'Teaching Activity', icon: TrendingUp, path: '/dashboard/teaching' },
       ],
       menu2: [
         { name: 'Notice', icon: BellRing, path: '/dashboard/notice' },
