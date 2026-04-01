@@ -88,7 +88,8 @@ export default function App() {
           <Route index element={<EDOTDashboard />} />
           <Route path="teachers" element={<TeachersList />} />
           <Route path="students" element={<div className="p-8 text-slate-500 font-medium">Students page under construction...</div>} />
-          <Route path="learners" element={<ParentLearners />} />
+          <Route path="child" element={<ParentLearners />} />
+          <Route path="progress" element={<ParentLearners />} />
           <Route path="courses" element={<StudentCourses />} />
           <Route path="classes" element={<InstructorClasses />} />
           <Route path="my-courses" element={<InstructorManageCourses />} />
