@@ -21,6 +21,7 @@ import { useAuth } from './context/AuthContext';
 import EDOTLayout from './components/EDOTLayout';
 import EDOTDashboard from './pages/EDOTDashboard';
 import TeachersList from './pages/TeachersList';
+import StudentsList from './pages/StudentsList';
 import FinanceFees from './pages/FinanceFees';
 import CalendarView from './pages/CalendarView';
 import MessagesView from './pages/MessagesView';
@@ -87,7 +88,7 @@ export default function App() {
         <Route element={<EDOTLayout />}>
           <Route index element={<EDOTDashboard />} />
           <Route path="teachers" element={<TeachersList />} />
-          <Route path="students" element={<div className="p-8 text-slate-500 font-medium">Students page under construction...</div>} />
+          <Route path="students" element={<StudentsList />} />
           <Route path="child" element={<ParentLearners />} />
           <Route path="progress" element={<ParentLearners />} />
           <Route path="courses" element={<StudentCourses />} />

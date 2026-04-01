@@ -27,7 +27,7 @@ const storage = multer.diskStorage({
 // Check file type
 function checkFileType(file, cb) {
     // Allowed ext
-    const filetypes = /jpeg|jpg|png|gif|webp/;
+    const filetypes = /jpeg|jpg|png|gif|webp|mp4|mkv|webm|pdf|doc|docx|zip|rar/;
     // Check ext
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     // Check mime
@@ -36,14 +36,14 @@ function checkFileType(file, cb) {
     if (mimetype && extname) {
         return cb(null, true);
     } else {
-        cb('Error: Images Only!');
+        cb('Error: Invalid File Type!');
     }
 }
 
 // Init upload
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5000000 }, // 5MB Limit
+    limits: { fileSize: 1000000000 }, // 1GB Limit for videos
     fileFilter: function(req, file, cb) {
         checkFileType(file, cb);
     }
