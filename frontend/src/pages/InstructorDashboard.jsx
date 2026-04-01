@@ -17,14 +17,34 @@ export default function InstructorDashboard() {
   const [formData, setFormData] = useState({ title: '', description: '', category: 'Programming', duration: 1, thumbnail: '' });
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
   
   // Lesson state
   const [activeCourseId, setActiveCourseId] = useState(null);
   const [lessonData, setLessonData] = useState({ title: '', description: '', videoUrl: '', duration: 10 });
 
   useEffect(() => {
-    fetchCourses().finally(() => setLoading(false));
+    Promise.all([fetchCourses(), fetchStats(), fetchAnalytics()]).finally(() => setLoading(false));
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const { data } = await api.get('/instructor/dashboard');
+      setStats(data.data);
+    } catch (err) {
+      console.error('Failed to fetch stats', err);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const { data } = await api.get('/instructor/analytics/detailed');
+      setAnalytics(data.data);
+    } catch (err) {
+      console.error('Failed to fetch analytics', err);
+    }
+  };
 
   const fetchCourses = async () => {
     try {
@@ -95,20 +115,8 @@ export default function InstructorDashboard() {
 
     switch (activeTab) {
       case 'overview':
-        const revenueData = [
-          { name: 'Jan', revenue: 1200 },
-          { name: 'Feb', revenue: 1900 },
-          { name: 'Mar', revenue: 1500 },
-          { name: 'Apr', revenue: 2200 },
-          { name: 'May', revenue: 2800 },
-          { name: 'Jun', revenue: 3500 },
-        ];
-        const engagementData = [
-          { name: 'Week 1', students: 120 },
-          { name: 'Week 2', students: 150 },
-          { name: 'Week 3', students: 180 },
-          { name: 'Week 4', students: 250 },
-        ];
+        const revenueData = analytics?.revenueData || [];
+        const engagementData = analytics?.engagementData || [];
 
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

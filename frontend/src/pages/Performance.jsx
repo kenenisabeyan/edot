@@ -22,6 +22,8 @@ export default function Performance() {
         setEngagementData(data.engagementData || []);
         setActiveLearners(data.totalActiveLearners || 0);
         setTotalCompletions(data.totalCourseCompletions || 0);
+        // Bind dynamic missing values if supported on backend later
+        setEngagementData(data.engagementData || []);
       } catch (error) {
         console.error("Failed to load performance data", error);
       } finally {
@@ -62,15 +64,13 @@ export default function Performance() {
         />
         <SummaryCard 
           title="Avg. Assessment Score" 
-          value="85%" 
-          percentage={2} 
-          isPositive={true} 
+          value="N/A" 
           icon={Target} 
           colorTheme="green" 
         />
         <SummaryCard 
           title="Enrolled Courses" 
-          value="120" 
+          value={activeLearners} 
           icon={BookOpen} 
           colorTheme="orange" 
         />
@@ -99,21 +99,10 @@ export default function Performance() {
           <div className="p-6 border-b border-slate-100 dark:border-slate-800">
              <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Course Performers</h3>
           </div>
-          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-            {[1, 2, 3, 4, 5].map((item) => (
-              <div key={item} className="flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition border-b border-transparent">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
-                  {item}
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-bold text-slate-800 dark:text-white">React Masterclass</h4>
-                  <p className="text-xs text-slate-500 font-medium">92% Average Score</p>
-                </div>
-                <div className="text-emerald-500 font-bold text-sm bg-emerald-50 px-2 py-1 rounded-lg">
-                  Top 5%
-                </div>
-              </div>
-            ))}
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-6 flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl w-full h-full">
+                <p className="text-slate-500 font-medium">No real top performers recorded</p>
+            </div>
           </div>
         </div>
       </div>

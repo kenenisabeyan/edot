@@ -62,8 +62,8 @@ export default function Revenue() {
         />
         <SummaryCard 
           title="Refunded" 
-          value="$120" 
-          percentage={1} 
+          value="$0" 
+          percentage={0} 
           isPositive={false} 
           icon={ArrowDownRight} 
           colorTheme="orange" 
@@ -107,22 +107,7 @@ export default function Revenue() {
             </thead>
             <tbody className="text-sm font-medium text-slate-700 dark:text-slate-300">
               <tr className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                <td className="p-4">Today, 2:30 PM</td>
-                <td className="p-4 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><CreditCard className="w-4 h-4"/></div>
-                  Course Enrollment: React Basics
-                </td>
-                <td className="p-4 font-bold text-emerald-500">+$49.99</td>
-                <td className="p-4"><span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs">Completed</span></td>
-              </tr>
-              <tr className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                <td className="p-4">Yesterday</td>
-                <td className="p-4 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><CreditCard className="w-4 h-4"/></div>
-                  Course Enrollment: Node.js Advanced
-                </td>
-                <td className="p-4 font-bold text-emerald-500">+$89.00</td>
-                <td className="p-4"><span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs">Completed</span></td>
+                <td colSpan="4" className="p-8 text-center text-slate-500 font-medium">No real-time transactions recorded yet.</td>
               </tr>
             </tbody>
           </table>

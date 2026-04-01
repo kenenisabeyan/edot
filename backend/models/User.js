@@ -117,7 +117,20 @@ const userSchema = new mongoose.Schema({
   bio: {
     type: String,
     maxlength: [500, 'Bio cannot exceed 500 characters']
-  }
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending' // Force new registrations to pending
+  },
+  assignedInstructor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  assignedStudents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {
