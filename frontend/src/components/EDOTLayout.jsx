@@ -82,12 +82,24 @@ export default function EDOTLayout() {
         { name: 'Certificates', icon: Award, path: '/dashboard/certificates' },
       ],
       showFinance: false
+    },
+    parent: {
+      menu1: [
+        { name: 'Dashboard', icon: Home, path: '/dashboard', exact: true },
+        { name: 'My Learners', icon: Users, path: '/dashboard/learners' },
+      ],
+      menu2: [
+        { name: 'Notice', icon: BellRing, path: '/dashboard/notice' },
+        { name: 'Message', icon: MessageSquare, path: '/dashboard/messages' },
+      ],
+      showFinance: false
     }
   };
 
-  const navItemsMenu1 = roleNavConfig[role].menu1 || roleNavConfig.student.menu1;
-  const navItemsMenu2 = roleNavConfig[role].menu2 || roleNavConfig.student.menu2;
-  const showFinance = roleNavConfig[role].showFinance || false;
+  const currentConfig = roleNavConfig[role] || roleNavConfig.student;
+  const navItemsMenu1 = currentConfig.menu1;
+  const navItemsMenu2 = currentConfig.menu2;
+  const showFinance = currentConfig.showFinance || false;
   const NavItem = ({ item }) => (
     <NavLink
       to={item.path}
