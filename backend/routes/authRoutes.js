@@ -32,7 +32,8 @@ router.post('/register', [
       name,
       email,
       password,
-      role: 'student' // Always force new registrants to be 'student'
+      role: role || 'student', // Allow instructor roles
+      status: 'pending' // Natively set to pending
     });
 
     await user.save();
@@ -50,7 +51,8 @@ router.post('/register', [
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      status: user.status
     });
   } catch (err) {
     console.error(err.message);
@@ -81,6 +83,14 @@ router.post('/login', [
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    if (user.status === 'pending') {
+      return res.status(403).json({ message: 'Account is pending administrator approval.' });
+    }
+
+    if (user.status === 'rejected') {
+      return res.status(403).json({ message: 'Account has been rejected. Contact support.' });
+    }
+
     const isMatch = await user.comparePassword(password);
 
 
@@ -102,7 +112,8 @@ router.post('/login', [
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      status: user.status
     });
   } catch (err) {
     console.error(err.message);

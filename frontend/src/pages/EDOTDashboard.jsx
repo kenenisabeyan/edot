@@ -92,25 +92,10 @@ export default function EDOTDashboard() {
     }
   }, [user, userRole]);
 
-  // Mock Data
-  const studentPerformanceData = stats?.studentPerformanceData || [
-    { name: 'Mon', value1: 40, value2: 30, value3: 20 },
-    { name: 'Tue', value1: 50, value2: 40, value3: 30 },
-    { name: 'Wed', value1: 45, value2: 35, value3: 25 },
-    { name: 'Thu', value1: 60, value2: 50, value3: 40 },
-    { name: 'Fri', value1: 55, value2: 45, value3: 35 },
-  ];
-  
-  const classNames = stats?.courseNames || ['Class A', 'Class B', 'Class C'];
-
-  const teachingActivityData = [
-    { name: 'Jan', value: 40 },
-    { name: 'Feb', value: 30 },
-    { name: 'Mar', value: 60 },
-    { name: 'Apr', value: 45 },
-    { name: 'May', value: 70 },
-    { name: 'Jun', value: 65 },
-  ];
+  // True Data Map
+  const studentPerformanceData = stats?.studentPerformanceData || [];
+  const classNames = stats?.courseNames || [];
+  const teachingActivityData = stats?.teachingActivityData || [];
 
   const SmartCard = ({ title, value, percentage, isPositive, icon: Icon, colorTheme }) => {
     const colorClasses = {
@@ -228,17 +213,17 @@ export default function EDOTDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {userRole === 'admin' && stats ? (
           <>
-            <SmartCard title="Total Courses" value={stats.totalCourses} percentage="12" isPositive={true} icon={BookOpen} colorTheme="blue" />
-            <SmartCard title="Active Students" value={stats.totalStudents} percentage="5" isPositive={true} icon={Users} colorTheme="purple" />
-            <SmartCard title="Instructors" value={stats.totalInstructors} percentage="2" isPositive={true} icon={GraduationCap} colorTheme="green" /> 
-            <SmartCard title="Total Revenue" value={`$${(stats.totalRevenue || 0).toLocaleString()}`} percentage="8" isPositive={true} icon={CircleDollarSign} colorTheme="orange" />
+            <SmartCard title="Total Courses" value={stats.totalCourses} icon={BookOpen} colorTheme="blue" />
+            <SmartCard title="Active Students" value={stats.totalStudents} icon={Users} colorTheme="purple" />
+            <SmartCard title="Instructors" value={stats.totalInstructors} icon={GraduationCap} colorTheme="green" /> 
+            <SmartCard title="Pending Courses" value={stats.pendingCourses} icon={CircleDollarSign} colorTheme="orange" />
           </>
         ) : userRole === 'instructor' && stats ? (
           <>
-            <SmartCard title="Active Classes" value={stats.activeCourses} percentage="15" isPositive={true} icon={BookOpen} colorTheme="blue" />
-            <SmartCard title="Total Students" value={stats.totalStudents} percentage="8" isPositive={true} icon={Users} colorTheme="purple" />
-            <SmartCard title="Total Lessons" value={stats.totalLessons} percentage="4" isPositive={true} icon={GraduationCap} colorTheme="green" /> 
-            <SmartCard title="Draft Courses" value={stats.totalCourses - stats.activeCourses} percentage="2" isPositive={false} icon={CircleDollarSign} colorTheme="orange" />
+            <SmartCard title="Active Classes" value={stats.activeCourses} icon={BookOpen} colorTheme="blue" />
+            <SmartCard title="Total Students" value={stats.totalStudents} icon={Users} colorTheme="purple" />
+            <SmartCard title="Total Lessons" value={stats.totalLessons} icon={GraduationCap} colorTheme="green" /> 
+            <SmartCard title="Draft Courses" value={stats.totalCourses - stats.activeCourses} icon={CircleDollarSign} colorTheme="orange" />
           </>
         ) : userRole === 'parent' && stats ? (
           <>
@@ -328,17 +313,23 @@ export default function EDOTDashboard() {
                     </div>
                   </div>
                   <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={studentPerformanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barSize={12}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} />
-                        <RechartsTooltip cursor={{fill: 'rgba(99, 102, 241, 0.05)'}} content={<CustomTooltip />} />
-                        <Bar dataKey="value1" fill="#6366f1" radius={[6, 6, 0, 0]} />
-                        <Bar dataKey="value2" fill="#a855f7" radius={[6, 6, 0, 0]} />
-                        <Bar dataKey="value3" fill="#14b8a6" radius={[6, 6, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    {studentPerformanceData && studentPerformanceData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={studentPerformanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barSize={12}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} dy={10} />
+                          <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} />
+                          <RechartsTooltip cursor={{fill: 'rgba(99, 102, 241, 0.05)'}} content={<CustomTooltip />} />
+                          <Bar dataKey="value1" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                          <Bar dataKey="value2" fill="#a855f7" radius={[6, 6, 0, 0]} />
+                          <Bar dataKey="value3" fill="#14b8a6" radius={[6, 6, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-slate-400 font-medium text-sm text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
+                         No performance data found in records
+                      </div>
+                    )}
                   </div>
                   <div className="flex justify-center gap-6 mt-4">
                      {classNames[0] && (
@@ -385,21 +376,27 @@ export default function EDOTDashboard() {
                     </div>
                 </div>
                 <div className="h-[300px]">
-                   <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={teachingActivityData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
-                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 13, fontWeight: 600}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 13, fontWeight: 600}} />
-                        <RechartsTooltip content={<CustomTooltip />} />
-                        <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorValue)" activeDot={{ r: 8, fill: '#6366f1', stroke: '#fff', strokeWidth: 3 }} />
-                      </AreaChart>
-                   </ResponsiveContainer>
+                   {teachingActivityData && teachingActivityData.length > 0 ? (
+                     <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={teachingActivityData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
+                              <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 13, fontWeight: 600}} dy={10} />
+                          <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 13, fontWeight: 600}} />
+                          <RechartsTooltip content={<CustomTooltip />} />
+                          <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorValue)" activeDot={{ r: 8, fill: '#6366f1', stroke: '#fff', strokeWidth: 3 }} />
+                        </AreaChart>
+                     </ResponsiveContainer>
+                   ) : (
+                     <div className="flex h-full items-center justify-center text-slate-400 font-medium text-sm text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
+                         No activity logs found for aggregation
+                     </div>
+                   )}
                 </div>
               </div>
             </>
@@ -452,29 +449,23 @@ export default function EDOTDashboard() {
                     <h3 className="font-bold text-lg text-slate-800 dark:text-white">Weekly Learning Activity</h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Time spent learning</p>
                   </div>
-                  <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex text-xs font-bold">
-                     <button className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm">This Week</button>
-                     <button className="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400">Last Week</button>
-                  </div>
                 </div>
                 <div className="h-[280px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={[
-                        { name: 'Mon', minutes: 45 }, { name: 'Tue', minutes: 0 }, { name: 'Wed', minutes: 60 }, { name: 'Thu', minutes: 120 }, { name: 'Fri', minutes: 30 }, { name: 'Sat', minutes: 90 }, { name: 'Sun', minutes: 15 }
-                    ]} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} />
-                      <RechartsTooltip cursor={{fill: 'rgba(99, 102, 241, 0.05)'}} formatter={(value) => [`${value} mins`, 'Time Spent']} content={<CustomTooltip />} />
-                      <Bar dataKey="minutes" fill="#6366f1" radius={[8, 8, 0, 0]} maxBarSize={45}>
-                        {
-                          [45, 0, 60, 120, 30, 90, 15].map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry === 120 ? '#8b5cf6' : '#6366f1'} />
-                          ))
-                        }
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {stats?.weeklyLogData && stats.weeklyLogData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={stats.weeklyLogData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} />
+                        <RechartsTooltip cursor={{fill: 'rgba(99, 102, 241, 0.05)'}} formatter={(value) => [`${value} mins`, 'Time Spent']} content={<CustomTooltip />} />
+                        <Bar dataKey="minutes" fill="#6366f1" radius={[8, 8, 0, 0]} maxBarSize={45} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-slate-400 font-medium text-sm text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
+                        No weekly learning records found
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -485,24 +476,26 @@ export default function EDOTDashboard() {
                     <button className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 transition-colors">View All Course</button>
                   </div>
                   <div className="space-y-6">
-                    {(stats?.recentEnrollments && stats.recentEnrollments.length > 0 ? stats.recentEnrollments : [
-                      { courseTitle: 'Introduction to React', progress: 75, color: 'bg-indigo-500' },
-                      { courseTitle: 'Advanced UI/UX Design', progress: 40, color: 'bg-purple-500' },
-                      { courseTitle: 'Backend Development Node.js', progress: 15, color: 'bg-teal-500' }
-                    ]).map((course, idx) => (
-                      <div key={idx} className="space-y-3">
-                        <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
-                          <span className="flex items-center gap-2">
-                             <div className={`w-2 h-2 rounded-full ${course.color || 'bg-indigo-500'}`}></div>
-                             {course.courseTitle}
-                          </span>
-                          <span className={`${course.color ? course.color.replace('bg-', 'text-') : 'text-indigo-600'}`}>{course.progress}%</span>
+                    {stats?.recentEnrollments && stats.recentEnrollments.length > 0 ? (
+                      stats.recentEnrollments.map((course, idx) => (
+                        <div key={idx} className="space-y-3">
+                          <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
+                            <span className="flex items-center gap-2">
+                               <div className={`w-2 h-2 rounded-full ${course.color || 'bg-indigo-500'}`}></div>
+                               {course.courseTitle}
+                            </span>
+                            <span className={`${course.color ? course.color.replace('bg-', 'text-') : 'text-indigo-600'}`}>{course.progress}%</span>
+                          </div>
+                          <div className="h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                            <div className={`h-full rounded-full transition-all duration-1000 ease-out ${course.color || 'bg-indigo-500'}`} style={{ width: `${course.progress}%` }}></div>
+                          </div>
                         </div>
-                        <div className="h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
-                          <div className={`h-full rounded-full transition-all duration-1000 ease-out ${course.color || 'bg-indigo-500'}`} style={{ width: `${course.progress}%` }}></div>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center p-4 py-8 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
+                          <p className="text-slate-500 font-medium">No real course enrollments found</p>
                       </div>
-                    ))}
+                    )}
                   </div>
                </div>
             </>

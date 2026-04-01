@@ -187,7 +187,7 @@ export default function AnalyticsReport() {
              <div className="bg-indigo-50 dark:bg-indigo-500/5 p-6 rounded-3xl border border-indigo-100 dark:border-indigo-500/10 shadow-sm flex flex-col justify-center">
                <h3 className="text-xl font-bold text-indigo-900 dark:text-indigo-400 mb-2">Automated Insight</h3>
                <p className="text-indigo-700 dark:text-indigo-300 leading-relaxed text-sm mb-4">
-                 Your platform has grown by <strong className="font-black">15%</strong> this month! Students in the "In Progress" tier are mostly active on Tuesdays. Sending automated reminders on Mondays might increase completion rate.
+                 Platform performance is actively monitored. Automated insights will generate here automatically once enough interaction data aligns with system thresholds.
                </p>
                <button className="self-start text-sm font-bold bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
                  Create Reminder Campaign

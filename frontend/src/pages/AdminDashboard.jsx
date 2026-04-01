@@ -11,12 +11,31 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [usersList, setUsersList] = useState([]);
   const [pendingCourses, setPendingCourses] = useState([]);
-  const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
 
   useEffect(() => {
-    Promise.all([fetchUsers(), fetchPendingCourses()]).finally(() => setLoading(false));
+    Promise.all([fetchUsers(), fetchPendingCourses(), fetchStats(), fetchAnalytics()]).finally(() => setLoading(false));
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const { data } = await api.get('/admin/dashboard');
+      setStats(data.data);
+    } catch (err) {
+      console.error('Failed to fetch stats', err);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const { data } = await api.get('/admin/analytics/detailed');
+      setAnalytics(data.data);
+    } catch (err) {
+      console.error('Failed to fetch analytics', err);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -72,20 +91,11 @@ export default function AdminDashboard() {
 
     switch (activeTab) {
       case 'overview':
-        const revenueData = [
-          { name: 'Jan', revenue: 4200 },
-          { name: 'Feb', revenue: 5500 },
-          { name: 'Mar', revenue: 7200 },
-          { name: 'Apr', revenue: 6800 },
-          { name: 'May', revenue: 9500 },
-          { name: 'Jun', revenue: 12500 },
-        ];
-        const studentsCount = usersList.length - instructorsCount - usersList.filter(u => u.role === 'admin').length;
-        const adminCount = usersList.filter(u => u.role === 'admin').length;
+        const revenueData = analytics?.revenueData || [];
         const userDistributionData = [
-          { name: 'Students', value: studentsCount, color: '#3b82f6' },
-          { name: 'Instructors', value: instructorsCount, color: '#a855f7' },
-          { name: 'Admins', value: adminCount, color: '#ef4444' },
+          { name: 'Students', value: stats?.totalStudents || 0, color: '#3b82f6' },
+          { name: 'Instructors', value: stats?.totalInstructors || 0, color: '#a855f7' },
+          { name: 'Admins', value: (user?.role === 'admin' ? 1 : 0), color: '#ef4444' }, // Just an estimate fallback if explicit admin count wasn't fetched
         ];
         
         return (
@@ -347,13 +357,7 @@ export default function AdminDashboard() {
           </div>
         );
       case 'logs':
-        const mockLogs = [
-          { id: 1, action: 'User Registration', user: 'john@example.com', time: '10 mins ago', status: 'Success' },
-          { id: 2, action: 'Course Approved', user: 'Admin System', time: '1 hour ago', status: 'Success' },
-          { id: 3, action: 'Failed Login Attempt', user: 'unknown@ip', time: '2 hours ago', status: 'Warning' },
-          { id: 4, action: 'Database Backup', user: 'System Auto', time: '5 hours ago', status: 'Success' },
-          { id: 5, action: 'Payment Gateway Error', user: 'System', time: '1 day ago', status: 'Error' },
-        ];
+        const logs = stats?.recentActivity || [];
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">System Logs</h2>
@@ -363,21 +367,22 @@ export default function AdminDashboard() {
                 <button className="text-sm text-blue-600 hover:text-blue-800 font-semibold">Export CSV</button>
               </div>
               <ul className="divide-y divide-slate-100">
-                {mockLogs.map(log => (
-                  <li key={log.id} className="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between">
+                {logs.length > 0 ? logs.map((log, idx) => (
+                  <li key={log.id || idx} className="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-slate-900">{log.action}</p>
-                      <p className="text-sm text-slate-500">{log.user} &bull; {log.time}</p>
+                      <p className="font-semibold text-slate-900">{log.title}</p>
+                      <p className="text-sm text-slate-500">{log.itemTitle} &bull; {new Date(log.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</p>
                     </div>
                     <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${
-                      log.status === 'Success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                      log.status === 'Warning' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                      'bg-red-50 text-red-700 border border-red-200'
+                      log.type === 'course_completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                      'bg-indigo-50 text-indigo-700 border border-indigo-200'
                     }`}>
-                      {log.status}
+                      Success
                     </span>
                   </li>
-                ))}
+                )) : (
+                  <li className="p-6 text-center text-slate-500 text-sm">No activity logs recorded yet.</li>
+                )}
               </ul>
             </div>
           </div>

@@ -24,15 +24,12 @@ router.get('/courses', async (req, res) => {
 });
 
 // @route   GET /api/instructor/students
-// @desc    Get all students enrolled in courses taught by instructor
+// @desc    Get all students assigned directly to this instructor
 router.get('/students', async (req, res) => {
     try {
-        const courses = await Course.find({ instructor: req.user.id }).select('_id');
-        const courseIds = courses.map(c => c._id);
-        
         const students = await User.find({
             role: 'student',
-            'enrolledCourses.course': { $in: courseIds }
+            assignedInstructor: req.user.id
         })
         .select('-password')
         .populate('enrolledCourses.course', 'title status')
@@ -41,7 +38,7 @@ router.get('/students', async (req, res) => {
 
         res.status(200).json({ success: true, count: students.length, data: students });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Server error retrieving students', error: error.message });
+        res.status(500).json({ success: false, message: 'Server error retrieving assigned students', error: error.message });
     }
 });
 
@@ -159,7 +156,7 @@ router.get('/analytics/detailed', async (req, res) => {
         const courseIds = courses.map(c => c._id);
         const users = await User.find({ role: 'student', 'enrolledCourses.course': { $in: courseIds } }).select('createdAt');
 
-        // Revenue over last 6 months (mocked as earnings for instructor)
+        // Revenue over last 6 months (True calculation only)
         const revenueData = [];
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const d = new Date();
@@ -169,11 +166,11 @@ router.get('/analytics/detailed', async (req, res) => {
             courses.forEach(c => {
                 if (c.isPublished && c.price && c.totalStudents) {
                     if (new Date(c.createdAt) <= new Date(m.getFullYear(), m.getMonth() + 1, 0)) {
-                         monthRev += (c.price * (Math.floor(c.totalStudents / 6) + 1)); 
+                         monthRev += (c.price * c.totalStudents); 
                     }
                 }
             });
-            revenueData.push({ name: monthNames[m.getMonth()], revenue: monthRev || Math.floor(Math.random()*500) });
+            revenueData.push({ name: monthNames[m.getMonth()], revenue: monthRev });
         }
 
         // Engagement Data (Students enrolled in instructor courses over time)
@@ -182,15 +179,15 @@ router.get('/analytics/detailed', async (req, res) => {
             let start = new Date();
             start.setDate(start.getDate() - (i*7));
             let sCount = users.filter(u => new Date(u.createdAt) <= start).length;
-            engagementData.push({ name: `Week ${4-i}`, students: sCount || 5, teachers: 1 });
+            engagementData.push({ name: `Week ${4-i}`, students: sCount, teachers: 1 });
         }
 
         // Course completion data (Status Overview context)
         let total = courses.length;
         let published = courses.filter(c => c.isPublished).length;
         const courseCompletionData = [
-            { name: 'Active Classes', value: published || 1, color: '#10b981' },
-            { name: 'Drafts', value: (total - published) || 1, color: '#f59e0b' }
+            { name: 'Active Classes', value: published, color: '#10b981' },
+            { name: 'Drafts', value: (total - published), color: '#f59e0b' }
         ];
 
         res.status(200).json({
@@ -201,7 +198,7 @@ router.get('/analytics/detailed', async (req, res) => {
                 courseCompletionData,
                 totalRevenue: revenueData.reduce((acc, curr) => acc + curr.revenue, 0),
                 totalActiveLearners: users.length,
-                totalCourseCompletions: Math.floor(users.length * 0.8) // approx completion logic for instructor courses
+                totalCourseCompletions: 0 // Will require real mapping logic natively
             }
         });
 
@@ -263,9 +260,9 @@ router.get('/dashboard', async (req, res) => {
              if (targetDay) {
                   // Determine which course line this affects, map to value1/2/3
                   const cid = log.course_id._id.toString();
-                  if (topCourses[0] && cid === topCourses[0].id) targetDay.value1 += 10; // Boost by 10 per log for visible bars
-                  else if (topCourses[1] && cid === topCourses[1].id) targetDay.value2 += 10;
-                  else if (topCourses[2] && cid === topCourses[2].id) targetDay.value3 += 10;
+                  if (topCourses[0] && cid === topCourses[0].id) targetDay.value1 += 1; // 1 to 1 real relation
+                  else if (topCourses[1] && cid === topCourses[1].id) targetDay.value2 += 1;
+                  else if (topCourses[2] && cid === topCourses[2].id) targetDay.value3 += 1;
              }
         });
 
