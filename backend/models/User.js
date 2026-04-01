@@ -37,6 +37,35 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other', 'Prefer not to say', ''],
+    default: ''
+  },
+  dateOfBirth: {
+    type: String,
+    trim: true,
+  },
+  address: {
+    type: String,
+    trim: true
+  },
+  emergencyContact: {
+    type: String,
+    trim: true
+  },
+  department: {
+    type: String,
+    trim: true
+  },
+  specialization: {
+    type: String,
+    trim: true
+  },
+  occupation: {
+    type: String,
+    trim: true
+  },
   enrolledCourses: [{
     course: {
       type: mongoose.Schema.Types.ObjectId,

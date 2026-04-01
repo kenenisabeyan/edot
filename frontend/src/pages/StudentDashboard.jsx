@@ -9,6 +9,7 @@ import {
 import { jsPDF } from 'jspdf';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
+import ProfileView from './ProfileView';
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
@@ -345,47 +346,7 @@ export default function StudentDashboard() {
           </div>
         );
       case 'settings':
-        return (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl">
-            <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">Profile Settings</h2>
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 pb-8 border-b border-slate-100 text-center sm:text-left">
-                <div className="w-24 h-24 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-3xl font-bold uppercase shrink-0 border-4 border-white shadow-md">
-                  {user?.name?.charAt(0)}
-                </div>
-                <div className="pt-2">
-                  <h3 className="text-xl font-bold text-slate-900 mb-1">{user?.name}</h3>
-                  <p className="text-slate-500 mb-3">{user?.email}</p>
-                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full uppercase tracking-wider border border-blue-200">
-                    {user?.role} Account
-                  </span>
-                </div>
-              </div>
-
-              <form className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
-                  <input 
-                    type="text" 
-                    defaultValue={user?.name} 
-                    disabled 
-                    className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-500 cursor-not-allowed" 
-                  />
-                  <p className="mt-1.5 text-xs text-slate-500">Contact support to change your name.</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Registered Email Address</label>
-                  <input 
-                    type="email" 
-                    defaultValue={user?.email} 
-                    disabled 
-                    className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-500 cursor-not-allowed" 
-                  />
-                </div>
-              </form>
-            </div>
-          </div>
-        );
+        return <ProfileView />;
       default:
         return null;
     }

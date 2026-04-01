@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import { User, Mail, Phone, MapPin, Save, AlertCircle, CircleCheck, Camera, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Save, AlertCircle, CircleCheck, Camera, Loader2, Briefcase, Calendar } from 'lucide-react';
 
 export default function ProfileView() {
   const { user, login } = useAuth();
@@ -11,7 +11,14 @@ export default function ProfileView() {
     phone: '',
     bio: '',
     avatar: '',
-    coverPhoto: ''
+    coverPhoto: '',
+    gender: '',
+    dateOfBirth: '',
+    address: '',
+    emergencyContact: '',
+    department: '',
+    specialization: '',
+    occupation: ''
   });
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -30,7 +37,14 @@ export default function ProfileView() {
             phone: data.user.phone || '',
             bio: data.user.bio || '',
             avatar: data.user.avatar || '',
-            coverPhoto: data.user.coverPhoto || ''
+            coverPhoto: data.user.coverPhoto || '',
+            gender: data.user.gender || '',
+            dateOfBirth: data.user.dateOfBirth || '',
+            address: data.user.address || '',
+            emergencyContact: data.user.emergencyContact || '',
+            department: data.user.department || '',
+            specialization: data.user.specialization || '',
+            occupation: data.user.occupation || ''
           });
         }
       } catch (err) {
@@ -91,7 +105,14 @@ export default function ProfileView() {
         bio: formData.bio,
         phone: formData.phone,
         avatar: formData.avatar,
-        coverPhoto: formData.coverPhoto
+        coverPhoto: formData.coverPhoto,
+        gender: formData.gender,
+        dateOfBirth: formData.dateOfBirth,
+        address: formData.address,
+        emergencyContact: formData.emergencyContact,
+        department: formData.department,
+        specialization: formData.specialization,
+        occupation: formData.occupation
       });
       if (data.success) {
         setMessage('Profile updated successfully!');
@@ -113,10 +134,10 @@ export default function ProfileView() {
   }
 
   return (
-    <div className="animate-in fade-in max-w-3xl space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="animate-in fade-in max-w-3xl mx-auto space-y-6">
+      <div className="flex justify-center items-center text-center pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">My Profile</h1>
+          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">My Profile</h1>
           <p className="text-slate-500 text-sm mt-1">Manage your account settings and preferences.</p>
         </div>
       </div>
@@ -214,6 +235,122 @@ export default function ProfileView() {
                     />
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">Gender</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <select 
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 appearance-none bg-white" 
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">Date of Birth</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <input 
+                      type="date" 
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700">Address</label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <input 
+                      type="text" 
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      placeholder="e.g. Bole, Addis Ababa"
+                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                    />
+                  </div>
+                </div>
+
+                {user?.role === 'student' && (
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-bold text-slate-700">Emergency Contact</label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                      <input 
+                        type="text" 
+                        name="emergencyContact"
+                        value={formData.emergencyContact}
+                        onChange={handleChange}
+                        placeholder="Name and Phone number"
+                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {(user?.role === 'instructor' || user?.role === 'admin') && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700">Department</label>
+                    <div className="relative">
+                      <Briefcase className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                      <input 
+                        type="text" 
+                        name="department"
+                        value={formData.department}
+                        onChange={handleChange}
+                        placeholder="e.g. Computer Science"
+                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {user?.role === 'instructor' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700">Specialization</label>
+                    <div className="relative">
+                      <Briefcase className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                      <input 
+                        type="text" 
+                        name="specialization"
+                        value={formData.specialization}
+                        onChange={handleChange}
+                        placeholder="e.g. Web Development"
+                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {user?.role === 'parent' && (
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-bold text-slate-700">Occupation</label>
+                    <div className="relative">
+                      <Briefcase className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                      <input 
+                        type="text" 
+                        name="occupation"
+                        value={formData.occupation}
+                        onChange={handleChange}
+                        placeholder="e.g. Engineer"
+                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-bold text-slate-700">Bio</label>

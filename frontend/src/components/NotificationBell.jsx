@@ -118,7 +118,12 @@ export default function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button 
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          if (!isOpen && unreadCount > 0) {
+            markAllAsRead();
+          }
+        }}
         className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm relative focus:outline-none"
       >
         <Bell className="w-5 h-5" />
