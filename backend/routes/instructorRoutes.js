@@ -3,6 +3,7 @@ const router = express.Router();
 const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const User = require('../models/User');
+const ProgressLog = require('../models/ProgressLog');
 const { protect, authorize } = require('../middleware/auth');
 
 // Apply auth middleware to all routes in this file
@@ -170,13 +171,56 @@ router.get('/dashboard', async (req, res) => {
             totalLessons += course.lessons.length;
         });
 
+        // Fetch real student performance via ProgressLog (last 5 days)
+        const fiveDaysAgo = new Date();
+        fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+        
+        const rawLogs = await ProgressLog.find({ 
+           course_id: { $in: courseIds }, 
+           updatedAt: { $gte: fiveDaysAgo } 
+        }).populate('course_id', 'title');
+
+        // Group by Day (Mon, Tue, Wed...) and count activities per top 3 courses
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const topCourses = courses.slice(0, 3).map(c => ({ id: c._id.toString(), title: c.title }));
+        
+        // Initialize exactly what the UI needs
+        const studentPerformanceData = [4, 3, 2, 1, 0].map(diff => {
+            const d = new Date();
+            d.setDate(d.getDate() - diff);
+            return {
+                name: days[d.getDay()],
+                dateStr: d.toISOString().split('T')[0],
+                value1: 0,
+                value2: 0,
+                value3: 0
+            };
+        });
+
+        rawLogs.forEach(log => {
+             const logDate = new Date(log.updatedAt).toISOString().split('T')[0];
+             const targetDay = studentPerformanceData.find(d => d.dateStr === logDate);
+             if (targetDay) {
+                  // Determine which course line this affects, map to value1/2/3
+                  const cid = log.course_id._id.toString();
+                  if (topCourses[0] && cid === topCourses[0].id) targetDay.value1 += 10; // Boost by 10 per log for visible bars
+                  else if (topCourses[1] && cid === topCourses[1].id) targetDay.value2 += 10;
+                  else if (topCourses[2] && cid === topCourses[2].id) targetDay.value3 += 10;
+             }
+        });
+
+        // Strip dateStr before sending
+        const cleanStudentPerformance = studentPerformanceData.map(({name, value1, value2, value3}) => ({name, value1, value2, value3}));
+
         res.status(200).json({
             success: true,
             data: {
                 totalCourses,
                 activeCourses,
                 totalStudents,
-                totalLessons
+                totalLessons,
+                studentPerformanceData: cleanStudentPerformance,
+                courseNames: topCourses.map(c => c.title)
             }
         });
     } catch (error) {

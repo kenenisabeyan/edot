@@ -6,23 +6,31 @@ const eventSchema = new mongoose.Schema({
     required: [true, 'Please add an event title'],
     trim: true,
   },
+  description: {
+    type: String,
+    trim: true,
+  },
   date: {
     type: Date,
     required: [true, 'Please set a date for the event'],
   },
   type: {
     type: String,
-    enum: ['exam', 'meeting', 'holiday', 'event'],
-    default: 'event',
+    enum: ['exam', 'meeting', 'holiday', 'event', 'announcement', 'advice', 'support', 'assignment'],
+    default: 'announcement',
   },
   color: {
     type: String,
     default: 'bg-indigo-500',
   },
-  audience: {
+  targetAudiences: [{
     type: String,
-    enum: ['all', 'student', 'instructor', 'admin'],
-    default: 'all',
+    enum: ['all', 'student', 'instructor', 'admin', 'parent'],
+  }],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
 }, { timestamps: true });
 

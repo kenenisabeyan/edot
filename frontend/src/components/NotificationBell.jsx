@@ -102,6 +102,8 @@ export default function NotificationBell() {
 
     if (user) {
       fetchNotifications();
+      const intervalId = setInterval(fetchNotifications, 5000); // Poll notifications same as sidebar metrics
+      return () => clearInterval(intervalId);
     }
   }, [user]);
 
@@ -118,17 +120,12 @@ export default function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button 
-        onClick={() => {
-          setIsOpen(!isOpen);
-          if (!isOpen && unreadCount > 0) {
-            markAllAsRead();
-          }
-        }}
+        onClick={() => setIsOpen(!isOpen)}
         className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm relative focus:outline-none"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+          <span className="absolute top-0 right-0 w-4 h-4 bg-[#f59e0b] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -173,7 +170,7 @@ export default function NotificationBell() {
                       <p className="text-xs text-slate-400 mt-2 font-medium">{notif.time}</p>
                     </div>
                     {notif.unread && (
-                      <div className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0 ml-auto"></div>
+                      <div className="w-2 h-2 rounded-full bg-[#3390ec] mt-1.5 shrink-0 ml-auto"></div>
                     )}
                   </button>
                 ))}
@@ -182,7 +179,10 @@ export default function NotificationBell() {
           </div>
           
           <div className="p-3 border-t border-slate-100 bg-slate-50/80 text-center">
-            <button className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+            <button 
+              onClick={() => { setIsOpen(false); navigate('/dashboard/notice'); }}
+              className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+            >
               View all notifications
             </button>
           </div>
