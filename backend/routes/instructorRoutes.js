@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
+const User = require('../models/User');
 const { protect, authorize } = require('../middleware/auth');
 
 // Apply auth middleware to all routes in this file
@@ -18,6 +19,28 @@ router.get('/courses', async (req, res) => {
         res.status(200).json({ success: true, count: courses.length, data: courses });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   GET /api/instructor/students
+// @desc    Get all students enrolled in courses taught by instructor
+router.get('/students', async (req, res) => {
+    try {
+        const courses = await Course.find({ instructor: req.user.id }).select('_id');
+        const courseIds = courses.map(c => c._id);
+        
+        const students = await User.find({
+            role: 'student',
+            'enrolledCourses.course': { $in: courseIds }
+        })
+        .select('-password')
+        .populate('enrolledCourses.course', 'title status')
+        .sort({ createdAt: -1 })
+        .lean();
+
+        res.status(200).json({ success: true, count: students.length, data: students });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error retrieving students', error: error.message });
     }
 });
 

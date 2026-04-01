@@ -46,6 +46,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  batch: {
+    type: String,
+    trim: true,
+  },
+  section: {
+    type: String,
+    trim: true,
+  },
   address: {
     type: String,
     trim: true

@@ -52,7 +52,8 @@ export default function EDOTLayout() {
     };
     if (user) {
       fetchMetrics();
-      // Optionally, set up an interval or listen to socket here if we need real-time
+      const intervalId = setInterval(fetchMetrics, 5000);
+      return () => clearInterval(intervalId);
     }
   }, [user]);
 
@@ -165,7 +166,7 @@ export default function EDOTLayout() {
           {item.name}
         </div>
         {badgeCount > 0 && (
-          <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">
+          <span className="bg-[#3390ec] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 shadow-sm">
             {badgeCount > 99 ? '99+' : badgeCount}
           </span>
         )}
