@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
+import AgendaCreationModal from '../components/AgendaCreationModal';
 
 export default function CalendarView() {
+  const { user } = useAuth();
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dates = Array.from({ length: 35 }, (_, i) => i - 2);
   const [events, setEvents] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -38,9 +42,14 @@ export default function CalendarView() {
           <h1 className="text-2xl font-bold text-slate-800">Calendar</h1>
           <p className="text-slate-500 text-sm mt-1">Manage events and schedules.</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 shadow-sm shadow-indigo-500/30">
-          <Plus className="w-5 h-5" /> Add New Event
-        </button>
+        {(user?.role === 'admin' || user?.role === 'instructor') && (
+          <button 
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 shadow-sm shadow-indigo-500/30"
+          >
+            <Plus className="w-5 h-5" /> Add New Event
+          </button>
+        )}
       </div>
 
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex-1 flex flex-col">
@@ -105,8 +114,14 @@ export default function CalendarView() {
                 );
               })}
             </div>
-         </div>
-      </div>
+          </div>
+       </div>
+
+       <AgendaCreationModal 
+          isOpen={showModal} 
+          onClose={() => setShowModal(false)} 
+          onAgendaCreated={(evt) => setEvents([...events, { ...evt, date: new Date(evt.date).getDate() }])}
+       />
     </div>
   );
 }

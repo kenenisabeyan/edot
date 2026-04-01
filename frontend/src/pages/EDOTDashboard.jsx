@@ -20,11 +20,19 @@ import {
   PieChart, Pie, Cell, Legend,
   LineChart, Line
 } from 'recharts';
+import AgendaCreationModal from '../components/AgendaCreationModal';
 
 export default function EDOTDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [agendaEvents, setAgendaEvents] = useState([]);
+  const [attendanceStats, setAttendanceStats] = useState([
+    { name: 'Present', value: 80, color: '#a78bfa' },
+    { name: 'Absent', value: 20, color: '#fcd34d' }
+  ]);
+  const [attendancePercentage, setAttendancePercentage] = useState('80%');
+  const [showAgendaModal, setShowAgendaModal] = useState(false);
 
   const userRole = user?.role ? user.role.toLowerCase().trim() : 'student';
 
@@ -39,19 +47,52 @@ export default function EDOTDashboard() {
         setLoading(false);
       }
     };
+    
+    const fetchExtraDynamicStats = async () => {
+       if (userRole !== 'student' && userRole !== 'parent') {
+          try {
+             const attRes = await api.get('/attendance/aggregate');
+             if (attRes.data.success && attRes.data.raw) {
+                setAttendanceStats(attRes.data.data);
+                const { present, total } = attRes.data.raw;
+                if (total > 0) {
+                   setAttendancePercentage(`${Math.round((present / total) * 100)}%`);
+                } else setAttendancePercentage('0%');
+             }
+             const calRes = await api.get('/calendar');
+             if (calRes.data.success) {
+                setAgendaEvents(calRes.data.data.slice(0, 4));
+             }
+          } catch (error) {
+             console.error('Failed to fetch aggregate or calendar data', error);
+          }
+       } else if (userRole === 'student' || userRole === 'parent') {
+          // Students also need agenda
+          try {
+             const calRes = await api.get('/calendar');
+             if (calRes.data.success) {
+                setAgendaEvents(calRes.data.data.slice(0, 4));
+             }
+          } catch(e){}
+       }
+    };
+
     if (user) {
         fetchDashboardStats();
+        fetchExtraDynamicStats();
     }
   }, [user, userRole]);
 
   // Mock Data
-  const studentPerformanceData = [
+  const studentPerformanceData = stats?.studentPerformanceData || [
     { name: 'Mon', value1: 40, value2: 30, value3: 20 },
     { name: 'Tue', value1: 50, value2: 40, value3: 30 },
     { name: 'Wed', value1: 45, value2: 35, value3: 25 },
     { name: 'Thu', value1: 60, value2: 50, value3: 40 },
     { name: 'Fri', value1: 55, value2: 45, value3: 35 },
   ];
+  
+  const classNames = stats?.courseNames || ['Class A', 'Class B', 'Class C'];
 
   const teachingActivityData = [
     { name: 'Jan', value: 40 },
@@ -62,10 +103,7 @@ export default function EDOTDashboard() {
     { name: 'Jun', value: 65 },
   ];
 
-  const attendanceData = [
-    { name: 'Present', value: 80, color: '#a78bfa' },
-    { name: 'Absent', value: 20, color: '#fcd34d' }
-  ];
+  // Removed static attendanceData array
 
   const StatCard = ({ title, value, percentage, isPositive, icon: Icon, iconColor, bgColor }) => (
     <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
@@ -177,7 +215,7 @@ export default function EDOTDashboard() {
                      <ResponsiveContainer width="100%" height="100%">
                        <PieChart>
                          <Pie
-                           data={attendanceData}
+                           data={attendanceStats}
                            cx="50%"
                            cy="50%"
                            innerRadius={70}
@@ -186,7 +224,7 @@ export default function EDOTDashboard() {
                            dataKey="value"
                            stroke="none"
                          >
-                           {attendanceData.map((entry, index) => (
+                           {attendanceStats.map((entry, index) => (
                              <Cell key={`cell-${index}`} fill={entry.color} />
                            ))}
                          </Pie>
@@ -195,7 +233,7 @@ export default function EDOTDashboard() {
                      </ResponsiveContainer>
                      {/* Center Label */}
                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-3xl font-bold text-slate-800">80%</span>
+                        <span className="text-3xl font-bold text-slate-800">{attendancePercentage}</span>
                      </div>
                   </div>
                   <div className="flex justify-center gap-6 mt-4">
@@ -230,15 +268,21 @@ export default function EDOTDashboard() {
                     </ResponsiveContainer>
                   </div>
                   <div className="flex justify-center gap-6 mt-4">
-                     <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                        <span className="w-3 h-3 rounded-full bg-[#818cf8]"></span> Class A
-                     </div>
-                     <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                        <span className="w-3 h-3 rounded-full bg-[#fbbf24]"></span> Class B
-                     </div>
-                     <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                        <span className="w-3 h-3 rounded-full bg-[#38bdf8]"></span> Class C
-                     </div>
+                     {classNames[0] && (
+                       <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                          <span className="w-3 h-3 rounded-full bg-[#818cf8]"></span> {classNames[0]}
+                       </div>
+                     )}
+                     {classNames[1] && (
+                       <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                          <span className="w-3 h-3 rounded-full bg-[#fbbf24]"></span> {classNames[1]}
+                       </div>
+                     )}
+                     {classNames[2] && (
+                       <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
+                          <span className="w-3 h-3 rounded-full bg-[#38bdf8]"></span> {classNames[2]}
+                       </div>
+                     )}
                   </div>
                 </div>
               </div>
@@ -394,29 +438,51 @@ export default function EDOTDashboard() {
            </div>
 
            {/* Agenda Widget */}
-           <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-             <div className="flex justify-between items-center mb-6">
+           <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-full max-h-[500px]">
+             <div className="flex justify-between items-center mb-6 shrink-0">
                <h3 className="font-bold text-lg text-slate-800">Agenda</h3>
-               <button className="text-slate-400 hover:text-slate-600"><MoreVertical className="w-5 h-5" /></button>
+               <div className="flex gap-2">
+                 {(userRole === 'admin' || userRole === 'instructor') && (
+                   <button 
+                     onClick={() => setShowAgendaModal(true)}
+                     className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                   >
+                     + Create
+                   </button>
+                 )}
+                 <button className="text-slate-400 hover:text-slate-600"><MoreVertical className="w-5 h-5" /></button>
+               </div>
              </div>
-             <div className="space-y-4">
-               {(userRole === 'parent' && stats?.primaryLearner ? [
-                 { time: 'Tomorrow, 10:00 AM', title: `${stats.primaryLearner.name.split(' ')[0]}'s Math Final Exam`, color: 'bg-rose-50 border-rose-200', text: 'text-rose-800', dot: 'bg-rose-500', id: 1 },
-                 { time: 'Friday, 02:00 PM', title: 'Parent-Teacher Meeting', color: 'bg-indigo-50 border-indigo-200', text: 'text-indigo-800', dot: 'bg-indigo-500', id: 2 },
-                 { time: 'Next Monday', title: 'Science Project Due', color: 'bg-amber-50 border-amber-200', text: 'text-amber-800', dot: 'bg-amber-500', id: 3 }
-               ] : [
-                 { time: '09:00 AM - 10:00 AM', title: 'Meeting with Ato Abebe', id: 1, dot: 'bg-slate-400' },
-                 { time: '11:00 AM - 12:00 PM', title: 'Meskel Celebration Prep', color: 'bg-indigo-50 border-indigo-200', text: 'text-indigo-800', dot: 'bg-indigo-500', id: 2 },
-                 { time: '01:00 PM - 02:00 PM', title: 'Prepare for Tomorrow\'s Debate', id: 3, dot: 'bg-slate-400' }
-               ]).map(agenda => (
-                 <div key={agenda.id} className={`p-4 rounded-2xl border ${agenda.color || 'bg-slate-50 border-slate-100'}`}>
-                   <p className="text-xs font-semibold text-slate-500 mb-1 flex items-center gap-1.5 uppercase tracking-wide">
-                     <span className={`w-2 h-2 rounded-full ${agenda.dot}`}></span>
-                     {agenda.time}
-                   </p>
-                   <h4 className={`font-bold ${agenda.text || 'text-slate-800'} leading-tight`}>{agenda.title}</h4>
-                 </div>
-               ))}
+             <div className="space-y-4 overflow-y-auto flex-1 pr-2">
+                 {agendaEvents.length > 0 ? (
+                  agendaEvents.map(event => {
+                    const isMeeting = event.type === 'meeting';
+                    const isExam = event.type === 'exam';
+                    const isAdvice = event.type === 'advice';
+                    const isSupport = event.type === 'support';
+                    const iconColorClass = isExam ? 'text-rose-500' : isMeeting ? 'text-blue-500' : isAdvice ? 'text-amber-500' : isSupport ? 'text-emerald-500' : 'text-indigo-500';
+
+                    return (
+                      <div key={event._id} className="p-4 rounded-2xl border bg-white border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-2">
+                          <p className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
+                            <span className={`w-2 h-2 rounded-full ${event.color || 'bg-indigo-500'}`}></span>
+                            {new Date(event.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                          </p>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${event.color ? event.color.replace('bg-', 'text-').replace('-500', '-600') + ' bg-slate-50' : 'text-indigo-600 bg-indigo-50'}`}>
+                            {event.type || 'announcement'}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-slate-800 leading-tight mb-1" title={event.title}>{event.title}</h4>
+                        {event.description && <p className="text-xs text-slate-500 line-clamp-2">{event.description}</p>}
+                      </div>
+                    )
+                  })
+                ) : (
+                  <div className="p-4 rounded-2xl border bg-slate-50 border-slate-100 text-center text-slate-500 text-sm font-medium">
+                    No upcoming events.
+                  </div>
+                )}
              </div>
              <button className="w-full mt-4 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors">
                 View All
@@ -452,6 +518,15 @@ export default function EDOTDashboard() {
             )}
          </div>
       </div>
+
+      <AgendaCreationModal 
+         isOpen={showAgendaModal} 
+         onClose={() => setShowAgendaModal(false)} 
+         onAgendaCreated={(newEvent) => {
+            // Unshift new event into the array to show it immediately (optimistic UI)
+            setAgendaEvents(prev => [newEvent, ...prev].slice(0, 4));
+         }}
+      />
     </div>
   );
 }

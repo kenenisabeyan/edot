@@ -20,6 +20,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const progressRoutes = require('./routes/progressRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const parentRoutes = require('./routes/parentRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/parent', parentRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // Static file serving for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

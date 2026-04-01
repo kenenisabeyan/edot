@@ -34,6 +34,7 @@ import NoticeView from './pages/NoticeView';
 import LibraryView from './pages/LibraryView';
 import ProfileView from './pages/ProfileView';
 import ParentLearners from './pages/ParentLearners';
+import AttendanceManagement from './pages/AttendanceManagement';
 import { Outlet } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -97,7 +98,7 @@ export default function App() {
           <Route path="builder" element={<InstructorCourseBuilder />} />
           <Route path="builder/:id" element={<InstructorCourseBuilder />} />
           <Route path="approvals" element={<AdminCourseApprovals />} />
-          <Route path="attendance" element={<div className="p-8 text-slate-500 font-medium">Attendance page under construction...</div>} />
+          <Route path="attendance" element={<AttendanceManagement />} />
           <Route path="finance/fees" element={<FinanceFees />} />
           <Route path="finance/expenses" element={<div className="p-8 text-slate-500 font-medium">Expenses page under construction...</div>} />
           <Route path="notice" element={<NoticeView />} />

@@ -143,10 +143,21 @@ export default function EDOTLayout() {
   const showFinance = currentConfig.showFinance || false;
   const NavItem = ({ item }) => {
     let badgeCount = 0;
-    if (item.path.includes('/messages')) badgeCount = metrics.unreadMessages;
-    else if (item.path.includes('/approvals')) badgeCount = metrics.pendingApprovals;
-    else if (item.path.includes('/my-courses')) badgeCount = metrics.pendingCourses;
-    else if (item.path.includes('/certificates')) badgeCount = metrics.newCertificates;
+    let badgeColor = 'bg-[#3390ec] text-white';
+
+    if (item.path.includes('/messages')) {
+      badgeCount = metrics.unreadMessages;
+      badgeColor = 'bg-[#3390ec] text-white';
+    } else if (item.path.includes('/approvals')) {
+      badgeCount = metrics.pendingApprovals;
+      badgeColor = 'bg-amber-500 text-white';
+    } else if (item.path.includes('/my-courses')) {
+      badgeCount = metrics.pendingCourses;
+      badgeColor = 'bg-amber-500 text-white';
+    } else if (item.path.includes('/certificates')) {
+      badgeCount = metrics.newCertificates;
+      badgeColor = 'bg-emerald-500 text-white';
+    }
 
     return (
       <NavLink
@@ -166,7 +177,7 @@ export default function EDOTLayout() {
           {item.name}
         </div>
         {badgeCount > 0 && (
-          <span className="bg-[#3390ec] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 shadow-sm">
+          <span className={`${badgeColor} text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 shadow-sm`}>
             {badgeCount > 99 ? '99+' : badgeCount}
           </span>
         )}
