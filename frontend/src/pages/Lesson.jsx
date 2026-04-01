@@ -196,12 +196,16 @@ export default function Lesson() {
         </h1>
 
         {/* Video */}
-        <div className="bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center text-white mb-8 relative shadow-lg">
+        <div 
+          className="bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center text-white mb-8 relative shadow-lg"
+          onContextMenu={(e) => e.preventDefault()}
+        >
           <ReactPlayer 
             url={lesson.videoUrl} 
             width="100%" 
             height="100%" 
             controls={true}
+            config={{ file: { attributes: { controlsList: 'nodownload' } } }}
             onEnded={() => setIsVideoFinished(true)}
             onProgress={async ({ played, playedSeconds }) => {
                 if (played > 0.98 && !isVideoFinished) setIsVideoFinished(true);

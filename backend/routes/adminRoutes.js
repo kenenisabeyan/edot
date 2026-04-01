@@ -35,6 +35,21 @@ router.put('/users/:id/role', async (req, res) => {
     }
 });
 
+// @route   DELETE /api/admin/users/:id
+// @desc    Delete a user
+router.delete('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        await user.deleteOne();
+        res.status(200).json({ success: true, message: 'User removed completely' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
 // @route   GET /api/admin/courses/pending
 // @desc    Get all pending courses
 router.get('/courses/pending', async (req, res) => {

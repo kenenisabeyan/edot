@@ -162,6 +162,43 @@ export default function InstructorCourseBuilder() {
     }
   };
 
+  const handleFileUpload = async (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file); // uploadRoutes currently leverages 'image' multer mapping for all types.
+
+    setSaving(true);
+    try {
+      const { data } = await api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (data.success) {
+        if (field === 'videoUrl') {
+          setLessonForm(prev => ({ ...prev, videoUrl: data.filePath }));
+        } else if (field === 'readingMaterials') {
+          const extension = file.name.split('.').pop();
+          const docLink = `[Attached Resource: ${file.name}](${data.filePath})`;
+          setLessonForm(prev => ({ 
+            ...prev, 
+            readingMaterials: prev.readingMaterials 
+              ? `${prev.readingMaterials}\n\n${docLink}` 
+              : docLink
+          }));
+        } else if (field === 'thumbnail') {
+          setFormData(prev => ({ ...prev, thumbnail: data.filePath }));
+        }
+      }
+    } catch (err) {
+      console.error('Upload failed', err);
+      alert('Failed to upload file. Limit is 1GB. Please try again.');
+    } finally {
+      setSaving(false);
+      e.target.value = ''; // Reset input
+    }
+  };
+
   const steps = [
     { title: 'Information', icon: <BookOpen className="w-5 h-5" /> },
     { title: 'Details', icon: <Tag className="w-5 h-5" /> },
@@ -473,13 +510,26 @@ export default function InstructorCourseBuilder() {
                         <div className="flex flex-col sm:flex-row gap-4">
                           <div className="flex-1">
                             <label className="block text-sm font-medium text-purple-900 mb-1.5">Video URL *</label>
-                            <input 
-                              type="url" 
-                              required 
-                              value={lessonForm.videoUrl}
-                              onChange={e => setLessonForm({...lessonForm, videoUrl: e.target.value})}
-                              className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none bg-white"
-                            />
+                            <div className="flex gap-2">
+                              <input 
+                                type="text" 
+                                required 
+                                value={lessonForm.videoUrl}
+                                onChange={e => setLessonForm({...lessonForm, videoUrl: e.target.value})}
+                                placeholder="Paste URL or upload file"
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none bg-white min-w-0"
+                              />
+                              <label className="cursor-pointer bg-purple-100 hover:bg-purple-200 text-purple-700 px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center shrink-0">
+                                {saving ? '...' : 'Upload'}
+                                <input 
+                                  type="file" 
+                                  accept="video/mp4,video/x-m4v,video/*"
+                                  className="hidden" 
+                                  onChange={(e) => handleFileUpload(e, 'videoUrl')} 
+                                  disabled={saving}
+                                />
+                              </label>
+                            </div>
                           </div>
                           <div className="w-full sm:w-32 shrink-0">
                             <label className="block text-sm font-medium text-purple-900 mb-1.5">Duration (m) *</label>
@@ -494,12 +544,24 @@ export default function InstructorCourseBuilder() {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-purple-900 mb-1.5 flex items-center gap-1.5"><FileText className="w-4 h-4"/> Reading Materials & Notes</label>
+                          <div className="flex justify-between items-center mb-1.5">
+                            <label className="block text-sm font-medium text-purple-900 flex items-center gap-1.5"><FileText className="w-4 h-4"/> Reading Materials & Notes</label>
+                            <label className="cursor-pointer text-xs font-semibold text-purple-600 hover:text-purple-800 flex items-center gap-1">
+                              Upload Document
+                              <input 
+                                type="file" 
+                                accept=".pdf,.doc,.docx,.zip"
+                                className="hidden" 
+                                onChange={(e) => handleFileUpload(e, 'readingMaterials')} 
+                                disabled={saving}
+                              />
+                            </label>
+                          </div>
                           <textarea 
                             value={lessonForm.readingMaterials}
                             onChange={e => setLessonForm({...lessonForm, readingMaterials: e.target.value})}
                             className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none bg-white min-h-[100px]"
-                            placeholder="Add markdown notes, links, or text for students to read."
+                            placeholder="Add markdown notes, links, or text for students to read. Uploading a document inserts its link here."
                           ></textarea>
                         </div>
                         
