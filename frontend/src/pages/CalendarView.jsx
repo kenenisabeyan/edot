@@ -39,35 +39,35 @@ export default function CalendarView() {
     <div className="h-full flex flex-col space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Calendar</h1>
-          <p className="text-slate-500 text-sm mt-1">Manage events and schedules.</p>
+          <h1 className="text-2xl font-display font-bold text-white">Calendar</h1>
+          <p className="text-slate-300 text-sm mt-1">Manage events and schedules.</p>
         </div>
         {(user?.role === 'admin' || user?.role === 'instructor') && (
           <button 
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 shadow-sm shadow-indigo-500/30"
+            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#008A32] to-[#006622] text-white rounded-xl font-bold hover:shadow-lg hover:shadow-[#008A32]/20 shadow-sm"
           >
             <Plus className="w-5 h-5" /> Add New Event
           </button>
         )}
       </div>
 
-      <div className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex-1 flex flex-col">
+      <div className="rounded-3xl border border-white/5 bg-[#0B0E14] shadow-sm overflow-hidden flex-1 flex flex-col">
          {/* Calendar Header */}
-         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-transparent/50">
+         <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
            <div className="flex items-center gap-4">
-             <h2 className="text-xl font-bold text-slate-800">September 2030</h2>
-             <div className="flex items-center glass-card rounded-lg border border-slate-200 overflow-hidden shadow-sm">
-               <button className="p-2 text-slate-500 hover:bg-transparent hover:text-indigo-600 border-r border-slate-200"><ChevronLeft className="w-5 h-5" /></button>
-               <button className="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-transparent hover:text-indigo-600">Today</button>
-               <button className="p-2 text-slate-500 hover:bg-transparent hover:text-indigo-600 border-l border-slate-200"><ChevronRight className="w-5 h-5" /></button>
+             <h2 className="text-xl font-bold text-white">September 2030</h2>
+             <div className="flex items-center bg-white/5 rounded-lg border border-white/10 overflow-hidden shadow-sm">
+               <button className="p-2 text-slate-400 hover:bg-white/10 hover:text-[#FFD700] border-r border-white/10"><ChevronLeft className="w-5 h-5" /></button>
+               <button className="px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-[#FFD700]">Today</button>
+               <button className="p-2 text-slate-400 hover:bg-white/10 hover:text-[#FFD700] border-l border-white/10"><ChevronRight className="w-5 h-5" /></button>
              </div>
            </div>
            
            <div className="flex gap-2">
-              <button className="px-4 py-2 text-sm font-semibold bg-indigo-50 text-indigo-600 rounded-lg">Month</button>
-              <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-transparent rounded-lg">Week</button>
-              <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-transparent rounded-lg">Day</button>
+              <button className="px-4 py-2 text-sm font-semibold bg-[#FFD700]/10 text-[#FFD700] rounded-lg border border-[#FFD700]/20">Month</button>
+              <button className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white rounded-lg">Week</button>
+              <button className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white rounded-lg">Day</button>
            </div>
          </div>
 
@@ -89,10 +89,10 @@ export default function CalendarView() {
                 const isToday = isCurrentMonth && displayDate === 14; // Mock today
 
                 return (
-                  <div key={index} className={`min-h-[100px] p-2 rounded-2xl border ${isCurrentMonth ? 'glass-card border-slate-100' : 'bg-transparent border-transparent'} relative group hover:border-indigo-200 transition-colors`}>
+                  <div key={index} className={`min-h-[100px] p-2 rounded-2xl border ${isCurrentMonth ? 'bg-white/5 border-white/5' : 'bg-transparent border-transparent opacity-30'} relative group hover:border-[#FFD700]/50 transition-colors`}>
                      <div className={`text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full mb-2 ${
-                       isToday ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/40' : 
-                       isCurrentMonth ? 'text-slate-700' : 'text-slate-300'
+                       isToday ? 'bg-[#FFD700] text-[#0B0E14] shadow-md shadow-[#FFD700]/40' : 
+                       isCurrentMonth ? 'text-white' : 'text-slate-500'
                      }`}>
                        {displayDate}
                      </div>
@@ -106,7 +106,7 @@ export default function CalendarView() {
                      </div>
 
                      {isCurrentMonth && (
-                       <button className="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-100 text-slate-400 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex hover:bg-indigo-50 hover:text-indigo-600">
+                       <button className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/10 text-slate-400 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex hover:bg-[#FFD700]/20 hover:text-[#FFD700]">
                          <Plus className="w-4 h-4" />
                        </button>
                      )}

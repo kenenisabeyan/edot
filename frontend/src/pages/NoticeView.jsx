@@ -63,14 +63,14 @@ export default function NoticeView() {
     <div className="animate-in fade-in flex flex-col space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Global Notices</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Official announcements and platform-wide updates.</p>
+          <h1 className="text-2xl font-display font-bold text-white">Global Notices</h1>
+          <p className="text-slate-300 text-sm mt-1">Official announcements and platform-wide updates.</p>
         </div>
         
         {canCreate && !showCreateForm && (
           <button 
             onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm shadow-indigo-600/30"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#008A32] to-[#006622] hover:shadow-lg hover:shadow-[#008A32]/20 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm"
           >
             <Plus className="w-5 h-5" /> Let's Broadcast
           </button>
@@ -79,17 +79,17 @@ export default function NoticeView() {
 
       {/* Create Notice Form */}
       {showCreateForm && (
-        <div className="glass-card dark:bg-slate-900 rounded-3xl border border-indigo-100 dark:border-slate-800 p-6 sm:p-8 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+        <div className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-[#008A32]"></div>
           <div className="flex justify-between items-center mb-6">
-             <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                 <BellRing className="w-5 h-5 text-indigo-500" /> Draft New Notice
+             <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                 <BellRing className="w-5 h-5 text-[#E30A17]" /> Draft New Notice
              </h2>
-             <button onClick={() => setShowCreateForm(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-medium text-sm">Cancel</button>
+             <button onClick={() => setShowCreateForm(false)} className="text-slate-400 hover:text-white font-medium text-sm">Cancel</button>
           </div>
           
           {errorMsg && (
-             <div className="mb-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 p-3 rounded-xl flex items-center gap-2 text-sm font-semibold">
+             <div className="mb-4 bg-[#E30A17]/10 border border-[#E30A17]/20 text-[#E30A17] p-3 rounded-xl flex items-center gap-2 text-sm font-semibold">
                 <AlertCircle className="w-5 h-5" /> {errorMsg}
              </div>
           )}
@@ -97,22 +97,22 @@ export default function NoticeView() {
           <form onSubmit={handleCreateNotice} className="space-y-5 flex flex-col">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-1">
-                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Announcement Title</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Announcement Title</label>
                     <input 
                       type="text" 
                       required
                       placeholder="e.g. End of Semester Examinations"
                       value={newNotice.title}
                       onChange={(e) => setNewNotice({ ...newNotice, title: e.target.value })}
-                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold"
+                      className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] transition-all font-semibold placeholder-slate-500"
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Target Audience</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Audience</label>
                     <select 
                       value={newNotice.audience}
                       onChange={(e) => setNewNotice({ ...newNotice, audience: e.target.value })}
-                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold capitalize appearance-none cursor-pointer"
+                      className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] transition-all font-semibold capitalize appearance-none cursor-pointer"
                     >
                       <option value="all">Entire Platform (All Users)</option>
                       <option value="student">Students Only</option>
@@ -123,14 +123,14 @@ export default function NoticeView() {
             </div>
 
             <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Message Content</label>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message Content</label>
                 <textarea 
                   required
                   placeholder="Type your official announcement here..."
                   rows={4}
                   value={newNotice.content}
                   onChange={(e) => setNewNotice({ ...newNotice, content: e.target.value })}
-                  className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none font-medium"
+                  className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] transition-all resize-none font-medium placeholder-slate-500"
                 ></textarea>
             </div>
 
@@ -138,7 +138,7 @@ export default function NoticeView() {
                 <button 
                   type="submit" 
                   disabled={submitting}
-                  className="bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all w-full sm:w-auto disabled:opacity-70"
+                  className="bg-[#008A32] hover:bg-[#006622] text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all w-full sm:w-auto disabled:opacity-70"
                 >
                   {submitting ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><Send className="w-4 h-4" /> Publish Notice</>}
                 </button>
@@ -149,39 +149,39 @@ export default function NoticeView() {
 
       {/* Feed */}
       {notices.length === 0 && !showCreateForm ? (
-        <div className="glass-card dark:bg-slate-900 p-12 text-center rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center">
-           <div className="w-20 h-20 bg-transparent dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800">
+        <div className="p-12 text-center rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm flex flex-col items-center justify-center">
+           <div className="w-20 h-20 bg-white/5 text-slate-400 rounded-full flex items-center justify-center mb-4 border border-white/10">
              <BellRing className="w-8 h-8" />
            </div>
-           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">You're caught up!</h3>
-           <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-6">There are no official announcements at this time.</p>
+           <h3 className="text-xl font-bold text-white mb-2">You're caught up!</h3>
+           <p className="text-slate-400 max-w-sm mb-6">There are no official announcements at this time.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {notices.map((notice) => (
-            <div key={notice._id} className="glass-card dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden p-6 hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-500/30 transition-all relative group">
+            <div key={notice._id} className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm overflow-hidden p-6 hover:shadow-md hover:border-[#FFD700]/30 transition-all relative group">
                 <div className="flex gap-4 items-start relative z-10">
-                  <div className="w-12 h-12 bg-indigo-50 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400 rounded-2xl flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 bg-[#FFD700]/10 text-[#FFD700] rounded-2xl flex items-center justify-center shrink-0">
                     <Pin className="w-6 h-6 transform group-hover:-rotate-12 transition-transform" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
-                      <h3 className="font-bold text-lg text-slate-900 dark:text-white truncate pr-4">{notice.title}</h3>
+                      <h3 className="font-bold text-lg text-white truncate pr-4">{notice.title}</h3>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className={`text-[10px] uppercase tracking-wide font-bold px-2 py-1 rounded-lg ${
-                            notice.audience === 'all' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
-                            notice.audience === 'student' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' :
-                            notice.audience === 'instructor' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400' :
-                            'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400'
+                            notice.audience === 'all' ? 'bg-[#FFD700]/10 text-[#FFD700]' :
+                            notice.audience === 'student' ? 'bg-[#008A32]/10 text-[#008A32]' :
+                            notice.audience === 'instructor' ? 'bg-blue-500/20 text-blue-400' :
+                            'bg-[#E30A17]/10 text-[#E30A17]'
                         }`}>
                           {notice.audience === 'all' ? 'Global' : notice.audience}
                         </span>
-                        <span className="text-xs font-semibold text-slate-400 bg-transparent dark:bg-slate-800/50 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <span className="text-xs font-semibold text-slate-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
                           {new Date(notice.date).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
-                    <p className="text-slate-600 dark:text-slate-400 whitespace-pre-wrap leading-relaxed text-sm font-medium">{notice.content}</p>
+                    <p className="text-slate-300 whitespace-pre-wrap leading-relaxed text-sm font-medium">{notice.content}</p>
                   </div>
                 </div>
             </div>
