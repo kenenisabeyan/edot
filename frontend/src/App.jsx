@@ -40,6 +40,7 @@ import Performance from './pages/Performance';
 import TeachingActivity from './pages/TeachingActivity';
 import AnalyticsReport from './pages/AnalyticsReport';
 import SettingsView from './pages/SettingsView';
+import UsersManagement from './pages/UsersManagement';
 import { Outlet } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -93,6 +94,7 @@ export default function App() {
       }>
         <Route element={<EDOTLayout />}>
           <Route index element={<EDOTDashboard />} />
+          <Route path="users" element={<UsersManagement />} />
           <Route path="teachers" element={<TeachersList />} />
           <Route path="students" element={<StudentsList />} />
           <Route path="child" element={<ParentLearners />} />

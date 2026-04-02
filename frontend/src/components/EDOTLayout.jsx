@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
+import UserAvatar from './UserAvatar';
 import edotLogo from '../assets/edot-logo.jpg';
 
 export default function EDOTLayout() {
@@ -45,7 +46,8 @@ export default function EDOTLayout() {
     unreadMessages: 0,
     pendingApprovals: 0,
     pendingCourses: 0,
-    newCertificates: 0
+    newCertificates: 0,
+    pendingUsers: 0
   });
 
   useEffect(() => {
@@ -105,6 +107,7 @@ export default function EDOTLayout() {
     admin: {
       menu1: [
         { name: 'Dashboard', icon: Home, path: '/dashboard', exact: true },
+        { name: 'All Users (Admin)', icon: Users, path: '/dashboard/users' },
         { name: 'Approvals', icon: ClipboardCheck, path: '/dashboard/approvals' },
         { name: 'Teachers', icon: UserSquare, path: '/dashboard/teachers' },
         { name: 'Students', icon: Users, path: '/dashboard/students' },
@@ -191,6 +194,9 @@ export default function EDOTLayout() {
 
     if (item.path.includes('/messages')) {
       badgeCount = metrics.unreadMessages;
+    } else if (item.path.includes('/dashboard/users') && user?.role === 'admin') {
+      badgeCount = metrics.pendingUsers;
+      badgeColor = 'bg-rose-500 text-white';
     } else if (item.path.includes('/approvals')) {
       badgeCount = metrics.pendingApprovals;
       badgeColor = 'bg-amber-500 text-white';
@@ -420,13 +426,7 @@ export default function EDOTLayout() {
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-medium capitalize">{user?.role || 'Admin'}</p>
                 </div>
                 <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 p-0.5 shadow-md shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-shadow">
-                  <div className="w-full h-full rounded-full border-2 border-white dark:border-slate-900 overflow-hidden flex items-center justify-center bg-white dark:bg-slate-800 text-indigo-600 font-bold">
-                    {user?.avatar && user.avatar !== 'default-avatar.png' ? (
-                      <img src={`http://localhost:5000${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      user?.name ? user.name.charAt(0).toUpperCase() : 'A'
-                    )}
-                  </div>
+                  <UserAvatar user={user} className="w-full h-full text-base border-2 border-white dark:border-slate-900" />
                 </div>
               </button>
 
@@ -434,13 +434,7 @@ export default function EDOTLayout() {
                 <div className="absolute right-0 mt-4 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-100 dark:border-slate-800 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-200">
                   <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col items-center gap-3 bg-slate-50/50 dark:bg-slate-800/50 text-center">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 p-0.5 shadow-sm">
-                      <div className="w-full h-full rounded-full border-[3px] border-white dark:border-slate-900 overflow-hidden flex items-center justify-center bg-white text-indigo-600 font-bold text-xl">
-                        {user?.avatar && user.avatar !== 'default-avatar.png' ? (
-                          <img src={`http://localhost:5000${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                          user?.name ? user.name.charAt(0).toUpperCase() : 'A'
-                        )}
-                      </div>
+                      <UserAvatar user={user} className="w-full h-full text-xl border-[3px] border-white dark:border-slate-900" />
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-800 dark:text-white text-lg leading-tight">{user?.name || 'Admin User'}</h3>

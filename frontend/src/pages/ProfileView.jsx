@@ -4,7 +4,7 @@ import api from '../utils/api';
 import { User, Mail, Phone, MapPin, Save, AlertCircle, CircleCheck, Camera, Loader2, Briefcase, Calendar } from 'lucide-react';
 
 export default function ProfileView() {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -116,7 +116,9 @@ export default function ProfileView() {
       });
       if (data.success) {
         setMessage('Profile updated successfully!');
-        // Ideally update the user context here with data.user
+        if (data.user) {
+          updateUser(data.user);
+        }
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Update failed');

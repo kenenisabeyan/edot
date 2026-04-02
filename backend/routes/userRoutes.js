@@ -137,9 +137,11 @@ router.get('/dashboard-metrics', protect, async (req, res) => {
         let pendingCourses = 0;
         let pendingApprovals = 0;
         let newCertificates = 0;
+        let pendingUsers = 0;
 
         if (role === 'admin') {
             pendingApprovals = await Course.countDocuments({ status: 'pending' });
+            pendingUsers = await User.countDocuments({ status: 'pending' });
         } else if (role === 'instructor') {
             pendingCourses = await Course.countDocuments({ instructor: userId, status: 'pending' });
         } else if (role === 'student' || role === 'parent') { // just in case parent has certificates too later
@@ -152,7 +154,8 @@ router.get('/dashboard-metrics', protect, async (req, res) => {
                 unreadMessages,
                 pendingApprovals,
                 pendingCourses,
-                newCertificates
+                newCertificates,
+                pendingUsers
             }
         });
     } catch (error) {

@@ -48,8 +48,12 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
     };
 
+    const updateUser = (updatedUserData) => {
+        setUser(updatedUserData);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, loading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, loading, login, register, logout, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

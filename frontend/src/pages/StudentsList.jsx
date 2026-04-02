@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { Check, X, ShieldAlert, BadgeCheck, UserPlus, GraduationCap } from 'lucide-react';
+import UserAvatar from '../components/UserAvatar';
 
 export default function StudentsList() {
   const { user } = useAuth();
@@ -105,9 +106,7 @@ export default function StudentsList() {
               ) : filteredStudents.map(stu => (
                 <tr key={stu._id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                   <td className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                      <GraduationCap className="w-5 h-5"/>
-                    </div>
+                    <UserAvatar user={stu} className="w-10 h-10 text-sm" />
                     {stu.name}
                   </td>
                   <td className="p-4 text-slate-500">{stu.email}</td>

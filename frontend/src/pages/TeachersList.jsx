@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { Check, X, ShieldAlert, BadgeCheck, Users, Search } from 'lucide-react';
+import UserAvatar from '../components/UserAvatar';
 
 export default function TeachersList() {
   const { user } = useAuth();
@@ -92,9 +93,7 @@ export default function TeachersList() {
               ) : filteredInstructors.map(inst => (
                 <tr key={inst._id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                   <td className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
-                      {inst.name.charAt(0)}
-                    </div>
+                    <UserAvatar user={inst} className="w-10 h-10 text-sm" />
                     {inst.name}
                   </td>
                   <td className="p-4 text-slate-500">{inst.email}</td>
