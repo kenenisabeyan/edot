@@ -26,6 +26,8 @@ import {
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import AgendaCreationModal from '../components/AgendaCreationModal';
+import ActivityFeed from '../components/ActivityFeed';
+import ProudMomentsFeed from '../components/ProudMomentsFeed';
 
 export default function EDOTDashboard() {
   const { user } = useAuth();
@@ -607,41 +609,25 @@ export default function EDOTDashboard() {
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-ping"></span>
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
                   </div>
-                  <h3 className="font-bold text-lg text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">Recent Activity</h3>
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">
+                    {userRole === 'parent' ? 'Curated Support Flags' : 'Recent Activity'}
+                  </h3>
                 </div>
-                <span onClick={() => navigate('/dashboard/notice')} className="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-[10px] font-extrabold px-2 py-1 rounded-lg uppercase tracking-wider cursor-pointer hover:bg-indigo-200 transition-colors">{stats?.recentActivity?.length || 3} New</span>
+                <span onClick={() => navigate('/dashboard/notice')} className="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-[10px] font-extrabold px-2 py-1 rounded-lg uppercase tracking-wider cursor-pointer hover:bg-indigo-200 transition-colors">Feed</span>
               </div>
-              <div className="space-y-5 border-l-2 border-slate-100 dark:border-slate-800 ml-2 pl-4">
-                {stats?.recentActivity && stats.recentActivity.length > 0 ? (
-                  stats.recentActivity.map((activity, idx) => (
-                    <div key={activity.id || idx} className="relative group">
-                      {/* Timeline Node */}
-                      <div className={`absolute -left-[23px] w-4 h-4 rounded-full border-4 border-white dark:border-slate-900 ${
-                         activity.type === 'course_completed' ? 'bg-emerald-500' :
-                         activity.type === 'quiz_passed' ? 'bg-amber-500' : 'bg-indigo-500'
-                      }`}></div>
-                      
-                      <div className="flex flex-col">
-                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-1">
-                          {new Date(activity.date).toLocaleDateString([], { month: 'short', day: 'numeric' })} &bull; {new Date(activity.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                        <h4 className="text-slate-800 dark:text-slate-200 font-semibold text-sm leading-tight">
-                          <span className="text-indigo-600 dark:text-indigo-400 font-bold">{activity.studentName || activity.name || 'A user'}</span> 
-                          {activity.type === 'course_completed' ? ' completed the course ' : 
-                           activity.type.includes('quiz') ? ` scored ${activity.score || 0}% on ` : ' engaged with '} 
-                          <span className="font-bold">"{activity.title || activity.itemTitle || 'content'}"</span>
-                        </h4>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="py-6 text-center">
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">No recent activity detected.</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500">When your platform gets busy, action logs will appear here.</p>
-                  </div>
-                )}
-              </div>
+              <ActivityFeed feedType={userRole === 'parent' ? 'insights' : (userRole === 'admin' ? 'all' : 'personal')} limit={5} />
             </div>
+
+            {/* Gamification Feed for Parents */}
+            {userRole === 'parent' && (
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm mt-6 animate-in fade-in slide-in-from-bottom-4">
+                <div className="mb-6">
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-white">Proud Moments</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Achievements and badges earned recently.</p>
+                </div>
+                <ProudMomentsFeed />
+              </div>
+            )}
          </div>
       </div>
 

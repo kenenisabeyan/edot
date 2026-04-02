@@ -39,6 +39,7 @@ import Revenue from './pages/Revenue';
 import Performance from './pages/Performance';
 import TeachingActivity from './pages/TeachingActivity';
 import AnalyticsReport from './pages/AnalyticsReport';
+import SettingsView from './pages/SettingsView';
 import { Outlet } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -116,7 +117,7 @@ export default function App() {
           <Route path="messages" element={<MessagesView />} />
           <Route path="certificates" element={<CertificatesView />} />
           <Route path="profile" element={<ProfileView />} />
-          <Route path="settings" element={<div className="p-8 text-slate-500 font-medium">Settings page under construction...</div>} />
+          <Route path="settings" element={<SettingsView />} />
         </Route>
       </Route>
     </Routes>

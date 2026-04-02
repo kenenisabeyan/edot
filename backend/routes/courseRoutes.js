@@ -4,6 +4,7 @@ const { protect, authorize } = require('../middleware/auth');
 const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const User = require('../models/User');
+const { logActivity } = require('../controllers/activityController');
 
 // @route   GET /api/courses
 // @desc    Get all courses with filtering and pagination
@@ -110,6 +111,8 @@ router.post('/', protect, authorize('instructor'), async (req, res) => {
 
         const course = await Course.create(req.body);
 
+        await logActivity(req.user.id, `Created a new course: ${course.title}`, 'course', course.title, course._id);
+
         res.status(201).json({
             success: true,
             course
@@ -204,6 +207,8 @@ router.post('/:id/enroll', protect, async (req, res) => {
         // Increment student count
         course.totalStudents += 1;
         await course.save();
+
+        await logActivity(req.user.id, `Enrolled in course: ${course.title}`, 'enrollment', course.title, course._id);
 
         res.json({
             success: true,

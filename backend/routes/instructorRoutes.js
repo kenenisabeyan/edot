@@ -4,6 +4,7 @@ const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const User = require('../models/User');
 const ProgressLog = require('../models/ProgressLog');
+const { logActivity } = require('../controllers/activityController');
 const { protect, authorize } = require('../middleware/auth');
 
 // Apply auth middleware to all routes in this file
@@ -52,6 +53,9 @@ router.post('/courses', async (req, res) => {
         req.body.isPublished = false;
 
         const course = await Course.create(req.body);
+        
+        await logActivity(req.user.id, `Created a new course: ${course.title}`, 'course', course.title, course._id);
+
         res.status(201).json({ success: true, data: course });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -83,6 +87,8 @@ router.put('/courses/:id', async (req, res) => {
             new: true,
             runValidators: true
         });
+        
+        await logActivity(req.user.id, `Updated course: ${course.title}`, 'course', course.title, course._id);
 
         res.status(200).json({ success: true, data: course });
     } catch (error) {

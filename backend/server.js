@@ -21,6 +21,9 @@ const progressRoutes = require('./routes/progressRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const parentRoutes = require('./routes/parentRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
+const activityRoutes = require('./routes/activityRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
+const achievementRoutes = require('./routes/achievementRoutes');
 
 const app = express();
 
@@ -47,6 +50,9 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/parent', parentRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/achievements', achievementRoutes);
 
 // Static file serving for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
