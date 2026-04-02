@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity, MessageSquare } from 'lucide-react';
+import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity, MessageSquare, UserPlus } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
 import ActivityFeed from '../components/ActivityFeed';
@@ -66,6 +66,15 @@ export default function AdminDashboard() {
     }
   };
 
+  const updateUserStatus = async (userId, status) => {
+    try {
+      await api.put(`/admin/users/${userId}/status`, { status });
+      fetchUsers();
+    } catch (err) {
+      console.error('Failed to update user status', err);
+    }
+  };
+
   const assignInstructor = async (studentId, instructorId) => {
     if (!instructorId) return;
     try {
@@ -124,6 +133,19 @@ export default function AdminDashboard() {
                   </div>
                   <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
                     <Users className="w-6 h-6" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-rose-200 shadow-sm relative overflow-hidden group hover:border-rose-300">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-rose-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <p className="text-sm font-medium text-rose-600 mb-1 font-bold">Pending Users</p>
+                    <h3 className="text-3xl font-bold text-slate-900">{stats?.pendingUsers || 0}</h3>
+                  </div>
+                  <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center shadow-inner">
+                    <UserPlus className="w-6 h-6" />
                   </div>
                 </div>
               </div>
@@ -214,7 +236,7 @@ export default function AdminDashboard() {
                    </div>
                    <div>
                      <span className="block font-semibold">Manage Users</span>
-                     <span className="text-sm text-slate-500 group-hover:text-blue-600">Change roles, block access</span>
+                     <span className="text-sm text-slate-500 group-hover:text-blue-600">{stats?.pendingUsers > 0 ? <span className="text-rose-500 font-bold">{stats.pendingUsers} awaiting approval</span> : 'Change roles, verify status'}</span>
                    </div>
                  </button>
                  <button 
@@ -288,6 +310,7 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 font-semibold">Name</th>
                       <th className="px-6 py-4 font-semibold">Email</th>
                       <th className="px-6 py-4 font-semibold">Joined</th>
+                      <th className="px-6 py-4 font-semibold">Status</th>
                       <th className="px-6 py-4 font-semibold">Role</th>
                       <th className="px-6 py-4 font-semibold">Assign Instructor</th>
                     </tr>
@@ -305,6 +328,23 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-6 py-4 text-slate-500">{u.email}</td>
                         <td className="px-6 py-4 text-slate-500">{new Date(u.createdAt || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                        <td className="px-6 py-4">
+                          {u.status === 'pending' ? (
+                            <div className="flex gap-2 relative z-10 w-max">
+                               <button onClick={() => updateUserStatus(u._id, 'approved')} className="text-xs font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 transition-colors shadow-sm">Approve</button>
+                               <button onClick={() => updateUserStatus(u._id, 'rejected')} className="text-xs font-bold bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 px-3 py-1.5 rounded-lg border border-rose-200 transition-colors shadow-sm">Reject</button>
+                            </div>
+                          ) : (
+                            <span className={`inline-flex w-max items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                              u.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
+                              u.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' : 
+                              'bg-slate-50 text-slate-700 border-slate-200'
+                            }`}>
+                              {u.status === 'approved' ? <CheckCircle2 className="w-3.5 h-3.5" /> : u.status === 'rejected' ? <XCircle className="w-3.5 h-3.5" /> : null}
+                              {u.status}
+                            </span>
+                          )}
+                        </td>
                         <td className="px-6 py-4">
                           <select 
                             value={u.role} 
@@ -525,11 +565,16 @@ export default function AdminDashboard() {
              </button>
              <button onClick={() => setActiveTab('users')} className={navItemClass('users')}>
                <Users className="w-5 h-5 shrink-0" /> Manage Users
+               {stats?.pendingUsers > 0 && (
+                 <span className="ml-auto bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                   {stats?.pendingUsers}
+                 </span>
+               )}
              </button>
              <button onClick={() => setActiveTab('courses')} className={navItemClass('courses')}>
                <BookOpen className="w-5 h-5 shrink-0" /> Course Approvals
                {pendingCourses.length > 0 && (
-                 <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                 <span className="ml-auto bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                    {pendingCourses.length}
                  </span>
                )}
