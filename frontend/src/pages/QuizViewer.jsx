@@ -78,8 +78,8 @@ export default function QuizViewer() {
     const passed = score >= 70;
 
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 sm:p-12 max-w-lg w-full text-center animate-in zoom-in-95 duration-300">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-transparent">
+        <div className="glass-card rounded-2xl shadow-xl border border-slate-200 p-8 sm:p-12 max-w-lg w-full text-center animate-in zoom-in-95 duration-300">
           <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6 shadow-md border-4 border-white ${passed ? 'bg-emerald-100 text-emerald-500' : 'bg-red-100 text-red-500'}`}>
             {passed ? <Award className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
           </div>
@@ -90,11 +90,11 @@ export default function QuizViewer() {
           <p className="text-slate-500 mb-8">You scored <span className={`font-bold ${passed ? 'text-emerald-600' : 'text-red-500'}`}>{score}%</span> on the {quiz.title}.</p>
           
           <div className="space-y-4">
-            <div className="flex justify-between items-center p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <div className="flex justify-between items-center p-4 bg-transparent rounded-xl border border-slate-100">
               <span className="font-semibold text-slate-700">Passing Score</span>
               <span className="font-bold text-slate-900">70%</span>
             </div>
-            <div className="flex justify-between items-center p-4 bg-slate-50 rounded-xl border border-slate-100 mb-8">
+            <div className="flex justify-between items-center p-4 bg-transparent rounded-xl border border-slate-100 mb-8">
               <span className="font-semibold text-slate-700">Your Score</span>
               <span className={`font-bold ${passed ? 'text-emerald-600' : 'text-red-600'}`}>{score}%</span>
             </div>
@@ -128,7 +128,7 @@ export default function QuizViewer() {
   const allAnswered = quiz.questions.length === Object.keys(selectedAnswers).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center py-8 px-4 sm:px-6">
+    <div className="min-h-screen bg-transparent flex flex-col items-center py-8 px-4 sm:px-6">
       
       {/* Header */}
       <div className="w-full max-w-3xl mb-8 flex justify-between items-center">
@@ -138,15 +138,15 @@ export default function QuizViewer() {
         >
           <ArrowLeft className="w-4 h-4" /> Exit Quiz
         </button>
-        <span className="font-bold text-slate-400 bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm text-sm tracking-wider">
+        <span className="font-bold text-slate-400 glass-card px-3 py-1 rounded-lg border border-slate-200 shadow-sm text-sm tracking-wider">
           {courseName}
         </span>
       </div>
 
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="w-full max-w-3xl glass-card rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         
         {/* Progress Bar */}
-        <div className="bg-slate-50 p-6 border-b border-slate-200">
+        <div className="bg-transparent p-6 border-b border-slate-200">
           <div className="flex justify-between text-sm font-bold text-slate-600 mb-3 uppercase tracking-wider">
             <span>Question {currentQuestion + 1} of {quiz.questions.length}</span>
             <span>{Math.round(progress)}% Complete</span>
@@ -175,13 +175,13 @@ export default function QuizViewer() {
                   className={`w-full text-left flex items-center p-5 rounded-xl border-2 transition-all ${
                     isSelected 
                       ? 'border-blue-600 bg-blue-50/50 shadow-sm' 
-                      : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                      : 'border-slate-200 hover:border-blue-300 hover:bg-transparent'
                   }`}
                 >
                   <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center shrink-0 transition-colors ${
                     isSelected ? 'border-blue-600 bg-blue-600' : 'border-slate-300'
                   }`}>
-                    {isSelected && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                    {isSelected && <div className="w-2 h-2 rounded-full glass-card"></div>}
                   </div>
                   <span className={`text-lg font-medium ${isSelected ? 'text-blue-900' : 'text-slate-700'}`}>
                     {option}
@@ -193,7 +193,7 @@ export default function QuizViewer() {
         </div>
 
         {/* Footer Navigation */}
-        <div className="bg-slate-50 p-6 md:px-12 border-t border-slate-200 flex justify-between items-center">
+        <div className="bg-transparent p-6 md:px-12 border-t border-slate-200 flex justify-between items-center">
           <button
             onClick={handlePrev}
             disabled={currentQuestion === 0}

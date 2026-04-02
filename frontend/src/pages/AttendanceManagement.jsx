@@ -129,14 +129,14 @@ export default function AttendanceManagement() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
+      <div className="glass-card p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
          <div className="w-full md:w-1/2">
             <label className="block text-sm font-bold text-slate-700 mb-2">Select Course</label>
             <div className="relative">
               <select 
                 value={selectedCourse} 
                 onChange={(e) => setSelectedCourse(e.target.value)}
-                className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none font-medium"
+                className="w-full pl-4 pr-10 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none font-medium"
               >
                 <option value="">-- Choose a course --</option>
                 {courses.map(c => (
@@ -153,7 +153,7 @@ export default function AttendanceManagement() {
                 type="date" 
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                className="w-full pl-10 pr-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
               />
               <Calendar className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
             </div>
@@ -177,7 +177,7 @@ export default function AttendanceManagement() {
       )}
 
       {!selectedCourse ? (
-        <div className="bg-slate-50 rounded-3xl border border-slate-100 p-12 text-center flex flex-col items-center">
+        <div className="bg-transparent rounded-3xl border border-slate-100 p-12 text-center flex flex-col items-center">
            <Calendar className="w-16 h-16 text-slate-300 mb-4" />
            <h3 className="text-lg font-bold text-slate-700">No Course Selected</h3>
            <p className="text-slate-500 mt-1">Please select a course to view and manage its daily attendance records.</p>
@@ -187,17 +187,17 @@ export default function AttendanceManagement() {
            <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
         </div>
       ) : students.length === 0 ? (
-        <div className="bg-slate-50 rounded-3xl border border-slate-100 p-12 text-center flex flex-col items-center">
+        <div className="bg-transparent rounded-3xl border border-slate-100 p-12 text-center flex flex-col items-center">
            <UserX className="w-16 h-16 text-slate-300 mb-4" />
            <h3 className="text-lg font-bold text-slate-700">No Students Found</h3>
            <p className="text-slate-500 mt-1">There are no students currently enrolled in this course.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
            <div className="overflow-x-auto">
              <table className="w-full text-left border-collapse">
                <thead>
-                 <tr className="bg-slate-50 border-b border-slate-100">
+                 <tr className="bg-transparent border-b border-slate-100">
                    <th className="p-4 font-bold text-slate-600 text-sm">Student Name</th>
                    <th className="p-4 font-bold text-slate-600 text-sm">Email</th>
                    <th className="p-4 font-bold text-slate-600 text-sm text-center">Status</th>
@@ -205,7 +205,7 @@ export default function AttendanceManagement() {
                </thead>
                <tbody>
                  {students.map((student) => (
-                   <tr key={student._id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                   <tr key={student._id} className="border-b border-slate-50 hover:bg-transparent/50 transition-colors">
                      <td className="p-4">
                        <div className="flex items-center gap-3">
                          <div className="w-10 h-10 rounded-full bg-indigo-100 font-bold text-indigo-600 flex items-center justify-center shrink-0">

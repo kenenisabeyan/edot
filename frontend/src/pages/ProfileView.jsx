@@ -144,7 +144,7 @@ export default function ProfileView() {
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+      <div className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
         <div 
           className="h-32 bg-indigo-600 relative group"
           style={{ 
@@ -218,7 +218,7 @@ export default function ProfileView() {
                       value={formData.email}
                       onChange={handleChange}
                       disabled
-                      className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 text-slate-400 rounded-xl cursor-not-allowed" 
+                      className="w-full pl-10 pr-4 py-2 bg-transparent border border-slate-200 text-slate-400 rounded-xl cursor-not-allowed" 
                     />
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export default function ProfileView() {
                       name="gender"
                       value={formData.gender}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 appearance-none bg-white" 
+                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 appearance-none glass-card" 
                     >
                       <option value="">Select Gender</option>
                       <option value="Male">Male</option>

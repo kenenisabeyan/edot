@@ -160,7 +160,7 @@ export default function StudentDashboard() {
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">Dashboard Overview</h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -173,7 +173,7 @@ export default function StudentDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -186,7 +186,7 @@ export default function StudentDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -200,7 +200,7 @@ export default function StudentDashboard() {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-10">
+            <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm mb-10">
               <h3 className="text-xl font-bold text-slate-900 mb-6">Weekly Learning Activity</h3>
               <div className="h-[250px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -224,7 +224,7 @@ export default function StudentDashboard() {
             </div>
             
             {enrolledCourses.length === 0 ? (
-               <div className="bg-white p-10 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+               <div className="glass-card p-10 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
                  <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
                    <BookOpen className="w-8 h-8" />
                  </div>
@@ -236,7 +236,7 @@ export default function StudentDashboard() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {enrolledCourses.slice(0, 3).map((enrolled) => (
-                    <div key={enrolled._id || enrolled.course?._id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full">
+                    <div key={enrolled._id || enrolled.course?._id} className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full">
                       <div className="flex-1">
                         <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                           <PlayCircle className="w-6 h-6" />
@@ -252,14 +252,14 @@ export default function StudentDashboard() {
                             className="h-full bg-blue-600 rounded-full transition-all duration-1000 ease-out relative overflow-hidden" 
                             style={{ width: `${enrolled.progress || 0}%` }}
                           >
-                           <div className="absolute top-0 bottom-0 left-0 right-0 bg-white/20 animate-[progress_2s_ease-in-out_infinite]"></div>
+                           <div className="absolute top-0 bottom-0 left-0 right-0 glass-card/20 animate-[progress_2s_ease-in-out_infinite]"></div>
                           </div>
                         </div>
                       </div>
                       
                       <Link 
                         to={`/course/${enrolled.course?._id}`} 
-                        className="w-full inline-flex justify-center items-center px-4 py-2.5 bg-slate-50 text-slate-700 font-semibold rounded-xl border border-slate-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors"
+                        className="w-full inline-flex justify-center items-center px-4 py-2.5 bg-transparent text-slate-700 font-semibold rounded-xl border border-slate-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors"
                       >
                         Continue Learning
                       </Link>
@@ -268,7 +268,7 @@ export default function StudentDashboard() {
                 </div>
             )}
 
-            <div className="mt-10 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="mt-10 glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                <h3 className="text-xl font-bold text-slate-900 mb-6">Recent Activity</h3>
                <ActivityFeed isAdmin={false} limit={5} />
             </div>
@@ -279,13 +279,13 @@ export default function StudentDashboard() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <h2 className="text-2xl font-display font-bold text-slate-900">My Learning</h2>
-              <Link to="/courses" className="inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors shadow-sm">
+              <Link to="/courses" className="inline-flex items-center gap-2 px-4 py-2 glass-card text-slate-700 font-semibold rounded-lg border border-slate-300 hover:bg-transparent transition-colors shadow-sm">
                 <Search className="w-4 h-4" /> Find More Courses
               </Link>
             </div>
             
             {enrolledCourses.length === 0 ? (
-               <div className="bg-white p-12 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
+               <div className="glass-card p-12 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
                  <div className="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
                    <Search className="w-10 h-10" />
                  </div>
@@ -300,7 +300,7 @@ export default function StudentDashboard() {
                   {enrolledCourses.map((enrolled) => (
                     <div 
                       key={enrolled._id || enrolled.course?._id} 
-                      className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row p-6 items-start md:items-center gap-6 hover:shadow-md transition-shadow"
+                      className="glass-card rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row p-6 items-start md:items-center gap-6 hover:shadow-md transition-shadow"
                     >
                       <img 
                         src={enrolled.course?.thumbnail === 'default-course.jpg' ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80' : enrolled.course?.thumbnail} 
@@ -349,7 +349,7 @@ export default function StudentDashboard() {
             </div>
             
             {completedCourses.length === 0 ? (
-               <div className="bg-white p-12 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
+               <div className="glass-card p-12 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
                  <div className="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-4">
                    <Award className="w-10 h-10" />
                  </div>
@@ -367,7 +367,7 @@ export default function StudentDashboard() {
                   {completedCourses.map((enrolled) => (
                     <div 
                       key={enrolled._id || enrolled.course?._id} 
-                      className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 flex flex-col h-full"
+                      className="glass-card rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 flex flex-col h-full"
                     >
                       <div className="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mb-6 mx-auto border-2 border-amber-100">
                         <Award className="w-8 h-8" />
@@ -404,15 +404,15 @@ export default function StudentDashboard() {
             {/* Trophy Case UI */}
             {achievements && (
               <div className="bg-gradient-to-r from-slate-900 to-indigo-900 p-8 rounded-3xl text-white shadow-xl mb-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl -z-0"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 glass-card opacity-5 rounded-full blur-3xl -z-0"></div>
                 <h3 className="text-xl font-bold mb-6 flex items-center gap-2 relative z-10"><Award className="text-amber-400 w-6 h-6"/> Your Trophy Case</h3>
                 
                 <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-                  <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 text-center flex-1 w-full hover:bg-white/20 transition-colors">
+                  <div className="glass-card/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 text-center flex-1 w-full hover:glass-card/20 transition-colors">
                     <p className="text-indigo-200 text-sm font-bold uppercase tracking-wider mb-1">Current Rank</p>
                     <h4 className="text-3xl font-black bg-gradient-to-r from-amber-200 to-amber-500 bg-clip-text text-transparent">{achievements.rank}</h4>
                   </div>
-                  <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 text-center flex-1 w-full hover:bg-white/20 transition-colors">
+                  <div className="glass-card/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 text-center flex-1 w-full hover:glass-card/20 transition-colors">
                     <p className="text-indigo-200 text-sm font-bold uppercase tracking-wider mb-1">Learning Points</p>
                     <h4 className="text-3xl font-black text-white">{achievements.learningPoints} <span className="text-sm font-medium text-indigo-300">XP</span></h4>
                   </div>
@@ -423,7 +423,7 @@ export default function StudentDashboard() {
                     <p className="text-sm text-indigo-200 font-bold uppercase tracking-wider mb-4">Earned Badges</p>
                     <div className="flex flex-wrap gap-4">
                       {achievements.badges.map((badge, idx) => (
-                        <div key={idx} className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors">
+                        <div key={idx} className="glass-card/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl flex items-center gap-4 hover:glass-card/10 transition-colors">
                           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
                             <Award className="w-6 h-6 text-white"/>
                           </div>
@@ -439,7 +439,7 @@ export default function StudentDashboard() {
               </div>
             )}
             
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm mb-8">
+            <div className="glass-card p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm mb-8">
               <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><Target className="w-5 h-5 text-emerald-500" /> Set a Micro-Goal</h3>
               <form onSubmit={handleAddGoal} className="flex flex-col sm:flex-row gap-4">
                 <input 
@@ -459,7 +459,7 @@ export default function StudentDashboard() {
             <h3 className="text-xl font-bold text-slate-900 mb-6">Your Private Logbook</h3>
             <div className="space-y-4">
               {privateLogs.length === 0 ? (
-                 <div className="bg-white p-8 text-center rounded-2xl border border-slate-200 shadow-sm text-slate-500">
+                 <div className="glass-card p-8 text-center rounded-2xl border border-slate-200 shadow-sm text-slate-500">
                    Your growth lab is empty. Start by setting your first micro-goal!
                  </div>
               ) : (
@@ -497,7 +497,7 @@ export default function StudentDashboard() {
   `;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-transparent flex flex-col md:flex-row">
       {/* Sidebar Layout */}
       <aside className="w-full md:w-72 bg-slate-900 text-white shrink-0 flex flex-col md:h-screen">
         <div className="p-6 border-b border-slate-800">

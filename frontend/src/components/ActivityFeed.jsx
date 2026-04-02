@@ -58,8 +58,8 @@ export default function ActivityFeed({ isAdmin = false, feedType, limit = 5 }) {
       case 'enrollment': return 'bg-emerald-50 border-emerald-100';
       case 'learning': return 'bg-amber-50 border-amber-100';
       case 'communication': return 'bg-purple-50 border-purple-100';
-      case 'system': return 'bg-slate-50 border-slate-100';
-      default: return 'bg-slate-50 border-slate-100';
+      case 'system': return 'bg-transparent border-slate-100';
+      default: return 'bg-transparent border-slate-100';
     }
   };
 
@@ -73,7 +73,7 @@ export default function ActivityFeed({ isAdmin = false, feedType, limit = 5 }) {
 
   if (activities.length === 0) {
     return (
-      <div className="bg-slate-50/50 rounded-2xl border border-slate-100 p-8 text-center flex flex-col items-center">
+      <div className="bg-transparent/50 rounded-2xl border border-slate-100 p-8 text-center flex flex-col items-center">
         <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
           <Activity className="w-6 h-6 text-slate-400" />
         </div>
@@ -93,10 +93,10 @@ export default function ActivityFeed({ isAdmin = false, feedType, limit = 5 }) {
           <div className={`w-12 h-12 shrink-0 rounded-2xl border flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-300 ${getBgColorForType(activity.type)}`}>
             {getIconForType(activity.type)}
           </div>
-          <div className="flex-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex-1 glass-card p-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start gap-2 mb-1">
               <h4 className="font-semibold text-slate-900 leading-tight">{activity.action}</h4>
-              <span className="text-xs font-medium text-slate-400 shrink-0 whitespace-nowrap bg-slate-50 px-2 py-1 rounded-md">
+              <span className="text-xs font-medium text-slate-400 shrink-0 whitespace-nowrap bg-transparent px-2 py-1 rounded-md">
                 {new Date(activity.createdAt).toLocaleDateString()} {new Date(activity.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
@@ -106,7 +106,7 @@ export default function ActivityFeed({ isAdmin = false, feedType, limit = 5 }) {
               </p>
             )}
             {activity.details && (
-              <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
+              <p className="text-sm text-slate-600 mt-2 bg-transparent p-2 rounded-lg border border-slate-100">
                 {activity.details}
               </p>
             )}

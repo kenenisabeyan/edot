@@ -66,7 +66,7 @@ export default function Home() {
                 </Link>
 
                 <button
-                  className="group flex items-center justify-center gap-2 px-6 py-3 border rounded-lg bg-white hover:bg-slate-100 transition-all duration-300 hover:-translate-y-1"
+                  className="group flex items-center justify-center gap-2 px-6 py-3 border rounded-lg glass-card hover:bg-slate-100 transition-all duration-300 hover:-translate-y-1"
                 >
                   <Play className="w-5 h-5 text-blue-600 group-hover:scale-110" />
                   How it Works
@@ -109,7 +109,7 @@ export default function Home() {
       </section>
 
       {/* ================= CATEGORIES ================= */}
-      <section className="py-16 bg-white">
+      <section className="py-16 glass-card">
         <div className="max-w-7xl mx-auto px-4 text-center">
 
           <h2 className="text-2xl sm:text-3xl font-bold mb-10">
@@ -131,7 +131,7 @@ export default function Home() {
                 >
                   <Link
                     to={`/courses?category=${cat.name.toLowerCase()}`}
-                    className="group p-6 border rounded-xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 block"
+                    className="group p-6 border rounded-xl glass-card shadow-sm hover:shadow-xl transition-all duration-300 block"
                   >
                     <Icon className="w-8 h-8 mx-auto text-blue-600 mb-3 group-hover:rotate-12 transition" />
                     <p className="font-semibold">{cat.name}</p>
@@ -144,7 +144,7 @@ export default function Home() {
       </section>
 
       {/* ================= COURSES ================= */}
-      <section className="py-16 bg-slate-50">
+      <section className="py-16 bg-transparent">
         <div className="max-w-7xl mx-auto px-4">
 
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10">
@@ -159,7 +159,7 @@ export default function Home() {
                 <motion.div
                   key={course._id}
                   whileHover={{ y: -10 }}
-                  className="bg-white rounded-xl shadow hover:shadow-2xl transition"
+                  className="glass-card rounded-xl shadow hover:shadow-2xl transition"
                 >
                   <img
                     src={course.thumbnail}
@@ -197,7 +197,7 @@ export default function Home() {
 
         <Link
           to="/register"
-          className="inline-block bg-white text-blue-600 px-6 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+          className="inline-block glass-card text-blue-600 px-6 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
         >
           Join Now
         </Link>

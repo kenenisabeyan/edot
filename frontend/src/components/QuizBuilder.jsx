@@ -29,11 +29,11 @@ export default function QuizBuilder({ quiz, setQuiz, title = "Mini-Quiz Question
   };
 
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mt-4">
+    <div className="bg-transparent border border-slate-200 rounded-xl p-6 mt-4">
       <h4 className="font-bold text-slate-800 mb-4">{title}</h4>
       
       {quiz.map((q, qIndex) => (
-        <div key={qIndex} className="bg-white p-4 rounded-lg border border-slate-200 mb-4 relative">
+        <div key={qIndex} className="glass-card p-4 rounded-lg border border-slate-200 mb-4 relative">
           <button 
             type="button"
             onClick={() => removeQuestion(qIndex)}

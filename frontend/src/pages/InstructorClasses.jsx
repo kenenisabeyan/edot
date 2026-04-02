@@ -39,7 +39,7 @@ export default function InstructorClasses() {
       </div>
 
       {courses.length === 0 ? (
-          <div className="bg-white p-12 text-center rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
+          <div className="glass-card p-12 text-center rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
             <div className="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
               <Search className="w-10 h-10" />
             </div>
@@ -54,7 +54,7 @@ export default function InstructorClasses() {
             {courses.map((course) => (
               <div 
                 key={course._id} 
-                className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col md:flex-row p-6 items-start md:items-center gap-6 hover:shadow-md transition-shadow"
+                className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col md:flex-row p-6 items-start md:items-center gap-6 hover:shadow-md transition-shadow"
               >
                 <img 
                   src={course.thumbnail === 'default-course.jpg' ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80' : course.thumbnail} 
@@ -81,7 +81,7 @@ export default function InstructorClasses() {
                 <div className="w-full md:w-auto md:pl-6 md:border-l md:border-slate-100 shrink-0 pt-4 md:pt-0">
                   <Link 
                     to={`/instructor/builder/${course._id}`} 
-                    className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+                    className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 glass-card border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-transparent transition-colors shadow-sm"
                   >
                     Edit Course
                   </Link>

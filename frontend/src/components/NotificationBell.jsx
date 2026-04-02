@@ -121,7 +121,7 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm relative focus:outline-none"
+        className="w-10 h-10 rounded-full glass-card border border-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm relative focus:outline-none"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -132,8 +132,8 @@ export default function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-200">
-          <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div className="absolute right-0 mt-3 w-80 sm:w-96 glass-card rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-200">
+          <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-transparent/50">
             <h3 className="font-bold text-slate-800">Notifications</h3>
             {unreadCount > 0 && (
               <button 
@@ -157,9 +157,9 @@ export default function NotificationBell() {
                   <button 
                     key={notif.id}
                     onClick={() => handleNotificationClick(notif.link)}
-                    className={`p-4 border-b border-slate-50 text-left hover:bg-slate-50 transition-colors flex gap-4 ${notif.unread ? 'bg-indigo-50/30' : ''}`}
+                    className={`p-4 border-b border-slate-50 text-left hover:bg-transparent transition-colors flex gap-4 ${notif.unread ? 'bg-indigo-50/30' : ''}`}
                   >
-                    <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${notif.unread ? 'bg-white shadow-sm border border-slate-100' : 'bg-slate-100'}`}>
+                    <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${notif.unread ? 'glass-card shadow-sm border border-slate-100' : 'bg-slate-100'}`}>
                       {notif.icon}
                     </div>
                     <div>
@@ -178,7 +178,7 @@ export default function NotificationBell() {
             )}
           </div>
           
-          <div className="p-3 border-t border-slate-100 bg-slate-50/80 text-center">
+          <div className="p-3 border-t border-slate-100 bg-transparent/80 text-center">
             <button 
               onClick={() => { setIsOpen(false); navigate('/dashboard/notice'); }}
               className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"

@@ -72,7 +72,7 @@ export default function TeachingActivity() {
         />
       </div>
 
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+      <div className="glass-card dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
         <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Teaching Velocity</h3>
         <div className="h-80">
           {activityData && activityData.length > 0 && activityData.some(d => d.hours > 0 || d.engagements > 0) ? (

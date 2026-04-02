@@ -82,7 +82,7 @@ export default function App() {
         </Route>
         
         <Route element={<ProtectedRoute allowedRoles={['student']} />}>
-          <Route path="/student/*" element={<StudentDashboard />} />
+          <Route path="/student/*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Route>
 

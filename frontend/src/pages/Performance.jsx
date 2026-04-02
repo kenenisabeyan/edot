@@ -44,7 +44,7 @@ export default function Performance() {
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Performance Insights</h1>
           <p className="text-sm text-slate-500">Analyze learner growth and engagement</p>
         </div>
-        <button className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+        <button className="flex items-center gap-2 glass-card dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-transparent dark:hover:bg-slate-700 transition">
           <Filter className="w-4 h-4" /> Filter
         </button>
       </div>
@@ -78,7 +78,7 @@ export default function Performance() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Engagement Trend */}
-        <div className="xl:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div className="xl:col-span-2 glass-card dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
           <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Engagement vs Enrollment</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -95,7 +95,7 @@ export default function Performance() {
         </div>
 
         {/* Top Performers Table */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+        <div className="glass-card dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
           <div className="p-6 border-b border-slate-100 dark:border-slate-800">
              <h3 className="text-lg font-bold text-slate-800 dark:text-white">Top Course Performers</h3>
           </div>

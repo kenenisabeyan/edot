@@ -67,7 +67,7 @@ export default function CourseDetails() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-slate-50 pb-20">
+    <div className="min-h-[calc(100vh-80px)] bg-transparent pb-20">
       
       {/* Hero Section */}
       <div className="bg-slate-900 text-white pt-16 pb-32 relative">
@@ -142,7 +142,7 @@ export default function CourseDetails() {
           <div className="flex-1 w-full mt-20 lg:mt-0 order-2 lg:order-1 pt-8 lg:pt-28">
             <h2 className="text-3xl font-display font-bold text-slate-900 mb-8">Course Syllabus</h2>
             
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="glass-card rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
               {!course.lessons || course.lessons.length === 0 ? (
                 <div className="p-12 text-center text-slate-500">
                   <LayoutList className="w-12 h-12 mx-auto text-slate-300 mb-4" />
@@ -153,7 +153,7 @@ export default function CourseDetails() {
                   {course.lessons.map((lesson, idx) => (
                     <div 
                       key={lesson._id} 
-                      className={`p-6 flex items-start sm:items-center flex-col sm:flex-row gap-4 sm:gap-6 ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}
+                      className={`p-6 flex items-start sm:items-center flex-col sm:flex-row gap-4 sm:gap-6 ${idx % 2 === 0 ? 'glass-card' : 'bg-transparent/50'}`}
                     >
                       <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg shrink-0 border border-blue-100 hidden sm:flex">
                         {idx + 1}
@@ -189,7 +189,7 @@ export default function CourseDetails() {
             </div>
 
             {/* Instructor Bios */}
-            <div className="mt-16 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="mt-16 glass-card p-8 rounded-2xl border border-slate-200 shadow-sm">
               <h3 className="text-2xl font-bold text-slate-900 mb-6">About the Instructor</h3>
               <div className="flex flex-col sm:flex-row gap-6 items-start">
                 <div className="w-24 h-24 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 border-4 border-white shadow-md">
@@ -215,7 +215,7 @@ export default function CourseDetails() {
 
           {/* Floating Enrollment Card */}
           <div className="w-full lg:w-[400px] shrink-0 order-1 lg:order-2 lg:sticky lg:top-24">
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div className="glass-card rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
               <div className="h-56 lg:h-64 relative bg-slate-100">
                 <img 
                   src={course.thumbnail === 'default-course.jpg' ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' : course.thumbnail} 
@@ -223,7 +223,7 @@ export default function CourseDetails() {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                   <div className="flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-md rounded-full border border-white/40">
+                   <div className="flex items-center justify-center w-16 h-16 glass-card/20 backdrop-blur-md rounded-full border border-white/40">
                       <PlayCircle className="w-8 h-8 text-white fill-white/20" />
                    </div>
                 </div>

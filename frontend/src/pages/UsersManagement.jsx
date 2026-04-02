@@ -86,7 +86,7 @@ export default function UsersManagement() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="glass-card dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-end">
           <div className="relative w-full sm:w-72">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -95,7 +95,7 @@ export default function UsersManagement() {
               placeholder="Search users..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow dark:text-slate-200"
+              className="w-full pl-9 pr-4 py-2 bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow dark:text-slate-200"
             />
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function UsersManagement() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-transparent dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">Email</th>
                 <th className="px-6 py-4">Status</th>
@@ -121,7 +121,7 @@ export default function UsersManagement() {
                   <td colSpan="5" className="p-8 text-center text-slate-500 font-medium">No users found.</td>
                 </tr>
               ) : filteredUsers.map((u) => (
-                <tr key={u._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                <tr key={u._id} className="hover:bg-transparent/50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <UserAvatar user={u} className="w-8 h-8 text-xs" />
@@ -141,7 +141,7 @@ export default function UsersManagement() {
                       <span className={`inline-flex w-max items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
                         u.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' : 
                         u.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' : 
-                        'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                        'bg-transparent text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
                       }`}>
                         {u.status === 'approved' ? <CheckCircle2 className="w-3.5 h-3.5" /> : u.status === 'rejected' ? <XCircle className="w-3.5 h-3.5" /> : null}
                         {u.status}
@@ -160,7 +160,7 @@ export default function UsersManagement() {
                           ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 focus:ring-rose-500' 
                           : u.role === 'instructor' 
                           ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20 focus:ring-purple-500' 
-                          : 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 focus:ring-slate-500'
+                          : 'bg-transparent text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 focus:ring-slate-500'
                       } ${u._id === user?._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title={u._id === user?._id ? "Cannot change your own role" : "Change User Role"}
                     >
@@ -177,7 +177,7 @@ export default function UsersManagement() {
                       <select 
                         value={u.assignedInstructor?._id || u.assignedInstructor || ''}
                         onChange={(e) => assignInstructor(u._id, e.target.value)}
-                        className="px-3 py-1.5 rounded-lg border text-sm font-semibold bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer w-full max-w-[150px]"
+                        className="px-3 py-1.5 rounded-lg border text-sm font-semibold bg-transparent dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer w-full max-w-[150px]"
                       >
                         <option value="" disabled>Assign Inst...</option>
                         {usersList.filter(uList => uList.role === 'instructor').map(inst => (

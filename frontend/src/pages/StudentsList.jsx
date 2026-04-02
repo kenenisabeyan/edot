@@ -86,11 +86,11 @@ export default function StudentsList() {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="glass-card dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-transparent dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                 <th className="p-4">Student</th>
                 <th className="p-4">Email</th>
                 <th className="p-4">Status</th>
@@ -104,7 +104,7 @@ export default function StudentsList() {
                    <td colSpan="5" className="p-8 text-center text-slate-500 font-medium">No {tab} students found.</td>
                 </tr>
               ) : filteredStudents.map(stu => (
-                <tr key={stu._id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                <tr key={stu._id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-transparent dark:hover:bg-slate-800/50 transition">
                   <td className="p-4 flex items-center gap-3">
                     <UserAvatar user={stu} className="w-10 h-10 text-sm" />
                     {stu.name}
@@ -121,7 +121,7 @@ export default function StudentsList() {
                     {tab === 'approved' ? (
                       <div className="flex items-center gap-2">
                         <select 
-                           className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
+                           className="bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
                            value={stu.assignedInstructor?._id || ''}
                            onChange={(e) => handleAssign(stu._id, e.target.value)}
                         >

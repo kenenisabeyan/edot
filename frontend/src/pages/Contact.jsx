@@ -20,7 +20,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-slate-50 py-16 lg:py-24">
+    <div className="min-h-[calc(100vh-80px)] bg-transparent py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center mb-16 max-w-2xl mx-auto">
@@ -37,7 +37,7 @@ export default function Contact() {
           
           {/* Contact Information Cards */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
+            <div className="glass-card p-8 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
               <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                 <Mail className="w-6 h-6" />
               </div>
@@ -50,7 +50,7 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
+            <div className="glass-card p-8 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
               <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                 <Phone className="w-6 h-6" />
               </div>
@@ -63,7 +63,7 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
+            <div className="glass-card p-8 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
               <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                 <MapPin className="w-6 h-6" />
               </div>
@@ -80,7 +80,7 @@ export default function Contact() {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-slate-100 h-full">
+            <div className="glass-card p-8 md:p-10 rounded-2xl shadow-sm border border-slate-100 h-full">
               {submitted ? (
                 <div className="flex flex-col items-center justify-center h-full text-center py-12 animate-in zoom-in duration-500">
                   <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6">

@@ -78,13 +78,13 @@ export default function StudentCourses() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h2 className="text-2xl font-bold text-slate-900">My Learning</h2>
-        <Link to="/courses" className="inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors shadow-sm">
+        <Link to="/courses" className="inline-flex items-center gap-2 px-4 py-2 glass-card text-slate-700 font-semibold rounded-lg border border-slate-300 hover:bg-transparent transition-colors shadow-sm">
           <Search className="w-4 h-4" /> Find More Courses
         </Link>
       </div>
       
       {enrolledCourses.length === 0 ? (
-          <div className="bg-white p-12 text-center rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
+          <div className="glass-card p-12 text-center rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
             <div className="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
               <Search className="w-10 h-10" />
             </div>
@@ -99,7 +99,7 @@ export default function StudentCourses() {
             {enrolledCourses.map((enrolled) => (
               <div 
                 key={enrolled._id || enrolled.course?._id} 
-                className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col md:flex-row p-6 items-start md:items-center gap-6 hover:shadow-md transition-shadow"
+                className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col md:flex-row p-6 items-start md:items-center gap-6 hover:shadow-md transition-shadow"
               >
                 <img 
                   src={enrolled.course?.thumbnail === 'default-course.jpg' ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80' : enrolled.course?.thumbnail} 
@@ -137,7 +137,7 @@ export default function StudentCourses() {
                   )}
                   <Link 
                     to={`/course/${enrolled.course?._id}`} 
-                    className={`w-full inline-flex justify-center items-center gap-2 px-6 py-3 font-semibold rounded-xl transition-colors shadow-sm ${enrolled.progress === 100 ? 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' : 'bg-[#4338ca] text-white hover:bg-indigo-700'}`}
+                    className={`w-full inline-flex justify-center items-center gap-2 px-6 py-3 font-semibold rounded-xl transition-colors shadow-sm ${enrolled.progress === 100 ? 'glass-card text-slate-700 border border-slate-200 hover:bg-transparent' : 'bg-[#4338ca] text-white hover:bg-indigo-700'}`}
                   >
                     <PlayCircle className="w-5 h-5" /> {enrolled.progress === 100 ? 'Review' : 'Continue'}
                   </Link>

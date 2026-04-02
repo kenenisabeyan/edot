@@ -122,11 +122,11 @@ export default function MessagesView() {
         </div>
       </div>
 
-      <div className="bg-white md:rounded-3xl border-t md:border border-slate-100 shadow-sm overflow-hidden flex-1 flex h-full relative -mb-4 md:mb-0">
+      <div className="glass-card md:rounded-3xl border-t md:border border-slate-100 shadow-sm overflow-hidden flex-1 flex h-full relative -mb-4 md:mb-0">
          
          {/* Left Sidebar - Contact List */}
-         <div className={`w-full md:w-80 lg:w-96 border-r border-[#e4e9f0] flex-col shrink-0 bg-white z-10 ${activeContact ? 'hidden md:flex' : 'flex'}`}>
-           <div className="p-3 md:p-4 border-b border-[#e4e9f0] flex items-center justify-between bg-white h-16 shrink-0">
+         <div className={`w-full md:w-80 lg:w-96 border-r border-[#e4e9f0] flex-col shrink-0 glass-card z-10 ${activeContact ? 'hidden md:flex' : 'flex'}`}>
+           <div className="p-3 md:p-4 border-b border-[#e4e9f0] flex items-center justify-between glass-card h-16 shrink-0">
              <div className="relative flex-1 mr-2">
                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
                <input 
@@ -134,7 +134,7 @@ export default function MessagesView() {
                  placeholder="Search users..." 
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
-                 className="w-full pl-9 pr-4 py-[9px] bg-[#f4f4f5] border border-transparent rounded-full text-[14px] focus:outline-none focus:bg-white focus:border-[#3390ec] transition-colors"
+                 className="w-full pl-9 pr-4 py-[9px] bg-[#f4f4f5] border border-transparent rounded-full text-[14px] focus:outline-none focus:glass-card focus:border-[#3390ec] transition-colors"
                />
              </div>
              <button className="p-[9px] bg-slate-100 text-[#3390ec] rounded-full hover:bg-slate-200 transition-colors">
@@ -142,7 +142,7 @@ export default function MessagesView() {
              </button>
            </div>
            
-           <div className="flex-1 overflow-y-auto space-y-0 bg-white custom-scrollbar">
+           <div className="flex-1 overflow-y-auto space-y-0 glass-card custom-scrollbar">
              {loadingContacts ? (
                <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-[#3390ec]" /></div>
              ) : filteredContacts.length === 0 ? (
@@ -152,10 +152,10 @@ export default function MessagesView() {
                  <div 
                    key={contact._id} 
                    onClick={() => setActiveContact(contact)}
-                   className={`p-3 mx-2 my-1 rounded-2xl flex items-center gap-3 cursor-pointer transition-colors ${activeContact?._id === contact._id ? 'bg-[#3390ec] text-white shadow-sm' : 'hover:bg-[#f4f4f5] bg-white border border-transparent text-slate-800'}`}
+                   className={`p-3 mx-2 my-1 rounded-2xl flex items-center gap-3 cursor-pointer transition-colors ${activeContact?._id === contact._id ? 'bg-[#3390ec] text-white shadow-sm' : 'hover:bg-[#f4f4f5] glass-card border border-transparent text-slate-800'}`}
                  >
                    <div className="relative">
-                     <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shrink-0 overflow-hidden ${activeContact?._id === contact._id ? 'bg-white text-[#3390ec]' : 'bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-700'}`}>
+                     <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shrink-0 overflow-hidden ${activeContact?._id === contact._id ? 'glass-card text-[#3390ec]' : 'bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-700'}`}>
                        {contact.avatar && contact.avatar !== 'default-avatar.png' ? (
                           <img src={`http://localhost:5000${contact.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
                        ) : (
@@ -168,7 +168,7 @@ export default function MessagesView() {
                      <div className="flex justify-between items-center mb-0.5">
                        <h4 className={`font-semibold text-[15px] truncate ${activeContact?._id === contact._id ? 'text-white' : 'text-slate-900'}`}>{contact.name}</h4>
                        {contact.unreadCount > 0 ? (
-                         <span className={`${activeContact?._id === contact._id ? 'bg-white text-[#3390ec]' : 'bg-[#24d960] text-white'} text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 shadow-sm ml-2`}>
+                         <span className={`${activeContact?._id === contact._id ? 'glass-card text-[#3390ec]' : 'bg-[#24d960] text-white'} text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 shadow-sm ml-2`}>
                            {contact.unreadCount > 99 ? '99+' : contact.unreadCount}
                          </span>
                        ) : (
@@ -187,7 +187,7 @@ export default function MessagesView() {
          <div className={`flex-1 flex flex-col bg-[#e4e9f0] ${activeContact ? 'flex' : 'hidden md:flex'}`}>
             {!activeContact ? (
               <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-                <div className="w-20 h-20 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mb-4">
+                <div className="w-20 h-20 bg-transparent border border-slate-100 rounded-full flex items-center justify-center mb-4">
                   <Smile className="w-8 h-8 text-slate-300" />
                 </div>
                 <p>Select a conversation from the left to start messaging</p>
@@ -195,11 +195,11 @@ export default function MessagesView() {
             ) : (
               <>
                 {/* Chat Header */}
-                <div className="h-16 border-b border-[#d1d7e0] flex justify-between items-center px-2 md:px-6 bg-white shrink-0 shadow-sm z-20">
+                <div className="h-16 border-b border-[#d1d7e0] flex justify-between items-center px-2 md:px-6 glass-card shrink-0 shadow-sm z-20">
                   <div className="flex items-center gap-2 md:gap-3">
                     <button 
                       onClick={() => setActiveContact(null)}
-                      className="md:hidden p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors flex items-center justify-center"
+                      className="md:hidden p-2 text-slate-500 hover:bg-transparent rounded-full transition-colors flex items-center justify-center"
                     >
                       <ArrowLeft className="w-6 h-6" />
                     </button>
@@ -218,11 +218,11 @@ export default function MessagesView() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 md:gap-2 text-slate-400 pr-2">
-                    <button className="p-2 hover:bg-slate-50 hover:text-[#3390ec] rounded-full transition-colors"><Phone className="w-[20px] h-[20px]" /></button>
-                    <button className="p-2 hover:bg-slate-50 hover:text-[#3390ec] rounded-full transition-colors"><Video className="w-[20px] h-[20px]" /></button>
+                    <button className="p-2 hover:bg-transparent hover:text-[#3390ec] rounded-full transition-colors"><Phone className="w-[20px] h-[20px]" /></button>
+                    <button className="p-2 hover:bg-transparent hover:text-[#3390ec] rounded-full transition-colors"><Video className="w-[20px] h-[20px]" /></button>
                     <div className="w-px h-5 bg-slate-200 mx-1"></div>
-                    <button className="p-2 hover:bg-slate-50 hover:text-[#3390ec] rounded-full transition-colors"><Search className="w-[20px] h-[20px]" /></button>
-                    <button className="p-2 hover:bg-slate-50 hover:text-[#3390ec] rounded-full transition-colors hidden sm:block"><MoreVertical className="w-[20px] h-[20px]" /></button>
+                    <button className="p-2 hover:bg-transparent hover:text-[#3390ec] rounded-full transition-colors"><Search className="w-[20px] h-[20px]" /></button>
+                    <button className="p-2 hover:bg-transparent hover:text-[#3390ec] rounded-full transition-colors hidden sm:block"><MoreVertical className="w-[20px] h-[20px]" /></button>
                   </div>
                 </div>
 
@@ -253,7 +253,7 @@ export default function MessagesView() {
                           )}
                           <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
                             {/* Message Bubble */}
-                            <div className={`p-3 md:p-[14px] shadow-sm text-[15px] leading-relaxed relative ${isMine ? 'bg-[#EEFFDE] text-slate-800 rounded-2xl rounded-br-[6px]' : 'bg-white text-slate-800 rounded-2xl rounded-bl-[6px]'}`}>
+                            <div className={`p-3 md:p-[14px] shadow-sm text-[15px] leading-relaxed relative ${isMine ? 'bg-[#EEFFDE] text-slate-800 rounded-2xl rounded-br-[6px]' : 'glass-card text-slate-800 rounded-2xl rounded-bl-[6px]'}`}>
                               {msg.content}
                               
                               <div className={`text-[11px] font-medium mt-1 flex items-center justify-end gap-1 ${isMine ? 'text-green-700/60' : 'text-slate-400'}`}>
@@ -275,7 +275,7 @@ export default function MessagesView() {
 
                 {/* Chat Input */}
                 <form onSubmit={handleSendMessage} className="p-3 bg-[#e4e9f0] shrink-0 border-t border-[#d1d7e0]/50 sticky bottom-0">
-                  <div className="flex items-center gap-1 bg-white rounded-full p-2 pr-2 shadow-sm focus-within:ring-2 focus-within:ring-[#3390ec]/30 transition-all max-w-4xl mx-auto">
+                  <div className="flex items-center gap-1 glass-card rounded-full p-2 pr-2 shadow-sm focus-within:ring-2 focus-within:ring-[#3390ec]/30 transition-all max-w-4xl mx-auto">
                       <button type="button" className="p-2 text-slate-400 hover:text-[#3390ec] rounded-full transition-colors shrink-0"><Smile className="w-6 h-6" /></button>
                       <input 
                         type="text" 
@@ -290,7 +290,7 @@ export default function MessagesView() {
                           <Send className="w-[18px] h-[18px] ml-0.5" />
                         </button>
                       ) : (
-                        <button type="button" className="p-2.5 text-slate-400 hover:text-[#3390ec] rounded-full hover:bg-slate-50 transition-colors flex items-center justify-center shrink-0">
+                        <button type="button" className="p-2.5 text-slate-400 hover:text-[#3390ec] rounded-full hover:bg-transparent transition-colors flex items-center justify-center shrink-0">
                           <Mic className="w-6 h-6" />
                         </button>
                       )}

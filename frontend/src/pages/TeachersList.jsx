@@ -73,11 +73,11 @@ export default function TeachersList() {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="glass-card dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-transparent dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                 <th className="p-4">Instructor</th>
                 <th className="p-4">Email</th>
                 <th className="p-4">Assigned Students</th>
@@ -91,7 +91,7 @@ export default function TeachersList() {
                    <td colSpan="5" className="p-8 text-center text-slate-500 font-medium">No {tab} instructors found.</td>
                 </tr>
               ) : filteredInstructors.map(inst => (
-                <tr key={inst._id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                <tr key={inst._id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-transparent dark:hover:bg-slate-800/50 transition">
                   <td className="p-4 flex items-center gap-3">
                     <UserAvatar user={inst} className="w-10 h-10 text-sm" />
                     {inst.name}
