@@ -10,6 +10,11 @@ export default function SettingsView() {
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Connect Parent States
+  const [connectEmail, setConnectEmail] = useState('');
+  const [connecting, setConnecting] = useState(false);
+  const [connectMsg, setConnectMsg] = useState('');
+
   useEffect(() => {
     fetchSettings();
   }, []);
@@ -44,6 +49,25 @@ export default function SettingsView() {
       console.error(err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleConnectParent = async () => {
+    if (!connectEmail) return;
+    try {
+      setConnecting(true);
+      setConnectMsg('');
+      const res = await api.post('/users/connect', { email: connectEmail });
+      if (res.data.success) {
+        setConnectMsg('Connected successfully!');
+        setConnectEmail('');
+      } else {
+        setConnectMsg(res.data.message || 'Failed to connect.');
+      }
+    } catch (err) {
+      setConnectMsg(err.response?.data?.message || 'Error connecting.');
+    } finally {
+      setConnecting(false);
     }
   };
 
@@ -148,6 +172,30 @@ export default function SettingsView() {
                 checked={roleConfig.privateMode === true} 
                 onChange={(val) => handleChange('privateMode', val)} 
               />
+            </div>
+
+            <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2 mt-8">Connect Parent/Guardian</h3>
+            <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <label className="block text-sm font-bold text-slate-700 mb-2">Guardian Email</label>
+              <p className="text-sm text-slate-500 mb-4 font-medium">Link your account with a parent's registered email to share progress automatically.</p>
+              <div className="flex gap-4">
+                <input 
+                  type="email" 
+                  value={connectEmail}
+                  onChange={(e) => setConnectEmail(e.target.value)}
+                  placeholder="parent@example.com"
+                  className="flex-1 p-4 bg-slate-50 border border-slate-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <button 
+                  type="button"
+                  onClick={handleConnectParent}
+                  disabled={connecting}
+                  className="px-6 py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                >
+                  {connecting ? 'Connecting...' : 'Connect'}
+                </button>
+              </div>
+              {connectMsg && <p className={`mt-3 text-sm font-bold ${(connectMsg.includes('Error') || connectMsg.includes('Failed') || connectMsg.includes('not found') || connectMsg.includes('Already')) ? 'text-red-500' : 'text-emerald-600'}`}>{connectMsg}</p>}
             </div>
           </div>
         )}

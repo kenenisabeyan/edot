@@ -208,6 +208,29 @@ router.put('/users/:id/role', async (req, res) => {
     }
 });
 
+// @route   PUT /api/admin/users/:id/status
+// @desc    Update user status (approve/reject)
+router.put('/users/:id/status', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        // Ensure valid status
+        const { status } = req.body;
+        if (!['pending', 'approved', 'rejected'].includes(status)) {
+            return res.status(400).json({ success: false, message: 'Invalid status' });
+        }
+        
+        user.status = status;
+        await user.save();
+        res.status(200).json({ success: true, data: user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
 // @route   DELETE /api/admin/users/:id
 // @desc    Delete a user
 router.delete('/users/:id', async (req, res) => {
@@ -327,6 +350,7 @@ router.get('/dashboard', async (req, res) => {
         const courses = await Course.find();
         const totalCourses = courses.length;
         const pendingCourses = courses.filter(c => c.status === 'pending').length;
+        const pendingUsers = await User.countDocuments({ status: 'pending' });
         
         // Real revenue strictly mapped
         let totalRevenue = 0;
@@ -375,9 +399,16 @@ router.get('/dashboard', async (req, res) => {
 
         const cleanStudentPerformance = studentPerformanceData.map(({name, value1, value2, value3}) => ({name, value1, value2, value3}));
 
-        const recentUsers = await User.find({ status: 'approved' }).sort({ createdAt: -1 }).limit(3);
+        const recentUsers = await User.find().sort({ createdAt: -1 }).limit(5); // get all users, not just approved
         const recentActivity = [];
-        recentUsers.forEach(u => recentActivity.push({ id: u._id, title: `New ${u.role} joined`, itemTitle: u.name, type: 'user_joined', studentName: u.name, date: u.createdAt }));
+        recentUsers.forEach(u => recentActivity.push({ 
+             id: u._id, 
+             title: u.status === 'pending' ? `New ${u.role} registered (Pending)` : `New ${u.role} joined`, 
+             itemTitle: u.name, 
+             type: u.status === 'pending' ? 'user_pending' : 'user_joined', 
+             studentName: u.name, 
+             date: u.createdAt 
+        }));
         const recentCoursesObj = await Course.find({ isPublished: true }).sort({ createdAt: -1 }).limit(3);
         recentCoursesObj.forEach(c => recentActivity.push({ id: c._id, title: 'Course published', itemTitle: c.title, type: 'course_completed', studentName: 'System', date: c.createdAt }));
         recentActivity.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -390,6 +421,7 @@ router.get('/dashboard', async (req, res) => {
                 totalInstructors,
                 totalCourses,
                 pendingCourses,
+                pendingUsers,
                 totalRevenue,
                 studentPerformanceData: cleanStudentPerformance,
                 courseNames: topCourses.map(c => c.title),

@@ -176,5 +176,55 @@ router.put('/mark-certificates-seen', protect, async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
+// @route   POST /api/users/connect
+// @desc    Connect a parent and a student
+// @access  Private
+router.post('/connect', protect, async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Email is required' });
+        }
+
+        const targetUser = await User.findOne({ email: email.toLowerCase() });
+        if (!targetUser) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const currentUser = await User.findById(req.user.id);
+        
+        let parent, student;
+
+        if (currentUser.role === 'parent' && targetUser.role === 'student') {
+            parent = currentUser;
+            student = targetUser;
+        } else if (currentUser.role === 'student' && targetUser.role === 'parent') {
+            parent = targetUser;
+            student = currentUser;
+        } else {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid connection request. Only parents and students can connect to each other.'
+            });
+        }
+
+        // Check if already connected
+        if (parent.children && parent.children.includes(student._id)) {
+            return res.status(400).json({ success: false, message: 'Already connected to this user.' });
+        }
+
+        // Connect them (add student ID to parent's children array)
+        if (!parent.children) {
+            parent.children = [];
+        }
+        parent.children.push(student._id);
+        await parent.save();
+
+        res.json({ success: true, message: 'Successfully connected!' });
+    } catch (error) {
+        console.error('Connect route error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
 
 module.exports = router;

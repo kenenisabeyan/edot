@@ -8,26 +8,54 @@ export default function ParentLearners() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState({}); // Stores active tab per learner ID
 
+  const [connectEmail, setConnectEmail] = useState('');
+  const [connecting, setConnecting] = useState(false);
+  const [connectMsg, setConnectMsg] = useState('');
+
+  const fetchLearners = async () => {
+    try {
+      const { data } = await api.get('/parent/learners');
+      setLearners(data.data || []);
+      
+      // Initialize active tabs to 'overview'
+      const initialTabs = {};
+      (data.data || []).forEach(l => {
+        initialTabs[l._id] = 'overview';
+      });
+      setActiveTab(initialTabs);
+    } catch (err) {
+      console.error('Failed to fetch learners data', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchLearners = async () => {
-      try {
-        const { data } = await api.get('/parent/learners');
-        setLearners(data.data || []);
-        
-        // Initialize active tabs to 'overview'
-        const initialTabs = {};
-        (data.data || []).forEach(l => {
-          initialTabs[l._id] = 'overview';
-        });
-        setActiveTab(initialTabs);
-      } catch (err) {
-        console.error('Failed to fetch learners data', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchLearners();
   }, []);
+
+  const handleConnectLearner = async () => {
+    if (!connectEmail) return;
+    try {
+      setConnecting(true);
+      setConnectMsg('');
+      const res = await api.post('/users/connect', { email: connectEmail });
+      if (res.data.success) {
+        setConnectMsg('Learner connected successfully!');
+        setConnectEmail('');
+        await fetchLearners();
+        setTimeout(() => setConnectMsg(''), 3000);
+      } else {
+        setConnectMsg(res.data.message || 'Failed to connect.');
+        setTimeout(() => setConnectMsg(''), 3000);
+      }
+    } catch (err) {
+      setConnectMsg(err.response?.data?.message || 'Error connecting.');
+      setTimeout(() => setConnectMsg(''), 3000);
+    } finally {
+      setConnecting(false);
+    }
+  };
 
   const setTab = (learnerId, tab) => {
     setActiveTab(prev => ({ ...prev, [learnerId]: tab }));
@@ -64,9 +92,31 @@ export default function ParentLearners() {
           <Users className="w-12 h-12" />
         </div>
         <h2 className="text-3xl font-extrabold text-slate-800 mb-3 tracking-tight">No Learners Linked</h2>
-        <p className="text-slate-500 text-lg max-w-md mx-auto leading-relaxed">
-          Your account is not currently linked to any student profiles. Please contact the school administrator to assign your child to your account.
+        <p className="text-slate-500 text-lg max-w-md mx-auto leading-relaxed mb-8">
+          Your account is not currently linked to any student profiles. Please enter your child's email address below to connect.
         </p>
+        
+        <div className="max-w-md mx-auto mb-4 relative text-left">
+          <input 
+            type="email"
+            value={connectEmail}
+            onChange={(e) => setConnectEmail(e.target.value)}
+            placeholder="Student's registered email"
+            className="w-full pl-5 pr-32 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-medium outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
+          />
+          <button 
+            onClick={handleConnectLearner}
+            disabled={connecting || !connectEmail}
+            className="absolute right-2 top-2 bottom-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 rounded-xl transition-colors disabled:opacity-50"
+          >
+            {connecting ? 'Linking...' : 'Connect'}
+          </button>
+        </div>
+        {connectMsg && (
+          <p className={`text-sm font-bold max-w-md mx-auto ${(connectMsg.includes('Failed') || connectMsg.includes('Error') || connectMsg.includes('not found') || connectMsg.includes('Only') || connectMsg.includes('Already')) ? 'text-red-500' : 'text-emerald-600'}`}>
+            {connectMsg}
+          </p>
+        )}
       </motion.div>
     );
   }
@@ -74,9 +124,32 @@ export default function ParentLearners() {
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-8 pb-10">
       <motion.div variants={itemVariants} className="bg-gradient-to-r from-slate-900 to-indigo-900 rounded-3xl p-8 lg:p-10 text-white relative overflow-hidden shadow-xl">
-        <div className="relative z-10">
-          <h1 className="text-3xl lg:text-4xl font-extrabold mb-3">Learner Profiles</h1>
-          <p className="text-indigo-200 text-lg max-w-xl">Deep dive into your assigned learners' academic portfolios, progress, and recent activity.</p>
+        <div className="relative z-10 lg:flex lg:justify-between lg:items-center">
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-extrabold mb-3">Learner Profiles</h1>
+            <p className="text-indigo-200 text-lg max-w-xl">Deep dive into your assigned learners' academic portfolios, progress, and recent activity.</p>
+          </div>
+          <div className="mt-6 lg:mt-0 lg:ml-6 max-w-sm w-full relative group">
+            <input 
+              type="email"
+              value={connectEmail}
+              onChange={(e) => setConnectEmail(e.target.value)}
+              placeholder="Connect another learner email..."
+              className="w-full pl-5 pr-28 py-3.5 bg-indigo-900/50 border border-indigo-700/50 text-white placeholder-indigo-300 rounded-2xl font-medium outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-indigo-900 transition-all shadow-inner backdrop-blur-sm"
+            />
+            <button 
+              onClick={handleConnectLearner}
+              disabled={connecting || !connectEmail}
+              className="absolute right-2 top-2 bottom-2 bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-bold px-4 rounded-xl shadow transition-colors disabled:opacity-50"
+            >
+              {connecting ? '...' : 'Add'}
+            </button>
+            {connectMsg && (
+              <div className={`absolute top-full left-0 right-0 mt-2 p-2 rounded-lg text-sm font-bold shadow-lg z-50 ${connectMsg.includes('successfully') ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'}`}>
+                {connectMsg}
+              </div>
+            )}
+          </div>
         </div>
         <div className="absolute right-0 top-0 w-1/2 h-full opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
       </motion.div>
