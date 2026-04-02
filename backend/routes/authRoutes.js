@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const { logActivity } = require('../controllers/activityController');
 const { protect } = require('../middleware/auth');
 
 // @route   POST /api/auth/register
@@ -37,6 +38,8 @@ router.post('/register', [
     });
 
     await user.save();
+
+    await logActivity(user._id, 'Registered a new account', 'auth');
 
     res.status(201).json({
       _id: user._id,
@@ -92,6 +95,8 @@ router.post('/login', [
     }
 
     const token = generateToken(user._id);
+
+    await logActivity(user._id, 'Logged in to EDOT Platform', 'auth');
 
     res.cookie('token', token, {
         httpOnly: true,  // Prevents JavaScript from reading the cookie (Security)

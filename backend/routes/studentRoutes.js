@@ -3,6 +3,7 @@ const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
 const Course = require('../models/Course');
 const User = require('../models/User');
+const { logActivity } = require('../controllers/activityController');
 
 // Apply protect middleware to all student routes
 router.use(protect);
@@ -64,6 +65,7 @@ router.post('/courses/:courseId/lessons/:lessonId/complete', async (req, res) =>
             }
 
             await user.save();
+            await logActivity(req.user.id, `Completed a lesson in ${course.title}`, 'learning', course.title, course._id);
         }
 
         res.status(200).json({
@@ -94,6 +96,9 @@ router.post('/courses/:courseId/exam/complete', async (req, res) => {
 
         enrollment.passedFinalExam = true;
         await user.save();
+        
+        const course = await Course.findById(courseId);
+        await logActivity(req.user.id, `Passed final exam for ${course.title}`, 'learning', course.title, course._id);
 
         res.status(200).json({ success: true, passedFinalExam: true });
     } catch (error) {

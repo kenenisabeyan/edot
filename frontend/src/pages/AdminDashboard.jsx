@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity } from 'lucide-react';
+import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity, MessageSquare } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
+import ActivityFeed from '../components/ActivityFeed';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -230,6 +231,42 @@ export default function AdminDashboard() {
                  </button>
                </div>
             </div>
+
+            <div className="bg-white p-6 lg:p-8 rounded-2xl border border-slate-200 shadow-sm mt-8">
+               <div className="flex justify-between items-center mb-6">
+                 <h3 className="text-xl font-bold text-slate-900">Intervention Overview</h3>
+                 <span className="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-md uppercase tracking-wider">Live Support Monitor</span>
+               </div>
+               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                 <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center gap-5 hover:shadow-sm transition-shadow">
+                   <div className="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                     <MessageSquare className="w-6 h-6"/>
+                   </div>
+                   <div>
+                     <p className="text-[13px] text-slate-500 font-bold uppercase tracking-wide mb-1">Active Parent Chats</p>
+                     <h4 className="text-3xl font-black text-slate-900">12</h4>
+                   </div>
+                 </div>
+                 <div className="p-4 rounded-xl border border-slate-100 bg-rose-50 flex items-center gap-5 hover:shadow-sm transition-shadow">
+                   <div className="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                     <AlertTriangle className="w-6 h-6"/>
+                   </div>
+                   <div>
+                     <p className="text-[13px] text-rose-500 font-bold uppercase tracking-wide mb-1">Pending Flags</p>
+                     <h4 className="text-3xl font-black text-rose-900">3</h4>
+                   </div>
+                 </div>
+                 <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50 flex items-center gap-5 hover:shadow-sm transition-shadow">
+                   <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                     <CheckCircle2 className="w-6 h-6"/>
+                   </div>
+                   <div>
+                     <p className="text-[13px] text-emerald-600 font-bold uppercase tracking-wide mb-1">Resolved Cases</p>
+                     <h4 className="text-3xl font-black text-emerald-900">45</h4>
+                   </div>
+                 </div>
+               </div>
+            </div>
           </div>
         );
       case 'users':
@@ -387,33 +424,15 @@ export default function AdminDashboard() {
           </div>
         );
       case 'logs':
-        const logs = stats?.recentActivity || [];
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">System Logs</h2>
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                <span className="font-semibold text-slate-700 flex items-center gap-2"><Activity className="w-4 h-4" /> Activity Feed</span>
-                <button className="text-sm text-blue-600 hover:text-blue-800 font-semibold">Export CSV</button>
-              </div>
-              <ul className="divide-y divide-slate-100">
-                {logs.length > 0 ? logs.map((log, idx) => (
-                  <li key={log.id || idx} className="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-slate-900">{log.title}</p>
-                      <p className="text-sm text-slate-500">{log.itemTitle} &bull; {new Date(log.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</p>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${
-                      log.type === 'course_completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                      'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                    }`}>
-                      Success
-                    </span>
-                  </li>
-                )) : (
-                  <li className="p-6 text-center text-slate-500 text-sm">No activity logs recorded yet.</li>
-                )}
-              </ul>
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="font-semibold text-slate-700 flex items-center gap-2"><Activity className="w-5 h-5" /> All Platform Activity</span>
+                  <button className="text-sm text-blue-600 hover:text-blue-800 font-semibold px-3 py-1.5 bg-blue-50 rounded-lg transition-colors">Export CSV</button>
+                </div>
+                <ActivityFeed isAdmin={true} limit={20} />
             </div>
           </div>
         );

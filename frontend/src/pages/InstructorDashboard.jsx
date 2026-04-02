@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
+import ActivityFeed from '../components/ActivityFeed';
 
 export default function InstructorDashboard() {
   const { user, logout } = useAuth();
@@ -229,6 +230,11 @@ export default function InstructorDashboard() {
                    </div>
                  </button>
                </div>
+            </div>
+
+            <div className="mt-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+               <h3 className="text-xl font-bold text-slate-900 mb-6">Recent Activity</h3>
+               <ActivityFeed isAdmin={false} limit={5} />
             </div>
           </div>
         );

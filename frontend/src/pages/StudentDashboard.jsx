@@ -4,12 +4,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { 
   BookOpen, CheckCircle2, Award, Search, LayoutDashboard, 
-  Settings, LogOut, PlayCircle, Clock, Download
+  Settings, LogOut, PlayCircle, Clock, Download, Target, Plus
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
 import ProfileView from './ProfileView';
+import ActivityFeed from '../components/ActivityFeed';
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
@@ -17,6 +18,9 @@ export default function StudentDashboard() {
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [growthNote, setGrowthNote] = useState('');
+  const [privateLogs, setPrivateLogs] = useState([]);
+  const [achievements, setAchievements] = useState(null);
 
   useEffect(() => {
     const fetchEnrollments = async () => {
@@ -31,6 +35,43 @@ export default function StudentDashboard() {
     };
     fetchEnrollments();
   }, []);
+
+  const fetchPrivateLogs = async () => {
+    try {
+      const { data } = await api.get('/activity');
+      const filtered = data.data.filter(log => log.visibility === 'private');
+      setPrivateLogs(filtered);
+    } catch(err) { console.error('Failed to fetch private logs', err); }
+  };
+
+  const fetchAchievements = async () => {
+    try {
+      const { data } = await api.get('/achievements/me');
+      setAchievements(data.data);
+    } catch(err) { console.error('Failed to fetch achievements', err); }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'growth') {
+       fetchPrivateLogs();
+       fetchAchievements();
+    }
+  }, [activeTab]);
+
+  const handleAddGoal = async (e) => {
+    e.preventDefault();
+    if (!growthNote.trim()) return;
+    try {
+      await api.post('/activity', {
+        action: 'Set a new personal micro-goal',
+        type: 'learning',
+        visibility: 'private',
+        metadata: { goal: growthNote }
+      });
+      setGrowthNote('');
+      fetchPrivateLogs();
+    } catch(err) { console.error('Failed to log personal goal', err); }
+  };
 
   const totalLessonsCompleted = enrolledCourses.reduce((total, course) => total + (course.completedLessons?.length || 0), 0);
   const completedCourses = enrolledCourses.filter(c => c.progress === 100);
@@ -226,6 +267,11 @@ export default function StudentDashboard() {
                   ))}
                 </div>
             )}
+
+            <div className="mt-10 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+               <h3 className="text-xl font-bold text-slate-900 mb-6">Recent Activity</h3>
+               <ActivityFeed isAdmin={false} limit={5} />
+            </div>
           </div>
         );
       case 'courses':
@@ -345,6 +391,96 @@ export default function StudentDashboard() {
             )}
           </div>
         );
+      case 'growth':
+        return (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-display font-bold text-slate-900">Personal Growth Lab</h2>
+                <p className="text-slate-500 mt-1">A private space to track your micro-goals and study streaks without observation.</p>
+              </div>
+            </div>
+
+            {/* Trophy Case UI */}
+            {achievements && (
+              <div className="bg-gradient-to-r from-slate-900 to-indigo-900 p-8 rounded-3xl text-white shadow-xl mb-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl -z-0"></div>
+                <h3 className="text-xl font-bold mb-6 flex items-center gap-2 relative z-10"><Award className="text-amber-400 w-6 h-6"/> Your Trophy Case</h3>
+                
+                <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                  <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 text-center flex-1 w-full hover:bg-white/20 transition-colors">
+                    <p className="text-indigo-200 text-sm font-bold uppercase tracking-wider mb-1">Current Rank</p>
+                    <h4 className="text-3xl font-black bg-gradient-to-r from-amber-200 to-amber-500 bg-clip-text text-transparent">{achievements.rank}</h4>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 text-center flex-1 w-full hover:bg-white/20 transition-colors">
+                    <p className="text-indigo-200 text-sm font-bold uppercase tracking-wider mb-1">Learning Points</p>
+                    <h4 className="text-3xl font-black text-white">{achievements.learningPoints} <span className="text-sm font-medium text-indigo-300">XP</span></h4>
+                  </div>
+                </div>
+
+                {achievements.badges.length > 0 && (
+                  <div className="mt-8 relative z-10 animate-in fade-in slide-in-from-bottom-4">
+                    <p className="text-sm text-indigo-200 font-bold uppercase tracking-wider mb-4">Earned Badges</p>
+                    <div className="flex flex-wrap gap-4">
+                      {achievements.badges.map((badge, idx) => (
+                        <div key={idx} className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                            <Award className="w-6 h-6 text-white"/>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-slate-100">{badge.title}</h4>
+                            <p className="text-xs text-indigo-200 max-w-[150px] truncate">{badge.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm mb-8">
+              <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><Target className="w-5 h-5 text-emerald-500" /> Set a Micro-Goal</h3>
+              <form onSubmit={handleAddGoal} className="flex flex-col sm:flex-row gap-4">
+                <input 
+                  type="text" 
+                  value={growthNote}
+                  onChange={e => setGrowthNote(e.target.value)}
+                  placeholder="e.g. Read chapter 3 tonight, without distractions..."
+                  className="flex-1 px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                  required
+                />
+                <button type="submit" className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm inline-flex items-center justify-center gap-2 shrink-0">
+                  <Plus className="w-5 h-5" /> Save Goal
+                </button>
+              </form>
+            </div>
+
+            <h3 className="text-xl font-bold text-slate-900 mb-6">Your Private Logbook</h3>
+            <div className="space-y-4">
+              {privateLogs.length === 0 ? (
+                 <div className="bg-white p-8 text-center rounded-2xl border border-slate-200 shadow-sm text-slate-500">
+                   Your growth lab is empty. Start by setting your first micro-goal!
+                 </div>
+              ) : (
+                privateLogs.map(log => (
+                  <div key={log._id} className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-sm transition-shadow">
+                     <div>
+                       <div className="flex items-center gap-2 mb-1">
+                         <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-md">Private</span>
+                         <span className="text-slate-400 text-xs">{new Date(log.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                       </div>
+                       <p className="font-semibold text-slate-900">{log.action}</p>
+                       {log.metadata?.goal && (
+                         <p className="text-slate-700 mt-2 italic border-l-2 border-emerald-300 pl-3">"{log.metadata.goal}"</p>
+                       )}
+                     </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        );
       case 'settings':
         return <ProfileView />;
       default:
@@ -393,6 +529,9 @@ export default function StudentDashboard() {
                    {completedCourses.length}
                  </span>
                )}
+             </button>
+             <button onClick={() => setActiveTab('growth')} className={navItemClass('growth')}>
+               <Target className="w-5 h-5 shrink-0" /> Growth Lab
              </button>
              <button onClick={() => setActiveTab('settings')} className={navItemClass('settings')}>
                <Settings className="w-5 h-5 shrink-0" /> Settings
