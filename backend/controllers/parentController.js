@@ -67,6 +67,7 @@ exports.getParentDashboardStats = async (req, res) => {
     ];
 
     const primaryLearner = children.length > 0 ? {
+      id: children[0]._id,
       name: children[0].name,
       avatar: children[0].avatar
     } : null;
@@ -118,5 +119,82 @@ exports.getParentLearners = async (req, res) => {
   } catch (error) {
     console.error('Error fetching parent learners:', error);
     res.status(500).json({ success: false, message: 'Server error fetching learners data' });
+  }
+};
+
+// @desc    Get detailed, secure insights for a specific student (No private messages)
+// @route   GET /api/parent/student/:id/insights
+// @access  Private (Parent)
+exports.getParentStudentInsights = async (req, res) => {
+  try {
+    const parentId = req.user.id;
+    const studentId = req.params.id;
+    
+    const parent = await User.findById(parentId);
+    if (!parent || !parent.children.includes(studentId)) {
+        return res.status(403).json({ success: false, message: 'Unauthorized access to this student data' });
+    }
+
+    const student = await User.findById(studentId).populate({
+        path: 'enrolledCourses.course',
+        select: 'title category'
+    });
+
+    if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
+
+    // Mock timeline mapping to specific student's enrolled courses for the UI timeline stepper
+    const timeline = student.enrolledCourses.map((ec, idx) => ({
+       id: idx,
+       courseName: ec.course?.title || 'Unknown Course',
+       progress: ec.progress || 0,
+       status: ec.progress === 100 ? 'Completed' : (ec.progress > 0 ? 'In Progress' : 'Not Started'),
+       date: new Date(Date.now() - (idx * 86400000)).toISOString()
+    }));
+
+    res.json({
+        success: true,
+        data: {
+           studentName: student.name,
+           avatar: student.avatar,
+           timeline,
+           overallProgress: student.enrolledCourses.reduce((acc, curr) => acc + (curr.progress || 0), 0) / (student.enrolledCourses.length || 1)
+        }
+    });
+
+  } catch (error) {
+     console.error('Error fetching student insights:', error);
+     res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Get financial invoice summary for a specific student
+// @route   GET /api/parent/student/:id/invoice
+// @access  Private (Parent)
+exports.getParentStudentInvoice = async (req, res) => {
+  try {
+    const parentId = req.user.id;
+    const studentId = req.params.id;
+    
+    const parent = await User.findById(parentId);
+    if (!parent || !parent.children.includes(studentId)) {
+        return res.status(403).json({ success: false, message: 'Unauthorized access to this student data' });
+    }
+
+    // Mock response for the 'Mini-Invoice' requirement
+    res.json({
+        success: true,
+        data: {
+           studentId: studentId,
+           pendingFees: 450,
+           currency: 'USD',
+           dueDate: new Date(Date.now() + (7 * 86400000)).toISOString(),
+           status: 'Pending',
+           description: 'Fall Semester Registration & Labs'
+        }
+    });
+
+  } catch (error) {
+     console.error('Error fetching student invoice:', error);
+     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

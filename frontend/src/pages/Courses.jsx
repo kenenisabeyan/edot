@@ -66,7 +66,7 @@ export default function Courses() {
 
       {/* FILTER */}
       <div className="max-w-6xl mx-auto px-4 mb-10">
-        <div className="bg-white p-4 rounded-xl shadow flex gap-4">
+        <div className="glass-card p-4 rounded-xl shadow flex gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -93,7 +93,7 @@ export default function Courses() {
         {loading ? (
           <div className="grid md:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-white p-4 rounded-xl shadow">
+              <div key={i} className="animate-pulse glass-card p-4 rounded-xl shadow">
                 <div className="h-40 bg-gray-200 rounded mb-4" />
                 <div className="h-4 bg-gray-200 mb-2" />
                 <div className="h-4 bg-gray-200 w-2/3" />
@@ -111,13 +111,13 @@ export default function Courses() {
                   exit={{ opacity: 0 }}
                   transition={{ delay: i * 0.1 }}
                   whileHover={{ scale: 1.03 }}
-                  className="bg-white rounded-2xl shadow-lg overflow-hidden group"
+                  className="glass-card rounded-2xl shadow-lg overflow-hidden group"
                 >
                   <div className="relative">
                     <img src={course.thumbnail} className="h-48 w-full object-cover group-hover:scale-110 transition" />
 
                     {/* Favorite */}
-                    <button onClick={() => toggleFavorite(course._id)} className="absolute top-3 right-3 bg-white p-2 rounded-full">
+                    <button onClick={() => toggleFavorite(course._id)} className="absolute top-3 right-3 glass-card p-2 rounded-full">
                       <Heart className={favorites[course._id] ? 'text-red-500 fill-red-500' : ''} />
                     </button>
 

@@ -15,7 +15,7 @@ export default function SummaryCard({ title, value, percentage, isPositive, icon
   return (
     <div 
       onClick={onClick}
-      className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm transition-all duration-300 flex flex-col justify-between group relative overflow-hidden ${onClick ? 'cursor-pointer hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1' : ''}`}
+      className={`glass-card dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm transition-all duration-300 flex flex-col justify-between group relative overflow-hidden ${onClick ? 'cursor-pointer hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1' : ''}`}
     >
       <div className={`absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br ${gradient} rounded-full opacity-10 group-hover:opacity-20 blur-xl transition-opacity`}></div>
       

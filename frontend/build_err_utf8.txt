@@ -1,0 +1,126 @@
+﻿
+> frontend@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 3326 modules transformed.
+node.exe : 
+[31mΓ£ù[39m Build 
+failed in 13.74s
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo      
+        : NotSpecified  
+  : ([31mΓ£ù[39m Bu   
+ ild failed in 13.74    
+s:String) [], Remot    
+eException
+    + FullyQualifiedErr 
+   orId : NativeComman  
+  dError
+ 
+[31merror during build:
+[31msrc/pages/EDOTDashb
+oard.jsx (35:21): 
+"WidthProvider" is not 
+exported by "node_module
+s/react-grid-layout/dist
+/index.mjs", imported 
+by "src/pages/EDOTDashbo
+ard.jsx".[31m
+file: [36mC:/Users/kene
+nisa/Desktop/myProjects/
+edot/frontend/src/pages/
+EDOTDashboard.jsx:35:21
+[31m
+[33m
+33: import { Card } 
+from 
+'../components/ui/Card';
+34: import { Button } 
+from '../components/ui/B
+utton';
+35: import { 
+Responsive, 
+WidthProvider } from 
+'react-grid-layout';
+                        
+ ^
+36: import 'react-grid-l
+ayout/css/styles.css';
+37: import 'react-resiza
+ble/css/styles.css';
+[31m
+    at getRollupError (f
+ile:///C:/Users/kenenisa
+/Desktop/myProjects/edot
+/frontend/node_modules/r
+ollup/dist/es/shared/par
+seAst.js:402:41)
+    at error (file:///C:
+/Users/kenenisa/Desktop/
+myProjects/edot/frontend
+/node_modules/rollup/dis
+t/es/shared/parseAst.js:
+398:42)
+    at Module.error (fil
+e:///C:/Users/kenenisa/D
+esktop/myProjects/edot/f
+rontend/node_modules/rol
+lup/dist/es/shared/node-
+entry.js:17040:16)
+    at 
+Module.traceVariable (fi
+le:///C:/Users/kenenisa/
+Desktop/myProjects/edot/
+frontend/node_modules/ro
+llup/dist/es/shared/node
+-entry.js:17452:29)
+    at ModuleScope.findV
+ariable (file:///C:/User
+s/kenenisa/Desktop/myPro
+jects/edot/frontend/node
+_modules/rollup/dist/es/
+shared/node-entry.js:150
+70:39)
+    at Identifier.bind (
+file:///C:/Users/kenenis
+a/Desktop/myProjects/edo
+t/frontend/node_modules/
+rollup/dist/es/shared/no
+de-entry.js:5447:40)
+    at 
+CallExpression.bind (fil
+e:///C:/Users/kenenisa/D
+esktop/myProjects/edot/f
+rontend/node_modules/rol
+lup/dist/es/shared/node-
+entry.js:2829:23)
+    at 
+CallExpression.bind (fil
+e:///C:/Users/kenenisa/D
+esktop/myProjects/edot/f
+rontend/node_modules/rol
+lup/dist/es/shared/node-
+entry.js:12179:15)
+    at 
+VariableDeclarator.bind 
+(file:///C:/Users/keneni
+sa/Desktop/myProjects/ed
+ot/frontend/node_modules
+/rollup/dist/es/shared/n
+ode-entry.js:2829:23)
+    at VariableDeclarati
+on.bind (file:///C:/User
+s/kenenisa/Desktop/myPro
+jects/edot/frontend/node
+_modules/rollup/dist/es/
+shared/node-entry.js:282
+5:28)[39m

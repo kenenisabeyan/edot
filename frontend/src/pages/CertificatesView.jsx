@@ -108,7 +108,7 @@ export default function CertificatesView() {
       </div>
 
       {completedCourses.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
+        <div className="glass-card p-12 text-center rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
            <div className="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
              <Award className="w-10 h-10" />
            </div>
@@ -118,11 +118,11 @@ export default function CertificatesView() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {completedCourses.map((enrolled) => (
-            <div key={enrolled.course?._id} className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden group">
+            <div key={enrolled.course?._id} className="glass-card rounded-3xl border border-slate-200 shadow-sm overflow-hidden group">
               <div className="aspect-[4/3] bg-gradient-to-br from-indigo-50 to-blue-50 border-b border-slate-100 p-8 flex flex-col items-center justify-center relative">
                 <Award className="w-16 h-16 text-indigo-400 mb-4 drop-shadow-sm" />
                 <h3 className="font-bold text-center text-slate-800 line-clamp-2">{enrolled.course?.title}</h3>
-                <div className="absolute inset-0 bg-white/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <div className="absolute inset-0 glass-card/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                   <button 
                     onClick={() => handleDownloadCertificate(enrolled.course?.title)}
                     className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-indigo-700 transition-transform transform scale-95 group-hover:scale-100"
@@ -131,7 +131,7 @@ export default function CertificatesView() {
                   </button>
                 </div>
               </div>
-              <div className="p-4 flex justify-between items-center bg-slate-50/50">
+              <div className="p-4 flex justify-between items-center bg-transparent/50">
                 <div className="text-sm font-medium text-slate-500">Issued to</div>
                 <div className="text-sm font-bold text-slate-700">{user?.name}</div>
               </div>

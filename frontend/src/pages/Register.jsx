@@ -50,8 +50,8 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-slate-50 py-12">
-      <div className="w-full max-w-lg bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-transparent py-12">
+      <div className="w-full max-w-lg glass-card p-8 rounded-2xl shadow-xl border border-slate-100">
         <div className="text-center mb-8 flex flex-col items-center">
           <img src={edotLogo} alt="EDOT Logo" className="h-12 w-auto mb-4" />
           <h2 className="text-3xl font-display font-bold text-slate-900 mb-2">Create Account</h2>
@@ -79,7 +79,7 @@ export default function Register() {
                   placeholder="Enter your full name" 
                   required
                   autoComplete="name" 
-                  className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400 transition-shadow"
+                  className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-300 glass-card text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400 transition-shadow"
                 />
                 <User className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -97,7 +97,7 @@ export default function Register() {
                   placeholder="Enter your email" 
                   required
                   autoComplete="email" 
-                  className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400 transition-shadow"
+                  className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-300 glass-card text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400 transition-shadow"
                 />
                 <Mail className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -115,7 +115,7 @@ export default function Register() {
                   placeholder="Create a password" 
                   required
                   autoComplete="new-password" 
-                  className="w-full pl-11 pr-12 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400 transition-shadow"
+                  className="w-full pl-11 pr-12 py-3 rounded-lg border border-slate-300 glass-card text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400 transition-shadow"
                 />
                 <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-blue-500 transition-colors" />
                 <button 
@@ -141,20 +141,20 @@ export default function Register() {
                   placeholder="Confirm your password" 
                   required 
                   autoComplete="new-password" 
-                  className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400 transition-shadow"
+                  className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-300 glass-card text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400 transition-shadow"
                 />
                 <CheckCircle className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-blue-500 transition-colors" />
               </div>
             </div>
           </div>
 
-          <div className="flex items-start mb-8 bg-slate-50 p-4 rounded-lg border border-slate-100">
+          <div className="flex items-start mb-8 bg-transparent p-4 rounded-lg border border-slate-100">
             <div className="flex items-center h-5 mt-0.5">
               <input 
                 type="checkbox" 
                 id="terms" 
                 required 
-                className="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 focus:ring-offset-0"
+                className="w-4 h-4 text-blue-600 glass-card border-slate-300 rounded focus:ring-blue-500 focus:ring-offset-0"
               />
             </div>
             <label htmlFor="terms" className="ml-3 block text-sm text-slate-600 leading-relaxed cursor-pointer">

@@ -26,7 +26,7 @@ export default function ProudMomentsFeed() {
 
   if (achievements.length === 0 || achievements.every(ach => ach.badges.length === 0)) {
     return (
-      <div className="bg-slate-50/50 rounded-2xl border border-slate-100 p-8 text-center flex flex-col items-center">
+      <div className="bg-transparent/50 rounded-2xl border border-slate-100 p-8 text-center flex flex-col items-center">
          <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-3">
            <Award className="w-6 h-6 text-amber-300" />
          </div>
@@ -48,7 +48,7 @@ export default function ProudMomentsFeed() {
             </h4>
             <div className="grid gap-3">
               {ach.badges.map((badge, bIdx) => (
-                <div key={bIdx} className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-amber-100 flex items-start gap-4 hover:shadow-md transition-shadow">
+                <div key={bIdx} className="glass-card/80 backdrop-blur-sm p-4 rounded-xl border border-amber-100 flex items-start gap-4 hover:shadow-md transition-shadow">
                   <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
                     <Award className="w-5 h-5"/>
                   </div>

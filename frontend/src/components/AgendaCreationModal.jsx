@@ -86,7 +86,7 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl w-full max-w-2xl shadow-xl relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+      <div className="glass-card rounded-3xl w-full max-w-2xl shadow-xl relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-slate-100 flex justify-between items-center shrink-0">
            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -113,21 +113,21 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
                     <button 
                        type="button"
                        onClick={() => handleAudienceToggle('all')}
-                       className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('all') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'}`}
+                       className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('all') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'glass-card border-slate-200 text-slate-600 hover:border-indigo-300'}`}
                     >
                        All Users Broadcast
                     </button>
                     <button 
                        type="button"
                        onClick={() => handleAudienceToggle('student')}
-                       className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('student') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'}`}
+                       className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('student') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'glass-card border-slate-200 text-slate-600 hover:border-indigo-300'}`}
                     >
                        Students
                     </button>
                     <button 
                        type="button"
                        onClick={() => handleAudienceToggle('parent')}
-                       className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('parent') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'}`}
+                       className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('parent') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'glass-card border-slate-200 text-slate-600 hover:border-indigo-300'}`}
                     >
                        Parents
                     </button>
@@ -135,7 +135,7 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
                       <button 
                          type="button"
                          onClick={() => handleAudienceToggle('instructor')}
-                         className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('instructor') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'}`}
+                         className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('instructor') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'glass-card border-slate-200 text-slate-600 hover:border-indigo-300'}`}
                       >
                          Instructors
                       </button>
@@ -151,7 +151,7 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
                    <input 
                      type="text" required 
                      value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
-                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium" 
+                     className="w-full px-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium" 
                      placeholder="e.g., Parent-Teacher Meeting, Final Math Exam"
                    />
                  </div>
@@ -163,7 +163,7 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
                         <input 
                           type="date" required 
                           value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})}
-                          className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium" 
+                          className="w-full pl-10 pr-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium" 
                         />
                         <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
                      </div>
@@ -174,7 +174,7 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
                         <input 
                           type="time" required 
                           value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})}
-                          className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium" 
+                          className="w-full pl-10 pr-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium" 
                         />
                         <Clock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
                      </div>
@@ -191,7 +191,7 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
                             key={cat.id}
                             type="button"
                             onClick={() => setFormData({...formData, type: cat.id})}
-                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${formData.type === cat.id ? `bg-slate-50 border-${cat.color.split('-')[1]}-500 shadow-sm` : 'bg-white border-slate-100 hover:border-slate-300'}`}
+                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${formData.type === cat.id ? `bg-transparent border-${cat.color.split('-')[1]}-500 shadow-sm` : 'glass-card border-slate-100 hover:border-slate-300'}`}
                           >
                              <div className={`w-8 h-8 rounded-full mb-1 flex items-center justify-center ${formData.type === cat.id ? cat.color + ' text-white shadow-md' : 'bg-slate-100 text-slate-400'}`}>
                                <IconComponent className="w-4 h-4" />
@@ -208,7 +208,7 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
                    <textarea 
                      rows="3"
                      value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
-                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium resize-none" 
+                     className="w-full px-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium resize-none" 
                      placeholder="Add any specific advice, support contexts, links, or instructions here..."
                    ></textarea>
                  </div>
@@ -217,7 +217,7 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-100 shrink-0 bg-slate-50/50 rounded-b-3xl flex justify-end gap-3">
+        <div className="p-6 border-t border-slate-100 shrink-0 bg-transparent/50 rounded-b-3xl flex justify-end gap-3">
            <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition-colors">
               Cancel
            </button>

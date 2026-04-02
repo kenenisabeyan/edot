@@ -31,8 +31,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-slate-50">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-transparent">
+      <div className="w-full max-w-md glass-card p-8 rounded-2xl shadow-xl border border-slate-100">
         <div className="text-center mb-8 flex flex-col items-center">
           <img src={edotLogo} alt="EDOT Logo" className="h-12 w-auto mb-4" />
           <h2 className="text-3xl font-display font-bold text-slate-900 mb-2">Welcome Back!</h2>
@@ -59,7 +59,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required 
                 autoComplete="email" 
-                className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400"
+                className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-300 glass-card text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400"
               />
               <Mail className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
@@ -77,7 +77,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password" 
-                className="w-full pl-11 pr-12 py-3 rounded-lg border border-slate-300 bg-white text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400"
+                className="w-full pl-11 pr-12 py-3 rounded-lg border border-slate-300 glass-card text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400"
               />
               <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <button 

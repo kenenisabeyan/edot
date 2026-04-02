@@ -208,16 +208,16 @@ export default function InstructorCourseBuilder() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-transparent">
         <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-transparent flex flex-col">
       {/* Top Navbar specifically for the builder */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+      <header className="glass-card border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
@@ -267,7 +267,7 @@ export default function InstructorCourseBuilder() {
                   <div key={idx} className="flex flex-col items-center">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${
                       isActive ? 'bg-purple-600 text-white border-4 border-purple-100' :
-                      isCompleted ? 'bg-emerald-500 text-white' : 'bg-white text-slate-400 border border-slate-300'
+                      isCompleted ? 'bg-emerald-500 text-white' : 'glass-card text-slate-400 border border-slate-300'
                     }`}>
                       {isCompleted ? <CheckCircle2 className="w-5 h-5" /> : step.icon}
                     </div>
@@ -281,7 +281,7 @@ export default function InstructorCourseBuilder() {
           </div>
 
           {/* Form Area */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+          <div className="glass-card rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
             <div className="p-6 md:p-8">
               
               {/* STEP 1: Basic Information */}
@@ -452,7 +452,7 @@ export default function InstructorCourseBuilder() {
                   {lessons.length > 0 ? (
                     <div className="space-y-3 mb-8">
                       {lessons.map((lesson, idx) => (
-                        <div key={lesson._id || idx} className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center gap-4 group">
+                        <div key={lesson._id || idx} className="bg-transparent border border-slate-200 p-4 rounded-xl flex items-center gap-4 group">
                           <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 font-bold">
                             {idx + 1}
                           </div>
@@ -467,7 +467,7 @@ export default function InstructorCourseBuilder() {
                       ))}
                     </div>
                   ) : (
-                    <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center mb-6">
+                    <div className="bg-transparent border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center mb-6">
                       <LayoutList className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                       <h3 className="text-lg font-bold text-slate-900 mb-1">No lessons yet</h3>
                       <p className="text-slate-500 mb-4 text-sm max-w-sm mx-auto">Start building your curriculum by adding your first video lesson module.</p>
@@ -494,7 +494,7 @@ export default function InstructorCourseBuilder() {
                             required 
                             value={lessonForm.title}
                             onChange={e => setLessonForm({...lessonForm, title: e.target.value})}
-                            className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none bg-white"
+                            className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none glass-card"
                           />
                         </div>
                         <div>
@@ -503,7 +503,7 @@ export default function InstructorCourseBuilder() {
                             required 
                             value={lessonForm.description}
                             onChange={e => setLessonForm({...lessonForm, description: e.target.value})}
-                            className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none bg-white resize-y"
+                            className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none glass-card resize-y"
                             rows="2"
                           ></textarea>
                         </div>
@@ -517,7 +517,7 @@ export default function InstructorCourseBuilder() {
                                 value={lessonForm.videoUrl}
                                 onChange={e => setLessonForm({...lessonForm, videoUrl: e.target.value})}
                                 placeholder="Paste URL or upload file"
-                                className="flex-1 px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none bg-white min-w-0"
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none glass-card min-w-0"
                               />
                               <label className="cursor-pointer bg-purple-100 hover:bg-purple-200 text-purple-700 px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center shrink-0">
                                 {saving ? '...' : 'Upload'}
@@ -538,7 +538,7 @@ export default function InstructorCourseBuilder() {
                               required min="1"
                               value={lessonForm.duration}
                               onChange={e => setLessonForm({...lessonForm, duration: Number(e.target.value)})}
-                              className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none bg-white"
+                              className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none glass-card"
                             />
                           </div>
                         </div>
@@ -560,7 +560,7 @@ export default function InstructorCourseBuilder() {
                           <textarea 
                             value={lessonForm.readingMaterials}
                             onChange={e => setLessonForm({...lessonForm, readingMaterials: e.target.value})}
-                            className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none bg-white min-h-[100px]"
+                            className="w-full px-4 py-2.5 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 outline-none glass-card min-h-[100px]"
                             placeholder="Add markdown notes, links, or text for students to read. Uploading a document inserts its link here."
                           ></textarea>
                         </div>
@@ -575,7 +575,7 @@ export default function InstructorCourseBuilder() {
                           <button 
                             type="button" 
                             onClick={() => setShowLessonForm(false)}
-                            className="flex-1 py-2.5 px-4 bg-white text-purple-700 font-semibold rounded-lg hover:bg-purple-100 transition-colors border border-purple-200"
+                            className="flex-1 py-2.5 px-4 glass-card text-purple-700 font-semibold rounded-lg hover:bg-purple-100 transition-colors border border-purple-200"
                           >
                             Cancel
                           </button>
@@ -601,7 +601,7 @@ export default function InstructorCourseBuilder() {
                   
                   <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 md:p-8 mb-8">
                     <div className="flex flex-col sm:flex-row items-center gap-6">
-                      <div className="w-20 h-20 bg-white rounded-full flex gap-1 items-center justify-center text-emerald-500 shadow-sm shrink-0 border-4 border-emerald-100">
+                      <div className="w-20 h-20 glass-card rounded-full flex gap-1 items-center justify-center text-emerald-500 shadow-sm shrink-0 border-4 border-emerald-100">
                         <DollarSign className="w-10 h-10" />
                       </div>
                       <div className="flex-1 w-full text-center sm:text-left">
@@ -616,7 +616,7 @@ export default function InstructorCourseBuilder() {
                             step="0.01"
                             value={formData.price}
                             onChange={e => setFormData({...formData, price: Number(e.target.value)})}
-                            className="w-full pl-10 pr-4 py-4 text-2xl font-bold bg-white rounded-xl border-2 border-emerald-200 focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-emerald-900"
+                            className="w-full pl-10 pr-4 py-4 text-2xl font-bold glass-card rounded-xl border-2 border-emerald-200 focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-emerald-900"
                           />
                         </div>
                         <p className="mt-3 text-sm text-emerald-700">Set to 0 to make this course free for all students.</p>
@@ -624,7 +624,7 @@ export default function InstructorCourseBuilder() {
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8">
+                  <div className="bg-transparent border border-slate-200 rounded-2xl p-6 mb-8">
                     <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
                        <CheckCircle2 className="w-5 h-5 text-indigo-600" /> Final Course Certification Exam
                     </h3>
@@ -648,7 +648,7 @@ export default function InstructorCourseBuilder() {
                     )}
                   </div>
 
-                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                  <div className="bg-transparent border border-slate-200 rounded-2xl p-6">
                     <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
                        <CheckCircle2 className="w-5 h-5 text-purple-600" /> Pre-flight Checklist
                     </h3>
@@ -665,11 +665,11 @@ export default function InstructorCourseBuilder() {
             </div>
             
             {/* Form Footer / Navigation */}
-            <div className="bg-slate-50 border-t border-slate-200 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="bg-transparent border-t border-slate-200 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
               <button 
                 onClick={prevStep}
                 disabled={currentStep === 1 || saving}
-                className="w-full sm:w-auto px-6 py-2.5 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-6 py-2.5 glass-card text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous Step
               </button>

@@ -52,22 +52,22 @@ export default function CalendarView() {
         )}
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex-1 flex flex-col">
+      <div className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex-1 flex flex-col">
          {/* Calendar Header */}
-         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-transparent/50">
            <div className="flex items-center gap-4">
              <h2 className="text-xl font-bold text-slate-800">September 2030</h2>
-             <div className="flex items-center bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
-               <button className="p-2 text-slate-500 hover:bg-slate-50 hover:text-indigo-600 border-r border-slate-200"><ChevronLeft className="w-5 h-5" /></button>
-               <button className="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600">Today</button>
-               <button className="p-2 text-slate-500 hover:bg-slate-50 hover:text-indigo-600 border-l border-slate-200"><ChevronRight className="w-5 h-5" /></button>
+             <div className="flex items-center glass-card rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+               <button className="p-2 text-slate-500 hover:bg-transparent hover:text-indigo-600 border-r border-slate-200"><ChevronLeft className="w-5 h-5" /></button>
+               <button className="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-transparent hover:text-indigo-600">Today</button>
+               <button className="p-2 text-slate-500 hover:bg-transparent hover:text-indigo-600 border-l border-slate-200"><ChevronRight className="w-5 h-5" /></button>
              </div>
            </div>
            
            <div className="flex gap-2">
               <button className="px-4 py-2 text-sm font-semibold bg-indigo-50 text-indigo-600 rounded-lg">Month</button>
-              <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg">Week</button>
-              <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg">Day</button>
+              <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-transparent rounded-lg">Week</button>
+              <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-transparent rounded-lg">Day</button>
            </div>
          </div>
 
@@ -89,7 +89,7 @@ export default function CalendarView() {
                 const isToday = isCurrentMonth && displayDate === 14; // Mock today
 
                 return (
-                  <div key={index} className={`min-h-[100px] p-2 rounded-2xl border ${isCurrentMonth ? 'bg-white border-slate-100' : 'bg-slate-50 border-transparent'} relative group hover:border-indigo-200 transition-colors`}>
+                  <div key={index} className={`min-h-[100px] p-2 rounded-2xl border ${isCurrentMonth ? 'glass-card border-slate-100' : 'bg-transparent border-transparent'} relative group hover:border-indigo-200 transition-colors`}>
                      <div className={`text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full mb-2 ${
                        isToday ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/40' : 
                        isCurrentMonth ? 'text-slate-700' : 'text-slate-300'

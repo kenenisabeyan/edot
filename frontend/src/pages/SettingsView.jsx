@@ -82,7 +82,7 @@ export default function SettingsView() {
   };
 
   const ToggleSwitch = ({ label, description, checked, onChange, icon: Icon }) => (
-    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex items-center justify-between p-4 glass-card rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start gap-4 pr-6">
         {Icon && <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0"><Icon className="w-5 h-5"/></div>}
         <div>
@@ -95,13 +95,13 @@ export default function SettingsView() {
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors shrink-0 ${checked ? 'bg-indigo-600' : 'bg-slate-300'}`}
       >
-        <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+        <span className={`inline-block h-5 w-5 transform rounded-full glass-card transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
       </button>
     </div>
   );
 
   const NumberSlider = ({ label, description, value, onChange, min, max, icon: Icon, unit = '' }) => (
-    <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+    <div className="p-4 glass-card rounded-xl border border-slate-200 shadow-sm">
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-start gap-3">
           {Icon && <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><Icon className="w-5 h-5"/></div>}
@@ -138,7 +138,7 @@ export default function SettingsView() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto pb-12">
       <div className="mb-8 p-6 bg-slate-900 rounded-3xl text-white shadow-xl flex items-center gap-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-bl-full opacity-20 -z-0"></div>
-        <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md z-10 shrink-0">
+        <div className="w-16 h-16 glass-card/10 rounded-2xl flex items-center justify-center backdrop-blur-md z-10 shrink-0">
           <Settings className="w-8 h-8 text-indigo-300" />
         </div>
         <div className="z-10">
@@ -175,7 +175,7 @@ export default function SettingsView() {
             </div>
 
             <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2 mt-8">Connect Parent/Guardian</h3>
-            <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div className="p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
               <label className="block text-sm font-bold text-slate-700 mb-2">Guardian Email</label>
               <p className="text-sm text-slate-500 mb-4 font-medium">Link your account with a parent's registered email to share progress automatically.</p>
               <div className="flex gap-4">
@@ -184,7 +184,7 @@ export default function SettingsView() {
                   value={connectEmail}
                   onChange={(e) => setConnectEmail(e.target.value)}
                   placeholder="parent@example.com"
-                  className="flex-1 p-4 bg-slate-50 border border-slate-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 p-4 bg-transparent border border-slate-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <button 
                   type="button"
@@ -204,12 +204,12 @@ export default function SettingsView() {
         {user.role === 'parent' && (
           <div className="space-y-6">
             <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2">Supporter Profile & Thresholds</h3>
-            <div className="mb-6 p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div className="mb-6 p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
               <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><CreditCard className="w-5 h-5 text-indigo-500"/> Billing Method</label>
               <select 
                 value={roleConfig.billingMethod || 'unlinked'}
                 onChange={(e) => handleChange('billingMethod', e.target.value)}
-                className="w-full md:w-1/2 p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full md:w-1/2 p-3 bg-transparent border border-slate-200 rounded-xl text-slate-700 font-medium outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="unlinked">Unlinked / Manual</option>
                 <option value="card">Credit Card on File</option>
@@ -239,7 +239,7 @@ export default function SettingsView() {
         {user.role === 'instructor' && (
           <div className="space-y-6">
             <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2">Pedagogical Settings</h3>
-            <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div className="p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
               <label className="block text-sm font-bold text-slate-700 mb-2">Consultation Windows</label>
               <p className="text-sm text-slate-500 mb-4 font-medium">Define office hours visible to students and parents.</p>
               <input 
@@ -247,12 +247,12 @@ export default function SettingsView() {
                 value={roleConfig.consultationHours || ''}
                 onChange={(e) => handleChange('consultationHours', e.target.value)}
                 placeholder="e.g. Mon-Wed 3PM-5PM"
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full p-4 bg-transparent border border-slate-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             
             <div className="grid gap-4">
-              <div className="flex items-center justify-between p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div className="flex items-center justify-between p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
                  <div>
                    <h4 className="font-semibold text-slate-900">Default Course Visibility</h4>
                    <p className="text-sm text-slate-500 mt-1">Should newly created courses be public in the catalog?</p>
@@ -260,7 +260,7 @@ export default function SettingsView() {
                  <select 
                   value={roleConfig.courseVisibility || 'public'}
                   onChange={(e) => handleChange('courseVisibility', e.target.value)}
-                  className="p-3 bg-slate-50 font-medium border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="p-3 bg-transparent font-medium border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
                  >
                    <option value="public">Public (Catalog)</option>
                    <option value="enrolled_only">Hidden (Invite Only)</option>
@@ -281,7 +281,7 @@ export default function SettingsView() {
           <div className="space-y-6">
             <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2">Institutional Governance</h3>
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div className="p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
                 <label className="block text-sm font-bold text-slate-700 mb-4 flex items-center gap-2"><Palette className="w-5 h-5 text-indigo-500"/> Primary Brand Color</label>
                 <div className="flex gap-4 items-center">
                   <input 
@@ -293,14 +293,14 @@ export default function SettingsView() {
                   <span className="font-mono text-slate-600 bg-slate-100 font-bold px-3 py-2 rounded-lg">{roleConfig.primaryColor || '#4f46e5'}</span>
                 </div>
               </div>
-              <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div className="p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
                 <label className="block text-sm font-bold text-slate-700 mb-4 flex items-center gap-2"><Key className="w-5 h-5 text-amber-500"/> External API Key</label>
                 <input 
                   type="password" 
                   value={roleConfig.apiKey || ''}
                   onChange={(e) => handleChange('apiKey', e.target.value)}
                   placeholder="sk_live_..."
-                  className="w-full p-4 bg-slate-50 font-medium border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full p-4 bg-transparent font-medium border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>

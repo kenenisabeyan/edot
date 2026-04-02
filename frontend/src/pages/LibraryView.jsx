@@ -122,7 +122,7 @@ export default function LibraryView() {
               placeholder="Search resources..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 glass-card dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
             />
           </div>
           {canUpload && !showUploadForm && (
@@ -138,7 +138,7 @@ export default function LibraryView() {
 
       {/* Upload Form Engine */}
       {showUploadForm && (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-indigo-100 dark:border-slate-800 p-6 shadow-sm relative overflow-hidden">
+        <div className="glass-card dark:bg-slate-900 rounded-3xl border border-indigo-100 dark:border-slate-800 p-6 shadow-sm relative overflow-hidden">
           <div className="flex justify-between items-center mb-6">
              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                  <FileText className="w-5 h-5 text-indigo-500" /> Upload New Resource
@@ -159,7 +159,7 @@ export default function LibraryView() {
                     <input 
                       type="text" required placeholder="Advanced Mathematics Vol 2"
                       value={uploadData.title} onChange={(e) => setUploadData({ ...uploadData, title: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
                     />
                 </div>
                 <div className="space-y-1">
@@ -167,14 +167,14 @@ export default function LibraryView() {
                     <input 
                       type="text" required placeholder="John Doe"
                       value={uploadData.author} onChange={(e) => setUploadData({ ...uploadData, author: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
                     />
                 </div>
                 <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</label>
                     <select 
                       value={uploadData.category} onChange={(e) => setUploadData({ ...uploadData, category: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold cursor-pointer"
+                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold cursor-pointer"
                     >
                       <option value="General">General Education</option>
                       <option value="Science">Science & Technology</option>
@@ -189,7 +189,7 @@ export default function LibraryView() {
 
             <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">File Attachment</label>
-                <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 bg-slate-50/50 dark:bg-slate-800/50 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/10 transition-colors group cursor-pointer">
+                <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 bg-transparent/50 dark:bg-slate-800/50 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/10 transition-colors group cursor-pointer">
                     <input 
                       type="file" 
                       required
@@ -228,8 +228,8 @@ export default function LibraryView() {
 
       {/* Empty State vs Grid */}
       {filteredResources.length === 0 && !showUploadForm ? (
-        <div className="bg-white dark:bg-slate-900 p-12 text-center rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center">
-           <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 border border-slate-100 dark:border-slate-700 rounded-full flex items-center justify-center mb-4">
+        <div className="glass-card dark:bg-slate-900 p-12 text-center rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center">
+           <div className="w-20 h-20 bg-transparent dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 border border-slate-100 dark:border-slate-700 rounded-full flex items-center justify-center mb-4">
              <BookOpen className="w-10 h-10" />
            </div>
            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No resources found</h3>
@@ -241,14 +241,14 @@ export default function LibraryView() {
             const isOwner = resource.uploadedBy === user?._id || user?.role === 'admin';
             
             return (
-              <div key={resource._id} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative">
+              <div key={resource._id} className="glass-card dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative">
                 
                 {/* Delete Button overlaid on hover */}
                 {isOwner && (
                   <button 
                     onClick={() => handleDelete(resource._id)}
                     title="Delete Resource"
-                    className="absolute top-3 right-3 bg-white/90 hover:bg-rose-50 text-rose-500 border border-transparent hover:border-rose-200 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm backdrop-blur"
+                    className="absolute top-3 right-3 glass-card/90 hover:bg-rose-50 text-rose-500 border border-transparent hover:border-rose-200 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm backdrop-blur"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -258,12 +258,12 @@ export default function LibraryView() {
                    <FileText className="w-16 h-16 text-indigo-300 dark:text-indigo-500/20 group-hover:scale-110 transition-transform duration-500" />
                    
                    {/* File Type Badge decoration */}
-                   <div className="absolute bottom-3 left-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 shadow-sm border border-slate-100/50 dark:border-slate-700/50">
+                   <div className="absolute bottom-3 left-3 glass-card/80 dark:bg-slate-900/80 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 shadow-sm border border-slate-100/50 dark:border-slate-700/50">
                      {resource.fileUrl?.split('.').pop()?.toUpperCase() || 'FILE'}
                    </div>
                 </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-between bg-white dark:bg-slate-900">
+                <div className="p-5 flex-1 flex flex-col justify-between glass-card dark:bg-slate-900">
                   <div>
                     <div className="flex gap-2 items-center mb-2">
                        <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-200/50 dark:border-indigo-500/20 px-2.5 py-1 rounded-md uppercase tracking-wider">
@@ -278,7 +278,7 @@ export default function LibraryView() {
                     href={`http://localhost:5000${resource.fileUrl}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-full flex justify-center items-center gap-2 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-bold hover:border-indigo-600 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:border-indigo-500 transition-all group/btn"
+                    className="w-full flex justify-center items-center gap-2 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-transparent dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-bold hover:border-indigo-600 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:border-indigo-500 transition-all group/btn"
                   >
                     <Download className="w-4 h-4 group-hover/btn:translate-y-0.5 transition-transform" /> Access File
                   </a>

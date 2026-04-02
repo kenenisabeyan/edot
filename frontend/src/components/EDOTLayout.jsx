@@ -28,6 +28,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
 import UserAvatar from './UserAvatar';
+import CommandK from './CommandK';
 import edotLogo from '../assets/edot-logo.jpg';
 
 export default function EDOTLayout() {
@@ -188,6 +189,8 @@ export default function EDOTLayout() {
   const showFinance = currentConfig.showFinance || false;
   const quickActions = currentConfig.quickActions || [];
 
+  // themeClass logic removed, handled globally
+
   const NavItem = ({ item }) => {
     let badgeCount = 0;
     let badgeColor = 'bg-blue-500 text-white';
@@ -216,7 +219,7 @@ export default function EDOTLayout() {
         className={({ isActive }) =>
           `group relative flex items-center justify-between px-4 py-3 xl:py-3.5 rounded-xl transition-all duration-300 font-medium ${
             isActive
-              ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+              ? 'bg-gradient-primary shadow-lg'
               : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
           }`
         }
@@ -238,13 +241,15 @@ export default function EDOTLayout() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300 ${darkMode ? 'dark bg-slate-900' : 'bg-[#f8f9ff]'}`}>
+    <div className={`h-screen w-full flex flex-col md:flex-row transition-colors duration-300 relative overflow-hidden ${darkMode ? 'dark bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+      <CommandK />
+      {/* Animated Background Mesh */}
       
       {/* Mobile Header */}
-      <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 flex justify-between items-center sticky top-0 z-30 shadow-sm transition-colors duration-300">
+      <div className="md:hidden glass-card rounded-none border-t-0 border-l-0 border-r-0 border-b border-slate-200 p-4 flex justify-between items-center sticky top-0 z-50 shadow-sm transition-colors duration-300">
         <div className="flex items-center gap-2 font-bold text-xl text-indigo-600 dark:text-indigo-400">
           <img src={edotLogo} alt="EDOT Logo" className="h-8 w-auto rounded-lg" />
-          EDOT
+          <span className="text-gradient">EDOT</span>
         </div>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-slate-500 dark:text-slate-400">
           <Menu className="w-6 h-6" />
@@ -252,10 +257,9 @@ export default function EDOTLayout() {
       </div>
 
       {/* Sidebar */}
-      <aside className={`
-        fixed md:sticky top-0 left-0 h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 z-40 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-[4px_0_24px_rgba(0,0,0,0.02)]
+      <aside className={`dashboard-sidebar shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed md:sticky top-0 left-0 h-screen
         ${mobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0'}
-        ${sidebarCollapsed ? 'md:w-[88px]' : 'md:w-[280px]'}
+        ${sidebarCollapsed ? 'md:w-[88px]' : ''}
       `}>
         <div className="p-6 pb-2 flex items-center justify-between">
            <div className={`flex items-center gap-3 font-bold text-2xl text-indigo-600 dark:text-indigo-400 transition-all ${sidebarCollapsed ? 'mx-auto' : ''}`}>
@@ -266,7 +270,7 @@ export default function EDOTLayout() {
            {!mobileMenuOpen && (
              <button 
                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-               className="hidden md:flex text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+               className="hidden md:flex text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-1.5 rounded-lg hover:bg-transparent dark:hover:bg-slate-800"
              >
                {sidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
              </button>
@@ -352,10 +356,10 @@ export default function EDOTLayout() {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 bg-transparent transition-colors duration-300">
+      <main className="flex-1 flex flex-col min-w-0 h-screen max-h-screen bg-transparent transition-colors duration-300">
         
         {/* Top Header */}
-        <header className="h-[88px] bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 px-4 md:px-8 flex items-center justify-between shrink-0 sticky top-0 z-20 transition-colors duration-300">
+        <header className="h-[88px] bg-white/50 backdrop-blur-2xl dark:bg-slate-900/60 border-b border-slate-200/50 dark:border-slate-800/50 px-4 md:px-8 flex items-center justify-between shrink-0 sticky top-0 z-20 transition-colors duration-300 shadow-sm">
           
           {/* Global Search Bar */}
           <div className="flex-1 max-w-xl hidden sm:block relative group">
@@ -365,10 +369,10 @@ export default function EDOTLayout() {
             <input 
               type="text" 
               placeholder="Global Search (Students, Courses, Messages)..." 
-              className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 rounded-2xl text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-slate-400"
+              className="w-full pl-12 pr-4 py-3 bg-transparent dark:bg-slate-800/50 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 rounded-2xl text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:glass-card dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm placeholder:text-slate-400"
             />
             <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none hidden lg:flex">
-               <span className="text-xs font-semibold text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-md shadow-sm">CTRL + K</span>
+               <span className="text-xs font-semibold text-slate-400 glass-card dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-md shadow-sm">CTRL + K</span>
             </div>
           </div>
           
@@ -387,11 +391,11 @@ export default function EDOTLayout() {
                 </button>
                 
                 {quickActionsOpen && (
-                  <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-indigo-500/10 border border-slate-100 dark:border-slate-800 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-200">
+                  <div className="absolute right-0 mt-3 w-56 glass-card dark:bg-slate-900 rounded-2xl shadow-xl shadow-indigo-500/10 border border-slate-100 dark:border-slate-800 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-200">
                     <div className="p-2 space-y-1">
                       <p className="px-3 py-1.5 text-xs font-bold text-slate-400 uppercase tracking-widest">Create New</p>
                       {quickActions.map(action => (
-                        <button key={action.name} onClick={() => { setQuickActionsOpen(false); navigate(action.path); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-left group">
+                        <button key={action.name} onClick={() => { setQuickActionsOpen(false); navigate(action.path); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-transparent dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-left group">
                            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 group-hover:scale-110 transition-transform">
                              <action.icon className="w-4 h-4" />
                            </div>
@@ -431,8 +435,8 @@ export default function EDOTLayout() {
               </button>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-4 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-100 dark:border-slate-800 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-200">
-                  <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col items-center gap-3 bg-slate-50/50 dark:bg-slate-800/50 text-center">
+                <div className="absolute right-0 mt-4 w-72 glass-card overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col items-center gap-3 bg-transparent/50 dark:bg-slate-800/50 text-center">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 p-0.5 shadow-sm">
                       <UserAvatar user={user} className="w-full h-full text-xl border-[3px] border-white dark:border-slate-900" />
                     </div>
@@ -446,13 +450,13 @@ export default function EDOTLayout() {
                   <div className="p-3 space-y-1">
                     <button 
                       onClick={() => { setProfileOpen(false); navigate('/dashboard/profile'); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-transparent dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-left"
                     >
                       <User className="w-4 h-4" /> My Profile
                     </button>
                     <button 
                       onClick={() => { setProfileOpen(false); navigate('/dashboard/settings'); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-transparent dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-left"
                     >
                       <Settings className="w-4 h-4" /> Account Settings
                     </button>

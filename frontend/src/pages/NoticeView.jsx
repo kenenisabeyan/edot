@@ -79,7 +79,7 @@ export default function NoticeView() {
 
       {/* Create Notice Form */}
       {showCreateForm && (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-indigo-100 dark:border-slate-800 p-6 sm:p-8 shadow-sm relative overflow-hidden">
+        <div className="glass-card dark:bg-slate-900 rounded-3xl border border-indigo-100 dark:border-slate-800 p-6 sm:p-8 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
           <div className="flex justify-between items-center mb-6">
              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function NoticeView() {
                       placeholder="e.g. End of Semester Examinations"
                       value={newNotice.title}
                       onChange={(e) => setNewNotice({ ...newNotice, title: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold"
+                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold"
                     />
                 </div>
                 <div className="space-y-1">
@@ -112,7 +112,7 @@ export default function NoticeView() {
                     <select 
                       value={newNotice.audience}
                       onChange={(e) => setNewNotice({ ...newNotice, audience: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold capitalize appearance-none cursor-pointer"
+                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold capitalize appearance-none cursor-pointer"
                     >
                       <option value="all">Entire Platform (All Users)</option>
                       <option value="student">Students Only</option>
@@ -130,7 +130,7 @@ export default function NoticeView() {
                   rows={4}
                   value={newNotice.content}
                   onChange={(e) => setNewNotice({ ...newNotice, content: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none font-medium"
+                  className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none font-medium"
                 ></textarea>
             </div>
 
@@ -149,8 +149,8 @@ export default function NoticeView() {
 
       {/* Feed */}
       {notices.length === 0 && !showCreateForm ? (
-        <div className="bg-white dark:bg-slate-900 p-12 text-center rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center">
-           <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800">
+        <div className="glass-card dark:bg-slate-900 p-12 text-center rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center">
+           <div className="w-20 h-20 bg-transparent dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800">
              <BellRing className="w-8 h-8" />
            </div>
            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">You're caught up!</h3>
@@ -159,7 +159,7 @@ export default function NoticeView() {
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {notices.map((notice) => (
-            <div key={notice._id} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden p-6 hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-500/30 transition-all relative group">
+            <div key={notice._id} className="glass-card dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden p-6 hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-500/30 transition-all relative group">
                 <div className="flex gap-4 items-start relative z-10">
                   <div className="w-12 h-12 bg-indigo-50 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400 rounded-2xl flex items-center justify-center shrink-0">
                     <Pin className="w-6 h-6 transform group-hover:-rotate-12 transition-transform" />
@@ -176,7 +176,7 @@ export default function NoticeView() {
                         }`}>
                           {notice.audience === 'all' ? 'Global' : notice.audience}
                         </span>
-                        <span className="text-xs font-semibold text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <span className="text-xs font-semibold text-slate-400 bg-transparent dark:bg-slate-800/50 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
                           {new Date(notice.date).toLocaleDateString()}
                         </span>
                       </div>

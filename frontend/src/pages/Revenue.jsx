@@ -68,7 +68,7 @@ export default function Revenue() {
         />
       </div>
 
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+      <div className="glass-card dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
         <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Revenue Trajectory</h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
@@ -89,14 +89,14 @@ export default function Revenue() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="glass-card dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800">
           <h3 className="text-lg font-bold text-slate-800 dark:text-white">Recent Transactions</h3>
         </div>
         <div className="p-0 overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-transparent dark:bg-slate-800 text-xs font-bold text-slate-500 uppercase tracking-wider">
                 <th className="p-4">Date</th>
                 <th className="p-4">Description</th>
                 <th className="p-4">Amount</th>
@@ -104,7 +104,7 @@ export default function Revenue() {
               </tr>
             </thead>
             <tbody className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              <tr className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+              <tr className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-transparent dark:hover:bg-slate-800/50 transition-colors">
                 <td colSpan="4" className="p-8 text-center text-slate-500 font-medium">No real-time transactions recorded yet.</td>
               </tr>
             </tbody>

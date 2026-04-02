@@ -87,7 +87,7 @@ export default function ParentLearners() {
 
   if (learners.length === 0) {
     return (
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-3xl p-12 text-center shadow-sm border border-slate-100 max-w-2xl mx-auto mt-12">
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card rounded-3xl p-12 text-center shadow-sm border border-slate-100 max-w-2xl mx-auto mt-12">
         <div className="w-24 h-24 bg-indigo-50/50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
           <Users className="w-12 h-12" />
         </div>
@@ -102,7 +102,7 @@ export default function ParentLearners() {
             value={connectEmail}
             onChange={(e) => setConnectEmail(e.target.value)}
             placeholder="Student's registered email"
-            className="w-full pl-5 pr-32 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-medium outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
+            className="w-full pl-5 pr-32 py-4 bg-transparent border border-slate-200 rounded-2xl font-medium outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
           />
           <button 
             onClick={handleConnectLearner}
@@ -161,14 +161,14 @@ export default function ParentLearners() {
           const completedCourses = learner.enrolledCourses?.filter(c => c.passedFinalExam).length || 0;
           
           return (
-            <motion.div variants={itemVariants} key={learner._id} className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col xl:flex-row hover:shadow-lg transition-shadow duration-300">
+            <motion.div variants={itemVariants} key={learner._id} className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col xl:flex-row hover:shadow-lg transition-shadow duration-300">
               
               {/* Sidebar Profile Panel */}
-              <div className="xl:w-[340px] bg-slate-50 p-8 border-b xl:border-b-0 xl:border-r border-slate-100 flex flex-col relative shrink-0">
+              <div className="xl:w-[340px] bg-transparent p-8 border-b xl:border-b-0 xl:border-r border-slate-100 flex flex-col relative shrink-0">
                 <div className="absolute top-0 left-0 w-full h-32 bg-indigo-600/5 rounded-tl-3xl"></div>
                 
                 <div className="flex flex-col items-center text-center relative z-10 mb-8 mt-4">
-                  <motion.div whileHover={{ scale: 1.05 }} className="w-28 h-28 rounded-full bg-white border-4 border-white shadow-xl mb-5 overflow-hidden ring-4 ring-indigo-50">
+                  <motion.div whileHover={{ scale: 1.05 }} className="w-28 h-28 rounded-full glass-card border-4 border-white shadow-xl mb-5 overflow-hidden ring-4 ring-indigo-50">
                     <img 
                       src={`http://localhost:5000/uploads/avatars/${learner.avatar || 'default-avatar.png'}`} 
                       alt={learner.name}
@@ -187,20 +187,20 @@ export default function ParentLearners() {
                 <div className="flex flex-col gap-2 mt-auto">
                    <button 
                      onClick={() => setTab(learner._id, 'overview')}
-                     className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-semibold transition-all ${tab === 'overview' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-600 hover:bg-white hover:shadow-sm'}`}
+                     className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-semibold transition-all ${tab === 'overview' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-600 hover:glass-card hover:shadow-sm'}`}
                    >
                      <BarChart2 className="w-5 h-5" /> Overview
                    </button>
                    <button 
                      onClick={() => setTab(learner._id, 'courses')}
-                     className={`flex items-center justify-between px-5 py-3.5 rounded-2xl font-semibold transition-all ${tab === 'courses' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-600 hover:bg-white hover:shadow-sm'}`}
+                     className={`flex items-center justify-between px-5 py-3.5 rounded-2xl font-semibold transition-all ${tab === 'courses' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-600 hover:glass-card hover:shadow-sm'}`}
                    >
                      <div className="flex items-center gap-3"><BookOpen className="w-5 h-5" /> Enrolled Courses</div>
-                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${tab === 'courses' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>{totalEnrollments}</span>
+                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${tab === 'courses' ? 'glass-card/20 text-white' : 'bg-slate-200 text-slate-700'}`}>{totalEnrollments}</span>
                    </button>
                    <button 
                      onClick={() => setTab(learner._id, 'activity')}
-                     className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-semibold transition-all ${tab === 'activity' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-600 hover:bg-white hover:shadow-sm'}`}
+                     className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-semibold transition-all ${tab === 'activity' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-600 hover:glass-card hover:shadow-sm'}`}
                    >
                      <Activity className="w-5 h-5" /> Activity Log
                    </button>
@@ -208,7 +208,7 @@ export default function ParentLearners() {
               </div>
 
               {/* Main Content Area */}
-              <div className="flex-1 p-8 xl:p-10 min-w-0 bg-white relative">
+              <div className="flex-1 p-8 xl:p-10 min-w-0 glass-card relative">
                  <AnimatePresence mode="wait">
                     
                     {/* TAB: OVERVIEW */}
@@ -242,7 +242,7 @@ export default function ParentLearners() {
                             </div>
                         </div>
 
-                        <div className="flex-1 bg-slate-50 rounded-3xl border border-slate-100 p-8 flex flex-col justify-center items-center text-center relative overflow-hidden">
+                        <div className="flex-1 bg-transparent rounded-3xl border border-slate-100 p-8 flex flex-col justify-center items-center text-center relative overflow-hidden">
                            <CalendarDays className="w-12 h-12 text-slate-300 mb-4" />
                            <h4 className="font-bold text-slate-700 text-lg mb-2">Detailed Analytics Locked</h4>
                            <p className="text-slate-500 max-w-sm">Deeper timeline analytics and predictive grading are available in the expanded premium parent tier coming soon.</p>
@@ -263,7 +263,7 @@ export default function ParentLearners() {
                               <motion.div 
                                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
                                 key={idx} 
-                                className="group bg-white p-5 rounded-3xl border border-slate-100 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300"
+                                className="group glass-card p-5 rounded-3xl border border-slate-100 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300"
                               >
                                 <div className="flex items-start gap-4 mb-5">
                                   <div className="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden shrink-0 shadow-sm relative group-hover:ring-2 ring-indigo-500 ring-offset-2 transition-all">
@@ -275,7 +275,7 @@ export default function ParentLearners() {
                                     />
                                     {enrollment.passedFinalExam && (
                                        <div className="absolute inset-0 bg-emerald-500/20 backdrop-blur-[1px] flex items-center justify-center">
-                                          <CheckCircle className="w-6 h-6 text-emerald-500 bg-white rounded-full" />
+                                          <CheckCircle className="w-6 h-6 text-emerald-500 glass-card rounded-full" />
                                        </div>
                                     )}
                                   </div>
@@ -311,7 +311,7 @@ export default function ParentLearners() {
                             ))}
                           </div>
                         ) : (
-                          <div className="h-64 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50">
+                          <div className="h-64 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-transparent/50">
                              <BookOpen className="w-12 h-12 text-slate-300 mb-3" />
                              <p className="text-slate-500 font-medium text-lg">No courses enrolled yet.</p>
                           </div>
@@ -330,12 +330,12 @@ export default function ParentLearners() {
                            {learner.enrolledCourses?.length > 0 ? learner.enrolledCourses.map((enrollment, idx) => (
                               <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} key={idx} className="relative">
                                  <div className={`absolute -left-[25px] top-1 w-3 h-3 rounded-full ring-4 ring-white ${enrollment.progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`}></div>
-                                 <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm ml-4">
+                                 <div className="glass-card p-5 rounded-2xl border border-slate-100 shadow-sm ml-4">
                                     <div className="flex justify-between items-start mb-2">
                                        <h4 className="font-bold text-slate-800">
                                          {enrollment.progress === 100 ? 'Completed a Course' : 'Started a Course'}
                                        </h4>
-                                       <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+                                       <span className="text-xs font-semibold text-slate-400 bg-transparent px-2 py-1 rounded-md">
                                           {new Date(enrollment.enrolledAt).toLocaleDateString()}
                                        </span>
                                     </div>
@@ -351,7 +351,7 @@ export default function ParentLearners() {
                            {/* Mock generic login activity */}
                            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="relative">
                                  <div className="absolute -left-[25px] top-1 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-white"></div>
-                                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 ml-4 opacity-70 cursor-not-allowed">
+                                 <div className="bg-transparent p-4 rounded-xl border border-slate-100 ml-4 opacity-70 cursor-not-allowed">
                                     <h4 className="font-bold text-slate-600 text-sm">Account Created</h4>
                                     <p className="text-slate-500 text-xs mt-1">Learner profile was initialized.</p>
                                  </div>

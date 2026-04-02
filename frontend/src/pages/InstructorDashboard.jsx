@@ -124,7 +124,7 @@ export default function InstructorDashboard() {
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">Instructor Overview</h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -137,7 +137,7 @@ export default function InstructorDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -150,7 +150,7 @@ export default function InstructorDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -165,7 +165,7 @@ export default function InstructorDashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <h3 className="text-lg font-bold text-slate-900 mb-6">Earnings (Last 6 Months)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -183,7 +183,7 @@ export default function InstructorDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <h3 className="text-lg font-bold text-slate-900 mb-6">Student Engagement</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -202,7 +202,7 @@ export default function InstructorDashboard() {
               </div>
             </div>
 
-            <div className="bg-white p-6 lg:p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="glass-card p-6 lg:p-8 rounded-2xl border border-slate-200 shadow-sm">
                <h3 className="text-xl font-bold text-slate-900 mb-6">Quick Actions</h3>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                  <button 
@@ -232,7 +232,7 @@ export default function InstructorDashboard() {
                </div>
             </div>
 
-            <div className="mt-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="mt-8 glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                <h3 className="text-xl font-bold text-slate-900 mb-6">Recent Activity</h3>
                <ActivityFeed isAdmin={false} limit={5} />
             </div>
@@ -252,7 +252,7 @@ export default function InstructorDashboard() {
             </div>
             
             {courses.length === 0 ? (
-               <div className="bg-white p-12 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
+               <div className="glass-card p-12 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
                  <div className="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
                    <FolderOpen className="w-10 h-10" />
                  </div>
@@ -268,7 +268,7 @@ export default function InstructorDashboard() {
             ) : (
                 <div className="grid grid-cols-1 gap-6">
                   {courses.map(c => (
-                    <div key={c._id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row group transition-all hover:shadow-md">
+                    <div key={c._id} className="glass-card rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row group transition-all hover:shadow-md">
                       
                       <div className="w-full md:w-64 h-48 md:h-auto shrink-0 relative bg-slate-100">
                          <img 
@@ -276,7 +276,7 @@ export default function InstructorDashboard() {
                           alt={c.title} 
                           className="w-full h-full object-cover" 
                         />
-                         <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-bold text-slate-700 uppercase tracking-wider shadow-sm">
+                         <div className="absolute top-3 left-3 glass-card/90 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-bold text-slate-700 uppercase tracking-wider shadow-sm">
                            {c.category}
                          </div>
                       </div>
@@ -289,7 +289,7 @@ export default function InstructorDashboard() {
                               c.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
                               (c.status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
                               (c.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' : 
-                              'bg-slate-50 text-slate-700 border-slate-200'))
+                              'bg-transparent text-slate-700 border-slate-200'))
                             }`}>
                               {c.status}
                             </span>
@@ -306,7 +306,7 @@ export default function InstructorDashboard() {
                           <p className="text-slate-600 line-clamp-2 md:line-clamp-3 mb-0">{c.description}</p>
                         </div>
                         
-                        <div className="p-4 md:px-8 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="p-4 md:px-8 border-t border-slate-100 bg-transparent/50 flex flex-col sm:flex-row justify-between items-center gap-4">
                            <span className="text-xs font-medium text-slate-500">
                              Last updated: {new Date(c.updatedAt).toLocaleDateString()}
                            </span>
@@ -316,7 +316,7 @@ export default function InstructorDashboard() {
                                <>
                                  <button 
                                   onClick={() => navigate('/instructor/builder/' + c._id)} 
-                                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white text-slate-700 font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 hover:text-purple-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 glass-card text-slate-700 font-semibold rounded-lg border border-slate-300 hover:bg-transparent hover:text-purple-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                                  >
                                    <PlusCircle className="w-4 h-4" /> Add Lesson
                                  </button>
@@ -356,7 +356,7 @@ export default function InstructorDashboard() {
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl">
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">Create New Course</h2>
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="glass-card p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
               <form onSubmit={handleCreateCourse} className="space-y-6">
                 
                 <div>
@@ -430,7 +430,7 @@ export default function InstructorDashboard() {
                    <button 
                     type="button" 
                     onClick={() => setActiveTab('courses')} 
-                    className="px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 transition-colors shadow-sm order-2 sm:order-1"
+                    className="px-6 py-3 glass-card text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-transparent transition-colors shadow-sm order-2 sm:order-1"
                    >
                      Cancel
                    </button>
@@ -449,7 +449,7 @@ export default function InstructorDashboard() {
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl">
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">Instructor Profile</h2>
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="glass-card p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 pb-8 border-b border-slate-100 text-center sm:text-left">
                 <div className="w-24 h-24 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-3xl font-bold uppercase shrink-0 border-4 border-white shadow-md">
                   {user?.name?.charAt(0) || <Users className="w-10 h-10" />}
@@ -470,7 +470,7 @@ export default function InstructorDashboard() {
                     type="text" 
                     defaultValue={user?.name} 
                     disabled 
-                    className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-500 cursor-not-allowed" 
+                    className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-transparent text-slate-500 cursor-not-allowed" 
                   />
                   <p className="mt-1.5 text-xs text-slate-500">Contact admin to change your registered instructor name.</p>
                 </div>
@@ -480,7 +480,7 @@ export default function InstructorDashboard() {
                     type="email" 
                     defaultValue={user?.email} 
                     disabled 
-                    className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-500 cursor-not-allowed" 
+                    className="w-full px-4 py-3 rounded-lg border border-slate-300 bg-transparent text-slate-500 cursor-not-allowed" 
                   />
                 </div>
               </form>
@@ -501,7 +501,7 @@ export default function InstructorDashboard() {
   `;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-transparent flex flex-col md:flex-row">
       {/* Sidebar Layout */}
       <aside className="w-full md:w-72 bg-slate-900 text-white shrink-0 flex flex-col md:h-screen">
         <div className="p-6 border-b border-slate-800">
@@ -557,7 +557,7 @@ export default function InstructorDashboard() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 sm:px-0">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setActiveCourseId(null)}></div>
           
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl relative z-10 animate-in zoom-in-95 duration-200">
+          <div className="glass-card rounded-2xl w-full max-w-lg shadow-2xl relative z-10 animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-6 border-b border-slate-200">
               <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                 <PlayCircle className="w-5 h-5 text-purple-600" />

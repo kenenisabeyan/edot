@@ -124,7 +124,7 @@ export default function AdminDashboard() {
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">Admin Overview</h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-rose-200 shadow-sm relative overflow-hidden group hover:border-rose-300">
+              <div className="glass-card p-6 rounded-2xl border border-rose-200 shadow-sm relative overflow-hidden group hover:border-rose-300">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-rose-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -163,7 +163,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -178,7 +178,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <h3 className="text-lg font-bold text-slate-900 mb-6">Revenue Overview (YTD)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <h3 className="text-lg font-bold text-slate-900 mb-6">User Distribution</h3>
                 <div className="h-[300px] flex items-center justify-center">
                   <ResponsiveContainer width="100%" height="100%">
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white p-6 lg:p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="glass-card p-6 lg:p-8 rounded-2xl border border-slate-200 shadow-sm">
                <h3 className="text-xl font-bold text-slate-900 mb-6">Quick Actions</h3>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                  <button 
@@ -254,13 +254,13 @@ export default function AdminDashboard() {
                </div>
             </div>
 
-            <div className="bg-white p-6 lg:p-8 rounded-2xl border border-slate-200 shadow-sm mt-8">
+            <div className="glass-card p-6 lg:p-8 rounded-2xl border border-slate-200 shadow-sm mt-8">
                <div className="flex justify-between items-center mb-6">
                  <h3 className="text-xl font-bold text-slate-900">Intervention Overview</h3>
                  <span className="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-md uppercase tracking-wider">Live Support Monitor</span>
                </div>
                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                 <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center gap-5 hover:shadow-sm transition-shadow">
+                 <div className="p-4 rounded-xl border border-slate-100 bg-transparent flex items-center gap-5 hover:shadow-sm transition-shadow">
                    <div className="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
                      <MessageSquare className="w-6 h-6"/>
                    </div>
@@ -296,17 +296,17 @@ export default function AdminDashboard() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <h2 className="text-2xl font-display font-bold text-slate-900">User Management</h2>
-              <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 shadow-sm flex items-center gap-2">
+              <div className="glass-card px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 shadow-sm flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-500" />
                 Super Admin Access
               </div>
             </div>
             
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="glass-card rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[800px]">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm uppercase tracking-wider">
+                    <tr className="bg-transparent border-b border-slate-200 text-slate-500 text-sm uppercase tracking-wider">
                       <th className="px-6 py-4 font-semibold">Name</th>
                       <th className="px-6 py-4 font-semibold">Email</th>
                       <th className="px-6 py-4 font-semibold">Joined</th>
@@ -317,7 +317,7 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {usersList.map((u, idx) => (
-                      <tr key={u._id} className="hover:bg-slate-50/50 transition-colors">
+                      <tr key={u._id} className="hover:bg-transparent/50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex flex-shrink-0 items-center justify-center font-bold text-xs">
@@ -338,7 +338,7 @@ export default function AdminDashboard() {
                             <span className={`inline-flex w-max items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
                               u.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
                               u.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' : 
-                              'bg-slate-50 text-slate-700 border-slate-200'
+                              'bg-transparent text-slate-700 border-slate-200'
                             }`}>
                               {u.status === 'approved' ? <CheckCircle2 className="w-3.5 h-3.5" /> : u.status === 'rejected' ? <XCircle className="w-3.5 h-3.5" /> : null}
                               {u.status}
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
                                 ? 'bg-red-50 text-red-700 border-red-200 focus:ring-red-500' 
                                 : u.role === 'instructor' 
                                 ? 'bg-purple-50 text-purple-700 border-purple-200 focus:ring-purple-500' 
-                                : 'bg-slate-50 text-slate-700 border-slate-200 focus:ring-slate-500'
+                                : 'bg-transparent text-slate-700 border-slate-200 focus:ring-slate-500'
                             } ${u._id === user?._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                             title={u._id === user?._id ? "Cannot change your own role" : "Change User Role"}
                           >
@@ -369,7 +369,7 @@ export default function AdminDashboard() {
                               <select 
                                 value={u.assignedInstructor?._id || u.assignedInstructor || ''}
                                 onChange={(e) => assignInstructor(u._id, e.target.value)}
-                                className="px-3 py-1.5 rounded-lg border text-sm font-semibold bg-slate-50 text-slate-700 border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer w-full max-w-[150px]"
+                                className="px-3 py-1.5 rounded-lg border text-sm font-semibold bg-transparent text-slate-700 border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer w-full max-w-[150px]"
                               >
                                 <option value="" disabled>Select Inst...</option>
                                 {usersList.filter(user => user.role === 'instructor').map(inst => (
@@ -401,7 +401,7 @@ export default function AdminDashboard() {
             </div>
 
             {pendingCourses.length === 0 ? (
-               <div className="bg-white p-12 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
+               <div className="glass-card p-12 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
                  <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-4">
                    <CheckCircle2 className="w-10 h-10" />
                  </div>
@@ -411,7 +411,7 @@ export default function AdminDashboard() {
             ) : (
                 <div className="grid grid-cols-1 gap-6">
                   {pendingCourses.map(c => (
-                    <div key={c._id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row group">
+                    <div key={c._id} className="glass-card rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row group">
                       
                       <div className="w-full md:w-64 h-48 md:h-auto shrink-0 relative bg-slate-100">
                         <img 
@@ -419,7 +419,7 @@ export default function AdminDashboard() {
                           alt={c.title} 
                           className="w-full h-full object-cover" 
                         />
-                        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-bold text-slate-700 uppercase tracking-wider shadow-sm">
+                        <div className="absolute top-3 left-3 glass-card/90 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-bold text-slate-700 uppercase tracking-wider shadow-sm">
                           {c.category}
                         </div>
                       </div>
@@ -451,7 +451,7 @@ export default function AdminDashboard() {
                            </button>
                            <button 
                             onClick={() => updateCourseStatus(c._id, 'rejected')} 
-                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-white text-red-600 font-semibold rounded-xl border border-red-200 hover:bg-red-50 hover:-translate-y-0.5 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 glass-card text-red-600 font-semibold rounded-xl border border-red-200 hover:bg-red-50 hover:-translate-y-0.5 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                            >
                              <XCircle className="w-5 h-5" /> Reject
                            </button>
@@ -467,7 +467,7 @@ export default function AdminDashboard() {
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">System Logs</h2>
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <div className="flex justify-between items-center mb-6">
                   <span className="font-semibold text-slate-700 flex items-center gap-2"><Activity className="w-5 h-5" /> All Platform Activity</span>
                   <button className="text-sm text-blue-600 hover:text-blue-800 font-semibold px-3 py-1.5 bg-blue-50 rounded-lg transition-colors">Export CSV</button>
@@ -481,7 +481,7 @@ export default function AdminDashboard() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl">
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-6">Administrator Settings</h2>
             
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="glass-card p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 pb-8 border-b border-slate-100 text-center sm:text-left">
                 <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center text-red-500 border-4 border-white shadow-md shrink-0">
                   <ShieldAlert className="w-10 h-10" />
@@ -541,7 +541,7 @@ export default function AdminDashboard() {
   `;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-transparent flex flex-col md:flex-row">
       {/* Sidebar Layout */}
       <aside className="w-full md:w-72 bg-slate-900 text-white shrink-0 flex flex-col md:h-screen">
         <div className="p-6 border-b border-slate-800">

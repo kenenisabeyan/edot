@@ -112,7 +112,7 @@ export default function Lesson() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center bg-slate-50">
+      <div className="min-h-screen flex justify-center items-center bg-transparent">
         <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
       </div>
     );
@@ -120,7 +120,7 @@ export default function Lesson() {
 
   if (error || !lesson || !course) {
     return (
-      <div className="min-h-[60vh] flex justify-center items-center p-4 bg-slate-50">
+      <div className="min-h-[60vh] flex justify-center items-center p-4 bg-transparent">
         <div className="bg-red-50 text-red-700 p-6 rounded-xl border border-red-100 max-w-md w-full text-center">
           <p className="font-medium text-lg mb-4">
             {error || 'The lesson you are looking for is currently unavailable.'}
@@ -134,10 +134,10 @@ export default function Lesson() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-slate-50">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-transparent">
 
       {/* Sidebar */}
-      <div className="w-full lg:w-80 bg-white border-r border-slate-200 lg:h-[calc(100vh-80px)] lg:sticky lg:top-20 flex flex-col shadow-sm">
+      <div className="w-full lg:w-80 glass-card border-r border-slate-200 lg:h-[calc(100vh-80px)] lg:sticky lg:top-20 flex flex-col shadow-sm">
 
         <div className="p-6 border-b bg-slate-900 text-white">
           <Link to={`/course/${course._id}`} className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-3">
@@ -167,7 +167,7 @@ export default function Lesson() {
                 key={l._id}
                 to={`/lesson/${l._id}?courseId=${course._id}`}
                 className={`flex px-6 py-4 border-l-4 ${
-                  isCurrent ? 'border-blue-600 bg-blue-50' : 'border-transparent hover:bg-slate-50'
+                  isCurrent ? 'border-blue-600 bg-blue-50' : 'border-transparent hover:bg-transparent'
                 }`}
               >
                 <div className="mr-3">
@@ -269,7 +269,7 @@ export default function Lesson() {
 
             {/* Quiz Section */}
             {lesson.quiz && lesson.quiz.length > 0 && (
-              <div className="bg-white rounded-xl p-6 border border-slate-200 mb-8 shadow-sm">
+              <div className="glass-card rounded-xl p-6 border border-slate-200 mb-8 shadow-sm">
                 <h3 className="text-lg font-bold text-slate-900 mb-4">Lesson Quiz Assessment</h3>
                 {lesson.quiz.map((q, qIndex) => (
                   <div key={qIndex} className="mb-6 last:mb-0">
@@ -287,7 +287,7 @@ export default function Lesson() {
                               showCorrect ? 'bg-emerald-50 border-emerald-500' :
                               showWrong ? 'bg-red-50 border-red-500' :
                               isSelected ? 'bg-indigo-50 border-indigo-500' :
-                              'hover:bg-slate-50 border-slate-200'
+                              'hover:bg-transparent border-slate-200'
                             }`}>
                               <input 
                                 type="radio" 

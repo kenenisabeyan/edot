@@ -61,7 +61,7 @@ export default function About() {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card">
 
       {/* HERO */}
       <section className="py-24 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white">
@@ -79,7 +79,7 @@ export default function About() {
       </section>
 
       {/* STATS */}
-      <section className="py-20 bg-gray-50 text-center">
+      <section className="py-20 bg-transparent text-center">
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           <div>
             <h3 className="text-4xl font-bold text-blue-600">{counts.students}+</h3>
@@ -101,7 +101,7 @@ export default function About() {
         <h2 className="text-3xl font-bold text-center mb-10">Meet Our Team</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-4">
           {team.map((member, i) => (
-            <motion.div key={i} whileHover={{ y: -5 }} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-center flex flex-col h-full">
+            <motion.div key={i} whileHover={{ y: -5 }} className="glass-card p-6 rounded-2xl shadow-sm border border-slate-100 text-center flex flex-col h-full">
               <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-blue-50 shadow-md">
                 <img src={member.img} alt={member.name} className="w-full h-full object-cover" />
               </div>
@@ -114,11 +114,11 @@ export default function About() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-transparent">
         <h2 className="text-3xl font-bold text-center mb-10">What Our Students Say</h2>
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {testimonials.map((t, i) => (
-            <motion.div key={i} whileHover={{ y: -5 }} className="bg-white p-6 rounded-xl shadow">
+            <motion.div key={i} whileHover={{ y: -5 }} className="glass-card p-6 rounded-xl shadow">
               <div className="flex mb-2">
                 {[...Array(5)].map((_, i) => <Star key={i} className="text-yellow-400 fill-yellow-400" size={16} />)}
               </div>
@@ -132,7 +132,7 @@ export default function About() {
       {/* CTA */}
       <section className="py-20 text-center bg-blue-600 text-white">
         <h2 className="text-3xl font-bold mb-4">Start Learning Today</h2>
-        <Link to="/register" className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-xl font-bold">
+        <Link to="/register" className="inline-flex items-center gap-2 glass-card text-blue-600 px-6 py-3 rounded-xl font-bold">
           Get Started <ArrowRight />
         </Link>
       </section>
