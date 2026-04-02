@@ -31,6 +31,55 @@ import UserAvatar from './UserAvatar';
 import CommandK from './CommandK';
 import edotLogo from '../assets/edot-logo.jpg';
 
+function NavItem({ item, metrics, role, sidebarCollapsed, onLinkClick }) {
+  let badgeCount = 0;
+  let badgeColor = 'bg-blue-500 text-white';
+
+  if (item.path.includes('/messages')) {
+    badgeCount = metrics.unreadMessages;
+  } else if (item.path.includes('/dashboard/users') && role === 'admin') {
+    badgeCount = metrics.pendingUsers;
+    badgeColor = 'bg-rose-500 text-white';
+  } else if (item.path.includes('/approvals')) {
+    badgeCount = metrics.pendingApprovals;
+    badgeColor = 'bg-amber-500 text-white';
+  } else if (item.path.includes('/my-courses')) {
+    badgeCount = metrics.pendingCourses;
+    badgeColor = 'bg-amber-500 text-white';
+  } else if (item.path.includes('/certificates')) {
+    badgeCount = metrics.newCertificates;
+    badgeColor = 'bg-emerald-500 text-white';
+  }
+
+  return (
+    <NavLink
+      to={item.path}
+      end={item.exact}
+      onClick={() => onLinkClick(false)}
+      className={({ isActive }) =>
+        `group relative flex items-center justify-between px-4 py-3 xl:py-3.5 rounded-2xl transition-all duration-300 font-medium ${
+          isActive
+            ? (role === 'admin' ? 'bg-[#FACC15]/10 border border-[#FACC15]/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] text-[#FACC15]' : 'bg-[#1e293b]/80 border border-[#4ade80]/20 shadow-[0_0_15px_rgba(74,222,128,0.05)] text-[#d9f99d]')
+            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-[#151e2b]/50 dark:hover:text-white'
+        }`
+      }
+    >
+      <div className="flex items-center gap-3">
+        <item.icon className="w-5 h-5 shrink-0 transition-transform group-hover:scale-110 duration-300" />
+        {!sidebarCollapsed && <span className="animate-in fade-in slide-in-from-left-2 duration-300">{item.name}</span>}
+      </div>
+      {badgeCount > 0 && !sidebarCollapsed && (
+        <span className={`${badgeColor} text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 shadow-sm animate-in zoom-in duration-300`}>
+          {badgeCount > 99 ? '99+' : badgeCount}
+        </span>
+      )}
+      {badgeCount > 0 && sidebarCollapsed && (
+        <span className={`absolute top-2 right-2 w-2 h-2 rounded-full ${badgeColor}`}></span>
+      )}
+    </NavLink>
+  );
+}
+
 export default function EDOTLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -39,7 +88,6 @@ export default function EDOTLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const profileDropdownRef = useRef(null);
   const quickActionsRef = useRef(null);
   
@@ -187,57 +235,9 @@ export default function EDOTLayout() {
 
   // themeClass logic removed, handled globally
 
-  const NavItem = ({ item }) => {
-    let badgeCount = 0;
-    let badgeColor = 'bg-blue-500 text-white';
-
-    if (item.path.includes('/messages')) {
-      badgeCount = metrics.unreadMessages;
-    } else if (item.path.includes('/dashboard/users') && user?.role === 'admin') {
-      badgeCount = metrics.pendingUsers;
-      badgeColor = 'bg-rose-500 text-white';
-    } else if (item.path.includes('/approvals')) {
-      badgeCount = metrics.pendingApprovals;
-      badgeColor = 'bg-amber-500 text-white';
-    } else if (item.path.includes('/my-courses')) {
-      badgeCount = metrics.pendingCourses;
-      badgeColor = 'bg-amber-500 text-white';
-    } else if (item.path.includes('/certificates')) {
-      badgeCount = metrics.newCertificates;
-      badgeColor = 'bg-emerald-500 text-white';
-    }
-
-    return (
-      <NavLink
-        to={item.path}
-        end={item.exact}
-        onClick={() => setMobileMenuOpen(false)}
-        className={({ isActive }) =>
-          `group relative flex items-center justify-between px-4 py-3 xl:py-3.5 rounded-2xl transition-all duration-300 font-medium ${
-            isActive
-              ? (role === 'admin' ? 'bg-[#FACC15]/10 border border-[#FACC15]/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] text-[#FACC15]' : 'bg-[#1e293b]/80 border border-[#4ade80]/20 shadow-[0_0_15px_rgba(74,222,128,0.05)] text-[#d9f99d]')
-              : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-[#151e2b]/50 dark:hover:text-white'
-          }`
-        }
-      >
-        <div className="flex items-center gap-3">
-          <item.icon className="w-5 h-5 shrink-0 transition-transform group-hover:scale-110 duration-300" />
-          {!sidebarCollapsed && <span className="animate-in fade-in slide-in-from-left-2 duration-300">{item.name}</span>}
-        </div>
-        {badgeCount > 0 && !sidebarCollapsed && (
-          <span className={`${badgeColor} text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 shadow-sm animate-in zoom-in duration-300`}>
-            {badgeCount > 99 ? '99+' : badgeCount}
-          </span>
-        )}
-        {badgeCount > 0 && sidebarCollapsed && (
-          <span className={`absolute top-2 right-2 w-2 h-2 rounded-full ${badgeColor}`}></span>
-        )}
-      </NavLink>
-    );
-  };
-
   return (
-    <div className={`h-screen w-full flex flex-col md:flex-row transition-colors duration-300 relative overflow-hidden dark bg-[#0B0E14] text-slate-100`}>
+    <div style={{ backgroundColor: 'var(--bg-base)' }} className={`h-screen w-full flex flex-col md:flex-row transition-colors duration-300 relative overflow-hidden text-slate-100`}>
+      <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(0,138,50,0.30), transparent 35%), radial-gradient(circle at 80% 15%, rgba(255,215,0,0.20), transparent 40%), radial-gradient(circle at 50% 75%, rgba(227,10,23,0.10), transparent 45%), linear-gradient(180deg, rgba(11,14,20,1), rgba(11,14,20,0.95), rgba(11,14,20,1))', backgroundBlendMode: 'screen, screen, screen, normal' }} />
       <CommandK />
       {/* Animated Background Mesh */}
       
@@ -253,7 +253,7 @@ export default function EDOTLayout() {
       </div>
 
       {/* Sidebar */}
-      <aside className={`dashboard-sidebar tilet-border-sidebar shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed md:sticky top-0 left-0 h-screen bg-slate-900/40 border-r border-[#ffffff0c] backdrop-blur-xl
+      <aside className={`dashboard-sidebar tilet-border-sidebar shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed md:sticky top-0 left-0 h-screen
         ${mobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0'}
         ${sidebarCollapsed ? 'md:w-[88px]' : 'w-64'}
       `}>
@@ -280,7 +280,7 @@ export default function EDOTLayout() {
              {!sidebarCollapsed && <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-4">MAIN</p>}
              <nav className="space-y-1.5">
                {navItemsMenu1.map(item => (
-                 <NavItem key={item.name} item={item} />
+                 <NavItem key={item.name} item={item} metrics={metrics} role={role} sidebarCollapsed={sidebarCollapsed} onLinkClick={setMobileMenuOpen} />
                ))}
                
                {/* Finance Accordion */}
@@ -316,7 +316,7 @@ export default function EDOTLayout() {
              {!sidebarCollapsed && <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-4">MANAGEMENT</p>}
              <nav className="space-y-1.5">
                {navItemsMenu2.map(item => (
-                 <NavItem key={item.name} item={item} />
+                 <NavItem key={item.name} item={item} metrics={metrics} role={role} sidebarCollapsed={sidebarCollapsed} onLinkClick={setMobileMenuOpen} />
                ))}
              </nav>
            </div>
@@ -325,8 +325,8 @@ export default function EDOTLayout() {
            <div>
              {!sidebarCollapsed && <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-4">SETTINGS</p>}
              <nav className="space-y-1.5">
-               <NavItem item={{ name: 'Profile', icon: User, path: '/dashboard/profile' }} />
-               <NavItem item={{ name: 'Setting', icon: Settings, path: '/dashboard/settings' }} />
+               <NavItem item={{ name: 'Profile', icon: User, path: '/dashboard/profile' }} metrics={metrics} role={role} sidebarCollapsed={sidebarCollapsed} onLinkClick={setMobileMenuOpen} />
+               <NavItem item={{ name: 'Setting', icon: Settings, path: '/dashboard/settings' }} metrics={metrics} role={role} sidebarCollapsed={sidebarCollapsed} onLinkClick={setMobileMenuOpen} />
              </nav>
            </div>
         </div>
@@ -466,8 +466,8 @@ export default function EDOTLayout() {
         </header>
 
         {/* Page Content */}
-         <div className={`flex-1 p-4 md:p-8 overflow-y-auto overflow-x-hidden mb-16 md:mb-0 relative text-white transition-colors duration-300`}>
-           {/* Legacy mesh backgrounds removed. The mesh gradient is now defined solely in the Welcome banner per Master Specifications */}
+         <div className={`flex-1 p-4 md:p-8 overflow-y-auto overflow-x-hidden mb-16 md:mb-0 relative z-10 text-white transition-colors duration-300`}>
+           {/* Legacy mesh backgrounds removed. Global mesh background is now configured on the layout container. */}
            
            <Outlet />
         </div>

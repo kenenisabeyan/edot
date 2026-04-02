@@ -254,6 +254,29 @@ export default function EDOTDashboard() {
           {headerConfig.subtitle && (
             <p className="text-slate-300 text-lg font-medium">{headerConfig.subtitle}</p>
           )}
+
+          <div className="mt-5">
+            {userRole === 'admin' && (
+              <button className="px-4 py-2 rounded-lg border border-[#FFD700] text-[#FFD700] font-semibold hover:bg-[#FFD700]/20 shadow-glow-yellow">
+                + Quick Action
+              </button>
+            )}
+            {userRole === 'instructor' && (
+              <button className="px-4 py-2 rounded-lg border border-[#008A32] text-[#008A32] font-semibold hover:bg-[#008A32]/20 shadow-glow-green">
+                + Create New Course
+              </button>
+            )}
+            {userRole === 'student' && (
+              <button className="px-4 py-2 rounded-lg border border-[#FFD700] text-[#0f172a] font-semibold hover:bg-[#FFD700]/20 shadow-glow-yellow">
+                + Start a Lesson
+              </button>
+            )}
+            {userRole === 'parent' && (
+              <button className="px-4 py-2 rounded-lg border border-[#FFD700] text-[#FFD700] font-semibold hover:bg-[#FFD700]/20 shadow-glow-yellow">
+                ✉️ Message Instructor
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
