@@ -111,8 +111,8 @@ export default function LibraryView() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Digital Library</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Explore books, research papers, and documents.</p>
+          <h1 className="text-2xl font-display font-bold text-white">Digital Library</h1>
+          <p className="text-slate-300 text-sm mt-1">Explore books, research papers, and documents.</p>
         </div>
         <div className="flex items-center gap-4 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
@@ -122,13 +122,13 @@ export default function LibraryView() {
               placeholder="Search resources..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 glass-card dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
+              className="w-full pl-10 pr-4 py-2 border border-white/10 bg-[#0B0E14] text-white rounded-xl outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all font-medium"
             />
           </div>
           {canUpload && !showUploadForm && (
             <button 
               onClick={() => setShowUploadForm(true)}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm shrink-0"
+              className="flex items-center gap-2 bg-gradient-to-r from-[#008A32] to-[#006622] hover:shadow-lg hover:shadow-[#008A32]/20 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm shrink-0"
             >
               <Plus className="w-5 h-5" /> Upload File
             </button>
@@ -138,12 +138,12 @@ export default function LibraryView() {
 
       {/* Upload Form Engine */}
       {showUploadForm && (
-        <div className="glass-card dark:bg-slate-900 rounded-3xl border border-indigo-100 dark:border-slate-800 p-6 shadow-sm relative overflow-hidden">
+        <div className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-6 shadow-sm relative overflow-hidden">
           <div className="flex justify-between items-center mb-6">
-             <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                 <FileText className="w-5 h-5 text-indigo-500" /> Upload New Resource
+             <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                 <FileText className="w-5 h-5 text-[#E30A17]" /> Upload New Resource
              </h2>
-             <button onClick={() => setShowUploadForm(false)} className="text-slate-400 hover:text-slate-600 font-medium text-sm">Cancel</button>
+             <button onClick={() => setShowUploadForm(false)} className="text-slate-400 hover:text-white font-medium text-sm">Cancel</button>
           </div>
           
           {uploadError && (
@@ -155,26 +155,26 @@ export default function LibraryView() {
           <form onSubmit={handleUploadSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-1 md:col-span-1">
-                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Document Title</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Document Title</label>
                     <input 
                       type="text" required placeholder="Advanced Mathematics Vol 2"
                       value={uploadData.title} onChange={(e) => setUploadData({ ...uploadData, title: e.target.value })}
-                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                      className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] font-semibold placeholder-slate-500"
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Author / Publisher</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Author / Publisher</label>
                     <input 
                       type="text" required placeholder="John Doe"
                       value={uploadData.author} onChange={(e) => setUploadData({ ...uploadData, author: e.target.value })}
-                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                      className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] font-semibold placeholder-slate-500"
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Category</label>
                     <select 
                       value={uploadData.category} onChange={(e) => setUploadData({ ...uploadData, category: e.target.value })}
-                      className="w-full bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-semibold cursor-pointer"
+                      className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] font-semibold cursor-pointer"
                     >
                       <option value="General">General Education</option>
                       <option value="Science">Science & Technology</option>
@@ -188,8 +188,8 @@ export default function LibraryView() {
             </div>
 
             <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">File Attachment</label>
-                <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 bg-transparent/50 dark:bg-slate-800/50 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/10 transition-colors group cursor-pointer">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">File Attachment</label>
+                <div className="relative border-2 border-dashed border-white/10 rounded-2xl p-6 bg-[#0B0E14]/50 hover:bg-white/5 transition-colors group cursor-pointer">
                     <input 
                       type="file" 
                       required
@@ -198,14 +198,14 @@ export default function LibraryView() {
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                     />
                     <div className="flex flex-col items-center justify-center text-center space-y-2">
-                       <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                       <div className="w-12 h-12 rounded-full bg-white/5 text-[#E30A17] flex items-center justify-center group-hover:scale-110 transition-transform">
                           <Download className="w-6 h-6" />
                        </div>
                        <div>
                          {uploadData.file ? (
-                            <p className="font-bold text-indigo-600 dark:text-indigo-400">{uploadData.file.name}</p>
+                            <p className="font-bold text-[#FFD700]">{uploadData.file.name}</p>
                          ) : (
-                            <p className="font-semibold text-slate-600 dark:text-slate-300">Drag & Drop your file here, or click to browse</p>
+                            <p className="font-semibold text-slate-300">Drag & Drop your file here, or click to browse</p>
                          )}
                          <p className="text-xs text-slate-400 mt-1">Supports PDF, DOCX, PPTX (Max 10MB)</p>
                        </div>
@@ -217,7 +217,7 @@ export default function LibraryView() {
                 <button 
                   type="submit" 
                   disabled={submitting}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all w-full sm:w-auto disabled:opacity-70"
+                  className="bg-gradient-to-r from-[#008A32] to-[#006622] hover:shadow-[#008A32]/20 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all w-full sm:w-auto disabled:opacity-70"
                 >
                   {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Plus className="w-5 h-5" /> Save to Library</>}
                 </button>
@@ -228,12 +228,12 @@ export default function LibraryView() {
 
       {/* Empty State vs Grid */}
       {filteredResources.length === 0 && !showUploadForm ? (
-        <div className="glass-card dark:bg-slate-900 p-12 text-center rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center">
-           <div className="w-20 h-20 bg-transparent dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 border border-slate-100 dark:border-slate-700 rounded-full flex items-center justify-center mb-4">
+        <div className="p-12 text-center rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm flex flex-col items-center justify-center">
+           <div className="w-20 h-20 bg-white/5 text-slate-400 border border-white/10 rounded-full flex items-center justify-center mb-4">
              <BookOpen className="w-10 h-10" />
            </div>
-           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No resources found</h3>
-           <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-6">The library is empty or no files match your search criteria. Check back later!</p>
+           <h3 className="text-xl font-bold text-white mb-2">No resources found</h3>
+           <p className="text-slate-400 max-w-sm mb-6">The library is empty or no files match your search criteria. Check back later!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -241,44 +241,44 @@ export default function LibraryView() {
             const isOwner = resource.uploadedBy === user?._id || user?.role === 'admin';
             
             return (
-              <div key={resource._id} className="glass-card dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative">
+              <div key={resource._id} className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative">
                 
                 {/* Delete Button overlaid on hover */}
                 {isOwner && (
                   <button 
                     onClick={() => handleDelete(resource._id)}
                     title="Delete Resource"
-                    className="absolute top-3 right-3 glass-card/90 hover:bg-rose-50 text-rose-500 border border-transparent hover:border-rose-200 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm backdrop-blur"
+                    className="absolute top-3 right-3 bg-white/10 hover:bg-[#E30A17]/20 text-[#E30A17] border border-transparent hover:border-[#E30A17]/30 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm backdrop-blur"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 )}
 
-                <div className="h-40 bg-indigo-50/50 dark:bg-slate-800 flex items-center justify-center relative overflow-hidden group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-colors">
-                   <FileText className="w-16 h-16 text-indigo-300 dark:text-indigo-500/20 group-hover:scale-110 transition-transform duration-500" />
+                <div className="h-40 bg-[#0B0E14] flex items-center justify-center relative overflow-hidden group-hover:bg-[#FFD700]/5 transition-colors">
+                   <FileText className="w-16 h-16 text-[#FFD700]/20 group-hover:scale-110 transition-transform duration-500" />
                    
                    {/* File Type Badge decoration */}
-                   <div className="absolute bottom-3 left-3 glass-card/80 dark:bg-slate-900/80 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 shadow-sm border border-slate-100/50 dark:border-slate-700/50">
+                   <div className="absolute bottom-3 left-3 bg-[#008A32]/20 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-[#008A32] shadow-sm border border-[#008A32]/20">
                      {resource.fileUrl?.split('.').pop()?.toUpperCase() || 'FILE'}
                    </div>
                 </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-between glass-card dark:bg-slate-900">
+                <div className="p-5 flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex gap-2 items-center mb-2">
-                       <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-200/50 dark:border-indigo-500/20 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                       <span className="text-[10px] font-bold text-[#FFD700] bg-[#FFD700]/10 border border-[#FFD700]/20 px-2.5 py-1 rounded-md uppercase tracking-wider">
                          {resource.category || 'General'}
                        </span>
                     </div>
-                    <h3 className="font-bold text-lg text-slate-800 dark:text-white line-clamp-2 leading-tight mb-1" title={resource.title}>{resource.title}</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-4 line-clamp-1 border-b border-dashed border-slate-200 dark:border-slate-800 pb-3">By {resource.author}</p>
+                    <h3 className="font-bold text-lg text-white line-clamp-2 leading-tight mb-1" title={resource.title}>{resource.title}</h3>
+                    <p className="text-slate-400 text-sm font-medium mb-4 line-clamp-1 border-b border-dashed border-white/5 pb-3">By {resource.author}</p>
                   </div>
                   
                   <a 
                     href={`http://localhost:5000${resource.fileUrl}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-full flex justify-center items-center gap-2 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-transparent dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-bold hover:border-indigo-600 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:border-indigo-500 transition-all group/btn"
+                    className="w-full flex justify-center items-center gap-2 py-3 rounded-xl border border-white/10 bg-[#0B0E14]/50 text-slate-300 font-bold hover:border-[#FFD700] hover:text-[#FFD700] transition-all group/btn"
                   >
                     <Download className="w-4 h-4 group-hover/btn:translate-y-0.5 transition-transform" /> Access File
                   </a>

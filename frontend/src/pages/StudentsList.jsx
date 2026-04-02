@@ -66,31 +66,31 @@ export default function StudentsList() {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Student Management</h1>
-          <p className="text-sm text-slate-500">Approve registrations and assign instructors</p>
+          <h1 className="text-2xl font-display font-bold text-white">Student Management</h1>
+          <p className="text-sm text-slate-300">Approve registrations and assign instructors</p>
         </div>
       </div>
 
-      <div className="flex gap-4 border-b border-slate-200 dark:border-slate-800 pb-2">
+      <div className="flex gap-4 border-b border-white/5 pb-2">
         <button 
           onClick={() => setTab('pending')}
-          className={`px-4 py-2 font-bold text-sm rounded-t-lg transition ${tab === 'pending' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}
+          className={`px-4 py-2 font-bold text-sm rounded-t-lg transition ${tab === 'pending' ? 'text-[#FFD700] border-b-2 border-[#FFD700]' : 'text-slate-400 hover:text-white'}`}
         >
           Pending Approval ({students.filter(s => s.status === 'pending').length})
         </button>
         <button 
           onClick={() => setTab('approved')}
-          className={`px-4 py-2 font-bold text-sm rounded-t-lg transition ${tab === 'approved' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}
+          className={`px-4 py-2 font-bold text-sm rounded-t-lg transition ${tab === 'approved' ? 'text-[#008A32] border-b-2 border-[#008A32]' : 'text-slate-400 hover:text-white'}`}
         >
           Approved Students ({students.filter(s => s.status === 'approved' || !s.status).length})
         </button>
       </div>
 
-      <div className="glass-card dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-transparent dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-white/5 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <th className="p-4">Student</th>
                 <th className="p-4">Email</th>
                 <th className="p-4">Status</th>
@@ -98,30 +98,30 @@ export default function StudentsList() {
                 {tab === 'pending' && <th className="p-4">Actions</th>}
               </tr>
             </thead>
-            <tbody className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <tbody className="text-sm font-medium text-white">
               {filteredStudents.length === 0 ? (
                 <tr>
-                   <td colSpan="5" className="p-8 text-center text-slate-500 font-medium">No {tab} students found.</td>
+                   <td colSpan="5" className="p-8 text-center text-slate-400 font-medium">No {tab} students found.</td>
                 </tr>
               ) : filteredStudents.map(stu => (
-                <tr key={stu._id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-transparent dark:hover:bg-slate-800/50 transition">
-                  <td className="p-4 flex items-center gap-3">
+                <tr key={stu._id} className="border-b border-white/5 hover:bg-white/5 transition">
+                  <td className="p-4 flex items-center gap-3 font-semibold text-white">
                     <UserAvatar user={stu} className="w-10 h-10 text-sm" />
                     {stu.name}
                   </td>
-                  <td className="p-4 text-slate-500">{stu.email}</td>
+                  <td className="p-4 text-slate-400">{stu.email}</td>
                   <td className="p-4">
                      {stu.status === 'pending' ? (
-                        <span className="px-3 py-1 bg-amber-100 text-amber-700 font-bold rounded-full text-xs flex items-center gap-1 w-max"><ShieldAlert className="w-3 h-3"/> Pending</span>
+                        <span className="px-3 py-1 bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 font-bold rounded-full text-xs flex items-center gap-1 w-max"><ShieldAlert className="w-3 h-3"/> Pending</span>
                      ) : (
-                        <span className="px-3 py-1 bg-emerald-100 text-emerald-700 font-bold rounded-full text-xs flex items-center gap-1 w-max"><BadgeCheck className="w-3 h-3"/> Approved</span>
+                        <span className="px-3 py-1 bg-[#008A32]/10 text-[#008A32] border border-[#008A32]/20 font-bold rounded-full text-xs flex items-center gap-1 w-max"><BadgeCheck className="w-3 h-3"/> Approved</span>
                      )}
                   </td>
                   <td className="p-4">
                     {tab === 'approved' ? (
                       <div className="flex items-center gap-2">
                         <select 
-                           className="bg-transparent dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
+                           className="bg-[#0B0E14] border border-white/10 text-white text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#FFD700]"
                            value={stu.assignedInstructor?._id || ''}
                            onChange={(e) => handleAssign(stu._id, e.target.value)}
                         >
@@ -132,15 +132,15 @@ export default function StudentsList() {
                         </select>
                       </div>
                     ) : (
-                      <span className="text-slate-400 italic text-xs">Approve first to assign</span>
+                      <span className="text-slate-500 italic text-xs">Approve first to assign</span>
                     )}
                   </td>
                   {tab === 'pending' && (
                     <td className="p-4 flex gap-2">
-                      <button onClick={() => handleApprove(stu._id)} className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition" title="Approve">
+                      <button onClick={() => handleApprove(stu._id)} className="p-2 bg-[#008A32]/10 text-[#008A32] hover:bg-[#008A32]/20 border border-[#008A32]/20 rounded-lg transition" title="Approve">
                         <Check className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleReject(stu._id)} className="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Reject">
+                      <button onClick={() => handleReject(stu._id)} className="p-2 bg-[#E30A17]/10 text-[#E30A17] hover:bg-[#E30A17]/20 border border-[#E30A17]/20 rounded-lg transition" title="Reject">
                         <X className="w-4 h-4" />
                       </button>
                     </td>
