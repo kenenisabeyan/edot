@@ -19,7 +19,7 @@ router.get('/users', async (req, res) => {
             .lean();
         
         // Find courses to map to instructors natively
-        const allCourses = await Course.find().select('title instructor status isPublished');
+        const allCourses = await Course.find().select('title instructor status isPublished').lean();
         
         const enhancedUsers = users.map(user => {
             if (user.role === 'instructor') {
