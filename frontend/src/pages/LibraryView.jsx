@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
-import { BookOpen, Search, Download, Plus, Trash2, FileText, Loader2, AlertCircle } from 'lucide-react';
+import { BookOpen, Search, Download, Plus, Trash2, FileText, Loader2, AlertCircle, Globe, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import Markdown from 'markdown-to-jsx';
+import 'github-markdown-css';
 
 export default function LibraryView() {
   const { user } = useAuth();
@@ -11,9 +13,21 @@ export default function LibraryView() {
 
   // Upload Form State
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const [uploadData, setUploadData] = useState({ title: '', author: '', category: 'General', file: null });
+  const [uploadData, setUploadData] = useState({ title: '', author: '', category: 'General', file: null, container: 'download', download_permission: false, courseId: '' });
   const [submitting, setSubmitting] = useState(false);
   const [uploadError, setUploadError] = useState('');
+
+  // Three-container architecture
+  const [activeContainer, setActiveContainer] = useState('download'); // download, secure, wiki
+  const [secureResource, setSecureResource] = useState(null);
+  const [wikiMarkdown, setWikiMarkdown] = useState('');
+  const [wikiPreview, setWikiPreview] = useState('');
+  const [selectedWikiResource, setSelectedWikiResource] = useState(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewTarget, setReviewTarget] = useState(null);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewDecision, setReviewDecision] = useState('approved');
+  const [globalTasks, setGlobalTasks] = useState([]);
 
   const fetchResources = async () => {
     try {
@@ -35,6 +49,11 @@ export default function LibraryView() {
     if (e.target.files[0]) {
       setUploadData({ ...uploadData, file: e.target.files[0] });
     }
+  };
+
+  const handleWikiChange = (e) => {
+    setWikiMarkdown(e.target.value);
+    setWikiPreview(e.target.value);
   };
 
   const handleUploadSubmit = async (e) => {
@@ -62,7 +81,13 @@ export default function LibraryView() {
         title: uploadData.title,
         author: uploadData.author,
         category: uploadData.category,
-        fileUrl: fileUrl
+        container: uploadData.container || 'download',
+        courseId: uploadData.courseId || 'general',
+        fileUrl: fileUrl,
+        status: user?.role === 'admin' ? 'approved' : 'pending',
+        isLive: user?.role === 'admin',
+        download_permission: uploadData.download_permission,
+        wikiMarkdown: uploadData.container === 'wiki' ? wikiMarkdown : ''
       });
 
       // 3. Reset and Refresh
@@ -91,11 +116,92 @@ export default function LibraryView() {
 
   const canUpload = user?.role === 'admin' || user?.role === 'instructor';
 
-  const filteredResources = resources.filter(r => 
+  const pendingQueue = resources.filter((r) => r.status === 'pending');
+  const studentEnrolledCourses = user?.enrolledCourses || [];
+
+  const visibleResources = resources.filter((r) => {
+    if (user?.role === 'student') {
+      return r.status === 'approved' && studentEnrolledCourses.includes(r.courseId);
+    }
+    if (user?.role === 'parent') {
+      return true;
+    }
+    if (user?.role === 'instructor') {
+      return r.uploadedBy === user?._id || r.status === 'approved';
+    }
+    return true;
+  });
+
+  const filteredResources = visibleResources.filter(r => 
     r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     r.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const setRoleGlobalTasks = () => {
+    const tasks = [];
+    if (user?.role === 'admin') {
+      tasks.push({id:1, title:'Review pending uploads', status:'urgent'});
+      tasks.push({id:2, title:'Confirm new course creation approvals', status:'open'});
+    }
+    if (user?.role === 'instructor') {
+      tasks.push({id:3, title:'Submit content for review', status:'due soon'});
+      tasks.push({id:4, title:'Grade pending student quizzes', status:'open'});
+    }
+    if (user?.role === 'student') {
+      tasks.push({id:5, title:'Complete next module assignment', status:'upcoming'});
+      tasks.push({id:6, title:'Prepare for next quiz', status:'upcoming'});
+    }
+    if (user?.role === 'parent') {
+      tasks.push({id:7, title:'Review child progress report', status:'open'});
+      tasks.push({id:8, title:'Check schedule for next week', status:'open'});
+    }
+    setGlobalTasks(tasks);
+  };
+
+  useEffect(() => {
+    setRoleGlobalTasks();
+  }, [user]);
+
+  const handleSubmitForReview = async (resource) => {
+    const patchedResources = resources.map((r) => 
+      r._id === resource._id ? { ...r, status: 'pending', adminComments: '' } : r
+    );
+    setResources(patchedResources);
+    if (user?.role === 'instructor') {
+      // Inform user of pending status (no backend in this mock)
+      window.alert('Resource submitted to admin for review.');
+    }
+    setActiveContainer('download');
+  };
+
+  const openReviewModal = (resource) => {
+    setReviewTarget(resource);
+    setReviewComment(resource.adminComments || '');
+    setReviewModalOpen(true);
+    setReviewDecision('approved');
+  };
+
+  const handleReviewSubmit = () => {
+    if (!reviewTarget) return;
+    const updatedResources = resources.map((r) => {
+      if (r._id === reviewTarget._id) {
+        return {
+          ...r,
+          status: reviewDecision === 'approved' ? 'approved' : 'rejected',
+          adminComments: reviewComment,
+        };
+      }
+      return r;
+    });
+    setResources(updatedResources);
+    setReviewModalOpen(false);
+  };
+
+  const selectSecureResource = (resource) => {
+    setSecureResource(resource);
+  };
+
 
   if (loading && resources.length === 0) {
     return (
@@ -134,6 +240,19 @@ export default function LibraryView() {
             </button>
           )}
         </div>
+      </div>
+
+      {/* Three-Container Navigation */}
+      <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-2">
+        {['download', 'secure', 'wiki'].map((key) => (
+          <button
+            key={key}
+            onClick={() => setActiveContainer(key)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${activeContainer === key ? 'bg-cyan-500 text-white' : 'text-slate-300 hover:bg-white/10'}`}
+          >
+            {key === 'download' ? 'Download Vault' : key === 'secure' ? 'Secure Viewer' : 'EDOT Wiki'}
+          </button>
+        ))}
       </div>
 
       {/* Upload Form Engine */}
@@ -226,68 +345,179 @@ export default function LibraryView() {
         </div>
       )}
 
-      {/* Empty State vs Grid */}
-      {filteredResources.length === 0 && !showUploadForm ? (
-        <div className="p-12 text-center rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm flex flex-col items-center justify-center">
-           <div className="w-20 h-20 bg-white/5 text-slate-400 border border-white/10 rounded-full flex items-center justify-center mb-4">
-             <BookOpen className="w-10 h-10" />
-           </div>
-           <h3 className="text-xl font-bold text-white mb-2">No resources found</h3>
-           <p className="text-slate-400 max-w-sm mb-6">The library is empty or no files match your search criteria. Check back later!</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredResources.map((resource) => {
-            const isOwner = resource.uploadedBy === user?._id || user?.role === 'admin';
-            
-            return (
-              <div key={resource._id} className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative">
-                
-                {/* Delete Button overlaid on hover */}
-                {isOwner && (
-                  <button 
-                    onClick={() => handleDelete(resource._id)}
-                    title="Delete Resource"
-                    className="absolute top-3 right-3 bg-white/10 hover:bg-[#E30A17]/20 text-[#E30A17] border border-transparent hover:border-[#E30A17]/30 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm backdrop-blur"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-
-                <div className="h-40 bg-[#0B0E14] flex items-center justify-center relative overflow-hidden group-hover:bg-[#FFD700]/5 transition-colors">
-                   <FileText className="w-16 h-16 text-[#FFD700]/20 group-hover:scale-110 transition-transform duration-500" />
-                   
-                   {/* File Type Badge decoration */}
-                   <div className="absolute bottom-3 left-3 bg-[#008A32]/20 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-[#008A32] shadow-sm border border-[#008A32]/20">
-                     {resource.fileUrl?.split('.').pop()?.toUpperCase() || 'FILE'}
-                   </div>
-                </div>
-
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex gap-2 items-center mb-2">
-                       <span className="text-[10px] font-bold text-[#FFD700] bg-[#FFD700]/10 border border-[#FFD700]/20 px-2.5 py-1 rounded-md uppercase tracking-wider">
-                         {resource.category || 'General'}
-                       </span>
-                    </div>
-                    <h3 className="font-bold text-lg text-white line-clamp-2 leading-tight mb-1" title={resource.title}>{resource.title}</h3>
-                    <p className="text-slate-400 text-sm font-medium mb-4 line-clamp-1 border-b border-dashed border-white/5 pb-3">By {resource.author}</p>
-                  </div>
-                  
-                  <a 
-                    href={`http://localhost:5000${resource.fileUrl}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="w-full flex justify-center items-center gap-2 py-3 rounded-xl border border-white/10 bg-[#0B0E14]/50 text-slate-300 font-bold hover:border-[#FFD700] hover:text-[#FFD700] transition-all group/btn"
-                  >
-                    <Download className="w-4 h-4 group-hover/btn:translate-y-0.5 transition-transform" /> Access File
-                  </a>
-                </div>
+      {/* Container Display */}
+      {activeContainer === 'download' && (
+        <>
+          {filteredResources.length === 0 && !showUploadForm ? (
+            <div className="p-12 text-center rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm flex flex-col items-center justify-center">
+              <div className="w-20 h-20 bg-white/5 text-slate-400 border border-white/10 rounded-full flex items-center justify-center mb-4">
+                <BookOpen className="w-10 h-10" />
               </div>
-            );
-          })}
+              <h3 className="text-xl font-bold text-white mb-2">No downloadable resources found</h3>
+              <p className="text-slate-400 max-w-sm mb-6">No downloads available for your role or access level currently.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredResources.map((resource) => {
+                const isOwner = resource.uploadedBy === user?._id || user?.role === 'admin';
+                const canDownload = user?.role !== 'student' || resource.permission === 'granted';
+                return (
+                  <div key={resource._id} className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative">
+                    {isOwner && (
+                      <button
+                        onClick={() => handleDelete(resource._id)}
+                        title="Delete Resource"
+                        className="absolute top-3 right-3 bg-white/10 hover:bg-[#E30A17]/20 text-[#E30A17] border border-transparent hover:border-[#E30A17]/30 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm backdrop-blur"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+
+                    <div className="h-40 bg-[#0B0E14] flex items-center justify-center relative overflow-hidden group-hover:bg-[#FFD700]/5 transition-colors">
+                      <FileText className="w-16 h-16 text-[#FFD700]/20 group-hover:scale-110 transition-transform duration-500" />
+                      <div className="absolute bottom-3 left-3 bg-[#008A32]/20 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-[#008A32] shadow-sm border border-[#008A32]/20">
+                        {resource.fileUrl?.split('.').pop()?.toUpperCase() || 'FILE'}
+                      </div>
+                    </div>
+
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex gap-2 items-center mb-2">
+                          <span className="text-[10px] font-bold text-[#FFD700] bg-[#FFD700]/10 border border-[#FFD700]/20 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                            {resource.category || 'General'}
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-lg text-white line-clamp-2 leading-tight mb-1" title={resource.title}>{resource.title}</h3>
+                        <p className="text-slate-400 text-sm font-medium mb-4 line-clamp-1 border-b border-dashed border-white/5 pb-3">By {resource.author}</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        {canDownload ? (
+                          <a
+                            href={resource.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-center py-2 rounded-xl bg-[#008A32] text-white font-bold hover:bg-[#006622] transition-all"
+                          >
+                            <Download className="w-4 h-4 inline-block mr-2" /> Download
+                          </a>
+                        ) : (
+                          <button className="w-full py-2 rounded-xl bg-[#FFD700] text-black font-bold">Enroll or Request Access</button>
+                        )}
+                        {user?.role === 'instructor' && resource.uploadedBy === user?._id && resource.status === 'draft' && (
+                          <button onClick={() => handleSubmitForReview(resource)} className="w-full py-2 rounded-xl bg-[#008A32]/90 text-white font-bold">Submit for Review</button>
+                        )}
+                        {user?.role === 'admin' && resource.status === 'pending' && (
+                          <button onClick={() => openReviewModal(resource)} className="w-full py-2 rounded-xl bg-[#E30A17] text-white font-bold">Review</button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {activeContainer === 'secure' && (
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4">
+          <div className="rounded-3xl border border-white/10 p-4 bg-white/5">
+            <h2 className="text-lg font-bold text-white mb-3">Secure Viewer Resources</h2>
+            {filteredResources.length === 0 ? (
+              <p className="text-slate-400">No secure documents for your account.</p>
+            ) : (
+              <div className="space-y-2">
+                {filteredResources.map((resource) => (
+                  <button
+                    key={resource._id}
+                    onClick={() => selectSecureResource(resource)}
+                    className={`w-full text-left px-3 py-2 rounded-lg ${secureResource?._id === resource._id ? 'bg-cyan-500 text-white' : 'bg-white/10 text-slate-100 hover:bg-white/20'}`}>
+                    {resource.title}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="rounded-3xl border border-white/10 p-4 bg-white/5" onContextMenu={(e) => user?.role === 'student' && e.preventDefault()}>
+            <h2 className="text-lg font-bold text-white mb-3">Secure Document Reader</h2>
+            {secureResource ? (
+              <iframe
+                src={secureResource.fileUrl}
+                title={secureResource.title}
+                className="w-full h-96 border border-white/10 rounded-lg"
+                sandbox="allow-same-origin allow-scripts"
+              />
+            ) : (
+              <p className="text-slate-400">Select a resource from the list to preview in the secure reader.</p>
+            )}
+            <p className="text-xs text-slate-500 mt-2">Right-click is blocked in this viewer for students.</p>
+          </div>
         </div>
       )}
+
+      {activeContainer === 'wiki' && (
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-4">
+          <aside className="rounded-3xl border border-white/10 p-4 bg-white/5">
+            <h2 className="text-white font-bold mb-3">EDOT Wiki Navigation</h2>
+            <ul className="text-slate-200 space-y-2 text-sm">
+              <li><a className="hover:text-cyan-300" href="#overview">Overview</a></li>
+              <li><a className="hover:text-cyan-300" href="#workflows">Workflows</a></li>
+              <li><a className="hover:text-cyan-300" href="#roles">Role Permissions</a></li>
+              <li><a className="hover:text-cyan-300" href="#submission">Submission Rules</a></li>
+            </ul>
+          </aside>
+          <section className="rounded-3xl border border-white/10 p-4 bg-white/5 space-y-4 text-slate-200">
+            <article id="overview"><h3 className="text-lg font-semibold text-white">Overview</h3><p>The EDOT Library is a multi-container resource hub: </p></article>
+            <article id="workflows"><h3 className="text-lg font-semibold text-white">Workflows</h3><p>Instructors create and submit content, Admin reviews, Students consume with access gating.</p></article>
+            <article id="roles"><h3 className="text-lg font-semibold text-white">Role Permissions</h3><p>Admin: full CRUD, Instructor: own CRUD + submit; Student: read/download if permitted; Parent: summary-only.</p></article>
+            <article id="submission"><h3 className="text-lg font-semibold text-white">Submission</h3><p>New materials are staged as Draft/Pending. Admin can Approve or Request Corrections.</p></article>
+          </section>
+        </div>
+      )}
+
+      {/* Pending Queue for Admin only */}
+      {user?.role === 'admin' && (
+        <div className="rounded-3xl border border-white/10 p-4 bg-white/5 mt-4">
+          <h3 className="text-white font-bold mb-3">Pending Approval Queue</h3>
+          {pendingQueue.length === 0 ? (
+            <p className="text-slate-400">No items are pending approval.</p>
+          ) : pendingQueue.map((item) => (
+            <div key={item._id} className="mb-2 p-3 border border-white/10 rounded-xl bg-[#0B0E14]/80">
+              <div className="flex justify-between items-center">
+                <p className="text-white font-semibold">{item.title}</p>
+                <button onClick={() => openReviewModal(item)} className="px-2 py-1 text-xs rounded-lg bg-[#E30A17] text-white">Review</button>
+              </div>
+              <p className="text-xs text-slate-300">Uploaded by {item.author} | Category: {item.category}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {reviewModalOpen && reviewTarget && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="w-full max-w-xl bg-[#0B0E14] border border-white/10 rounded-3xl p-6">
+            <h4 className="text-xl font-bold text-white mb-3">Review & Comment</h4>
+            <p className="text-sm text-slate-300 mb-2">Resource: {reviewTarget.title}</p>
+            <textarea
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              className="w-full h-28 p-3 rounded-xl bg-[#0B0E14] border border-white/10 text-white outline-none mb-3"
+              placeholder="Leave feedback or request corrections..."
+            />
+            <div className="flex gap-2 mb-4">
+              <button onClick={() => setReviewDecision('approved')} className={`px-3 py-2 rounded-lg text-sm ${reviewDecision === 'approved' ? 'bg-[#008A32] text-white' : 'bg-white/10 text-white'}`}>Approve</button>
+              <button onClick={() => setReviewDecision('rejected')} className={`px-3 py-2 rounded-lg text-sm ${reviewDecision === 'rejected' ? 'bg-[#E30A17] text-white' : 'bg-white/10 text-white'}`}>Reject</button>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setReviewModalOpen(false)} className="px-4 py-2 rounded-lg bg-white/10 text-white">Cancel</button>
+              <button onClick={handleReviewSubmit} className="px-4 py-2 rounded-lg bg-cyan-500 text-white">Submit</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+
