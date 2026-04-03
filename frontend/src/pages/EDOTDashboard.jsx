@@ -49,11 +49,11 @@ export default function EDOTDashboard() {
   const SmartCard = ({ title, value, icon: Icon }) => {
     let glowClass = 'hover:shadow-[0_0_25px_rgba(0,138,50,0.15)]'; // Admin fallback
     if (userRole === 'admin') {
-      glowClass = 'hover:shadow-[0_0_25px_rgba(0,138,50,0.1)]'; // low-opacity Green glow
+      glowClass = 'hover:shadow-glow-green'; // low-opacity Green glow
     } else if (userRole === 'instructor') {
-      glowClass = 'hover:shadow-[0_0_25px_rgba(0,138,50,0.3)]'; // Green glow
+      glowClass = 'hover:shadow-glow-green'; // Green glow
     } else if (userRole === 'student') {
-      glowClass = 'hover:shadow-[0_0_25px_rgba(255,215,0,0.3)]'; // Adey Abeba Yellow
+      glowClass = 'hover:shadow-glow-yellow'; // Adey Abeba Yellow
     } else if (userRole === 'parent') {
       glowClass = 'hover:shadow-[0_0_25px_rgba(0,138,50,0.2)_0_0_25px_rgba(255,215,0,0.2)]'; // Mixed Green/Yellow
     }
@@ -62,10 +62,10 @@ export default function EDOTDashboard() {
       <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
         <Card hover={false} className={`rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl flex flex-col justify-between group relative overflow-hidden transition-all duration-300 ${glowClass}`}>
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">
+            <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
               {Icon && <Icon className="w-5 h-5" />}
             </div>
-            <h3 className="text-slate-300 font-medium text-sm tracking-wide">{title}</h3>
+            <h3 className="text-white font-medium text-sm tracking-wide">{title}</h3>
           </div>
           <div>
             <h2 className="text-4xl font-display font-bold text-white max-w-[90%] truncate">{value}</h2>
@@ -78,13 +78,13 @@ export default function EDOTDashboard() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-4 rounded-xl border border-white/10 relative">
-          <p className="font-bold text-white mb-2">{label}</p>
+        <div className="bg-[#0B0E14]/95 backdrop-blur-xl p-4 rounded-xl border border-white/10 relative shadow-2xl">
+          <p className="font-bold text-white mb-3 text-sm">{label}</p>
           <div className="space-y-2">
             {payload.map((entry, index) => (
               <div key={index} className="flex items-center gap-3 text-sm">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></span>
-                <span className="text-slate-300">{entry.name}:</span>
+                <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: entry.color }}></span>
+                <span className="text-white font-medium">{entry.name}:</span>
                 <span className="font-bold text-white">{entry.value}</span>
               </div>
             ))}
@@ -252,7 +252,7 @@ export default function EDOTDashboard() {
             {headerConfig.title}
           </h1>
           {headerConfig.subtitle && (
-            <p className="text-slate-300 text-lg font-medium">{headerConfig.subtitle}</p>
+            <p className="text-white text-lg font-medium">{headerConfig.subtitle}</p>
           )}
 
           <div className="mt-5">
@@ -292,7 +292,7 @@ export default function EDOTDashboard() {
         
         {/* Left Widget: Radial Gauge */}
         <Card hover={false} className="lg:col-span-3 rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg flex flex-col items-center justify-center relative min-h-[350px]">
-          <h3 className="font-semibold text-sm text-slate-200 absolute top-6 left-6">{gaugeConfig.title}</h3>
+          <h3 className="font-semibold text-sm text-white absolute top-6 left-6">{gaugeConfig.title}</h3>
           
           <div className="w-full flex-1 flex flex-col justify-center items-center relative mt-8">
              <ResponsiveContainer width="100%" height="90%">
@@ -329,13 +329,13 @@ export default function EDOTDashboard() {
         {/* Right Widget: Line/Area Chart */}
         <Card hover={false} className="lg:col-span-6 rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
           <div className="flex justify-between items-center mb-6 shrink-0">
-            <h3 className="font-semibold text-sm text-slate-200">{areaConfig.title}</h3>
+            <h3 className="font-semibold text-sm text-white">{areaConfig.title}</h3>
             <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-white/5 px-2 py-1 rounded">
               Recharts <MoreHorizontal className="w-3 h-3" />
             </div>
           </div>
           
-          <div className="flex items-center justify-center gap-6 text-[11px] font-bold text-slate-300 mb-4">
+          <div className="flex items-center justify-center gap-6 text-[11px] font-bold text-white mb-4">
              {areaConfig.lines.map((line, i) => (
                <span key={i} className="flex items-center gap-2">
                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: line.color }}></div> 
@@ -373,8 +373,8 @@ export default function EDOTDashboard() {
              <>
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-200">{widgetConfig.title}</h3>
-                    <p className="text-[11px] text-slate-500 mt-1">{widgetConfig.subtitle}</p>
+                    <h3 className="font-semibold text-sm text-white">{widgetConfig.title}</h3>
+                    <p className="text-[11px] text-slate-400 mt-1">{widgetConfig.subtitle}</p>
                   </div>
                   <MoreHorizontal className="w-4 h-4 text-slate-500" />
                 </div>
@@ -429,7 +429,7 @@ export default function EDOTDashboard() {
            {widgetConfig.type === 'communication' && (
              <>
                 <div className="flex justify-between items-start mb-6">
-                  <h3 className="font-semibold text-sm text-slate-200">{widgetConfig.title}</h3>
+                  <h3 className="font-semibold text-sm text-white">{widgetConfig.title}</h3>
                   <MoreHorizontal className="w-4 h-4 text-slate-500" />
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
