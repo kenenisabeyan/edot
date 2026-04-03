@@ -36,6 +36,8 @@ exports.protect = async (req, res, next) => {
             });
         }
 
+        // Flag blocked accounts for frontend/route checks
+        req.user.isBlocked = req.user.status === 'blocked';
         next();
     } catch (error) {
         return res.status(401).json({
@@ -56,4 +58,38 @@ exports.authorize = (...roles) => {
         }
         next();
     };
+};
+
+// Guard blocked users from learning content endpoints
+exports.checkNotBlocked = async (req, res, next) => {
+    if (req.user && req.user.status === 'blocked') {
+        return res.status(403).json({ success: false, message: 'Access denied: account suspended' });
+    }
+    next();
+};
+
+// Guard student video/library access by active enrollment status
+exports.guardActiveEnrollment = async (req, res, next) => {
+    const Enrollment = require('../models/Enrollment');
+    const courseId = req.params.courseId || req.body.courseId || req.query.courseId;
+
+    if (!courseId) {
+        return res.status(400).json({ success: false, message: 'Course ID is required for access control' });
+    }
+
+    if (!req.user) {
+        return res.status(401).json({ success: false, message: 'User authentication required' });
+    }
+
+    if (req.user.role !== 'student') {
+        return res.status(403).json({ success: false, message: 'Only students can access this content' });
+    }
+
+    const enrollment = await Enrollment.findOne({ student: req.user._id, course: courseId });
+
+    if (!enrollment || enrollment.status !== 'active') {
+        return res.status(403).json({ success: false, message: 'Access denied: course not fully approved or enrollment inactive' });
+    }
+
+    next();
 };

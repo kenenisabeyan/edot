@@ -10,6 +10,10 @@ export default function UsersManagement() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'student' });
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [notice, setNotice] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -56,6 +60,52 @@ export default function UsersManagement() {
     }
   };
 
+  const createUser = async (e) => {
+    e.preventDefault();
+    try {
+      const { name, email, password, role } = newUser;
+      if (!name || !email || !password) {
+        setNotice('Name, email, and password are required.');
+        return;
+      }
+      await api.post('/admin/users', { name, email, password, role });
+      setNewUser({ name: '', email: '', password: '', role: 'student' });
+      setShowAddForm(false);
+      setNotice('User added successfully.');
+      fetchUsers();
+    } catch (err) {
+      console.error('Failed to create user', err);
+      setNotice(err.response?.data?.message || 'Could not create user');
+    }
+  };
+
+  const deleteUser = async (userId) => {
+    if (!window.confirm('Delete user permanently? This action cannot be undone.')) return;
+    try {
+      await api.delete(`/admin/users/${userId}`);
+      setNotice('User deleted.');
+      fetchUsers();
+    } catch (err) {
+      console.error('Failed to delete user', err);
+      setNotice('Failed to delete user.');
+    }
+  };
+
+  const resetUserPassword = async (userId) => {
+    const tempPassword = `${Math.random().toString(36).slice(-8)}A!`;
+    try {
+      await api.post(`/admin/users/${userId}/reset-password`, { newPassword: tempPassword });
+      window.alert(`Temporary password set: ${tempPassword}`);
+    } catch (err) {
+      console.error('Failed to reset password', err);
+      setNotice('Failed to reset password.');
+    }
+  };
+
+  const showUserDetails = (user) => {
+    setSelectedUser(user);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -87,7 +137,7 @@ export default function UsersManagement() {
       </div>
 
       <div className="rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
-        <div className="pb-4 border-b border-white/5 flex justify-end">
+        <div className="pb-4 border-b border-white/5 flex flex-wrap justify-between items-center gap-3">
           <div className="relative w-full sm:w-72">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input 
@@ -98,8 +148,64 @@ export default function UsersManagement() {
               className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#FFD700] transition-shadow text-white placeholder-slate-400"
             />
           </div>
+          <button
+            onClick={() => setShowAddForm((prev) => !prev)}
+            className="px-4 py-2 rounded-lg border border-[#FFD700]/50 bg-[#FFD700]/15 text-[#FFD700] font-semibold hover:bg-[#FFD700]/30"
+          >
+            {showAddForm ? 'Close Add User' : 'Add New User'}
+          </button>
         </div>
-        
+
+        {showAddForm && (
+          <form onSubmit={createUser} className="mt-4 mb-5 grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+            <input
+              type="text"
+              value={newUser.name}
+              onChange={(e) => setNewUser((prev) => ({ ...prev, name: e.target.value }))}
+              placeholder="Full name"
+              className="col-span-1 md:col-span-1 px-3 py-2 rounded-lg border border-white/10 bg-black/10 text-white"
+              required
+            />
+            <input
+              type="email"
+              value={newUser.email}
+              onChange={(e) => setNewUser((prev) => ({ ...prev, email: e.target.value }))}
+              placeholder="Email address"
+              className="col-span-1 md:col-span-1 px-3 py-2 rounded-lg border border-white/10 bg-black/10 text-white"
+              required
+            />
+            <input
+              type="password"
+              value={newUser.password}
+              onChange={(e) => setNewUser((prev) => ({ ...prev, password: e.target.value }))}
+              placeholder="Temporary password"
+              className="col-span-1 md:col-span-1 px-3 py-2 rounded-lg border border-white/10 bg-black/10 text-white"
+              required
+            />
+            <select
+              value={newUser.role}
+              onChange={(e) => setNewUser((prev) => ({ ...prev, role: e.target.value }))}
+              className="col-span-1 md:col-span-1 px-3 py-2 rounded-lg border border-white/10 bg-black/10 text-white"
+              required
+            >
+              <option value="student">Student</option>
+              <option value="parent">Parent</option>
+              <option value="instructor">Instructor</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button
+              type="submit"
+              className="col-span-1 md:col-span-1 px-4 py-2 rounded-lg bg-[#008A32] text-white font-semibold hover:bg-[#00712a]"
+            >
+              Create User
+            </button>
+          </form>
+        )}
+
+        {notice && (
+          <div className="mb-4 p-3 rounded-lg bg-[#FFD700]/15 border border-[#FFD700]/25 text-[#FFD700] text-sm font-semibold">{notice}</div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
@@ -109,6 +215,7 @@ export default function UsersManagement() {
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Role Management</th>
                   <th className="px-6 py-4">Assign Target</th>
+                  <th className="px-6 py-4">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-sm">
@@ -190,11 +297,30 @@ export default function UsersManagement() {
                       <span className="text-slate-500 text-sm italic">N/A</span>
                     )}
                   </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => resetUserPassword(u._id)} className="text-xs px-2.5 py-1 rounded-lg bg-yellow-500/15 text-yellow-300 hover:bg-yellow-500/25 border border-yellow-500/20">Reset PW</button>
+                      <button onClick={() => deleteUser(u._id)} className="text-xs px-2.5 py-1 rounded-lg bg-red-500/15 text-red-300 hover:bg-red-500/25 border border-red-500/20">Delete</button>
+                      <button onClick={() => showUserDetails(u)} className="text-xs px-2.5 py-1 rounded-lg bg-slate-500/15 text-slate-300 hover:bg-slate-500/25 border border-slate-500/20">Details</button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        {selectedUser && (
+          <div className="mt-4 p-4 rounded-xl border border-white/10 bg-black/20">
+            <h3 className="text-sm font-bold text-[#FFD700]">User Detail</h3>
+            <p className="text-sm text-slate-200">Name: {selectedUser.name}</p>
+            <p className="text-sm text-slate-200">Email: {selectedUser.email}</p>
+            <p className="text-sm text-slate-200">Role: {selectedUser.role}</p>
+            <p className="text-sm text-slate-200">Status: {selectedUser.status}</p>
+            <p className="text-sm text-slate-200">Parent Of: {(selectedUser.children || []).map(c => c.name).join(', ') || 'None'}</p>
+            <button onClick={() => setSelectedUser(null)} className="mt-2 text-xs px-2 py-1 rounded-md bg-white/10 hover:bg-white/20">Close</button>
+          </div>
+        )}
       </div>
     </div>
   );

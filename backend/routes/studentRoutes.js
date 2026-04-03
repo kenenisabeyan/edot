@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize, checkNotBlocked } = require('../middleware/auth');
 const Course = require('../models/Course');
 const User = require('../models/User');
 const { logActivity } = require('../controllers/activityController');
 
 // Apply protect middleware to all student routes
 router.use(protect);
+router.use(checkNotBlocked);
 router.use(authorize('student', 'instructor', 'admin')); // Anyone who can enroll
 
 // @route   GET /api/student/enrollments

@@ -101,7 +101,9 @@ export default function StudentDashboard() {
 
     try {
       doc.addImage(img, 'PNG', 133.5, 20, 30, 25);
-    } catch(e) {}
+    } catch {
+      // ignore if image fails to load
+    }
     
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(15, 23, 42);
@@ -144,7 +146,7 @@ export default function StudentDashboard() {
     }
 
     switch (activeTab) {
-      case 'overview':
+      case 'overview': {
         const weeklyStats = [
           { name: 'Mon', minutes: 45 },
           { name: 'Tue', minutes: 0 },
@@ -274,6 +276,7 @@ export default function StudentDashboard() {
             </div>
           </div>
         );
+      }
       case 'courses':
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

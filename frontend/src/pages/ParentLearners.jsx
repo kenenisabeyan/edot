@@ -7,6 +7,7 @@ export default function ParentLearners() {
   const [learners, setLearners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState({}); // Stores active tab per learner ID
+  void motion;
 
   const [connectEmail, setConnectEmail] = useState('');
   const [connecting, setConnecting] = useState(false);

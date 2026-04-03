@@ -4,6 +4,7 @@ const { protect, authorize } = require('../middleware/auth');
 const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const User = require('../models/User');
+const Enrollment = require('../models/Enrollment');
 const { logActivity } = require('../controllers/activityController');
 
 // @route   GET /api/courses
@@ -168,58 +169,59 @@ router.put('/:id', protect, authorize('instructor'), async (req, res) => {
 });
 
 // @route   POST /api/courses/:id/enroll
-// @desc    Enroll in a course
-// @access  Private
-router.post('/:id/enroll', protect, async (req, res) => {
+// @desc    Request enrollment in a course (pending admin approval)
+// @access  Private/Student
+router.post('/:id/enroll', protect, authorize('student'), async (req, res) => {
     try {
         const course = await Course.findById(req.params.id);
 
-        if (!course) {
-            return res.status(404).json({
-                success: false,
-                message: 'Course not found'
-            });
+        if (!course || course.status !== 'approved' || !course.isPublished) {
+            return res.status(404).json({ success: false, message: 'Course not available for enrollment' });
         }
 
         const user = await User.findById(req.user.id);
 
-        // Check if already enrolled
-        const alreadyEnrolled = user.enrolledCourses.find(
-            enrollment => enrollment.course.toString() === course.id
-        );
-
-        if (alreadyEnrolled) {
-            return res.status(400).json({
-                success: false,
-                message: 'Already enrolled in this course'
+        const existing = await Enrollment.findOne({ student: user._id, course: course._id });
+        if (existing) {
+            if (existing.status === 'active') {
+                return res.status(400).json({ success: false, message: 'Already active in this course' });
+            }
+            if (existing.status === 'pending') {
+                return res.status(400).json({ success: false, message: 'Enrollment request is already pending approval' });
+            }
+            if (existing.status === 'rejected') {
+                existing.status = 'pending';
+                existing.reason = '';
+                existing.requestedAt = Date.now();
+                await existing.save();
+            }
+        } else {
+            await Enrollment.create({
+                student: user._id,
+                course: course._id,
+                status: 'pending'
             });
         }
 
-        // Add enrollment
-        user.enrolledCourses.push({
-            course: course.id,
-            progress: 0,
-            completedLessons: []
-        });
-
+        const userEnrollment = user.enrolledCourses.find((en) => en.course.toString() === course._id.toString());
+        if (userEnrollment) {
+            userEnrollment.status = 'pending';
+        } else {
+            user.enrolledCourses.push({
+                course: course._id,
+                status: 'pending',
+                progress: 0,
+                completedLessons: []
+            });
+        }
         await user.save();
 
-        // Increment student count
-        course.totalStudents += 1;
-        await course.save();
+        await logActivity(req.user.id, `Requested enrollment in course: ${course.title}`, 'enrollment', course.title, course._id);
 
-        await logActivity(req.user.id, `Enrolled in course: ${course.title}`, 'enrollment', course.title, course._id);
-
-        res.json({
-            success: true,
-            message: 'Successfully enrolled in course'
-        });
+        res.json({ success: true, message: 'Enrollment request sent, awaiting admin approval' });
     } catch (error) {
-        console.error('Enrollment error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error'
-        });
+        console.error('Enrollment request error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { 
@@ -11,18 +11,32 @@ export default function InstructorManageCourses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchCourses().finally(() => setLoading(false));
-  }, []);
-
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     try {
       const { data } = await api.get('/instructor/courses');
       setCourses(data.data);
     } catch (err) {
       console.error('Failed to fetch courses', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCourses = async () => {
+      try {
+        await fetchCourses();
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadCourses();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchCourses]);
 
   const handleSubmitReview = async (courseId) => {
     try {

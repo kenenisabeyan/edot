@@ -42,7 +42,7 @@ function NavItem({ item, metrics, role, sidebarCollapsed, onLinkClick }) {
     badgeCount = metrics.pendingUsers;
     badgeColor = 'bg-rose-500 text-white';
   } else if (item.path.includes('/approvals')) {
-    badgeCount = metrics.pendingApprovals;
+    badgeCount = (metrics.pendingApprovals || 0) + (metrics.pendingEnrollments || 0);
     badgeColor = 'bg-amber-500 text-white';
   } else if (item.path.includes('/my-courses')) {
     badgeCount = metrics.pendingCourses;
@@ -161,8 +161,10 @@ export default function EDOTLayout() {
     admin: {
       menu1: [
         { name: 'Dashboard', icon: Home, path: '/dashboard', exact: true },
+        { name: 'Create Course', icon: BookOpen, path: '/dashboard/builder' },
+        { name: 'Manage All Courses', icon: ClipboardCheck, path: '/dashboard/courses' },
+        { name: 'Approvals (Courses + Enrollments)', icon: ClipboardCheck, path: '/dashboard/approvals' },
         { name: 'All Users (Admin)', icon: Users, path: '/dashboard/users' },
-        { name: 'Approvals', icon: ClipboardCheck, path: '/dashboard/approvals' },
         { name: 'Teachers', icon: UserSquare, path: '/dashboard/teachers' },
         { name: 'Students', icon: Users, path: '/dashboard/students' },
         { name: 'Attendance', icon: ClipboardCheck, path: '/dashboard/attendance' },
@@ -194,6 +196,7 @@ export default function EDOTLayout() {
         { name: 'Teaching Activity', icon: TrendingUp, path: '/dashboard/teaching' },
       ],
       menu2: [
+        { name: 'Library', icon: BookOpen, path: '/dashboard/library' },
         { name: 'Notice', icon: BellRing, path: '/dashboard/notice' },
         { name: 'Calendar', icon: CalendarDays, path: '/dashboard/calendar' },
         { name: 'Message', icon: MessageSquare, path: '/dashboard/messages' },

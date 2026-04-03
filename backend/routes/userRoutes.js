@@ -136,11 +136,13 @@ router.get('/dashboard-metrics', protect, async (req, res) => {
         // Count role-specific metrics
         let pendingCourses = 0;
         let pendingApprovals = 0;
+        let pendingEnrollments = 0;
         let newCertificates = 0;
         let pendingUsers = 0;
 
         if (role === 'admin') {
             pendingApprovals = await Course.countDocuments({ status: 'pending' });
+            pendingEnrollments = await User.countDocuments({ 'enrolledCourses.status': 'pending' });
             pendingUsers = await User.countDocuments({ status: 'pending' });
         } else if (role === 'instructor') {
             pendingCourses = await Course.countDocuments({ instructor: userId, status: 'pending' });
@@ -153,6 +155,7 @@ router.get('/dashboard-metrics', protect, async (req, res) => {
             metrics: {
                 unreadMessages,
                 pendingApprovals,
+                pendingEnrollments,
                 pendingCourses,
                 newCertificates,
                 pendingUsers

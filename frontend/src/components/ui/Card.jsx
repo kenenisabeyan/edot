@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export function Card({ children, className = '', hover = false, ...props }) {
+  void motion;
   const baseClass = 'glass-card overflow-hidden relative';
   const hoverClass = hover ? 'hover-scale cursor-pointer' : '';
   

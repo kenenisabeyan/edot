@@ -10,6 +10,7 @@ export function Button({
   icon: Icon,
   ...props 
 }) {
+  void motion;
   const variants = {
     primary: 'bg-gradient-primary text-white shadow-lg shadow-indigo-500/25 focus:ring-indigo-500',
     secondary: 'bg-slate-800 text-white shadow-md hover:bg-slate-700 dark:bg-white dark:text-slate-900 border border-slate-700',

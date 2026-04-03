@@ -13,7 +13,7 @@ export const checkAuth = async () => {
     try {
         const { data } = await api.get('/auth/me');
         return data.user;
-    } catch (err) {
+    } catch {
         return null; // Return null gracefully
     }
 };

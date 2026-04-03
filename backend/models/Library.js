@@ -22,9 +22,13 @@ const librarySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    course: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course',
+        default: null
     }
-}, {
-    timestamps: true
+}, {    timestamps: true
 });
 
 module.exports = mongoose.model('Library', librarySchema);

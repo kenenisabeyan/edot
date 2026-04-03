@@ -29,7 +29,7 @@ export default function MessagesView() {
       try {
         const { data } = await api.get('/messages/contacts');
         if (data.success) {
-          setContacts(prev => {
+          setContacts(() => {
             // If active contact exists, ensure its unread count is zeroed out during active view
             return data.data.map(contact => {
                // checking both conditions if it's the currently active contact or not

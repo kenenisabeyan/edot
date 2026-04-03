@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Library = require('../models/Library');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize, guardActiveEnrollment, checkNotBlocked } = require('../middleware/auth');
 
 // @route   GET /api/library
 // @desc    Get all library resources
 // @access  Private
-router.get('/', protect, async (req, res) => {
+router.get('/', protect, checkNotBlocked, async (req, res) => {
     try {
         const resources = await Library.find().sort({ createdAt: -1 });
         res.status(200).json({ success: true, count: resources.length, data: resources });
@@ -36,6 +36,18 @@ router.post('/', protect, authorize('admin', 'instructor'), async (req, res) => 
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Server error saving resource' });
+    }
+});
+
+// @route   GET /api/library/course/:courseId
+// @desc    Get all library resources for a specific course (student active enrollment required)
+router.get('/course/:courseId', protect, checkNotBlocked, authorize('student'), guardActiveEnrollment, async (req, res) => {
+    try {
+        const resources = await Library.find({ course: req.params.courseId }).sort({ createdAt: -1 });
+        res.status(200).json({ success: true, count: resources.length, data: resources });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error retrieving course resources' });
     }
 });
 

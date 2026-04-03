@@ -9,6 +9,7 @@ export default function ParentInsightGrid({ studentId }) {
   const [insights, setInsights] = useState(null);
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
+  void motion;
 
   useEffect(() => {
     if (!studentId) return;

@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
-import { useAuth } from '../context/AuthContext';
 import { Check, X, ShieldAlert, BadgeCheck, Users, Search } from 'lucide-react';
 import UserAvatar from '../components/UserAvatar';
 
 export default function TeachersList() {
-  const { user } = useAuth();
   const [instructors, setInstructors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('pending'); // 'pending' or 'approved'

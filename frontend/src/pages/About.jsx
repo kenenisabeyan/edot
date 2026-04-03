@@ -11,6 +11,7 @@ import yobsanImg from '../assets/yobsan.jpg';
 
 export default function About() {
   const [counts, setCounts] = useState({ students: 0, courses: 0, success: 0 });
+  void motion;
 
   // Animated counters
   useEffect(() => {

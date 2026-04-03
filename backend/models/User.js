@@ -74,6 +74,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  paymentStatus: {
+    type: String,
+    enum: ['paid', 'pending', 'overdue', 'none'],
+    default: 'none'
+  },
+  outstandingBalance: {
+    type: Number,
+    default: 0
+  },
   enrolledCourses: [{
     course: {
       type: mongoose.Schema.Types.ObjectId,
@@ -82,6 +91,11 @@ const userSchema = new mongoose.Schema({
     enrolledAt: {
       type: Date,
       default: Date.now
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending'
     },
     progress: {
       type: Number,
@@ -120,7 +134,7 @@ const userSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'blocked'],
     default: 'pending' // Force new registrations to pending
   },
   assignedInstructor: {

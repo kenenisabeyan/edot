@@ -15,6 +15,8 @@ router.get('/users', async (req, res) => {
         const users = await User.find()
             .select('-password')
             .populate('enrolledCourses.course', 'title status')
+            .populate('children', 'name email status enrolledCourses')
+            .populate('assignedStudents', 'name email status enrolledCourses')
             .sort({ createdAt: -1 })
             .lean();
         
@@ -76,6 +78,158 @@ router.post('/users', async (req, res) => {
         });
     } catch (error) {
         console.error('Admin Create User error:', error);
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   GET /api/admin/users/:id
+// @desc    Get detailed user by ID (with parent/child mapping)
+router.get('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id)
+            .select('-password')
+            .populate('children', 'name email status')
+            .populate('assignedStudents', 'name email status')
+            .lean();
+
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        // parent link by reverse lookup
+        const parents = await User.find({ children: user._id }).select('name email status').lean();
+
+        res.status(200).json({ success: true, data: { ...user, parents } });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   PUT /api/admin/users/:id/link-child
+// @desc    Link an existing student to a parent user account
+router.put('/users/:id/link-child', async (req, res) => {
+    try {
+        const parent = await User.findById(req.params.id);
+        const child = await User.findById(req.body.childId);
+        if (!parent || parent.role !== 'parent') return res.status(400).json({ success: false, message: 'Parent not found' });
+        if (!child || child.role !== 'student') return res.status(400).json({ success: false, message: 'Child student not found' });
+
+        if (!parent.children.some((c) => c.toString() === child._id.toString())) {
+            parent.children.push(child._id);
+            await parent.save();
+        }
+
+        return res.status(200).json({ success: true, data: parent });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   PUT /api/admin/users/:id/unlink-child
+// @desc    Unlink a child student from a parent user account
+router.put('/users/:id/unlink-child', async (req, res) => {
+    try {
+        const parent = await User.findById(req.params.id);
+        const { childId } = req.body;
+        if (!parent || parent.role !== 'parent') return res.status(400).json({ success: false, message: 'Parent not found' });
+
+        parent.children = parent.children.filter((c) => c.toString() !== childId);
+        await parent.save();
+
+        res.status(200).json({ success: true, data: parent });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   POST /api/admin/enrollments/manual
+// @desc    Admin manual enrollment: create active enrollment and user enrolledCourses entry
+router.post('/enrollments/manual', async (req, res) => {
+    try {
+        const { studentId, courseId, status = 'active' } = req.body;
+        const student = await User.findById(studentId);
+        const course = await Course.findById(courseId);
+        if (!student || student.role !== 'student') return res.status(400).json({ success: false, message: 'Student not found' });
+        if (!course) return res.status(400).json({ success: false, message: 'Course not found' });
+
+        let enrollment = await Enrollment.findOne({ student: student._id, course: course._id });
+        if (!enrollment) {
+            enrollment = await Enrollment.create({ student: student._id, course: course._id, status, requestedAt: Date.now() });
+        } else {
+            enrollment.status = status;
+            await enrollment.save();
+        }
+
+        let userEnrollment = student.enrolledCourses.find((en) => en.course.toString() === course._id.toString());
+        if (!userEnrollment) {
+            student.enrolledCourses.push({ course: course._id, status, progress: 0, completedLessons: [] });
+        } else {
+            userEnrollment.status = status;
+        }
+        await student.save();
+
+        if (status === 'active') {
+            course.totalStudents = (course.totalStudents || 0) + 1;
+            await course.save();
+        }
+
+        res.status(200).json({ success: true, data: enrollment });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   DELETE /api/admin/enrollments/:id
+// @desc    Remove an enrollment and sync user enrolledCourses
+router.delete('/enrollments/:id', async (req, res) => {
+    try {
+        const en = await Enrollment.findById(req.params.id);
+        if (!en) return res.status(404).json({ success: false, message: 'Enrollment not found' });
+
+        const student = await User.findById(en.student);
+        const course = await Course.findById(en.course);
+
+        if (student) {
+            student.enrolledCourses = student.enrolledCourses.filter((c) => c.course.toString() !== course._id.toString());
+            await student.save();
+        }
+
+        await en.deleteOne();
+
+        if (course && course.totalStudents > 0) {
+            course.totalStudents = course.totalStudents - 1;
+            await course.save();
+        }
+
+        res.status(200).json({ success: true, message: 'Enrollment removed' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   DELETE /api/admin/enrollments
+// @desc    Remove an enrollment by studentId & courseId
+router.delete('/enrollments', async (req, res) => {
+    try {
+        const { studentId, courseId } = req.body;
+        const en = await Enrollment.findOne({ student: studentId, course: courseId });
+        if (!en) return res.status(404).json({ success: false, message: 'Enrollment not found' });
+
+        const student = await User.findById(studentId);
+        const course = await Course.findById(courseId);
+
+        if (student) {
+            student.enrolledCourses = student.enrolledCourses.filter((c) => c.course.toString() !== courseId);
+            await student.save();
+        }
+
+        await en.deleteOne();
+
+        if (course && course.totalStudents > 0) {
+            course.totalStudents = course.totalStudents - 1;
+            await course.save();
+        }
+
+        res.status(200).json({ success: true, message: 'Enrollment removed' });
+    } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 });
@@ -208,8 +362,49 @@ router.put('/users/:id/role', async (req, res) => {
     }
 });
 
+// @route   PUT /api/admin/users/:id
+// @desc    Update user profile fields (name, email, role, password)
+router.put('/users/:id', async (req, res) => {
+    try {
+        const { name, email, role, password, status } = req.body;
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        if (name) user.name = name;
+        if (email) user.email = email;
+        if (role) user.role = role;
+        if (status && ['pending', 'approved', 'rejected', 'blocked'].includes(status)) user.status = status;
+        if (password && password.length >= 6) user.password = password;
+
+        await user.save();
+        const safeUser = await User.findById(req.params.id).select('-password');
+        res.status(200).json({ success: true, data: safeUser });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   POST /api/admin/users/:id/reset-password
+// @desc    Reset a user password to a temporary value
+router.post('/users/:id/reset-password', async (req, res) => {
+    try {
+        const { newPassword } = req.body;
+        if (!newPassword) return res.status(400).json({ success: false, message: 'New password required' });
+
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json({ success: true, message: 'Password reset successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
 // @route   PUT /api/admin/users/:id/status
-// @desc    Update user status (approve/reject)
+// @desc    Update user status (approve/reject/blocked)
 router.put('/users/:id/status', async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -219,13 +414,40 @@ router.put('/users/:id/status', async (req, res) => {
         
         // Ensure valid status
         const { status } = req.body;
-        if (!['pending', 'approved', 'rejected'].includes(status)) {
+        if (!['pending', 'approved', 'rejected', 'blocked'].includes(status)) {
             return res.status(400).json({ success: false, message: 'Invalid status' });
         }
         
         user.status = status;
         await user.save();
         res.status(200).json({ success: true, data: user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   PUT /api/admin/users/:id/reset-progress
+// @desc    Reset student progress and completion on all enrolled courses
+router.put('/users/:id/reset-progress', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        if (!user.enrolledCourses || user.enrolledCourses.length === 0) {
+            return res.status(200).json({ success: true, data: user, message: 'No enrolled courses to reset' });
+        }
+
+        user.enrolledCourses = user.enrolledCourses.map((ec) => ({
+            ...ec.toObject ? ec.toObject() : ec,
+            progress: 0,
+            completedLessons: [],
+            watchedVideos: [],
+            passedQuizzes: [],
+            passedFinalExam: false
+        }));
+
+        await user.save();
+        res.status(200).json({ success: true, data: user, message: 'Student progress reset successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
@@ -239,6 +461,27 @@ router.delete('/users/:id', async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
+
+        // If this is a student, remove them from all parents' children lists
+        if (user.role === 'student') {
+            await User.updateMany(
+                { role: 'parent', children: user._id },
+                { $pull: { children: user._id } }
+            );
+            await User.updateMany(
+                { role: 'instructor', assignedStudents: user._id },
+                { $pull: { assignedStudents: user._id } }
+            );
+        }
+
+        // If this is a parent, optionally clear children's parent link
+        if (user.role === 'parent' && user.children && user.children.length) {
+            await User.updateMany(
+                { _id: { $in: user.children } },
+                { $unset: { assignedInstructor: '' } }
+            );
+        }
+
         await user.deleteOne();
         res.status(200).json({ success: true, message: 'User removed completely' });
     } catch (error) {
@@ -275,6 +518,78 @@ router.put('/courses/:id/status', async (req, res) => {
 
         await course.save();
         res.status(200).json({ success: true, data: course });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   GET /api/admin/enrollments/pending
+// @desc    Get all student enrollment requests pending approval
+router.get('/enrollments/pending', async (req, res) => {
+    try {
+        const pendingEnrollments = await Enrollment.find({ status: 'pending' })
+            .populate('student', 'name email status')
+            .populate('course', 'title instructor');
+
+        const payload = pendingEnrollments.map((en) => ({
+            _id: en._id,
+            studentId: en.student._id,
+            studentName: en.student.name,
+            studentEmail: en.student.email,
+            courseId: en.course._id,
+            courseTitle: en.course.title,
+            requestedAt: en.requestedAt,
+            status: en.status
+        }));
+
+        res.status(200).json({ success: true, count: payload.length, data: payload });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   PUT /api/admin/enrollments/:id/status
+// @desc    Approve or reject a student course enrollment request
+router.put('/enrollments/:id/status', async (req, res) => {
+    try {
+        const { status, reason } = req.body;
+        if (!['active', 'rejected'].includes(status)) {
+            return res.status(400).json({ success: false, message: 'Invalid status option' });
+        }
+
+        const enrollment = await Enrollment.findById(req.params.id).populate('student course');
+        if (!enrollment) {
+            return res.status(404).json({ success: false, message: 'Enrollment request not found' });
+        }
+
+        enrollment.status = status;
+        enrollment.reason = reason || '';
+        await enrollment.save();
+
+        const user = await User.findById(enrollment.student._id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Student not found' });
+        }
+
+        let userEnrollment = user.enrolledCourses.find((ec) => ec.course.toString() === enrollment.course._id.toString());
+        if (!userEnrollment) {
+            userEnrollment = { course: enrollment.course._id, status: enrollment.status, progress: 0, completedLessons: [] };
+            user.enrolledCourses.push(userEnrollment);
+        } else {
+            userEnrollment.status = enrollment.status;
+        }
+
+        await user.save();
+
+        if (status === 'active') {
+            const course = await Course.findById(enrollment.course._id);
+            if (course) {
+                course.totalStudents = (course.totalStudents || 0) + 1;
+                await course.save();
+            }
+        }
+
+        res.status(200).json({ success: true, data: enrollment });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }

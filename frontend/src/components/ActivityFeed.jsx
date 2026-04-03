@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import api from '../utils/api';
 import { Activity, LogIn, BookOpen, CheckCircle, Settings, MessageSquare, AlertCircle, TrendingUp, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +12,7 @@ export default function ActivityFeed({ isAdmin = false, feedType, limit = 5 }) {
 
   const filterType = feedType || (isAdmin ? 'all' : 'personal');
 
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     try {
       const endpoint = filterType === 'all' ? '/activity/all' : filterType === 'insights' ? '/activity/insights' : '/activity';
       const res = await api.get(endpoint);
@@ -24,11 +24,11 @@ export default function ActivityFeed({ isAdmin = false, feedType, limit = 5 }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterType, limit]);
 
   useEffect(() => {
     fetchActivities();
-  }, [filterType, limit]);
+  }, [fetchActivities]);
 
   const handleFlag = async (id, flagType) => {
     try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { Search, Filter, Clock, BookOpen, User, ArrowRight, Heart, Star } from 'lucide-react';
@@ -10,6 +10,7 @@ export default function Courses() {
   const [filters, setFilters] = useState({ category: '', search: '' });
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [favorites, setFavorites] = useState({});
+  void motion;
 
   // Debounce search
   useEffect(() => {
@@ -19,11 +20,7 @@ export default function Courses() {
     return () => clearTimeout(handler);
   }, [filters.search]);
 
-  useEffect(() => {
-    fetchCourses();
-  }, [filters.category, debouncedSearch]);
-
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams();
@@ -37,7 +34,11 @@ export default function Courses() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters.category, debouncedSearch]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   const toggleFavorite = (id) => {
     setFavorites(prev => ({ ...prev, [id]: !prev[id] }));

@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import { PlayCircle, CheckCircle, ArrowLeft, Play, FileText, CheckCircle2, MessageSquare, ThumbsUp, Send } from 'lucide-react';
+import { PlayCircle, CheckCircle, ArrowLeft, Play, FileText, CheckCircle2, MessageSquare, ThumbsUp, Send, Lock } from 'lucide-react';
 import ReactPlayer from 'react-player';
 
 export default function Lesson() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const courseId = searchParams.get('courseId');
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   const [course, setCourse] = useState(null);
@@ -68,7 +67,11 @@ export default function Lesson() {
   ]);
 
   const enrollment = user?.enrolledCourses?.find(e => e.course === courseId || e.course?._id === courseId);
+  const isActive = enrollment?.status === 'active';
+  const isPending = enrollment?.status === 'pending';
+  const isRejected = enrollment?.status === 'rejected';
   const isCompleted = enrollment?.completedLessons?.includes(id);
+  const isBlocked = user?.status === 'blocked';
 
   useEffect(() => {
     if (!courseId) {
@@ -197,14 +200,15 @@ export default function Lesson() {
 
         {/* Video */}
         <div 
-          className="bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center text-white mb-8 relative shadow-lg"
+          className={`bg-black rounded-xl overflow-hidden aspect-video flex items-center justify-center text-white mb-8 relative shadow-lg ${!isActive ? 'filter blur-sm grayscale' : ''}`}
           onContextMenu={(e) => e.preventDefault()}
         >
           <ReactPlayer 
             url={lesson.videoUrl} 
             width="100%" 
             height="100%" 
-            controls={true}
+            controls={isActive}
+            playing={isActive}
             config={{ file: { attributes: { controlsList: 'nodownload' } } }}
             onEnded={() => setIsVideoFinished(true)}
             onProgress={async ({ played, playedSeconds }) => {
@@ -235,6 +239,21 @@ export default function Lesson() {
                 }
             }}
           />
+          {(!isActive || isBlocked) && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0B0E14]/90 backdrop-blur-lg rounded-xl text-white text-center px-6">
+              <Lock className="w-10 h-10 mb-3 text-[#FFD700]" />
+              <h3 className="text-xl font-bold">Account Suspended</h3>
+              {isBlocked ? (
+                <p className="mt-2 text-sm px-4">Your account has been suspended by administration. Video player access is disabled.</p>
+              ) : isPending ? (
+                <p className="mt-2 text-sm">Your enrollment request is currently pending admin approval.</p>
+              ) : isRejected ? (
+                <p className="mt-2 text-sm">Your enrollment request was rejected. Contact support for details.</p>
+              ) : (
+                <p className="mt-2 text-sm">You need to enroll and get approval before accessing this lesson.</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Tabs */}

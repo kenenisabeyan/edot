@@ -9,6 +9,7 @@ export default function CommandK() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef(null);
   const navigate = useNavigate();
+  void motion;
 
   // Mocked global search index - in production this would fetch based on query
   const searchIndex = [
@@ -58,11 +59,15 @@ export default function CommandK() {
   }, [isOpen, query, selectedIndex, navigate, filteredResults]);
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+    if (!isOpen) return;
+
+    const timeout = setTimeout(() => {
+      inputRef.current?.focus();
       setSelectedIndex(0);
-    }
-  }, [isOpen, query]);
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, [isOpen]);
 
   return (
     <AnimatePresence>

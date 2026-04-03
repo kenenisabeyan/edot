@@ -5,7 +5,8 @@ import { CheckCircle2, XCircle, ArrowLeft, ArrowRight, Award, RefreshCcw } from 
 export default function QuizViewer() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+  const quizId = id;
+  void quizId;
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);

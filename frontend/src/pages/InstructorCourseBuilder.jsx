@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../utils/api';
 import { 
@@ -38,13 +38,7 @@ export default function InstructorCourseBuilder() {
   const [lessonForm, setLessonForm] = useState({ title: '', description: '', videoUrl: '', duration: 10, readingMaterials: '', quiz: [] });
   const [showLessonForm, setShowLessonForm] = useState(false);
 
-  useEffect(() => {
-    if (courseId) {
-      fetchCourseDetails();
-    }
-  }, [courseId]);
-
-  const fetchCourseDetails = async () => {
+  const fetchCourseDetails = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await api.get(`/courses/${courseId}`);
@@ -70,7 +64,13 @@ export default function InstructorCourseBuilder() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    if (courseId) {
+      fetchCourseDetails();
+    }
+  }, [courseId, fetchCourseDetails]);
 
   const handleArrayChange = (field, index, value) => {
     const newArray = [...formData[field]];
@@ -178,7 +178,6 @@ export default function InstructorCourseBuilder() {
         if (field === 'videoUrl') {
           setLessonForm(prev => ({ ...prev, videoUrl: data.filePath }));
         } else if (field === 'readingMaterials') {
-          const extension = file.name.split('.').pop();
           const docLink = `[Attached Resource: ${file.name}](${data.filePath})`;
           setLessonForm(prev => ({ 
             ...prev, 

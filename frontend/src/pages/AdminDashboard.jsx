@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity, MessageSquare, UserPlus } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+// eslint-disable-next-line no-unused-vars
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity, MessageSquare, UserPlus, Eye, ShieldOff, ArrowRightCircle, UserPlus as UserPlusIcon } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
 import ActivityFeed from '../components/ActivityFeed';
 
@@ -12,50 +14,92 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [usersList, setUsersList] = useState([]);
   const [pendingCourses, setPendingCourses] = useState([]);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [allCourses, setAllCourses] = useState([]);
+  const [pendingEnrollments, setPendingEnrollments] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUserPassword, setSelectedUserPassword] = useState('');
+  const [manageOpen, setManageOpen] = useState(false);
+  const [selectedUserActivities, setSelectedUserActivities] = useState([]);
+  const [selectedUserCourses, setSelectedUserCourses] = useState([]);
+  const [recentFamilyActivity, setRecentFamilyActivity] = useState([]);
+  const [childSearch, setChildSearch] = useState('');
+  const [selectedChildId, setSelectedChildId] = useState('');
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState(null);
   const [analytics, setAnalytics] = useState(null);
 
-  useEffect(() => {
-    Promise.all([fetchUsers(), fetchPendingCourses(), fetchStats(), fetchAnalytics()]).finally(() => setLoading(false));
-  }, []);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const { data } = await api.get('/admin/dashboard');
       setStats(data.data);
     } catch (err) {
       console.error('Failed to fetch stats', err);
     }
-  };
+  }, []);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const { data } = await api.get('/admin/analytics/detailed');
       setAnalytics(data.data);
     } catch (err) {
       console.error('Failed to fetch analytics', err);
     }
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const { data } = await api.get('/admin/users');
       setUsersList(data.data);
     } catch (err) {
       console.error('Failed to fetch users', err);
     }
-  };
+  }, []);
 
-  const fetchPendingCourses = async () => {
+  const fetchPendingCourses = useCallback(async () => {
     try {
       const { data } = await api.get('/admin/courses/pending');
       setPendingCourses(data.data);
     } catch (err) {
       console.error('Failed to fetch courses', err);
     }
-  };
+  }, []);
+
+  const fetchPendingEnrollments = useCallback(async () => {
+    try {
+      const { data } = await api.get('/admin/enrollments/pending');
+      setPendingEnrollments(data.data);
+    } catch (err) {
+      console.error('Failed to fetch pending enrollments', err);
+    }
+  }, []);
+
+  const fetchAllCourses = useCallback(async () => {
+    try {
+      const { data } = await api.get('/courses?limit=100');
+      setAllCourses(data.courses || []);
+    } catch (err) {
+      console.error('Failed to fetch all courses', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadAll = async () => {
+      try {
+        await Promise.all([fetchUsers(), fetchPendingCourses(), fetchPendingEnrollments(), fetchStats(), fetchAnalytics(), fetchAllCourses()]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadAll();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchUsers, fetchPendingCourses, fetchPendingEnrollments, fetchStats, fetchAnalytics, fetchAllCourses]);
 
   const updateRole = async (userId, role) => {
     try {
@@ -85,6 +129,170 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchUserActivities = useCallback(async (userId, role = '', children = []) => {
+    try {
+      const { data } = await api.get('/activity/all');
+      const allActivities = Array.isArray(data.data) ? data.data : [];
+      const userActivity = allActivities.filter((a) => {
+        const ownerId = a.user?._id || a.user;
+        return String(ownerId) === String(userId);
+      }).slice(0, 40);
+      setSelectedUserActivities(userActivity);
+
+      if (role === 'parent' && children.length > 0) {
+        const childIds = children.map((c) => String(c._id || c));
+        const familyActivity = allActivities.filter((a) => childIds.includes(String(a.user?._id || a.user))).slice(0, 40);
+        setRecentFamilyActivity(familyActivity);
+      } else {
+        setRecentFamilyActivity([]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch user activities', err);
+      setSelectedUserActivities([]);
+      setRecentFamilyActivity([]);
+    }
+  }, []);
+
+  const openManagePanel = async (userId) => {
+    try {
+      const { data } = await api.get(`/admin/users/${userId}`);
+      const user = data.data;
+      setSelectedUser(user);
+      setSelectedUserPassword('');
+      setManageOpen(true);
+      setChildSearch('');
+      setSelectedChildId('');
+
+      if (user) {
+        await fetchUserActivities(userId, user.role, user.children || []);
+        const userCourses = allCourses.filter((c) => String(c.instructor?._id || c.instructor) === String(userId));
+        setSelectedUserCourses(userCourses);
+      }
+    } catch (err) {
+      console.error('Failed to open manage panel', err);
+    }
+  };
+
+  const closeManagePanel = () => {
+    setSelectedUser(null);
+    setManageOpen(false);
+    setChildSearch('');
+    setSelectedChildId('');
+  };
+
+  const saveUserUpdates = async () => {
+    if (!selectedUser) return;
+    try {
+      const payload = {
+        name: selectedUser.name,
+        email: selectedUser.email,
+        role: selectedUser.role,
+        bio: selectedUser.bio,
+        paymentStatus: selectedUser.paymentStatus,
+        outstandingBalance: selectedUser.outstandingBalance,
+        status: selectedUser.status
+      };
+      if (selectedUserPassword && selectedUserPassword.length >= 6) {
+        payload.password = selectedUserPassword;
+      }
+      await api.put(`/admin/users/${selectedUser._id}`, payload);
+      await fetchUsers();
+      setManageOpen(false);
+    } catch (err) {
+      console.error('Failed to save user updates', err);
+    }
+  };
+
+  const deleteAdminUser = async (userId) => {
+    if (!window.confirm('This will permanently delete user and all associations. Continue?')) return;
+    try {
+      await api.delete(`/admin/users/${userId}`);
+      await fetchUsers();
+      if (selectedUser && selectedUser._id === userId) closeManagePanel();
+    } catch (err) {
+      console.error('Failed to delete user', err);
+    }
+  };
+
+  const addChildToParent = async (childId) => {
+    if (!selectedUser || selectedUser.role !== 'parent' || !childId) return;
+    try {
+      await api.put(`/admin/users/${selectedUser._id}/link-child`, { childId });
+      const { data } = await api.get(`/admin/users/${selectedUser._id}`);
+      setSelectedUser(data.data);
+    } catch (err) {
+      console.error('Failed to link child', err);
+    }
+  };
+
+  const removeChildFromParent = async (childId) => {
+    if (!selectedUser || selectedUser.role !== 'parent' || !childId) return;
+    try {
+      await api.put(`/admin/users/${selectedUser._id}/unlink-child`, { childId });
+      const { data } = await api.get(`/admin/users/${selectedUser._id}`);
+      setSelectedUser(data.data);
+    } catch (err) {
+      console.error('Failed to unlink child', err);
+    }
+  };
+
+  const manualEnrollment = async (courseId, status = 'active') => {
+    if (!selectedUser || selectedUser.role !== 'student' || !courseId) return;
+    try {
+      await api.post('/admin/enrollments/manual', { studentId: selectedUser._id, courseId, status });
+      const { data } = await api.get(`/admin/users/${selectedUser._id}`);
+      setSelectedUser(data.data);
+      fetchUsers();
+    } catch (err) {
+      console.error('Failed to set manual enrollment', err);
+    }
+  };
+
+  const removeEnrollment = async (courseId) => {
+    if (!selectedUser || !courseId) return;
+    try {
+      await api.delete('/admin/enrollments', { data: { studentId: selectedUser._id, courseId } });
+      const { data } = await api.get(`/admin/users/${selectedUser._id}`);
+      setSelectedUser(data.data);
+      fetchUsers();
+    } catch (err) {
+      console.error('Failed to remove enrollment', err);
+    }
+  };
+
+  const resetUserProgress = async () => {
+    if (!selectedUser) return;
+    try {
+      await api.put(`/admin/users/${selectedUser._id}/reset-progress`);
+      const { data } = await api.get(`/admin/users/${selectedUser._id}`);
+      setSelectedUser(data.data);
+      await fetchUserActivities(selectedUser._id, selectedUser.role, data.data.children || []);
+      fetchUsers();
+    } catch (err) {
+      console.error('Failed to reset progress', err);
+    }
+  };
+
+  const blockService = async () => {
+    if (!selectedUser) return;
+    await updateUserStatus(selectedUser._id, 'blocked');
+    await openManagePanel(selectedUser._id);
+  };
+
+  const toggleInstructorAccess = async () => {
+    if (!selectedUser) return;
+    const targetStatus = selectedUser.status === 'approved' ? 'rejected' : 'approved';
+    await updateUserStatus(selectedUser._id, targetStatus);
+    const { data } = await api.get(`/admin/users/${selectedUser._id}`);
+    setSelectedUser(data.data);
+  };
+
+  const filterCandidates = () => {
+    if (!childSearch.trim()) return [];
+    const lowercase = childSearch.toLowerCase();
+    return usersList.filter((u) => u.role === 'student' && u.name.toLowerCase().includes(lowercase) && !(selectedUser?.children || []).some(c => c._id === u._id));
+  };
+
   const updateCourseStatus = async (courseId, status) => {
     try {
       await api.put(`/admin/courses/${courseId}/status`, { status });
@@ -94,10 +302,31 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleEnrollmentApproval = async (enrollmentId, status) => {
+    try {
+      await api.put(`/admin/enrollments/${enrollmentId}/status`, { status });
+      fetchPendingEnrollments();
+      fetchUsers();
+    } catch (err) {
+      console.error('Failed to update enrollment', err);
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
+
+  const getStatusBadgeClasses = (status) => {
+    if (status === 'approved') return 'bg-emerald-500/20 text-emerald-300 border border-emerald-300';
+    if (status === 'pending') return 'bg-amber-500/20 text-amber-300 border border-amber-300';
+    if (status === 'rejected') return 'bg-rose-500/20 text-rose-300 border border-rose-300';
+    if (status === 'blocked') return 'bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]';
+    return 'bg-slate-500/20 text-slate-200 border border-slate-400';
+  };
+
+  const selectedUserCompletion = selectedUser?.enrolledCourses?.length ?
+    Math.round(selectedUser.enrolledCourses.reduce((acc, ec) => acc + (ec.progress || 0), 0) / selectedUser.enrolledCourses.length) : 0;
 
   const instructorsCount = usersList.filter(u => u.role === 'instructor').length;
 
@@ -111,7 +340,7 @@ export default function AdminDashboard() {
     }
 
     switch (activeTab) {
-      case 'overview':
+      case 'overview': {
         const revenueData = analytics?.revenueData || [];
         const userDistributionData = [
           { name: 'Students', value: stats?.totalStudents || 0, color: '#3b82f6' },
@@ -291,6 +520,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         );
+      }
       case 'users':
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -313,10 +543,11 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 font-semibold">Status</th>
                       <th className="px-6 py-4 font-semibold">Role</th>
                       <th className="px-6 py-4 font-semibold">Assign Instructor</th>
+                      <th className="px-6 py-4 font-semibold">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {usersList.map((u, idx) => (
+                    {usersList.map((u) => (
                       <tr key={u._id} className="hover:bg-transparent/50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -381,6 +612,14 @@ export default function AdminDashboard() {
                            ) : (
                              <span className="text-slate-300 text-sm italic">N/A</span>
                            )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            className="px-3 py-1.5 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 flex items-center gap-1"
+                            onClick={() => openManagePanel(u._id)}
+                          >
+                            <Eye className="w-3.5 h-3.5" /> Details
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -461,6 +700,32 @@ export default function AdminDashboard() {
                   ))}
                 </div>
             )}
+
+            <div className="mt-8 glass-card p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-slate-900">Enrollment Approval Queue</h3>
+                <span className="text-sm text-slate-500">{pendingEnrollments.length} pending</span>
+              </div>
+              {!pendingEnrollments.length ? (
+                <p className="text-slate-500">No pending enrollment requests.</p>
+              ) : (
+                <div className="space-y-3">
+                  {pendingEnrollments.map((req) => (
+                    <div key={req._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border border-slate-200 rounded-lg">
+                      <div>
+                        <p><span className="font-semibold">Student:</span> {req.studentName} ({req.studentEmail})</p>
+                        <p><span className="font-semibold">Course:</span> {req.courseTitle}</p>
+                        <p className="text-xs text-slate-400">Requested at: {new Date(req.requestedAt).toLocaleString()}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => handleEnrollmentApproval(req._id, 'active')} className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs">Approve</button>
+                        <button onClick={() => handleEnrollmentApproval(req._id, 'rejected')} className="px-3 py-1.5 bg-rose-500 text-white rounded-lg text-xs">Reject</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         );
       case 'logs':
@@ -603,6 +868,278 @@ export default function AdminDashboard() {
         <div className="max-w-6xl mx-auto">
           {renderContent()}
         </div>
+
+        <AnimatePresence>
+          {manageOpen && selectedUser && (
+            <motion.div
+              key="intel-hub-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-start pt-10 overflow-auto px-4"
+              onClick={closeManagePanel}
+            >
+              <motion.div
+                initial={{ x: 450, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 450, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 240, damping: 30 }}
+                className="relative w-full max-w-6xl rounded-3xl border border-[#FFD700] bg-[#0B0E14]/90 p-5 shadow-2xl backdrop-blur-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-start gap-4 mb-5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full border border-[#FFD700] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-600 overflow-hidden shadow-lg">
+                      <img
+                        src={selectedUser.avatar?.startsWith('http') ? selectedUser.avatar : selectedUser.avatar ? `/uploads/${selectedUser.avatar}` : 'https://via.placeholder.com/150'}
+                        alt={selectedUser.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-white tracking-tight">{selectedUser.name}</h3>
+                      <p className="text-sm font-semibold uppercase tracking-wider text-indigo-200">{selectedUser.role || 'Unknown Role'}</p>
+                      <span className={`inline-flex items-center px-3 py-1.5 mt-1 text-xs font-semibold rounded-full ${getStatusBadgeClasses(selectedUser.status)}`}>
+                        {selectedUser.status || 'unknown'}
+                      </span>
+                    </div>
+                  </div>
+                  <button onClick={closeManagePanel} className="text-slate-300 text-sm hover:text-white">Close</button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+                  <div className="p-4 rounded-2xl border border-white/10 bg-black/40">
+                    <h4 className="text-sm text-slate-200 font-bold uppercase tracking-wide mb-3">Relationship Map</h4>
+                    {selectedUser.role === 'student' && (
+                      <div className="space-y-2">
+                        <p className="text-xs text-slate-400">Assigned Instructor</p>
+                        {selectedUser.assignedInstructor ? (
+                          <button onClick={() => openManagePanel(selectedUser.assignedInstructor._id)} className="text-sm font-semibold text-emerald-200 hover:text-emerald-100 transition-colors underline decoration-dashed">
+                            {selectedUser.assignedInstructor.name}
+                          </button>
+                        ) : (
+                          <p className="text-sm text-slate-400">Unassigned</p>
+                        )}
+
+                        <p className="text-xs text-slate-400">Linked Parents</p>
+                        <div className="flex flex-wrap gap-2">
+                          {(selectedUser.parents || []).length > 0 ?
+                            selectedUser.parents.map((parent) => (
+                              <button
+                                key={parent._id}
+                                onClick={() => openManagePanel(parent._id)}
+                                className="px-2 py-1 text-xs font-semibold text-[#0B0E14] bg-[#FFD700] rounded-full hover:bg-yellow-400 transition-colors"
+                              >
+                                {parent.name}
+                              </button>
+                            )) : <p className="text-sm text-slate-400">No parents connected</p>
+                          }
+                        </div>
+                      </div>
+                    )}
+                    {selectedUser.role === 'instructor' && (
+                      <div className="space-y-2">
+                        <p className="text-xs text-slate-400">Active Students</p>
+                        <p className="text-sm text-white">{selectedUser.assignedStudents?.length || 0}</p>
+                      </div>
+                    )}
+                    {selectedUser.role === 'parent' && (
+                      <div className="space-y-2">
+                        <p className="text-xs text-slate-400">Watching Learners</p>
+                        {(selectedUser.children || []).length > 0 ?
+                          selectedUser.children.map((c) => (
+                            <p key={c._id} className="text-sm text-emerald-200">{c.name}</p>
+                          )) : <p className="text-sm text-slate-400">No current children linked</p>
+                        }
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4 rounded-2xl border border-white/10 bg-black/40">
+                    <h4 className="text-sm text-slate-200 font-bold uppercase tracking-wide mb-3">Activity Matrix (Recent)</h4>
+                    <div className="max-h-48 overflow-auto space-y-2">
+                      {(selectedUserActivities.length > 0) ? selectedUserActivities.map((activity) => (
+                        <div key={activity._id} className="rounded-lg border border-slate-700 bg-slate-900/70 p-2 text-xs">
+                          <p className="text-slate-200">{activity.action}</p>
+                          <p className="text-slate-400 mt-0.5 text-[11px]">{activity.type || 'action'} • {new Date(activity.createdAt).toLocaleString()}</p>
+                        </div>
+                      )) : <p className="text-slate-400 text-sm">No recent activity recorded.</p>}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl border border-white/10 bg-black/40">
+                    <h4 className="text-sm text-slate-200 font-bold uppercase tracking-wide mb-3">Extended Insights</h4>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-xs text-slate-400">Total courses currently enrolled</p>
+                      <p className="text-sm text-white">{(selectedUser.enrolledCourses || []).length}</p>
+                      <p className="text-xs text-slate-400">Pending approvals</p>
+                      <p className="text-sm text-white">{(selectedUser.enrolledCourses || []).filter((en) => en.status === 'pending').length}</p>
+                      <p className="text-xs text-slate-400">Last activity</p>
+                      <p className="text-sm text-white">{selectedUserActivities[0] ? new Date(selectedUserActivities[0].createdAt).toLocaleString() : '—'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl border border-white/10 bg-black/40">
+                    <h4 className="text-sm text-slate-200 font-bold uppercase tracking-wide mb-3">Performance Snapshot</h4>
+                    <div className="flex items-center justify-center mb-3">
+                      <RadialBarChart width={200} height={200} cx="50%" cy="50%" innerRadius="62%" outerRadius="100%" barSize={12} data={[{ name: 'Progress', value: selectedUserCompletion, fill: '#008A32' }]}>
+                        <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+                        <RadialBar background clockWise dataKey="value" cornerRadius={10} />
+                      </RadialBarChart>
+                    </div>
+                    <p className="text-center text-sm text-emerald-200 font-semibold">Average progress: {selectedUserCompletion}%</p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl border border-white/10 bg-black/40">
+                    {(selectedUser.role === 'student') ? (
+                      <>
+                        <h4 className="text-sm text-slate-200 font-bold uppercase tracking-wide mb-3">Student Dossier</h4>
+                        <div className="grid grid-cols-1 gap-2 max-h-40 overflow-auto">
+                          {(selectedUser.enrolledCourses || []).map((en, idx) => {
+                            const courseId = en.course?._id || en.course;
+                            const courseTitle = en.course?.title || (allCourses.find((c) => c._id === courseId)?.title) || 'Unknown';
+                            return (
+                              <div key={`${courseId}_${idx}`} className="rounded-lg border border-slate-700 bg-slate-900/70 p-2 flex flex-col gap-2">
+                                <div className="flex items-start justify-between gap-3">
+                                  <p className="text-sm font-semibold text-white">{courseTitle}</p>
+                                  <button onClick={() => removeEnrollment(courseId)} className="text-[11px] text-rose-300 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">Remove</button>
+                                </div>
+                                <div className="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
+                                  <div style={{ width: `${en.progress || 0}%`, backgroundColor: '#008A32' }} className="h-full rounded-full transition-all duration-700" aria-valuenow={en.progress || 0} aria-valuemin="0" aria-valuemax="100" />
+                                </div>
+                                <p className="text-xs text-slate-300">Progress: {en.progress || 0}% • {en.status}</p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button onClick={() => manualEnrollment(allCourses[0]?._id || '', 'active')} className="px-3 py-2 bg-blue-600 rounded-lg text-xs text-white">Force Enroll</button>
+                          <button onClick={resetUserProgress} className="px-3 py-2 bg-indigo-600 rounded-lg text-xs text-white">Reset Progress</button>
+                          {selectedUser.status === 'blocked' ? (
+                            <button onClick={async () => { await updateUserStatus(selectedUser._id, 'approved'); await openManagePanel(selectedUser._id); }} className="px-3 py-2 bg-emerald-600 rounded-lg text-xs text-white">Unblock Service</button>
+                          ) : (
+                            <button onClick={blockService} className="px-3 py-2 bg-red-600 rounded-lg text-xs text-white">Block Service</button>
+                          )}
+                        </div>
+                      </>
+                    ) : selectedUser.role === 'instructor' ? (
+                      <>
+                        <h4 className="text-sm text-slate-200 font-bold uppercase tracking-wide mb-3">Instructor Performance</h4>
+                        <div className="space-y-2">
+                          <p className="text-sm text-white">Content Portfolio: {selectedUserCourses.length} courses</p>
+                          {(selectedUserCourses.length === 0) ? <p className="text-xs text-slate-400">No created content yet</p> : selectedUserCourses.map((c) => (
+                            <div key={c._id} className="text-xs text-emerald-200 border border-slate-700 p-2 rounded-lg">{c.title} — {(c.status || 'unknown')}</div>
+                          ))}
+                          <p className="text-sm text-white">Student Reach: {selectedUser.assignedStudents?.length || 0}</p>
+                          <p className="text-sm text-white">Admin Feedback Log</p>
+                          {(selectedUser.adminFeedback || []).length > 0 ? selectedUser.adminFeedback.map((f, index) => (
+                            <p key={index} className="text-xs text-slate-300">• {f}</p>
+                          )) : <p className="text-xs text-slate-400">No feedback yet</p>}
+                          <button onClick={toggleInstructorAccess} className="px-3 py-2 bg-amber-600 rounded-lg text-xs text-white">{selectedUser.status === 'approved' ? 'Disable Upload/Edit' : 'Reactivate Instructor'}</button>
+                        </div>
+                      </>
+                    ) : selectedUser.role === 'parent' ? (
+                      <>
+                        <h4 className="text-sm text-slate-200 font-bold uppercase tracking-wide mb-3">Guardian Insight</h4>
+                        <p className="text-sm text-white">Linked Learners: {((selectedUser.children || []).length)}</p>
+                        <div className="space-y-2">
+                          {(selectedUser.children || []).length > 0 ?
+                            selectedUser.children.map((c) => (
+                              <div key={c._id} className="flex items-center justify-between px-2 py-1 bg-slate-800 rounded-lg">
+                                <span className="text-xs text-emerald-200">{c.name}</span>
+                                <button onClick={() => removeChildFromParent(c._id)} className="text-[10px] px-2 py-1 rounded bg-rose-600 hover:bg-rose-500">Remove</button>
+                              </div>
+                            )) : <p className="text-xs text-slate-400">No current children linked</p>
+                          }
+                        </div>
+                        <div className="mt-2">
+                          <h5 className="text-xs text-slate-400 uppercase tracking-wide">Add/Remove Child</h5>
+                          <div className="flex gap-2 mt-1">
+                            <select value={selectedChildId} onChange={(e) => setSelectedChildId(e.target.value)} className="flex-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs">
+                              <option value="">Select student</option>
+                              {filterCandidates().map((child) => (
+                                <option key={child._id} value={child._id}>{child.name}</option>
+                              ))}
+                            </select>
+                            <button onClick={() => { if (selectedChildId) addChildToParent(selectedChildId); }} className="px-2 py-1 bg-blue-600 rounded-lg text-xs text-white">Add</button>
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <h5 className="text-xs text-slate-400 uppercase tracking-wide">Family Activity</h5>
+                          <div className="max-h-28 overflow-auto space-y-1 mt-1">
+                            {(recentFamilyActivity.length > 0) ? recentFamilyActivity.map((act) => (
+                              <p key={act._id} className="text-xs text-slate-300">{new Date(act.createdAt).toLocaleString()} — {act.action}</p>
+                            )) : <p className="text-xs text-slate-400">No family insights yet</p>}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-sm text-slate-300">General admin user info and can be managed in the profile panel below.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-black/40">
+                  <h4 className="text-sm text-slate-200 font-bold uppercase tracking-wide mb-3">Quick Admin Overrides</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
+                    <div>
+                      <label className="text-xs text-slate-400">Email</label>
+                      <input
+                        type="email"
+                        value={selectedUser.email || ''}
+                        onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
+                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-600 bg-black/60 text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400">Role</label>
+                      <select
+                        value={selectedUser.role || ''}
+                        onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value })}
+                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-600 bg-black/60 text-white"
+                      >
+                        <option value="student">Student</option>
+                        <option value="instructor">Instructor</option>
+                        <option value="parent">Parent</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400">Password (min 6 chars)</label>
+                      <input
+                        type="password"
+                        value={selectedUserPassword}
+                        onChange={(e) => setSelectedUserPassword(e.target.value)}
+                        placeholder="New password"
+                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-600 bg-black/60 text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400">Account Status</label>
+                      <select
+                        value={selectedUser.status || ''}
+                        onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
+                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-600 bg-black/60 text-white"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="blocked">Blocked</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 p-4 rounded-2xl border border-white/10 bg-black/40 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <button onClick={saveUserUpdates} className="px-4 py-2 rounded-lg bg-emerald-500 text-white font-semibold text-sm">Save changes</button>
+                  <button onClick={() => deleteAdminUser(selectedUser._id)} className="px-4 py-2 rounded-lg bg-rose-500 text-white font-semibold text-sm">Delete user</button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

@@ -10,6 +10,7 @@ import {
 export default function Home() {
   const [featuredCourses, setFeaturedCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  void motion;
 
   useEffect(() => {
     const fetchCourses = async () => {

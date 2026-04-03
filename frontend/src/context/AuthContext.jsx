@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { checkAuth, loginUser, registerUser, logoutUser } from '../utils/api';
 
@@ -18,7 +19,7 @@ export const AuthProvider = ({ children }) => {
                     setUser(userData);
                     setIsAuthenticated(true);
                 }
-            } catch (error) {
+            } catch {
                 setUser(null);
                 setIsAuthenticated(false);
             } finally {

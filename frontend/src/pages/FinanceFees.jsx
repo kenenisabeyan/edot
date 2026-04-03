@@ -2,6 +2,24 @@ import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChevronDown, Search, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 
+const StatBox = ({ title, value, percentage, type }) => (
+  <div className={`p-6 rounded-3xl border border-slate-100 shadow-sm ${type === 'primary' ? 'bg-indigo-600 text-white' : 'glass-card'}`}>
+    <div className="flex justify-between items-start mb-4">
+      <h3 className={`font-medium text-sm ${type === 'primary' ? 'text-indigo-100' : 'text-slate-500'}`}>{title}</h3>
+      {percentage && (
+        <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+          type === 'primary' ? 'bg-indigo-500/50 text-white' : 
+          percentage.startsWith('+') ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+        }`}>
+          {percentage}%
+        </span>
+      )}
+    </div>
+    <h2 className={`text-3xl font-bold ${type === 'primary' ? 'text-white' : 'text-slate-800'}`}>{value}</h2>
+    <p className={`text-xs mt-2 ${type === 'primary' ? 'text-indigo-200' : 'text-slate-400'}`}>Total Collection</p>
+  </div>
+);
+
 export default function FinanceFees() {
   const collectionData = [
     { name: 'Jan', collection: 0, expenses: 0 }
@@ -9,23 +27,6 @@ export default function FinanceFees() {
 
   const studentFees = [];
 
-  const StatBox = ({ title, value, percentage, type }) => (
-    <div className={`p-6 rounded-3xl border border-slate-100 shadow-sm ${type === 'primary' ? 'bg-indigo-600 text-white' : 'glass-card'}`}>
-      <div className="flex justify-between items-start mb-4">
-        <h3 className={`font-medium text-sm ${type === 'primary' ? 'text-indigo-100' : 'text-slate-500'}`}>{title}</h3>
-        {percentage && (
-          <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-            type === 'primary' ? 'bg-indigo-500/50 text-white' : 
-            percentage.startsWith('+') ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-          }`}>
-            {percentage}%
-          </span>
-        )}
-      </div>
-      <h2 className={`text-3xl font-bold ${type === 'primary' ? 'text-white' : 'text-slate-800'}`}>{value}</h2>
-      <p className={`text-xs mt-2 ${type === 'primary' ? 'text-indigo-200' : 'text-slate-400'}`}>Total Collection</p>
-    </div>
-  );
 
   return (
     <div className="space-y-6">

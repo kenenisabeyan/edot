@@ -17,17 +17,16 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card } from '../components/ui/Card';
 
 export default function EDOTDashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const userRole = user?.role ? user.role.toLowerCase().trim() : 'student';
+  void motion;
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
@@ -234,6 +233,14 @@ export default function EDOTDashboard() {
     { name: 'Active', value: gaugeConfig.valNum, color: gaugeConfig.ringColor },
     { name: 'Empty', value: 100 - gaugeConfig.valNum, color: '#1E293B' }
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-80">
+        <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <motion.div 

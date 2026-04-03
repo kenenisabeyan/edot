@@ -14,8 +14,12 @@ export default function CourseDetails() {
   const [enrolling, setEnrolling] = useState(false);
   const [error, setError] = useState('');
 
-  // Check if currently logged in user is enrolled
-  const isEnrolled = user?.enrolledCourses?.some(e => e.course === id || e.course?._id === id);
+  // Check if currently logged in user is enrolled/pending/active
+  const enrollmentRecord = user?.enrolledCourses?.find(e => e.course === id || e.course?._id === id);
+  const isPending = enrollmentRecord?.status === 'pending';
+  const isActive = enrollmentRecord?.status === 'active';
+  const isEnrolled = !!enrollmentRecord;
+  const isBlocked = user?.status === 'blocked';
 
   useEffect(() => {
     const fetchCourseDetails = async () => {
@@ -51,6 +55,17 @@ export default function CourseDetails() {
     return (
       <div className="min-h-[60vh] flex justify-center items-center">
         <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (isBlocked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0E14]/90 backdrop-blur-2xl p-4">
+        <div className="max-w-lg w-full border border-[#FFD700] bg-white/10 backdrop-blur-xl p-8 rounded-3xl shadow-2xl text-center">
+          <h2 className="text-2xl font-bold text-[#FFD700] mb-3">Service Suspended</h2>
+          <p className="text-sm text-slate-200 mb-4">Access is restricted due to account suspension. Please contact administration for restoration.</p>
+        </div>
       </div>
     );
   }
@@ -168,13 +183,17 @@ export default function CourseDetails() {
                       </div>
                       
                       <div className="shrink-0 w-full sm:w-auto flex justify-between sm:justify-end items-center mt-4 sm:mt-0 pt-4 sm:pt-0 border-t border-slate-100 sm:border-0">
-                        {isEnrolled ? (
+                        {isActive ? (
                           <Link 
                             to={`/lesson/${lesson._id}?courseId=${course._id}`} 
                             className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition-colors"
                           >
                             <PlayCircle className="w-5 h-5" /> Watch
                           </Link>
+                        ) : isPending ? (
+                          <div className="flex items-center gap-2 text-amber-600 font-medium bg-amber-50 px-4 py-2 rounded-lg">
+                            <AlertCircle className="w-4 h-4" /> Request pending
+                          </div>
                         ) : (
                           <div className="flex items-center gap-2 text-slate-500 font-medium bg-slate-100 px-4 py-2 rounded-lg">
                             <Lock className="w-4 h-4" /> 
@@ -235,24 +254,38 @@ export default function CourseDetails() {
                   <span className="text-slate-500 line-through text-lg">$99.99</span>
                 </div>
 
-                {isEnrolled ? (
-                  <button 
-                    onClick={() => navigate('/dashboard')} 
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white font-bold text-lg rounded-xl hover:bg-emerald-700 hover:-translate-y-0.5 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 mb-6"
-                  >
-                    <CheckCircle className="w-6 h-6" /> Go to Dashboard
-                  </button>
-                ) : (
+                {!isEnrolled ? (
                   <button 
                     onClick={handleEnroll} 
                     disabled={enrolling} 
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white font-bold text-lg rounded-xl hover:bg-blue-700 hover:-translate-y-0.5 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none mb-6"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-[#008A32] text-white font-bold text-lg rounded-xl hover:bg-[#006622] hover:-translate-y-0.5 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-[#008A32] focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none mb-6"
                   >
                     {enrolling ? (
                       <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                     ) : (
-                      'Enroll Now'
+                      'Request Access'
                     )}
+                  </button>
+                ) : isPending ? (
+                  <button 
+                    disabled
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-yellow-500 text-white font-bold text-lg rounded-xl cursor-not-allowed mb-6"
+                  >
+                    <Lock className="w-5 h-5" /> Waiting for Admin Approval
+                  </button>
+                ) : isActive ? (
+                  <button 
+                    onClick={() => navigate('/dashboard')} 
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white font-bold text-lg rounded-xl hover:bg-emerald-700 hover:-translate-y-0.5 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 mb-6"
+                  >
+                    <CheckCircle className="w-6 h-6" /> Access Granted - Continue Learning
+                  </button>
+                ) : (
+                  <button 
+                    disabled
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-slate-500 text-white font-bold text-lg rounded-xl cursor-not-allowed mb-6"
+                  >
+                    <Lock className="w-5 h-5" /> Enrollment Rejected
                   </button>
                 )}
                 

@@ -57,7 +57,9 @@ export default function CertificatesView() {
 
     try {
       doc.addImage(img, 'PNG', 133.5, 20, 30, 25);
-    } catch(e) {}
+    } catch {
+      // ignore image load failures
+    }
     
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(15, 23, 42);

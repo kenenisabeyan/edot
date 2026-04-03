@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
@@ -25,36 +25,50 @@ export default function InstructorDashboard() {
   const [activeCourseId, setActiveCourseId] = useState(null);
   const [lessonData, setLessonData] = useState({ title: '', description: '', videoUrl: '', duration: 10 });
 
-  useEffect(() => {
-    Promise.all([fetchCourses(), fetchStats(), fetchAnalytics()]).finally(() => setLoading(false));
-  }, []);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const { data } = await api.get('/instructor/dashboard');
       setStats(data.data);
     } catch (err) {
       console.error('Failed to fetch stats', err);
     }
-  };
+  }, []);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const { data } = await api.get('/instructor/analytics/detailed');
       setAnalytics(data.data);
     } catch (err) {
       console.error('Failed to fetch analytics', err);
     }
-  };
+  }, []);
 
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     try {
       const { data } = await api.get('/instructor/courses');
       setCourses(data.data);
     } catch (err) {
       console.error('Failed to fetch courses', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadDashboardData = async () => {
+      try {
+        await Promise.all([fetchCourses(), fetchStats(), fetchAnalytics()]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchCourses, fetchStats, fetchAnalytics]);
 
   const handleCreateCourse = async (e) => {
     e.preventDefault();
@@ -102,6 +116,7 @@ export default function InstructorDashboard() {
     navigate('/');
   };
 
+  void stats;
   const totalStudents = courses.reduce((acc, course) => acc + (course.totalStudents || 0), 0);
   const activeCourses = courses.filter(c => c.status === 'approved').length;
 
@@ -115,7 +130,7 @@ export default function InstructorDashboard() {
     }
 
     switch (activeTab) {
-      case 'overview':
+      case 'overview': {
         const revenueData = analytics?.revenueData || [];
         const engagementData = analytics?.engagementData || [];
 
@@ -238,6 +253,7 @@ export default function InstructorDashboard() {
             </div>
           </div>
         );
+      }
       case 'courses':
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

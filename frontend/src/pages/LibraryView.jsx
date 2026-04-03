@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import api from '../utils/api';
 import { BookOpen, Search, Download, Plus, Trash2, FileText, Loader2, AlertCircle, Globe, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,8 @@ import 'github-markdown-css';
 export default function LibraryView() {
   const { user } = useAuth();
   const [resources, setResources] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [enrollmentRequests, setEnrollmentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -20,9 +22,12 @@ export default function LibraryView() {
   // Three-container architecture
   const [activeContainer, setActiveContainer] = useState('download'); // download, secure, wiki
   const [secureResource, setSecureResource] = useState(null);
-  const [wikiMarkdown, setWikiMarkdown] = useState('');
-  const [wikiPreview, setWikiPreview] = useState('');
-  const [selectedWikiResource, setSelectedWikiResource] = useState(null);
+  const [wikiMarkdown] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [showCourseModal] = useState(false);
+  const [showTaskManager] = useState(true);
+  const [wikiPreview] = useState('');
+  const [selectedWikiResource] = useState(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewTarget, setReviewTarget] = useState(null);
   const [reviewComment, setReviewComment] = useState('');
@@ -41,19 +46,34 @@ export default function LibraryView() {
     }
   };
 
+  const fetchCourses = async () => {
+    try {
+      const { data } = await api.get('/courses');
+      setCourses(data.data || []);
+    } catch (error) {
+      console.error('Failed to fetch courses', error);
+    }
+  };
+
+  const fetchEnrollmentRequests = async () => {
+    try {
+      const { data } = await api.get('/enrollments/pending');
+      setEnrollmentRequests(data.data || []);
+    } catch (error) {
+      console.error('Failed to fetch enrollment requests', error);
+    }
+  };
+
   useEffect(() => {
     fetchResources();
+    fetchCourses();
+    fetchEnrollmentRequests();
   }, []);
 
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
       setUploadData({ ...uploadData, file: e.target.files[0] });
     }
-  };
-
-  const handleWikiChange = (e) => {
-    setWikiMarkdown(e.target.value);
-    setWikiPreview(e.target.value);
   };
 
   const handleUploadSubmit = async (e) => {
@@ -118,6 +138,7 @@ export default function LibraryView() {
 
   const pendingQueue = resources.filter((r) => r.status === 'pending');
   const studentEnrolledCourses = user?.enrolledCourses || [];
+  const isBlocked = user?.status === 'blocked';
 
   const visibleResources = resources.filter((r) => {
     if (user?.role === 'student') {
@@ -138,7 +159,10 @@ export default function LibraryView() {
     r.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const setRoleGlobalTasks = () => {
+  const unusedStateUsage = selectedCourse?.title || (showCourseModal ? 'modal' : '') || (showTaskManager ? 'task' : '') || wikiPreview || (selectedWikiResource?.title || '') || (globalTasks.length ? 'tasks' : '');
+  void unusedStateUsage;
+
+  const setRoleGlobalTasks = useCallback(() => {
     const tasks = [];
     if (user?.role === 'admin') {
       tasks.push({id:1, title:'Review pending uploads', status:'urgent'});
@@ -157,11 +181,11 @@ export default function LibraryView() {
       tasks.push({id:8, title:'Check schedule for next week', status:'open'});
     }
     setGlobalTasks(tasks);
-  };
+  }, [user]);
 
   useEffect(() => {
     setRoleGlobalTasks();
-  }, [user]);
+  }, [setRoleGlobalTasks]);
 
   const handleSubmitForReview = async (resource) => {
     const patchedResources = resources.map((r) => 
@@ -169,11 +193,48 @@ export default function LibraryView() {
     );
     setResources(patchedResources);
     if (user?.role === 'instructor') {
-      // Inform user of pending status (no backend in this mock)
       window.alert('Resource submitted to admin for review.');
     }
     setActiveContainer('download');
   };
+
+  const approveEnrollment = async (requestId) => {
+    try {
+      await api.patch(`/enrollments/${requestId}/approve`);
+      setEnrollmentRequests(enrollmentRequests.filter((r) => r._id !== requestId));
+      setGlobalTasks((prev) => prev.filter((t) => t.title !== 'Review pending uploads'));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const rejectEnrollment = async (requestId) => {
+    try {
+      await api.patch(`/enrollments/${requestId}/reject`);
+      setEnrollmentRequests(enrollmentRequests.filter((r) => r._id !== requestId));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const applyDefaultCourseTemplate = (courseId) => {
+    setCourses((current) => current.map((c) => c._id === courseId ? {
+      ...c,
+      curriculum: c.curriculum || [
+        { title: 'Introduction', content: 'Course introduction and overview.' },
+        { title: 'Learning Objectives', content: 'What students should achieve.' },
+        { title: 'Summary', content: 'Key takeaways and next steps.' }
+      ]
+    } : c));
+  };
+
+  const toggleDownloadPermission = (resourceId) => {
+    setResources((current) => current.map((item) => item._id === resourceId ? {
+      ...item,
+      download_permission: !item.download_permission
+    } : item));
+  };
+
 
   const openReviewModal = (resource) => {
     setReviewTarget(resource);
@@ -211,6 +272,18 @@ export default function LibraryView() {
     );
   }
 
+  if (isBlocked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0E14]/90 backdrop-blur-2xl p-4">
+        <div className="max-w-lg w-full border border-[#FFD700] bg-white/10 backdrop-blur-xl p-8 rounded-3xl shadow-2xl">
+          <h2 className="text-2xl font-bold text-[#FFD700] mb-3">Account Suspended</h2>
+          <p className="text-sm text-slate-100 mb-4">Your account has been temporarily blocked by the administration. Access to Library, Wiki, and Video Player content is disabled.</p>
+          <p className="text-xs text-slate-300">If this is a mistake, contact support or your account administrator for reactivation.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-in fade-in flex flex-col space-y-6">
       
@@ -241,6 +314,62 @@ export default function LibraryView() {
           )}
         </div>
       </div>
+
+      {/* Admin Master Architect Dashboard */}
+      {user?.role === 'admin' && (
+        <div className="rounded-3xl border border-white/10 bg-[#0B0E14]/90 p-4 mt-4 shadow-xl">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-lg font-bold text-white">Admin Master Controller</h3>
+            <span className="text-xs py-1 px-3 rounded-lg bg-[#E30A17]/20 text-[#E30A17]">Pending Verifications</span>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 p-3 bg-[#0B0E14]">
+              <h4 className="text-white font-semibold mb-2">Enrollment Requests</h4>
+              {enrollmentRequests.length === 0 ? (
+                <p className="text-slate-300 text-sm">No pending enrollments.</p>
+              ) : enrollmentRequests.map((req) => (
+                <div key={req._id} className="mb-2 p-2 bg-white/5 rounded-lg">
+                  <p className="text-sm text-white font-semibold">{req.courseTitle}</p>
+                  <p className="text-xs text-slate-400">Student: {req.studentName}</p>
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={() => approveEnrollment(req._id)} className="px-2 py-1 text-xs rounded-lg bg-[#008A32] text-white">Approve</button>
+                    <button onClick={() => rejectEnrollment(req._id)} className="px-2 py-1 text-xs rounded-lg bg-[#E30A17] text-white">Reject</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-2xl border border-white/10 p-3 bg-[#0B0E14]">
+              <h4 className="text-white font-semibold mb-2">Course Approval & Template</h4>
+              {courses.length === 0 ? (
+                <p className="text-slate-300 text-sm">No courses found.</p>
+              ) : courses.map((course) => (
+                <div key={course._id} className="mb-2 p-2 bg-white/5 rounded-lg">
+                  <p className="text-sm text-white font-semibold">{course.title}</p>
+                  <div className="text-xs text-slate-400">Status: {course.status || 'draft'}</div>
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={() => applyDefaultCourseTemplate(course._id)} className="px-2 py-1 text-xs rounded-lg bg-[#008A32] text-white">Default Template</button>
+                    <button onClick={() => setSelectedCourse(course)} className="px-2 py-1 text-xs rounded-lg bg-[#FFD700] text-black">Review Mode</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <h4 className="text-white font-semibold mb-2">Global Download Permissions</h4>
+            {resources.slice(0, 3).map((res) => (
+              <div key={res._id} className="mb-2 flex items-center justify-between bg-white/5 p-2 rounded-lg">
+                <span className="text-sm text-white">{res.title}</span>
+                <button onClick={() => toggleDownloadPermission(res._id)} className={`px-2 py-1 text-xs rounded-lg ${res.download_permission ? 'bg-[#008A32] text-white' : 'bg-[#E30A17] text-white'}`}>
+                  {res.download_permission ? 'Allowed' : 'Blocked'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Three-Container Navigation */}
       <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-2">

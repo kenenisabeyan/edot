@@ -4,12 +4,12 @@ const mongoose = require('mongoose');
 const ProgressLog = require('../models/ProgressLog');
 const Course = require('../models/Course');
 const Certificate = require('../models/Certificate');
-const { protect } = require('../middleware/auth');
+const { protect, guardActiveEnrollment, checkNotBlocked } = require('../middleware/auth');
 
 // @route   POST /api/progress/ping
 // @desc    Heartbeat ping to track video watch time in 30s blocks
 // @access  Private
-router.post('/ping', protect, async (req, res) => {
+router.post('/ping', protect, checkNotBlocked, guardActiveEnrollment, async (req, res) => {
     try {
         const { courseId, lessonId, currentSecond } = req.body;
         const userId = req.user.id;
@@ -82,7 +82,7 @@ router.post('/ping', protect, async (req, res) => {
 // @route   POST /api/progress/certificate
 // @desc    Strict validation gate to generate/verify a Certificate
 // @access  Private
-router.post('/certificate', protect, async (req, res) => {
+router.post('/certificate', protect, checkNotBlocked, guardActiveEnrollment, async (req, res) => {
     try {
         const { courseId } = req.body;
         const userId = req.user.id;
