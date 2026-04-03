@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Search,
   Menu,
+  X,
   Award,
   Plus,
   Moon,
@@ -147,6 +148,14 @@ export default function EDOTLayout() {
   };
 
   const role = user?.role ? user.role.toLowerCase().trim() : 'student';
+  const dashboardTitle =
+    role === 'admin'
+      ? 'Edot Admin Dashboard'
+      : role === 'instructor'
+      ? 'Edot Instructor Dashboard'
+      : role === 'parent'
+      ? 'Edot Parent Dashboard'
+      : 'Edot Student Dashboard';
 
   const roleNavConfig = {
     admin: {
@@ -242,35 +251,48 @@ export default function EDOTLayout() {
       {/* Animated Background Mesh */}
       
       {/* Mobile Header */}
-      <div className="md:hidden glass-card rounded-none border-t-0 border-l-0 border-r-0 border-b border-slate-200 p-4 flex justify-between items-center sticky top-0 z-50 shadow-sm transition-colors duration-300">
-        <div className="flex items-center gap-2 font-bold text-xl text-indigo-600 dark:text-indigo-400">
-          <img src={edotLogo} alt="EDOT Logo" className="h-8 w-auto rounded-lg" />
-          <span className="text-gradient">EDOT</span>
-        </div>
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-slate-500 dark:text-slate-400">
+      <div className="md:hidden glass-card rounded-none border-t-0 border-l-0 border-r-0 border-b border-slate-200 p-3 flex items-center justify-between sticky top-0 z-50 shadow-sm transition-colors duration-300">
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-slate-500 dark:text-slate-400 p-2 rounded-lg hover:bg-slate-100/30">
           <Menu className="w-6 h-6" />
         </button>
+
+        <p className="text-sm font-semibold text-slate-800 dark:text-white">{dashboardTitle}</p>
+
+        {!mobileMenuOpen ? (
+          <img src={edotLogo} alt="EDOT Campaign Logo" className="h-8 w-8 rounded-full object-cover" />
+        ) : (
+          <span className="h-8 w-8" />
+        )}
       </div>
 
       {/* Sidebar */}
-      <aside className={`dashboard-sidebar tilet-border-sidebar shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed md:sticky top-0 left-0 h-screen
-        ${mobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0'}
-        ${sidebarCollapsed ? 'md:w-[88px]' : 'w-64'}
+      <aside className={`dashboard-sidebar tilet-border-sidebar shadow-[4px_0_24px_rgba(0,0,0,0.02)] fixed md:sticky top-0 left-0 h-screen md:h-full z-60
+        ${mobileMenuOpen ? 'translate-x-0 w-80 bg-slate-900/95 text-white shadow-xl' : '-translate-x-full md:translate-x-0 bg-transparent'}
+        ${sidebarCollapsed ? 'md:w-[88px] w-20' : 'w-80 md:w-64'}
       `}>
-        <div className="p-6 pb-2 flex items-center justify-between">
-           <div className={`flex items-center gap-3 font-bold text-2xl text-white transition-all ${sidebarCollapsed ? 'mx-auto' : ''}`}>
-             <img src={edotLogo} alt="EDOT Logo" className="h-10 w-auto rounded-xl shadow-sm" />
-             {!sidebarCollapsed && <span className="tracking-tight animate-in fade-in">EDOT</span>}
-           </div>
-           
-           {!mobileMenuOpen && (
-             <button 
-               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-               className="hidden md:flex text-slate-400 hover:text-[#FFD700] transition-colors p-1.5 rounded-lg hover:bg-white/5"
-             >
-               {sidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
-             </button>
-           )}
+        {mobileMenuOpen && (
+          <button onClick={() => setMobileMenuOpen(false)} className="absolute top-3 right-3 md:hidden text-slate-600 dark:text-slate-300 p-1.5 rounded-lg hover:bg-slate-100/40">
+            <X className="w-5 h-5" />
+          </button>
+        )}
+        <div className={`p-6 pb-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between ${mobileMenuOpen ? 'items-center' : ''}`}>
+          <div className={`flex flex-col items-center gap-3 transition-all ${sidebarCollapsed ? 'mx-auto' : ''}`}>
+            <img src={edotLogo} alt="EDOT Logo" className="h-14 w-14 rounded-full shadow-sm border border-white/20" />
+            {!sidebarCollapsed && (
+              <div className="text-center">
+                <p className="text-lg font-bold text-white">{dashboardTitle}</p>
+              </div>
+            )}
+          </div>
+
+          {!mobileMenuOpen && (
+            <button 
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="hidden md:flex text-slate-500 dark:text-slate-300 hover:text-[#FFD700] transition-colors p-1.5 rounded-lg hover:bg-white/5"
+            >
+              {sidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+            </button>
+          )}
         </div>
 
         <div className="overflow-y-auto overflow-x-hidden p-4 space-y-8 flex-1 scrollbar-hide mt-4">
