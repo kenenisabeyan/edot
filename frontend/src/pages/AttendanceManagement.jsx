@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-import { Calendar, CheckCircle, XCircle, UserX, Clock, Save, ChevronDown } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, UserX, Clock, Save, ShieldAlert } from 'lucide-react';
 import CustomDropdown from '../components/CustomDropdown';
 
 export default function AttendanceManagement() {
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [students, setStudents] = useState([]);
+  const [date, setDate] = useState(() => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  });
+  const [usersToTrack, setUsersToTrack] = useState([]);
   const [attendance, setAttendance] = useState({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -34,30 +38,30 @@ export default function AttendanceManagement() {
     const fetchStudentsAndRecords = async () => {
       setLoading(true);
       try {
-        // Fetch all students for instructor/admin, then filter locally for the specific course
-        const studentEndpoint = user?.role === 'admin' ? '/admin/users?role=student' : '/instructor/students';
-        const [studentRes, recordRes] = await Promise.all([
-          api.get(studentEndpoint),
+        const userEndpoint = user?.role === 'admin' ? '/admin/users' : '/instructor/students';
+        const [userRes, recordRes] = await Promise.all([
+          api.get(userEndpoint),
           api.get(`/attendance/course/${selectedCourse}`)
         ]);
 
-        let courseStudents = [];
+        const selectedCourseObj = courses.find(c => c._id === selectedCourse);
+        let courseUsers = [];
+
         if (user?.role === 'admin') {
-           // Admin path might require a custom filter, but for MVP we assume students track their enrollments
-           courseStudents = (studentRes.data.data || []).filter(s => 
-              s.enrolledCourses && s.enrolledCourses.some(ec => 
-                 (ec.course?._id || ec.course) === selectedCourse
-              )
-           );
+           const allUsers = userRes.data.data || [];
+           const students = allUsers.filter(s => s.role === 'student' && s.enrolledCourses && s.enrolledCourses.some(ec => (ec.course?._id || ec.course) === selectedCourse));
+           
+           const instructorId = selectedCourseObj?.instructor?._id || selectedCourseObj?.instructor;
+           const instructor = allUsers.find(u => u._id === instructorId);
+           
+           if (instructor) courseUsers.push({ ...instructor, category: 'Instructor' });
+           students.forEach(s => courseUsers.push({ ...s, category: 'Student' }));
         } else {
-           courseStudents = (studentRes.data.data || []).filter(s => 
-              s.enrolledCourses && s.enrolledCourses.some(ec => 
-                 (ec.course?._id || ec.course) === selectedCourse
-              )
-           );
+           const students = (userRes.data.data || []).filter(s => s.enrolledCourses && s.enrolledCourses.some(ec => (ec.course?._id || ec.course) === selectedCourse));
+           students.forEach(s => courseUsers.push({ ...s, category: 'Student' }));
         }
         
-        setStudents(courseStudents);
+        setUsersToTrack(courseUsers);
 
         // Check if there's an existing record for this date
         const targetDateStr = new Date(date).toISOString().split('T')[0];
@@ -75,7 +79,7 @@ export default function AttendanceManagement() {
         }
         
         // Fill missing defaults
-        courseStudents.forEach(s => {
+        courseUsers.forEach(s => {
            if (!initialAttendance[s._id]) initialAttendance[s._id] = 'Present';
         });
 
@@ -125,14 +129,14 @@ export default function AttendanceManagement() {
     <div className="animate-in fade-in flex flex-col space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Class Attendance</h1>
-          <p className="text-slate-500 text-sm mt-1">Track and manage student daily presence.</p>
+          <h1 className="text-3xl font-display font-bold text-white tracking-wide">Class Attendance</h1>
+          <p className="text-[#FFD700] text-sm mt-1 font-semibold uppercase tracking-widest">Track and manage role-based daily presence</p>
         </div>
       </div>
 
-      <div className="glass-card p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
+      <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl flex flex-col md:flex-row gap-5 items-end">
          <div className="w-full md:w-1/2">
-            <label className="block text-sm font-bold text-slate-700 mb-2">Select Course</label>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Select Course Hub</label>
               <CustomDropdown
                 value={selectedCourse}
                 onChange={setSelectedCourse}
@@ -141,14 +145,13 @@ export default function AttendanceManagement() {
                   value: c._id,
                   render: (
                     <div className="flex items-center gap-3 w-full py-0.5">
-                      <div className="w-9 h-9 rounded-md overflow-hidden shrink-0 bg-slate-800 border border-white/10 shadow-sm">
+                      <div className="w-9 h-9 rounded-md overflow-hidden shrink-0 bg-black/40 border border-white/10 shadow-sm">
                         <img src={c.thumbnail && c.thumbnail !== 'default-course.jpg' && c.thumbnail !== '' ? c.thumbnail : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=100&q=80'} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=100&q=80' }} />
                       </div>
                       <div className="flex flex-col text-left flex-1 min-w-0">
                         <span className="font-bold text-white truncate text-xs">{c.title}</span>
-                        <span className="text-[9px] text-slate-400 capitalize flex items-center gap-1.5 mt-0.5">
-                          <span className="px-1.5 py-0.5 bg-indigo-500/20 text-indigo-300 rounded text-[8px] font-black tracking-wider uppercase border border-indigo-500/20">{c.category || 'Course'}</span>
-                          <span className="truncate font-medium">{c.level ? `${c.level}` : 'All Levels'} {c.duration ? `• ${c.duration}h` : ''}</span>
+                        <span className="text-[9px] text-[#FFD700] capitalize flex items-center gap-1.5 mt-0.5 font-bold">
+                          {c.category || 'Course'}
                         </span>
                       </div>
                     </div>
@@ -159,22 +162,22 @@ export default function AttendanceManagement() {
               />
          </div>
          <div className="w-full md:w-1/3">
-            <label className="block text-sm font-bold text-slate-700 mb-2">Date</label>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Date & Time Stamp</label>
             <div className="relative">
               <input 
-                type="date" 
+                type="datetime-local" 
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                className="w-full pl-10 pr-4 py-3 bg-black/20 border border-white/10 text-white rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700]/50 font-medium placeholder-slate-500"
               />
-              <Calendar className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
+              <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-[#FFD700]" />
             </div>
          </div>
          <div className="w-full md:w-auto shrink-0 mt-4 md:mt-0">
             <button 
               onClick={handleSave}
-              disabled={!selectedCourse || saving || students.length === 0}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={!selectedCourse || saving || usersToTrack.length === 0}
+              className="w-full bg-gradient-to-r from-[#008A32] to-[#006622] hover:shadow-[0_0_15px_rgba(0,138,50,0.4)] hover:-translate-y-0.5 text-white px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
             >
               {saving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Save className="w-5 h-5" />}
               Save Attendance
@@ -183,63 +186,72 @@ export default function AttendanceManagement() {
       </div>
 
       {message && (
-        <div className={`p-4 rounded-xl font-bold text-sm text-center ${message.includes('success') ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+        <div className={`p-4 rounded-xl font-bold text-sm text-center border shadow-sm ${message.includes('success') ? 'bg-[#008A32]/10 border-[#008A32]/30 text-[#008A32]' : 'bg-[#E30A17]/10 border-[#E30A17]/30 text-[#E30A17]'}`}>
           {message}
         </div>
       )}
 
       {!selectedCourse ? (
-        <div className="bg-transparent rounded-3xl border border-slate-100 p-12 text-center flex flex-col items-center">
-           <Calendar className="w-16 h-16 text-slate-300 mb-4" />
-           <h3 className="text-lg font-bold text-slate-700">No Course Selected</h3>
-           <p className="text-slate-500 mt-1">Please select a course to view and manage its daily attendance records.</p>
+        <div className="bg-[#0B0E14] rounded-3xl border border-white/10 p-12 text-center flex flex-col items-center shadow-lg">
+           <Calendar className="w-16 h-16 text-slate-600 mb-4" />
+           <h3 className="text-xl font-bold text-white">No Course Selected</h3>
+           <p className="text-slate-400 mt-2">Please select a course to view and manage its daily attendance records.</p>
         </div>
       ) : loading ? (
         <div className="flex justify-center items-center py-20">
-           <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+           <div className="w-10 h-10 border-4 border-white/10 border-t-[#FFD700] rounded-full animate-spin"></div>
         </div>
-      ) : students.length === 0 ? (
-        <div className="bg-transparent rounded-3xl border border-slate-100 p-12 text-center flex flex-col items-center">
-           <UserX className="w-16 h-16 text-slate-300 mb-4" />
-           <h3 className="text-lg font-bold text-slate-700">No Students Found</h3>
-           <p className="text-slate-500 mt-1">There are no students currently enrolled in this course.</p>
+      ) : usersToTrack.length === 0 ? (
+        <div className="bg-[#0B0E14] rounded-3xl border border-white/10 p-12 text-center flex flex-col items-center shadow-lg">
+           <UserX className="w-16 h-16 text-slate-600 mb-4" />
+           <h3 className="text-xl font-bold text-white">No Users Found</h3>
+           <p className="text-slate-400 mt-2">There are no users to track in this course.</p>
         </div>
       ) : (
-        <div className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden p-2">
            <div className="overflow-x-auto">
              <table className="w-full text-left border-collapse">
                <thead>
-                 <tr className="bg-transparent border-b border-slate-100">
-                   <th className="p-4 font-bold text-slate-600 text-sm">Student Name</th>
-                   <th className="p-4 font-bold text-slate-600 text-sm">Email</th>
-                   <th className="p-4 font-bold text-slate-600 text-sm text-center">Status</th>
+                 <tr className="border-b border-white/10">
+                   <th className="p-5 font-bold text-slate-400 text-xs uppercase tracking-widest">User Details</th>
+                   <th className="p-5 font-bold text-slate-400 text-xs uppercase tracking-widest">Category</th>
+                   <th className="p-5 font-bold text-slate-400 text-xs uppercase tracking-widest text-center">Status</th>
                  </tr>
                </thead>
                <tbody>
-                 {students.map((student) => (
-                   <tr key={student._id} className="border-b border-slate-50 hover:bg-transparent/50 transition-colors">
-                     <td className="p-4">
-                       <div className="flex items-center gap-3">
-                         <div className="w-10 h-10 rounded-full bg-indigo-100 font-bold text-indigo-600 flex items-center justify-center shrink-0">
-                           {student.name.charAt(0).toUpperCase()}
+                 {usersToTrack.map((u) => (
+                   <tr key={u._id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                     <td className="p-5">
+                       <div className="flex items-center gap-4">
+                         <div className={`w-10 h-10 rounded-full font-bold flex items-center justify-center shrink-0 border ${u.category === 'Instructor' ? 'bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30 shadow-[0_0_10px_rgba(255,215,0,0.2)]' : 'bg-[#008A32]/10 text-[#008A32] border-[#008A32]/30'}`}>
+                           {u.category === 'Instructor' ? <ShieldAlert className="w-4 h-4" /> : u.name.charAt(0).toUpperCase()}
                          </div>
-                         <span className="font-semibold text-slate-800">{student.name}</span>
+                         <div className="flex flex-col">
+                           <span className="font-bold text-white group-hover:text-[#FFD700] transition-colors">{u.name}</span>
+                           <span className="text-slate-400 text-xs font-medium">{u.email}</span>
+                         </div>
                        </div>
                      </td>
-                     <td className="p-4 text-slate-500 text-sm">{student.email}</td>
-                     <td className="p-4">
+                     <td className="p-5">
+                        <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md border ${
+                          u.category === 'Instructor' ? 'bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30' : 'bg-white/5 text-slate-300 border-white/10'
+                        }`}>
+                           {u.category}
+                        </span>
+                     </td>
+                     <td className="p-5">
                         <div className="flex items-center justify-center gap-2">
                            {['Present', 'Absent', 'Late', 'Excused'].map(status => (
                              <button
                                key={status}
-                               onClick={() => handleStatusChange(student._id, status)}
+                               onClick={() => handleStatusChange(u._id, status)}
                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                                 attendance[student._id] === status 
-                                    ? status === 'Present' ? 'bg-emerald-500 text-white shadow-md'
-                                    : status === 'Absent' ? 'bg-rose-500 text-white shadow-md'
-                                    : status === 'Late' ? 'bg-amber-500 text-white shadow-md'
-                                    : 'bg-indigo-500 text-white shadow-md'
-                                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                 attendance[u._id] === status 
+                                    ? status === 'Present' ? 'bg-[#008A32] text-white shadow-[0_0_15px_rgba(0,138,50,0.5)] border border-[#008A32]'
+                                    : status === 'Absent' ? 'bg-[#E30A17] text-white shadow-[0_0_15px_rgba(227,10,23,0.5)] border border-[#E30A17]'
+                                    : status === 'Late' ? 'bg-[#FFD700] text-black shadow-[0_0_15px_rgba(255,215,0,0.5)] border border-[#FFD700]'
+                                    : 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)] border border-indigo-500'
+                                    : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/5'
                                }`}
                              >
                                 {status === 'Present' && <CheckCircle className="w-3 h-3" />}

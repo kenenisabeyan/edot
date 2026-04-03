@@ -162,7 +162,7 @@ export default function EDOTLayout() {
       menu1: [
         { name: 'Dashboard', icon: Home, path: '/dashboard', exact: true },
         { name: 'Create Course', icon: BookOpen, path: '/dashboard/builder' },
-        { name: 'Manage All Courses', icon: ClipboardCheck, path: '/dashboard/courses' },
+        { name: 'Manage All Courses', icon: ClipboardCheck, path: '/dashboard/my-courses' },
         { name: 'Approvals (Courses + Enrollments)', icon: ClipboardCheck, path: '/dashboard/approvals' },
         { name: 'All Users (Admin)', icon: Users, path: '/dashboard/users' },
         { name: 'Teachers', icon: UserSquare, path: '/dashboard/teachers' },

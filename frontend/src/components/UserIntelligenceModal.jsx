@@ -370,8 +370,11 @@ export default function UserIntelligenceModal({ userId, isOpen, onClose, onRefre
                 <div className="max-h-48 overflow-auto space-y-2 custom-scrollbar pr-2">
                   {(selectedUserActivities.length > 0) ? selectedUserActivities.map((activity) => (
                     <div key={activity._id} className="rounded-xl border border-slate-800 bg-black/40 p-3 text-xs shadow-inner">
-                      <p className="text-slate-200 font-medium leading-relaxed">{activity.action}</p>
-                      <p className="text-[#FFD700]/70 mt-1.5 text-[10px] font-bold tracking-wider uppercase">{activity.type || 'action'} • {new Date(activity.createdAt).toLocaleString()}</p>
+                      <div className="flex justify-between items-start">
+                         <p className="text-slate-200 font-medium leading-relaxed">{activity.action}</p>
+                         {activity.metadata?.ip && <span className="text-[9px] text-slate-500 font-mono tracking-tighter bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">{activity.metadata.ip}</span>}
+                      </div>
+                      <p className="text-[#FFD700]/70 mt-1.5 text-[10px] font-bold tracking-wider uppercase">{activity.type || 'action'} • {new Date(activity.createdAt).toLocaleString()} {activity.metadata?.userAgent && (activity.metadata.userAgent.includes('Mobi') ? '📱' : '💻')}</p>
                     </div>
                   )) : <p className="text-slate-500 text-sm italic">No recent activity recorded.</p>}
                 </div>

@@ -49,8 +49,14 @@ router.post('/courses', async (req, res) => {
     try {
         // Automatically assign the logged-in user as the instructor
         req.body.instructor = req.user.id;
-        req.body.status = 'draft'; // newly created courses start as draft
-        req.body.isPublished = false;
+        
+        if (req.user.role === 'admin') {
+            req.body.status = 'approved';
+            req.body.isPublished = true;
+        } else {
+            req.body.status = 'draft'; // newly created courses start as draft
+            req.body.isPublished = false;
+        }
 
         const course = await Course.create(req.body);
         
@@ -78,7 +84,8 @@ router.put('/courses/:id', async (req, res) => {
         }
 
         // If an approved course is edited, it must go back through the approval process
-        if (course.status === 'approved') {
+        // UNLESS the editor is an admin.
+        if (course.status === 'approved' && req.user.role !== 'admin') {
             req.body.status = 'draft';
             req.body.isPublished = false;
         }
@@ -145,7 +152,12 @@ router.put('/courses/:id/submit', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Not authorized to publish this course' });
         }
 
-        course.status = 'pending';
+        if (req.user.role === 'admin') {
+            course.status = 'approved';
+            course.isPublished = true;
+        } else {
+            course.status = 'pending';
+        }
         await course.save();
 
         res.status(200).json({ success: true, data: course });

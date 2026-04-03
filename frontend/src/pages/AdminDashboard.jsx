@@ -1015,8 +1015,11 @@ export default function AdminDashboard() {
                     <div className="max-h-48 overflow-auto space-y-2">
                       {(selectedUserActivities.length > 0) ? selectedUserActivities.map((activity) => (
                         <div key={activity._id} className="rounded-lg border border-slate-700 bg-slate-900/70 p-2 text-xs">
-                          <p className="text-slate-200">{activity.action}</p>
-                          <p className="text-slate-400 mt-0.5 text-[11px]">{activity.type || 'action'} • {new Date(activity.createdAt).toLocaleString()}</p>
+                          <div className="flex justify-between items-start">
+                             <p className="text-slate-200">{activity.action}</p>
+                             {activity.metadata?.ip && <span className="text-[9px] text-slate-500 font-mono tracking-tighter bg-black/50 px-1 rounded">{activity.metadata.ip}</span>}
+                          </div>
+                          <p className="text-slate-400 mt-0.5 text-[11px]">{activity.type || 'action'} • {new Date(activity.createdAt).toLocaleString()} {activity.metadata?.userAgent?.includes('Mobi') ? '📱' : '💻'}</p>
                         </div>
                       )) : <p className="text-slate-400 text-sm">No recent activity recorded.</p>}
                     </div>
@@ -1024,13 +1027,57 @@ export default function AdminDashboard() {
 
                   <div className="p-4 rounded-2xl border border-white/10 bg-black/40">
                     <h4 className="text-sm text-slate-200 font-bold uppercase tracking-wide mb-3">Extended Insights</h4>
-                    <div className="flex flex-col gap-1">
-                      <p className="text-xs text-slate-400">Total courses currently enrolled</p>
-                      <p className="text-sm text-white">{(selectedUser.enrolledCourses || []).length}</p>
-                      <p className="text-xs text-slate-400">Pending approvals</p>
-                      <p className="text-sm text-white">{(selectedUser.enrolledCourses || []).filter((en) => en.status === 'pending').length}</p>
-                      <p className="text-xs text-slate-400">Last activity</p>
-                      <p className="text-sm text-white">{selectedUserActivities[0] ? new Date(selectedUserActivities[0].createdAt).toLocaleString() : '—'}</p>
+                    <div className="flex flex-col gap-4">
+                      <div>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Total courses / Active Classes</p>
+                        <p className="text-xl font-bold text-white mb-2">{(selectedUser.role === 'student' ? (selectedUser.enrolledCourses || []).filter(en => en.status === 'active') : selectedUser.role === 'instructor' ? (selectedUser.taughtCourses || []).filter(c => c.status === 'approved') : []).length}</p>
+                        <div className="flex flex-col gap-1 max-h-24 overflow-auto custom-scrollbar pr-2">
+                           {selectedUser.role === 'student' ? (
+                              (selectedUser.enrolledCourses || []).filter(en => en.status === 'active').map((en, idx) => (
+                                 <div key={idx} className="flex justify-between items-center bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                                    <span className="text-xs text-white font-medium truncate mr-2">{en.course?.title || 'Unknown Course'}</span>
+                                    <span className="text-[9px] text-emerald-400 font-bold shrink-0">Active</span>
+                                 </div>
+                              ))
+                           ) : (selectedUser.role === 'instructor') ? (
+                              (selectedUser.taughtCourses || []).filter(c => c.status === 'approved').map((c, idx) => (
+                                 <div key={idx} className="flex justify-between items-center bg-black/40 px-2 py-1.5 rounded-lg border border-emerald-500/10">
+                                    <span className="text-xs text-white font-medium truncate mr-2">{c.title}</span>
+                                    <span className="text-[9px] font-bold shrink-0 text-emerald-400">Active</span>
+                                 </div>
+                              ))
+                           ) : null}
+                        </div>
+                      </div>
+                      
+                      {(selectedUser.role === 'student' || selectedUser.role === 'parent' || selectedUser.role === 'instructor') && (
+                      <div>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Pending approvals</p>
+                        <p className="text-xl font-bold text-rose-300 mb-2">{selectedUser.role === 'instructor' ? (selectedUser.taughtCourses || []).filter(c => c.status === 'pending').length : (selectedUser.enrolledCourses || []).filter((en) => en.status === 'pending').length}</p>
+                        <div className="flex flex-col gap-1 max-h-24 overflow-auto custom-scrollbar pr-2">
+                           {selectedUser.role === 'student' ? (
+                               (selectedUser.enrolledCourses || []).filter(en => en.status === 'pending').map((en, idx) => (
+                                 <div key={idx} className="flex justify-between items-center bg-rose-500/10 px-2 py-1.5 rounded-lg border border-rose-500/20">
+                                    <span className="text-xs text-rose-200 font-medium truncate mr-2">{en.course?.title || 'Unknown Course'}</span>
+                                    <span className="text-[9px] text-rose-400 font-bold shrink-0">Pending</span>
+                                 </div>
+                               ))
+                           ) : selectedUser.role === 'instructor' ? (
+                              (selectedUser.taughtCourses || []).filter(c => c.status === 'pending').map((c, idx) => (
+                                 <div key={idx} className="flex justify-between items-center bg-amber-500/10 px-2 py-1.5 rounded-lg border border-amber-500/20">
+                                    <span className="text-xs text-amber-200 font-medium truncate mr-2">{c.title}</span>
+                                    <span className="text-[9px] font-bold shrink-0 text-amber-400">Needs Review</span>
+                                 </div>
+                              ))
+                           ) : null}
+                        </div>
+                      </div>
+                      )}
+
+                      <div>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Last activity</p>
+                        <p className="text-sm font-semibold text-slate-300">{selectedUserActivities[0] ? new Date(selectedUserActivities[0].createdAt).toLocaleString() : 'Never logged in'}</p>
+                      </div>
                     </div>
                   </div>
                 </div>

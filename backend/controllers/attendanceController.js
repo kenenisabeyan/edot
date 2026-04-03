@@ -1,4 +1,5 @@
 const Attendance = require('../models/Attendance');
+const CourseReport = require('../models/CourseReport');
 const Course = require('../models/Course');
 const User = require('../models/User');
 

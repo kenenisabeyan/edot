@@ -121,35 +121,37 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full glass-card border border-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm relative focus:outline-none"
+        className="w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-slate-300 hover:text-white hover:border-[#FFD700]/30 hover:shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all relative focus:outline-none backdrop-blur-md"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 w-4 h-4 bg-[#f59e0b] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#E30A17] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#0f172a] shadow-sm">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 sm:w-96 glass-card rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-200">
-          <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-transparent/50">
-            <h3 className="font-bold text-slate-800">Notifications</h3>
+        <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-[#0B0E14]/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden z-[100] animate-in zoom-in-95 slide-in-from-top-2 duration-200">
+          <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40">
+            <h3 className="font-bold text-white">Notifications</h3>
             {unreadCount > 0 && (
               <button 
                 onClick={markAllAsRead}
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                className="text-xs font-semibold text-[#FFD700] hover:text-[#EAB308] hover:underline transition-all"
               >
                 Mark all as read
               </button>
             )}
           </div>
           
-          <div className="max-h-[70vh] overflow-y-auto">
+          <div className="max-h-[70vh] overflow-y-auto scrollbar-hide bg-black/20">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-slate-500">
-                <Bell className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-                <p className="font-medium">No new notifications</p>
+              <div className="p-8 text-center text-slate-500 flex flex-col items-center">
+                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mb-4">
+                  <Bell className="w-8 h-8 text-slate-600" />
+                </div>
+                <p className="font-semibold text-slate-400">No new notifications</p>
               </div>
             ) : (
               <div className="flex flex-col">
@@ -157,20 +159,20 @@ export default function NotificationBell() {
                   <button 
                     key={notif.id}
                     onClick={() => handleNotificationClick(notif.link)}
-                    className={`p-4 border-b border-slate-50 text-left hover:bg-transparent transition-colors flex gap-4 ${notif.unread ? 'bg-indigo-50/30' : ''}`}
+                    className={`p-4 border-b border-white/5 text-left transition-colors flex gap-4 group ${notif.unread ? 'bg-white/5 hover:bg-white/10' : 'hover:bg-white/5'}`}
                   >
-                    <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${notif.unread ? 'glass-card shadow-sm border border-slate-100' : 'bg-slate-100'}`}>
+                    <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center border transition-colors ${notif.unread ? 'bg-[#FFD700]/10 border-[#FFD700]/30 shadow-[0_0_15px_rgba(255,215,0,0.1)]' : 'bg-white/5 border-white/10 group-hover:border-white/20'}`}>
                       {notif.icon}
                     </div>
                     <div>
-                      <h4 className={`text-sm ${notif.unread ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}>
+                      <h4 className={`text-sm ${notif.unread ? 'font-bold text-white group-hover:text-[#FFD700]' : 'font-semibold text-slate-300'} transition-colors`}>
                         {notif.title}
                       </h4>
-                      <p className="text-sm text-slate-500 mt-0.5 line-clamp-2">{notif.message}</p>
-                      <p className="text-xs text-slate-400 mt-2 font-medium">{notif.time}</p>
+                      <p className="text-sm text-slate-400 mt-1 line-clamp-2 leading-snug">{notif.message}</p>
+                      <p className="text-xs text-[#008A32] mt-2 font-bold uppercase tracking-wider">{notif.time}</p>
                     </div>
                     {notif.unread && (
-                      <div className="w-2 h-2 rounded-full bg-[#3390ec] mt-1.5 shrink-0 ml-auto"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#E30A17] mt-1.5 shrink-0 ml-auto shadow-[0_0_10px_rgba(227,10,23,0.5)]"></div>
                     )}
                   </button>
                 ))}
@@ -178,10 +180,10 @@ export default function NotificationBell() {
             )}
           </div>
           
-          <div className="p-3 border-t border-slate-100 bg-transparent/80 text-center">
+          <div className="p-3 border-t border-white/10 bg-[#0B0E14] text-center hover:bg-white/5 transition-colors">
             <button 
               onClick={() => { setIsOpen(false); navigate('/dashboard/notice'); }}
-              className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+              className="text-sm font-bold text-slate-400 hover:text-white transition-colors w-full"
             >
               View all notifications
             </button>

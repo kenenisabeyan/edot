@@ -103,12 +103,19 @@ router.get('/:id', async (req, res) => {
 });
 
 // @route   POST /api/courses
-// @desc    Create a new course (Instructor only)
-// @access  Private/Instructor
-router.post('/', protect, authorize('instructor'), async (req, res) => {
+// @desc    Create a new course (Instructor and Admin)
+// @access  Private/Instructor or Admin
+router.post('/', protect, authorize('instructor', 'admin'), async (req, res) => {
     try {
         // Add instructor to request body
         req.body.instructor = req.user.id;
+
+        if (req.user.role === 'admin') {
+            req.body.status = 'approved';
+            req.body.isPublished = true;
+        } else {
+            req.body.status = 'pending'; // Instructor submitted for review
+        }
 
         const course = await Course.create(req.body);
 
@@ -129,8 +136,8 @@ router.post('/', protect, authorize('instructor'), async (req, res) => {
 
 // @route   PUT /api/courses/:id
 // @desc    Update course
-// @access  Private/Instructor
-router.put('/:id', protect, authorize('instructor'), async (req, res) => {
+// @access  Private/Instructor or Admin
+router.put('/:id', protect, authorize('instructor', 'admin'), async (req, res) => {
     try {
         let course = await Course.findById(req.params.id);
 
@@ -141,8 +148,8 @@ router.put('/:id', protect, authorize('instructor'), async (req, res) => {
             });
         }
 
-        // Check if user is course instructor
-        if (course.instructor.toString() !== req.user.id) {
+        // Check if user is course instructor or admin
+        if (course.instructor.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to update this course'
@@ -221,6 +228,20 @@ router.post('/:id/enroll', protect, authorize('student'), async (req, res) => {
         res.json({ success: true, message: 'Enrollment request sent, awaiting admin approval' });
     } catch (error) {
         console.error('Enrollment request error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// @route   GET /api/courses/:id/students
+// @desc    Get all students enrolled in a course
+// @access  Private/Instructor or Admin
+router.get('/:id/students', protect, authorize('instructor', 'admin'), async (req, res) => {
+    try {
+        const enrollments = await Enrollment.find({ course: req.params.id, status: 'active' }).populate('student', 'name email avatar');
+        const students = enrollments.map(e => e.student).filter(Boolean);
+        res.json({ success: true, count: students.length, data: students });
+    } catch (error) {
+        console.error('Get course students error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });

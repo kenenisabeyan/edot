@@ -8,10 +8,13 @@ import {
 } from 'lucide-react';
 import QuizBuilder from '../components/QuizBuilder';
 import CustomDropdown from '../components/CustomDropdown';
+import { useAuth } from '../context/AuthContext';
 
 export default function InstructorCourseBuilder() {
   const navigate = useNavigate();
   const { id } = useParams(); // If editing an existing course
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   
   const [courseId, setCourseId] = useState(id || null);
   const [currentStep, setCurrentStep] = useState(1);
@@ -597,7 +600,7 @@ export default function InstructorCourseBuilder() {
               {currentStep === 4 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-6">
                   <h2 className="text-2xl font-display font-bold text-white mb-2">Pricing & Publishing</h2>
-                  <p className="text-slate-400 mb-8">Set your course value and submit it for administrative review.</p>
+                  <p className="text-slate-400 mb-8">Set your course value and {isAdmin ? 'publish it immediately' : 'submit it for administrative review'}.</p>
                   
                   <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 mb-8 backdrop-blur-md">
                     <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -691,7 +694,7 @@ export default function InstructorCourseBuilder() {
                     disabled={saving || lessons.length === 0}
                     className="w-full sm:w-auto px-8 py-2.5 bg-gradient-to-r from-[#008A32] to-[#006622] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#008A32]/20 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-[#008A32]"
                   >
-                    <Send className="w-5 h-5" /> Submit for Review
+                    <Send className="w-5 h-5" /> {isAdmin ? 'Publish Course' : 'Submit for Review'}
                   </button>
                 )}
               </div>

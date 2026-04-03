@@ -1,24 +1,57 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import { 
-  FolderOpen, PlusCircle, Edit3, Clock, CheckCircle2, 
-  XSquare, PlayCircle, Send, Users
+  FolderOpen, Edit3, Clock, CheckCircle2, 
+  XSquare, PlayCircle, Send, Users, Sparkles, X, FileText
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function InstructorManageCourses() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Modal States
+  const [modalType, setModalType] = useState(null); // 'lessons' | 'students' | null
+  const [activeCourse, setActiveCourse] = useState(null);
+  const [courseStudents, setCourseStudents] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+
+  const openLessons = (course) => {
+    setActiveCourse(course);
+    setModalType('lessons');
+  };
+
+  const openStudents = async (course) => {
+    setActiveCourse(course);
+    setModalType('students');
+    setLoadingStudents(true);
+    try {
+      const { data } = await api.get(`/courses/${course._id}/students`);
+      if (data.success) {
+         setCourseStudents(data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  const isAdmin = user?.role === 'admin';
+
   const fetchCourses = useCallback(async () => {
     try {
-      const { data } = await api.get('/instructor/courses');
+      const endpoint = isAdmin ? '/admin/courses' : '/instructor/courses';
+      const { data } = await api.get(endpoint);
       setCourses(data.data);
     } catch (err) {
       console.error('Failed to fetch courses', err);
     }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     let isMounted = true;
@@ -39,6 +72,7 @@ export default function InstructorManageCourses() {
   }, [fetchCourses]);
 
   const handleSubmitReview = async (courseId) => {
+    if (isAdmin) return; // Admins auto-approve
     try {
       await api.put(`/instructor/courses/${courseId}/submit`);
       fetchCourses();
@@ -50,125 +84,237 @@ export default function InstructorManageCourses() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-white/20 border-t-[#FFD700] rounded-full animate-spin shadow-[0_0_15px_rgba(255,215,0,0.4)]"></div>
       </div>
     );
   }
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Manage Courses</h2>
-          <p className="text-slate-500 mt-1">View, edit, and publish your course materials</p>
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-7xl mx-auto space-y-6 pb-10"
+    >
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center rounded-3xl p-6 md:p-8 bg-gradient-to-br from-white/5 to-transparent border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#008A32]/10 via-transparent to-[#FFD700]/10 opacity-30 pointer-events-none"></div>
+        <div className="relative z-10 mb-4 sm:mb-0">
+          <h2 className="text-3xl font-display font-bold text-white mb-2 tracking-tight">
+            Manage Courses
+          </h2>
+          <p className="text-slate-300 font-medium">Build, edit, and publish world-class educational experiences.</p>
         </div>
         <button 
           onClick={() => navigate('/dashboard/builder')} 
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4338ca] text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm shadow-indigo-500/20"
+          className="relative z-10 inline-flex items-center gap-2 px-6 py-3 bg-[#FFD700] text-[#0f172a] font-bold rounded-xl hover:bg-[#EAB308] hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)]"
         >
-          <PlusCircle className="w-5 h-5" /> Create Course
+          <Sparkles className="w-5 h-5" /> 
+          <span>Create New</span>
         </button>
       </div>
       
       {courses.length === 0 ? (
-          <div className="glass-card p-12 text-center rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center mt-8">
-            <div className="w-20 h-20 bg-transparent text-slate-400 rounded-full flex items-center justify-center mb-4">
-              <FolderOpen className="w-10 h-10" />
+          <div className="p-16 text-center rounded-3xl border border-white/10 bg-[#0B0E14]/90 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#FFD700]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+            <div className="w-24 h-24 bg-white/5 text-slate-400 border border-white/10 rounded-full flex items-center justify-center mb-6 relative group-hover:scale-110 transition-transform duration-500 group-hover:border-[#FFD700]/30 group-hover:text-[#FFD700]">
+              <FolderOpen className="w-12 h-12" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No courses created yet</h3>
-            <p className="text-slate-500 max-w-sm mb-6">Share your knowledge with the world by creating your very first comprehensive curriculum.</p>
+            <h3 className="text-2xl font-display font-bold text-white mb-3">Your Vault is Empty</h3>
+            <p className="text-slate-400 max-w-sm mb-8 text-lg">Share your knowledge with the world by creating your very first comprehensive curriculum.</p>
             <button 
-            onClick={() => navigate('/dashboard/builder')} 
-            className="px-6 py-2.5 bg-[#4338ca] text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
+              onClick={() => navigate('/dashboard/builder')} 
+              className="px-8 py-3.5 bg-gradient-to-r from-[#008A32] to-[#006622] text-white font-bold rounded-xl hover:shadow-[0_0_25px_rgba(0,138,50,0.4)] transition-all hover:-translate-y-1"
             >
-              Start Creating
+              Start Creating Now
             </button>
           </div>
       ) : (
           <div className="grid grid-cols-1 gap-6">
             {courses.map(c => (
-              <div key={c._id} className="glass-card rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col md:flex-row group transition-all hover:shadow-md hover:border-slate-200">
-                
-                <div className="w-full md:w-72 h-56 md:h-auto shrink-0 relative bg-slate-100">
+              <motion.div 
+                whileHover={{ y: -4 }}
+                key={c._id} 
+                className="rounded-3xl border border-white/10 bg-[#0B0E14]/90 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col md:flex-row group transition-all"
+              >
+                <div className="w-full md:w-72 h-64 md:h-auto shrink-0 relative overflow-hidden bg-black/40">
                     <img 
-                    src={c.thumbnail === 'default-course.jpg' ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80' : c.thumbnail} 
-                    alt={c.title} 
-                    className="w-full h-full object-cover" 
-                  />
-                    <div className="absolute top-3 left-3 glass-card/95 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 uppercase tracking-wider shadow-sm">
+                      src={c.thumbnail === 'default-course.jpg' ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80' : c.thumbnail} 
+                      alt={c.title} 
+                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E14] via-transparent to-transparent opacity-80 md:opacity-50"></div>
+                    <div className="absolute top-4 left-4 bg-[#0B0E14]/80 backdrop-blur-md px-4 py-1.5 rounded-xl border border-white/10 text-xs font-bold text-[#FFD700] uppercase tracking-widest shadow-lg">
                       {c.category}
                     </div>
                 </div>
                 
-                <div className="flex flex-col flex-1">
+                <div className="flex flex-col flex-1 relative z-10 -mt-6 md:mt-0 bg-[#0B0E14]/90 md:bg-transparent rounded-t-3xl md:rounded-none">
                   <div className="p-6 md:p-8 flex-1">
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
-                      <h3 className="text-xl font-bold text-slate-900 leading-snug break-words">{c.title}</h3>
-                      <span className={`shrink-0 inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider ${
-                        c.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 
-                        (c.status === 'pending' ? 'bg-amber-50 text-amber-700 border border-amber-100' : 
-                        (c.status === 'rejected' ? 'bg-red-50 text-red-700 border border-red-100' : 
-                        'bg-transparent text-slate-700 border border-slate-200'))
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
+                      <h3 className="text-2xl font-bold text-white leading-snug break-words group-hover:text-[#FFD700] transition-colors duration-300">{c.title}</h3>
+                      <span className={`shrink-0 inline-flex items-center px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest border ${
+                        c.status === 'approved' ? 'bg-[#008A32]/10 text-[#008A32] border-[#008A32]/30 shadow-[0_0_15px_rgba(0,138,50,0.2)]' : 
+                        (c.status === 'pending' ? 'bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30 shadow-[0_0_15px_rgba(255,215,0,0.2)]' : 
+                        (c.status === 'rejected' ? 'bg-[#E30A17]/10 text-[#E30A17] border-[#E30A17]/30 shadow-[0_0_15px_rgba(227,10,23,0.2)]' : 
+                        'bg-white/5 text-slate-300 border-white/10'))
                       }`}>
                         {c.status}
                       </span>
                     </div>
                     
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 mb-4 bg-transparent p-3 rounded-xl border border-slate-100 w-fit">
-                      <span className="flex items-center gap-1.5 font-medium"><Clock className="w-4 h-4 text-indigo-500" /> {c.duration} hours</span>
-                      <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-                      <span className="flex items-center gap-1.5 font-medium"><PlayCircle className="w-4 h-4 text-emerald-500" /> {c.lessons?.length || 0} lessons</span>
-                      <div className="w-1 h-1 rounded-full bg-slate-300"></div>
-                      <span className="flex items-center gap-1.5 font-medium"><Users className="w-4 h-4 text-amber-500" /> {c.totalStudents || 0} students</span>
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-slate-300 mb-6 bg-white/5 p-4 rounded-2xl border border-white/10 w-fit shadow-inner">
+                      {(() => {
+                        const totalMins = c.lessons?.reduce((acc, l) => acc + (l.duration || 0), 0) || 0;
+                        const hasLessons = Array.isArray(c.lessons) && c.lessons.length > 0;
+                        const displayTime = hasLessons && totalMins > 0 
+                          ? (totalMins >= 60 ? `${Math.floor(totalMins/60)}h ${totalMins%60}m` : `${totalMins}m`) 
+                          : `${c.duration || 0} hours`;
+                        
+                        return (
+                          <>
+                            <span className="flex items-center gap-2 font-semibold"><Clock className="w-5 h-5 text-[#FFD700]" /> {displayTime}</span>
+                            
+                            {hasLessons && (
+                              <>
+                                <div className="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+                                <button onClick={() => openLessons(c)} className="flex items-center gap-2 font-semibold hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all group border border-transparent hover:border-white/10 hover:shadow-lg">
+                                  <PlayCircle className="w-5 h-5 text-[#008A32] group-hover:scale-110 transition-transform" /> {c.lessons.length} lessons
+                                </button>
+                              </>
+                            )}
+                            
+                            {c.totalStudents > 0 && c.status === 'approved' && (
+                              <>
+                                <div className="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+                                <button onClick={() => openStudents(c)} className="flex items-center gap-2 font-semibold hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all group border border-transparent hover:border-white/10 hover:shadow-lg">
+                                  <Users className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" /> {c.totalStudents} students
+                                </button>
+                              </>
+                            )}
+
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+                            <button onClick={() => navigate('/dashboard/library', { state: { courseId: c._id } })} className="flex items-center gap-2 font-semibold text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 px-3 py-1.5 rounded-xl transition-all group border border-transparent hover:border-cyan-500/30 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                              <FolderOpen className="w-5 h-5 group-hover:scale-110 transition-transform" /> Library Resources
+                            </button>
+                          </>
+                        );
+                      })()}
                     </div>
                     
-                    <p className="text-slate-600 line-clamp-2 md:line-clamp-3 mb-0">{c.description}</p>
+                    <p className="text-slate-400 leading-relaxed line-clamp-2 md:line-clamp-3 mb-0 text-base">{c.description}</p>
                   </div>
                   
-                  <div className="p-4 md:px-8 py-5 border-t border-slate-100 bg-transparent/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-                      <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                        Last edited: {new Date(c.updatedAt).toLocaleDateString()}
+                  <div className="p-5 md:px-8 bg-white/5 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-5">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        Last edited: <span className="text-slate-300">{new Date(c.updatedAt).toLocaleDateString()}</span>
                       </span>
                       
-                      <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                        {(c.status === 'draft' || c.status === 'rejected') && (
+                      <div className="flex flex-wrap flex-row items-center gap-3 w-full sm:w-auto">
+                        {!isAdmin && (c.status === 'draft' || c.status === 'rejected') && (
                           <button 
                             onClick={() => handleSubmitReview(c._id)} 
-                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#4338ca] text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm text-sm"
+                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#008A32] to-[#006622] text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(0,138,50,0.4)] transition-all text-sm"
                           >
                             <Send className="w-4 h-4" /> Submit for Review
                           </button>
                         )}
-                        {c.status === 'approved' && (
-                            <span className="inline-flex items-center gap-2 text-emerald-700 text-sm font-bold bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-100">
-                              <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Live for Students
+                        {c.status === 'approved' && !isAdmin && (
+                            <span className="inline-flex items-center gap-2 text-[#008A32] text-sm font-bold bg-[#008A32]/10 px-5 py-2.5 rounded-xl border border-[#008A32]/20">
+                              <CheckCircle2 className="w-5 h-5 text-[#008A32]" /> Live for Students
                             </span>
                         )}
                         {c.status !== 'pending' && (
                           <button 
                             onClick={() => navigate('/dashboard/builder/' + c._id)} 
-                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 glass-card text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-transparent hover:border-indigo-300 hover:text-indigo-600 transition-all shadow-sm text-sm"
+                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-white/5 text-white font-bold rounded-xl border border-white/10 hover:bg-white/10 hover:border-[#FFD700]/50 hover:text-[#FFD700] transition-colors shadow-sm text-sm"
                           >
-                            <Edit3 className="w-4 h-4" /> Edit Update
+                            <Edit3 className="w-4 h-4" /> Edit Content
                           </button>
                         )}
-                        {c.status === 'pending' && (
-                            <span className="inline-flex items-center gap-2 text-amber-700 text-sm font-bold bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-100">
-                              <Clock className="w-5 h-5 text-amber-500" /> Pending Admin Review
+                        {c.status === 'pending' && !isAdmin && (
+                            <span className="inline-flex items-center gap-2 text-[#FFD700] text-sm font-bold bg-[#FFD700]/10 px-5 py-2.5 rounded-xl border border-[#FFD700]/20">
+                              <Clock className="w-5 h-5 text-[#FFD700]" /> Pending Review
                             </span>
                         )}
-                        {c.status === 'rejected' && (
-                            <span className="inline-flex items-center gap-2 text-red-700 text-sm font-bold bg-red-50 px-4 py-2.5 rounded-xl border border-red-100">
-                              <XSquare className="w-5 h-5 text-red-500" /> Changes Required
+                        {c.status === 'rejected' && !isAdmin && (
+                            <span className="inline-flex items-center gap-2 text-[#E30A17] text-sm font-bold bg-[#E30A17]/10 px-5 py-2.5 rounded-xl border border-[#E30A17]/20">
+                              <XSquare className="w-5 h-5 text-[#E30A17]" /> Revision Required
                             </span>
                         )}
                       </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
       )}
-    </div>
+
+      {/* Modals */}
+      {modalType && activeCourse && (
+        <div className="fixed inset-0 z-50 bg-[#0B0E14]/80 backdrop-blur-md flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-2xl bg-[#0B0E14] border border-[#FFD700]/20 rounded-3xl p-6 shadow-[0_0_50px_rgba(255,215,0,0.1)] relative overflow-hidden flex flex-col max-h-[85vh]"
+          >
+            <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                  {modalType === 'lessons' ? <PlayCircle className="w-7 h-7 text-[#008A32]" /> : <Users className="w-7 h-7 text-indigo-400" />}
+                  {modalType === 'lessons' ? 'Course Lessons' : 'Enrolled Students'}
+                </h3>
+                <p className="text-sm text-[#FFD700] font-semibold mt-1">{activeCourse.title}</p>
+              </div>
+              <button onClick={() => setModalType(null)} className="p-2 bg-white/5 hover:bg-[#E30A17]/20 text-slate-400 hover:text-[#E30A17] rounded-xl transition-colors">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto overflow-x-hidden pr-2 space-y-3 custom-scrollbar flex-1">
+              {modalType === 'lessons' && (
+                activeCourse.lessons?.length === 0 ? (
+                  <div className="text-center p-8 text-slate-400 italic bg-white/5 rounded-2xl">No lessons have been added to this course yet.</div>
+                ) : (
+                  activeCourse.lessons.map((l, index) => (
+                    <div key={l._id || index} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-[#FFD700]/30 transition-colors group">
+                      <div className="w-10 h-10 rounded-xl bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold font-display shrink-0 group-hover:scale-110 transition-transform">{index + 1}</div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-white text-lg leading-tight mb-1">{l.title}</h4>
+                        <p className="text-xs text-slate-400 flex items-center gap-2"><Clock className="w-3.5 h-3.5" /> {l.duration} min</p>
+                      </div>
+                      <div className="shrink-0 text-xs px-3 py-1.5 rounded-lg font-bold uppercase tracking-wider bg-black/40 text-slate-300 border border-white/10">
+                        {l.lesson_exam ? 'Has Quiz' : 'Video Only'}
+                      </div>
+                    </div>
+                  ))
+                )
+              )}
+
+              {modalType === 'students' && (
+                loadingStudents ? (
+                  <div className="flex justify-center p-12"><div className="w-10 h-10 border-4 border-white/20 border-t-indigo-400 rounded-full animate-spin"></div></div>
+                ) : courseStudents.length === 0 ? (
+                  <div className="text-center p-8 text-slate-400 italic bg-white/5 rounded-2xl">No students are currently enrolled in this course.</div>
+                ) : (
+                  courseStudents.map((stu) => (
+                    <div key={stu._id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/30 transition-colors group">
+                      <div className="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-lg uppercase shadow-inner border border-indigo-500/20 group-hover:scale-110 transition-transform shrink-0">
+                        {stu.name.charAt(0)}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-white text-lg">{stu.name}</h4>
+                        <p className="text-sm text-slate-400">{stu.email}</p>
+                      </div>
+                    </div>
+                  ))
+                )
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+    </motion.div>
   );
 }

@@ -39,7 +39,16 @@ router.post('/register', [
 
     await user.save();
 
-    await logActivity(user._id, 'Registered a new account', 'auth');
+    await logActivity(
+      user._id, 
+      'Registered a new account', 
+      'auth', 
+      'Initial account creation', 
+      null, 
+      'public', 
+      null, 
+      { ip: req.ip, userAgent: req.headers['user-agent'] }
+    );
 
     res.status(201).json({
       _id: user._id,
@@ -96,7 +105,16 @@ router.post('/login', [
 
     const token = generateToken(user._id);
 
-    await logActivity(user._id, 'Logged in to EDOT Platform', 'auth');
+    await logActivity(
+      user._id, 
+      'Logged in to EDOT Platform', 
+      'auth', 
+      'Session authenticated securely', 
+      null, 
+      'public', 
+      null, 
+      { ip: req.ip, userAgent: req.headers['user-agent'] }
+    );
 
     res.cookie('token', token, {
         httpOnly: true,  // Prevents JavaScript from reading the cookie (Security)

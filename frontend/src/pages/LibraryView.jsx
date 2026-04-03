@@ -5,14 +5,19 @@ import { useAuth } from '../context/AuthContext';
 import Markdown from 'markdown-to-jsx';
 import 'github-markdown-css';
 import CustomDropdown from '../components/CustomDropdown';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function LibraryView() {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [resources, setResources] = useState([]);
   const [courses, setCourses] = useState([]);
   const [enrollmentRequests, setEnrollmentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterCourseId, setFilterCourseId] = useState(location.state?.courseId || null);
 
   // Upload Form State
   const [showUploadForm, setShowUploadForm] = useState(false);
@@ -127,6 +132,18 @@ export default function LibraryView() {
     }
   };
 
+  const toggleCourseApproval = async (courseId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'approved' ? 'pending' : 'approved';
+      await api.put(`/admin/courses/${courseId}/status`, { status: newStatus });
+      setCourses(courses.map(c => c._id === courseId ? { ...c, status: newStatus } : c));
+    } catch (err) {
+      console.error('Failed to change course status', err);
+    }
+  };
+
+// Removed duplicated methods
+
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to permanently delete this resource?')) {
       try {
@@ -158,11 +175,13 @@ export default function LibraryView() {
     return true;
   });
 
-  const filteredResources = visibleResources.filter(r => 
-    r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    r.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    r.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredResources = visibleResources.filter(r => {
+    const matchesSearch = r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          r.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          r.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCourse = filterCourseId ? r.courseId === filterCourseId : true;
+    return matchesSearch && matchesCourse;
+  });
 
   const unusedStateUsage = selectedCourse?.title || (showCourseModal ? 'modal' : '') || (showTaskManager ? 'task' : '') || wikiPreview || (selectedWikiResource?.title || '') || (globalTasks.length ? 'tasks' : '');
   void unusedStateUsage;
@@ -290,32 +309,46 @@ export default function LibraryView() {
   }
 
   return (
-    <div className="animate-in fade-in flex flex-col space-y-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-7xl mx-auto flex flex-col space-y-8 pb-10"
+    >
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-white">Digital Library</h1>
-          <p className="text-slate-300 text-sm mt-1">Explore books, research papers, and documents.</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 rounded-3xl p-6 md:p-8 bg-gradient-to-br from-white/5 to-transparent border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#008A32]/10 via-transparent to-[#FFD700]/10 opacity-30 pointer-events-none"></div>
+        <div className="relative z-10">
+          <h1 className="text-3xl font-display font-bold text-white mb-2 tracking-tight">Digital Library</h1>
+          <p className="text-slate-300 font-medium text-lg">Explore books, research papers, and documents.</p>
         </div>
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
-            <Search className="w-5 h-5 absolute left-3 top-3 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Search resources..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-white/10 bg-[#0B0E14] text-white rounded-xl outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all font-medium"
-            />
+        <div className="flex flex-col items-end gap-2 w-full md:w-auto relative z-10">
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative flex-1 md:w-72">
+              <Search className="w-5 h-5 absolute left-4 top-3.5 text-slate-400 group-focus-within:text-[#FFD700] transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search resources..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 border border-white/10 bg-[#0B0E14]/80 backdrop-blur-md text-white rounded-xl outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 transition-all font-semibold placeholder:text-slate-500 shadow-inner"
+              />
+            </div>
+            {canUpload && !showUploadForm && (
+              <button 
+                onClick={() => setShowUploadForm(true)}
+                className="flex items-center gap-2 bg-[#FFD700] hover:bg-[#EAB308] text-[#0f172a] px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] shrink-0 hover:scale-105"
+              >
+                <Plus className="w-5 h-5" /> Upload File
+              </button>
+            )}
           </div>
-          {canUpload && !showUploadForm && (
-            <button 
-              onClick={() => setShowUploadForm(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-[#008A32] to-[#006622] hover:shadow-lg hover:shadow-[#008A32]/20 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm shrink-0"
-            >
-              <Plus className="w-5 h-5" /> Upload File
-            </button>
+          {filterCourseId && (
+            <div className="inline-flex items-center gap-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm backdrop-blur-md">
+              Filtered by specific course
+              <button onClick={() => setFilterCourseId(null)} className="hover:text-white bg-cyan-500/20 p-1 rounded-md transition-colors"><Trash2 className="w-4 h-4" /></button>
+            </div>
           )}
         </div>
       </div>
@@ -350,12 +383,26 @@ export default function LibraryView() {
               {courses.length === 0 ? (
                 <p className="text-slate-300 text-sm">No courses found.</p>
               ) : courses.map((course) => (
-                <div key={course._id} className="mb-2 p-2 bg-white/5 rounded-lg">
-                  <p className="text-sm text-white font-semibold">{course.title}</p>
-                  <div className="text-xs text-slate-400">Status: {course.status || 'draft'}</div>
-                  <div className="mt-2 flex gap-2">
-                    <button onClick={() => applyDefaultCourseTemplate(course._id)} className="px-2 py-1 text-xs rounded-lg bg-[#008A32] text-white">Default Template</button>
-                    <button onClick={() => setSelectedCourse(course)} className="px-2 py-1 text-xs rounded-lg bg-[#FFD700] text-black">Review Mode</button>
+                <div key={course._id} className="mb-2 p-2 bg-white/5 rounded-lg border border-white/5">
+                  <p className="text-sm text-white font-semibold flex items-center justify-between">
+                    {course.title}
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${course.status === 'approved' ? 'bg-[#008A32]/20 text-[#008A32]' : 'bg-[#FFD700]/20 text-[#FFD700]'}`}>
+                      {course.status || 'draft'}
+                    </span>
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <button 
+                      onClick={() => toggleCourseApproval(course._id, course.status)} 
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg border hover:-translate-y-0.5 transition-transform ${course.status === 'approved' ? 'bg-[#E30A17]/10 border-[#E30A17]/30 text-[#E30A17]' : 'bg-[#008A32]/10 border-[#008A32]/30 text-[#008A32]'}`}
+                    >
+                      {course.status === 'approved' ? 'Revoke Approval' : 'Approve Course'}
+                    </button>
+                    <button 
+                      onClick={() => navigate(`/dashboard/builder/${course._id}`)} 
+                      className="px-3 py-1.5 text-xs font-bold rounded-lg bg-white/5 border border-white/10 text-white hover:border-[#FFD700]/50 hover:text-[#FFD700] transition-colors"
+                    >
+                      Edit Curriculum
+                    </button>
                   </div>
                 </div>
               ))}
@@ -377,12 +424,12 @@ export default function LibraryView() {
       )}
 
       {/* Three-Container Navigation */}
-      <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-2">
+      <div className="flex items-center overflow-x-auto scrollbar-hide gap-3 bg-white/5 border border-white/10 rounded-2xl p-2 w-max shadow-sm backdrop-blur-md">
         {['download', 'secure', 'wiki'].map((key) => (
           <button
             key={key}
             onClick={() => setActiveContainer(key)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${activeContainer === key ? 'bg-cyan-500 text-white' : 'text-slate-300 hover:bg-white/10'}`}
+            className={`px-6 py-2.5 rounded-xl font-bold transition-all duration-300 shrink-0 ${activeContainer === key ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
           >
             {key === 'download' ? 'Download Vault' : key === 'secure' ? 'Secure Viewer' : 'EDOT Wiki'}
           </button>
@@ -493,11 +540,21 @@ export default function LibraryView() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <AnimatePresence>
               {filteredResources.map((resource) => {
                 const isOwner = resource.uploadedBy === user?._id || user?.role === 'admin';
                 const canDownload = user?.role !== 'student' || resource.permission === 'granted';
                 return (
-                  <div key={resource._id} className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative">
+                  <motion.div 
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    whileHover={{ y: -4 }}
+                    transition={{ duration: 0.2 }}
+                    key={resource._id} 
+                    className="rounded-3xl border border-white/10 bg-[#0B0E14]/90 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col group hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all relative"
+                  >
                     {isOwner && (
                       <button
                         onClick={() => handleDelete(resource._id)}
@@ -515,41 +572,42 @@ export default function LibraryView() {
                       </div>
                     </div>
 
-                    <div className="p-5 flex-1 flex flex-col justify-between">
+                    <div className="p-6 flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="flex gap-2 items-center mb-2">
-                          <span className="text-[10px] font-bold text-[#FFD700] bg-[#FFD700]/10 border border-[#FFD700]/20 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                        <div className="flex gap-2 items-center mb-3">
+                          <span className="text-[10px] font-bold text-[#FFD700] bg-[#FFD700]/10 border border-[#FFD700]/20 px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-sm">
                             {resource.category || 'General'}
                           </span>
                         </div>
-                        <h3 className="font-bold text-lg text-white line-clamp-2 leading-tight mb-1" title={resource.title}>{resource.title}</h3>
-                        <p className="text-slate-400 text-sm font-medium mb-4 line-clamp-1 border-b border-dashed border-white/5 pb-3">By {resource.author}</p>
+                        <h3 className="font-bold text-xl text-white line-clamp-2 leading-snug mb-1.5 group-hover:text-[#FFD700] transition-colors" title={resource.title}>{resource.title}</h3>
+                        <p className="text-slate-400 text-sm font-medium mb-5 line-clamp-1 border-b border-white/10 pb-4">By <span className="text-white">{resource.author}</span></p>
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {canDownload ? (
                           <a
                             href={resource.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block text-center py-2 rounded-xl bg-[#008A32] text-white font-bold hover:bg-[#006622] transition-all"
+                            className="block text-center py-2.5 rounded-xl bg-gradient-to-r from-[#008A32] to-[#006622] text-white font-bold hover:shadow-[0_0_15px_rgba(0,138,50,0.4)] transition-all border border-[#008A32]/50 hover:-translate-y-0.5"
                           >
-                            <Download className="w-4 h-4 inline-block mr-2" /> Download
+                            <Download className="w-4 h-4 inline-block mr-2" /> Download Document
                           </a>
                         ) : (
-                          <button className="w-full py-2 rounded-xl bg-[#FFD700] text-black font-bold">Enroll or Request Access</button>
+                          <button className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 font-bold hover:bg-white/10 transition-colors">Request Access</button>
                         )}
                         {user?.role === 'instructor' && resource.uploadedBy === user?._id && resource.status === 'draft' && (
-                          <button onClick={() => handleSubmitForReview(resource)} className="w-full py-2 rounded-xl bg-[#008A32]/90 text-white font-bold">Submit for Review</button>
+                          <button onClick={() => handleSubmitForReview(resource)} className="w-full py-2.5 rounded-xl bg-[#008A32]/20 text-[#008A32] border border-[#008A32]/30 font-bold hover:bg-[#008A32]/30 transition-all">Submit for Review</button>
                         )}
                         {user?.role === 'admin' && resource.status === 'pending' && (
-                          <button onClick={() => openReviewModal(resource)} className="w-full py-2 rounded-xl bg-[#E30A17] text-white font-bold">Review</button>
+                          <button onClick={() => openReviewModal(resource)} className="w-full py-2.5 rounded-xl bg-[#E30A17]/20 text-[#E30A17] border border-[#E30A17]/30 font-bold hover:bg-[#E30A17]/30 transition-all">Review Needed</button>
                         )}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
+              </AnimatePresence>
             </div>
           )}
         </>
@@ -652,7 +710,7 @@ export default function LibraryView() {
         </div>
       )}
 
-    </div>
+    </motion.div>
   );
 }
 
