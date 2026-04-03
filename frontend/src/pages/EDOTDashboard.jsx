@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import AgendaCreationModal from '../components/AgendaCreationModal';
+import AgendaWidget from '../components/AgendaWidget';
 import { 
   GraduationCap, 
   Users, 
@@ -23,7 +25,9 @@ import { Card } from '../components/ui/Card';
 export default function EDOTDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
+  const [agendaEvents, setAgendaEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false);
 
   const userRole = user?.role ? user.role.toLowerCase().trim() : 'student';
   void motion;
@@ -39,9 +43,19 @@ export default function EDOTDashboard() {
         setLoading(false);
       }
     };
+
+    const fetchAgenda = async () => {
+      try {
+        const { data } = await api.get('/calendar');
+        setAgendaEvents(Array.isArray(data.data) ? data.data : []);
+      } catch (err) {
+        console.error('Error fetching agenda events', err);
+      }
+    };
     
     if (user) {
         fetchDashboardStats();
+        fetchAgenda();
     }
   }, [user, userRole]);
 
@@ -92,6 +106,19 @@ export default function EDOTDashboard() {
       );
     }
     return null;
+  };
+
+  const deleteAgenda = async (agendaId) => {
+    try {
+      await api.delete(`/calendar/${agendaId}`);
+      setAgendaEvents((prev) => prev.filter((e) => e._id !== agendaId));
+    } catch (err) {
+      console.error('Failed to delete agenda event', err);
+    }
+  };
+
+  const onAgendaCreated = (evt) => {
+    setAgendaEvents((prev) => [...prev, evt].sort((a, b) => new Date(a.date) - new Date(b.date)));
   };
 
   // Configure Role-Specific Data Architectures
@@ -374,41 +401,20 @@ export default function EDOTDashboard() {
           </div>
         </Card>
 
-        {/* Agenda / Claim Widget (Bottom Right) */}
-        <Card hover={false} className="lg:col-span-3 rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
+         {/* Agenda / Claim Widget (Bottom Right) */}
+         <div className="lg:col-span-3 h-full">
            {widgetConfig.type === 'agenda' && (
-             <>
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="font-semibold text-sm text-white">{widgetConfig.title}</h3>
-                    <p className="text-[11px] text-slate-400 mt-1">{widgetConfig.subtitle}</p>
-                  </div>
-                  <MoreHorizontal className="w-4 h-4 text-slate-500" />
-                </div>
-                <div className="flex-1 space-y-3">
-                  {widgetConfig.items.map((item, i) => (
-                    <div key={i} className="p-4 rounded-xl bg-slate-900/40 border border-white/5">
-                      <div className="flex justify-between items-center mb-3">
-                         <span className="text-[10px] font-bold text-slate-900 px-2 py-0.5 rounded-sm uppercase" style={{ backgroundColor: item.color }}>{item.label}</span>
-                         <span className="text-[10px] font-bold text-slate-400 bg-white/5 px-2 py-0.5 rounded-md">{item.badge}</span>
-                      </div>
-                      <h4 className="font-bold text-sm text-white mb-1.5">{item.title}</h4>
-                      <p className="text-[11px] text-slate-400">{item.desc}</p>
-                      <div className="flex -space-x-2 mt-4 mt-auto">
-                        {['A', 'B', 'C'].map((av, idx) => (
-                           <div key={idx} className="w-6 h-6 rounded-full border-2 border-[#151e2b] bg-slate-700 flex items-center justify-center overflow-hidden">
-                             <img src={`https://ui-avatars.com/api/?name=${av}&background=random&size=24`} alt="user" />
-                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-             </>
+              <AgendaWidget 
+                events={agendaEvents} 
+                userRole={userRole} 
+                isAdmin={userRole === 'admin'} 
+                onDelete={deleteAgenda} 
+                onCreateClick={() => setIsAgendaModalOpen(true)} 
+              />
            )}
 
            {widgetConfig.type === 'claim' && (
-             <>
+             <Card hover={false} className="rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
                 <div className="flex justify-between items-start mb-6">
                   <h3 className="font-semibold text-sm text-slate-200">{widgetConfig.title}</h3>
                   <MoreHorizontal className="w-4 h-4 text-slate-500" />
@@ -430,11 +436,11 @@ export default function EDOTDashboard() {
                     {widgetConfig.action}
                   </button>
                 </div>
-             </>
+             </Card>
            )}
 
            {widgetConfig.type === 'communication' && (
-             <>
+             <Card hover={false} className="rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
                 <div className="flex justify-between items-start mb-6">
                   <h3 className="font-semibold text-sm text-white">{widgetConfig.title}</h3>
                   <MoreHorizontal className="w-4 h-4 text-slate-500" />
@@ -447,11 +453,17 @@ export default function EDOTDashboard() {
                     {widgetConfig.action}
                   </button>
                 </div>
-             </>
+             </Card>
            )}
-        </Card>
+         </div>
 
       </div>
+
+      <AgendaCreationModal
+        isOpen={isAgendaModalOpen}
+        onClose={() => setIsAgendaModalOpen(false)}
+        onAgendaCreated={(evt) => { onAgendaCreated(evt); setIsAgendaModalOpen(false); }}
+      />
     </motion.div>
   );
 }

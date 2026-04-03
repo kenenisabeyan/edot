@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, Clock, BookOpen, Bell, AlertCircle, HeartHandshake, Users } from 'lucide-react';
+import { X, Calendar, Clock, BookOpen, Bell, AlertCircle, HeartHandshake, Users, ChevronDown, Check } from 'lucide-react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,6 +17,7 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -28,23 +29,38 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
     { id: 'support', label: 'Support', icon: HeartHandshake, color: 'bg-emerald-500' }
   ];
 
-  const handleAudienceToggle = (target) => {
-    if (target === 'all') {
-      if (formData.targetAudiences.includes('all')) {
-        setFormData({ ...formData, targetAudiences: [] });
-      } else {
-        setFormData({ ...formData, targetAudiences: ['all'] });
-      }
-      return;
-    }
+  const adminOptions = [
+    { label: 'Broadcast: All Platform Users', value: ['all'] },
+    { label: 'Single Role: Students Only', value: ['student'] },
+    { label: 'Single Role: Instructors Only', value: ['instructor'] },
+    { label: 'Single Role: Parents Only', value: ['parent'] },
+    { label: 'Single Role: Admins Only', value: ['admin'] },
+    { label: 'Joint Roles: Instructors & Admins', value: ['instructor', 'admin'] },
+    { label: 'Joint Roles: Students & Instructors', value: ['student', 'instructor'] },
+    { label: 'Joint Roles: Students & Parents', value: ['student', 'parent'] },
+  ];
 
-    let updated = [...formData.targetAudiences].filter(t => t !== 'all');
-    if (updated.includes(target)) {
-      updated = updated.filter(t => t !== target);
-    } else {
-      updated.push(target);
-    }
-    setFormData({ ...formData, targetAudiences: updated });
+  const instructorOptions = [
+    { label: 'My Students', value: ['my_students'] },
+    { label: 'Joint Roles: Students & Parents', value: ['student', 'parent'] },
+    { label: 'All Students', value: ['student'] }
+  ];
+
+  const audienceOptions = user?.role === 'admin' ? adminOptions : instructorOptions;
+
+  const handleSelectAudience = (valueArray) => {
+    setFormData({ ...formData, targetAudiences: valueArray });
+    setIsDropdownOpen(false);
+  };
+
+  const getSelectedLabel = () => {
+    if (formData.targetAudiences.length === 0) return 'Select Target Audience...';
+    // Deep match the array
+    const match = audienceOptions.find(opt => 
+      opt.value.length === formData.targetAudiences.length && 
+      opt.value.every((val, index) => val === formData.targetAudiences[index])
+    );
+    return match ? match.label : formData.targetAudiences.join(', ');
   };
 
   const handleSubmit = async (e) => {
@@ -82,17 +98,15 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
     }
   };
 
-  const isAdmin = user?.role === 'admin';
-
   return (
-    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
-      <div className="glass-card rounded-3xl w-full max-w-2xl shadow-xl relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-[#0B0E14]/80 flex items-center justify-center z-[100] p-4 backdrop-blur-md">
+      <div className="bg-[#11151F]/80 backdrop-blur-2xl rounded-3xl w-full max-w-2xl border border-white/5 shadow-[0_0_40px_rgba(0,0,0,0.5)] relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center shrink-0">
-           <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-indigo-600" /> Create New Agenda
+        <div className="p-6 border-b border-white/5 flex justify-between items-center shrink-0">
+           <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[#FFD700]" /> Create New Agenda
            </h2>
-           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors">
+           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-colors">
              <X className="w-5 h-5" />
            </button>
         </div>
@@ -100,103 +114,99 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
         {/* Body */}
         <div className="p-6 overflow-y-auto">
            {error && (
-             <div className="p-4 mb-6 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-sm font-bold flex items-center gap-2">
+             <div className="p-4 mb-6 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-sm font-bold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" /> {error}
              </div>
            )}
 
            <form id="agendaForm" onSubmit={handleSubmit} className="space-y-6">
               
-              <div className="space-y-4">
-                 <h3 className="font-bold text-sm text-slate-800 border-b border-slate-100 pb-2 uppercase tracking-wide">Target Audience</h3>
-                 <div className="flex flex-wrap gap-3">
-                    <button 
-                       type="button"
-                       onClick={() => handleAudienceToggle('all')}
-                       className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('all') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'glass-card border-slate-200 text-slate-600 hover:border-indigo-300'}`}
-                    >
-                       All Users Broadcast
-                    </button>
-                    <button 
-                       type="button"
-                       onClick={() => handleAudienceToggle('student')}
-                       className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('student') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'glass-card border-slate-200 text-slate-600 hover:border-indigo-300'}`}
-                    >
-                       Students
-                    </button>
-                    <button 
-                       type="button"
-                       onClick={() => handleAudienceToggle('parent')}
-                       className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('parent') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'glass-card border-slate-200 text-slate-600 hover:border-indigo-300'}`}
-                    >
-                       Parents
-                    </button>
-                    {isAdmin && (
-                      <button 
-                         type="button"
-                         onClick={() => handleAudienceToggle('instructor')}
-                         className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${formData.targetAudiences.includes('instructor') ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/30' : 'glass-card border-slate-200 text-slate-600 hover:border-indigo-300'}`}
-                      >
-                         Instructors
-                      </button>
-                    )}
+              <div className="space-y-4 relative">
+                 <h3 className="font-bold text-sm text-slate-300 border-b border-white/5 pb-2 uppercase tracking-wide">Target Audience</h3>
+                 
+                 <div className="relative">
+                   <button 
+                     type="button" 
+                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                     className="w-full px-4 py-3 bg-[#0B0E14]/50 border border-white/10 rounded-xl text-sm text-white font-medium flex justify-between items-center hover:border-white/20 transition-colors focus:ring-2 focus:ring-[#FFD700]/50 outline-none"
+                   >
+                     {getSelectedLabel()}
+                     <ChevronDown className="w-4 h-4 text-slate-400" />
+                   </button>
+                   
+                   {isDropdownOpen && (
+                     <div className="absolute z-10 top-full left-0 mt-2 w-full bg-[#1A1F2D] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-2 animate-in fade-in slide-in-from-top-2">
+                       {audienceOptions.map((opt, i) => (
+                         <button
+                           key={i}
+                           type="button"
+                           onClick={() => handleSelectAudience(opt.value)}
+                           className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors flex items-center justify-between group"
+                         >
+                           {opt.label}
+                           {getSelectedLabel() === opt.label && <Check className="w-4 h-4 text-[#FFD700]" />}
+                         </button>
+                       ))}
+                     </div>
+                   )}
                  </div>
               </div>
 
-              <div className="space-y-4">
-                 <h3 className="font-bold text-sm text-slate-800 border-b border-slate-100 pb-2 uppercase tracking-wide">Agenda Details</h3>
+              <div className="space-y-4 mt-8">
+                 <h3 className="font-bold text-sm text-slate-300 border-b border-white/5 pb-2 uppercase tracking-wide">Agenda Details</h3>
                  
                  <div>
-                   <label className="block text-sm font-bold text-slate-700 mb-2">Title</label>
+                   <label className="block text-sm font-bold text-slate-400 mb-2">Title</label>
                    <input 
                      type="text" required 
                      value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
-                     className="w-full px-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium" 
+                     className="w-full px-4 py-3 bg-[#0B0E14]/50 border border-white/10 text-white rounded-xl text-sm focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium outline-none placeholder:text-slate-600" 
                      placeholder="e.g., Parent-Teacher Meeting, Final Math Exam"
                    />
                  </div>
 
                  <div className="grid grid-cols-2 gap-4">
                    <div>
-                     <label className="block text-sm font-bold text-slate-700 mb-2">Date</label>
+                     <label className="block text-sm font-bold text-slate-400 mb-2">Date</label>
                      <div className="relative">
                         <input 
                           type="date" required 
                           value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})}
-                          className="w-full pl-10 pr-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium" 
+                          className="w-full pl-10 pr-4 py-3 bg-[#0B0E14]/50 border border-white/10 text-white rounded-xl text-sm focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium outline-none color-scheme-dark" 
                         />
-                        <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+                        <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-slate-500" />
                      </div>
                    </div>
                    <div>
-                     <label className="block text-sm font-bold text-slate-700 mb-2">Time</label>
+                     <label className="block text-sm font-bold text-slate-400 mb-2">Time</label>
                      <div className="relative">
                         <input 
                           type="time" required 
                           value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})}
-                          className="w-full pl-10 pr-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium" 
+                          className="w-full pl-10 pr-4 py-3 bg-[#0B0E14]/50 border border-white/10 text-white rounded-xl text-sm focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium outline-none color-scheme-dark" 
                         />
-                        <Clock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+                        <Clock className="absolute left-3 top-3.5 w-4 h-4 text-slate-500" />
                      </div>
                    </div>
                  </div>
 
                  <div>
-                   <label className="block text-sm font-bold text-slate-700 mb-2">Category</label>
+                   <label className="block text-sm font-bold text-slate-400 mb-2">Category</label>
                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                       {categories.map(cat => {
                         const IconComponent = cat.icon;
+                        const isSelected = formData.type === cat.id;
                         return (
                           <button
                             key={cat.id}
                             type="button"
                             onClick={() => setFormData({...formData, type: cat.id})}
-                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${formData.type === cat.id ? `bg-transparent border-${cat.color.split('-')[1]}-500 shadow-sm` : 'glass-card border-slate-100 hover:border-slate-300'}`}
+                            className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${isSelected ? `bg-white/5 border-${cat.color.split('-')[1]}-500 shadow-sm` : 'bg-[#0B0E14]/50 border-white/5 hover:border-white/20'}`}
                           >
-                             <div className={`w-8 h-8 rounded-full mb-1 flex items-center justify-center ${formData.type === cat.id ? cat.color + ' text-white shadow-md' : 'bg-slate-100 text-slate-400'}`}>
+                             <div className={`w-8 h-8 rounded-full mb-1 flex items-center justify-center ${isSelected ? cat.color + ' text-white shadow-md' : 'bg-white/5 text-slate-500'}`}>
                                <IconComponent className="w-4 h-4" />
                              </div>
-                             <span className={`text-[10px] uppercase tracking-wider font-bold ${formData.type === cat.id ? 'text-slate-800' : 'text-slate-400'}`}>{cat.label}</span>
+                             <span className={`text-[10px] uppercase tracking-wider font-bold ${isSelected ? 'text-white' : 'text-slate-500'}`}>{cat.label}</span>
                           </button>
                         )
                       })}
@@ -204,11 +214,11 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
                  </div>
 
                  <div>
-                   <label className="block text-sm font-bold text-slate-700 mb-2">Description / Instructions (Optional)</label>
+                   <label className="block text-sm font-bold text-slate-400 mb-2">Description / Instructions (Optional)</label>
                    <textarea 
                      rows="3"
                      value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
-                     className="w-full px-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 font-medium resize-none" 
+                     className="w-full px-4 py-3 bg-[#0B0E14]/50 border border-white/10 text-white rounded-xl text-sm focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium resize-none outline-none placeholder:text-slate-600" 
                      placeholder="Add any specific advice, support contexts, links, or instructions here..."
                    ></textarea>
                  </div>
@@ -217,18 +227,18 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-100 shrink-0 bg-transparent/50 rounded-b-3xl flex justify-end gap-3">
-           <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition-colors">
+        <div className="p-6 border-t border-white/5 shrink-0 bg-transparent rounded-b-3xl flex justify-end gap-3 glass-card">
+           <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl font-bold text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
               Cancel
            </button>
            <button 
              type="submit" 
              form="agendaForm" 
              disabled={loading}
-             className="px-8 py-2.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-500/30 transition-colors disabled:opacity-50 flex items-center gap-2"
+             className="px-8 py-2.5 rounded-xl font-bold text-[#0B0E14] bg-[#FFD700] hover:bg-[#e6c200] shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-colors disabled:opacity-50 flex items-center gap-2"
            >
-              {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
-              Broadcast Agenda
+              {loading && <div className="w-4 h-4 border-2 border-[#0B0E14] border-t-transparent rounded-full animate-spin"></div>}
+              Broadcast
            </button>
         </div>
       </div>

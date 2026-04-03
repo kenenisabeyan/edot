@@ -2,12 +2,14 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import AgendaCreationModal from '../components/AgendaCreationModal';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity, MessageSquare, UserPlus, Eye, ShieldOff, ArrowRightCircle, UserPlus as UserPlusIcon } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
 import ActivityFeed from '../components/ActivityFeed';
+import AgendaWidget from '../components/AgendaWidget';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -24,6 +26,8 @@ export default function AdminDashboard() {
   const [recentFamilyActivity, setRecentFamilyActivity] = useState([]);
   const [childSearch, setChildSearch] = useState('');
   const [selectedChildId, setSelectedChildId] = useState('');
+  const [agendaEvents, setAgendaEvents] = useState([]);
+  const [showAgendaModal, setShowAgendaModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState(null);
@@ -83,6 +87,15 @@ export default function AdminDashboard() {
     }
   }, []);
 
+  const fetchAgendaEvents = useCallback(async () => {
+    try {
+      const { data } = await api.get('/calendar');
+      setAgendaEvents(Array.isArray(data.data) ? data.data : []);
+    } catch (err) {
+      console.error('Failed to fetch agenda events', err);
+    }
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -99,7 +112,11 @@ export default function AdminDashboard() {
     return () => {
       isMounted = false;
     };
-  }, [fetchUsers, fetchPendingCourses, fetchPendingEnrollments, fetchStats, fetchAnalytics, fetchAllCourses]);
+  }, [fetchUsers, fetchPendingCourses, fetchPendingEnrollments, fetchStats, fetchAnalytics, fetchAllCourses, fetchAgendaEvents]);
+
+  useEffect(() => {
+    fetchAgendaEvents();
+  }, [fetchAgendaEvents]);
 
   const updateRole = async (userId, role) => {
     try {
@@ -317,6 +334,19 @@ export default function AdminDashboard() {
     navigate('/');
   };
 
+  const handleAgendaCreated = (evt) => {
+    setAgendaEvents((prev) => [...prev, evt].sort((a, b) => new Date(a.date) - new Date(b.date)));
+  };
+
+  const deleteAgenda = async (agendaId) => {
+    try {
+      await api.delete(`/calendar/${agendaId}`);
+      setAgendaEvents((prev) => prev.filter((item) => item._id !== agendaId));
+    } catch (err) {
+      console.error('Failed to delete agenda', err);
+    }
+  };
+
   const getStatusBadgeClasses = (status) => {
     if (status === 'approved') return 'bg-emerald-500/20 text-emerald-300 border border-emerald-300';
     if (status === 'pending') return 'bg-amber-500/20 text-amber-300 border border-amber-300';
@@ -518,6 +548,23 @@ export default function AdminDashboard() {
                  </div>
                </div>
             </div>
+
+            <div className="mt-8">
+               <AgendaWidget 
+                 events={agendaEvents} 
+                 userRole="admin" 
+                 isAdmin={true} 
+                 onDelete={deleteAgenda} 
+                 onCreateClick={() => setShowAgendaModal(true)} 
+               />
+            </div>
+
+            <AgendaCreationModal
+              isOpen={showAgendaModal}
+              onClose={() => setShowAgendaModal(false)}
+              onAgendaCreated={(evt) => { handleAgendaCreated(evt); setShowAgendaModal(false); }}
+            />
+
           </div>
         );
       }

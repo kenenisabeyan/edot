@@ -25,7 +25,7 @@ const eventSchema = new mongoose.Schema({
   },
   targetAudiences: [{
     type: String,
-    enum: ['all', 'student', 'instructor', 'admin', 'parent'],
+    enum: ['all', 'student', 'instructor', 'admin', 'parent', 'my_students'],
   }],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

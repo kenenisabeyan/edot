@@ -16,9 +16,15 @@ router.get('/', protect, async (req, res) => {
         // Admins can see absolutely all events
         if (req.user.role === 'admin') {
             queryCondition = {}; 
+        } else if (req.user.role === 'student' && req.user.assignedInstructor) {
+            // Include class notices meant for 'my_students' by their instructor
+            queryCondition.$or.push({
+                targetAudiences: 'my_students',
+                createdBy: req.user.assignedInstructor
+            });
         }
 
-        const events = await Event.find(queryCondition).sort({ date: 1 });
+        const events = await Event.find(queryCondition).sort({ date: -1 }); // Sorting by date descending makes more sense
         res.status(200).json({ success: true, count: events.length, data: events });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
