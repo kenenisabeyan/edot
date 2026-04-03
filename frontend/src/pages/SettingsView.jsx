@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { Shield, Bell, Lock, Eye, CreditCard, Clock, Sliders, Save, Palette, Key, BookOpen, Settings } from 'lucide-react';
+import CustomDropdown from '../components/CustomDropdown';
 
 export default function SettingsView() {
   const { user } = useAuth();
@@ -206,15 +207,16 @@ export default function SettingsView() {
             <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2">Supporter Profile & Thresholds</h3>
             <div className="mb-6 p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
               <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><CreditCard className="w-5 h-5 text-indigo-500"/> Billing Method</label>
-              <select 
+              <CustomDropdown
                 value={roleConfig.billingMethod || 'unlinked'}
-                onChange={(e) => handleChange('billingMethod', e.target.value)}
-                className="w-full md:w-1/2 p-3 bg-transparent border border-slate-200 rounded-xl text-slate-700 font-medium outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="unlinked">Unlinked / Manual</option>
-                <option value="card">Credit Card on File</option>
-                <option value="bank_transfer">Direct Bank Transfer</option>
-              </select>
+                onChange={(val) => handleChange('billingMethod', val)}
+                options={[
+                  { label: 'Unlinked / Manual', value: 'unlinked' },
+                  { label: 'Credit Card on File', value: 'card' },
+                  { label: 'Direct Bank Transfer', value: 'bank_transfer' }
+                ]}
+                className="w-full md:w-1/2"
+              />
             </div>
             <div className="grid md:grid-cols-2 gap-6">
               <NumberSlider 
@@ -257,14 +259,15 @@ export default function SettingsView() {
                    <h4 className="font-semibold text-slate-900">Default Course Visibility</h4>
                    <p className="text-sm text-slate-500 mt-1">Should newly created courses be public in the catalog?</p>
                  </div>
-                 <select 
+                 <CustomDropdown
                   value={roleConfig.courseVisibility || 'public'}
-                  onChange={(e) => handleChange('courseVisibility', e.target.value)}
-                  className="p-3 bg-transparent font-medium border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
-                 >
-                   <option value="public">Public (Catalog)</option>
-                   <option value="enrolled_only">Hidden (Invite Only)</option>
-                 </select>
+                  onChange={(val) => handleChange('courseVisibility', val)}
+                  options={[
+                    { label: 'Public (Catalog)', value: 'public' },
+                    { label: 'Hidden (Invite Only)', value: 'enrolled_only' }
+                  ]}
+                  className="w-48"
+                 />
               </div>
               <ToggleSwitch 
                 icon={Sliders} label="Auto-Tag Templates" 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Calendar, Clock, BookOpen, Bell, AlertCircle, HeartHandshake, Users, ChevronDown, Check } from 'lucide-react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import CustomDropdown from './CustomDropdown';
 
 export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }) {
   const { user } = useAuth();
@@ -17,7 +18,6 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -30,37 +30,51 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
   ];
 
   const adminOptions = [
-    { label: 'Broadcast: All Platform Users', value: ['all'] },
-    { label: 'Single Role: Students Only', value: ['student'] },
-    { label: 'Single Role: Instructors Only', value: ['instructor'] },
-    { label: 'Single Role: Parents Only', value: ['parent'] },
-    { label: 'Single Role: Admins Only', value: ['admin'] },
-    { label: 'Joint Roles: Instructors & Admins', value: ['instructor', 'admin'] },
-    { label: 'Joint Roles: Students & Instructors', value: ['student', 'instructor'] },
-    { label: 'Joint Roles: Students & Parents', value: ['student', 'parent'] },
+    {
+      category: 'Broadcast',
+      options: [
+        { label: 'All Platform Users', value: ['all'] }
+      ]
+    },
+    {
+      category: 'Single Role',
+      options: [
+        { label: 'Students Only', value: ['student'] },
+        { label: 'Instructors Only', value: ['instructor'] },
+        { label: 'Parents Only', value: ['parent'] },
+        { label: 'Admins Only', value: ['admin'] }
+      ]
+    },
+    {
+      category: 'Joint Roles',
+      options: [
+        { label: 'Instructors & Admins', value: ['instructor', 'admin'] },
+        { label: 'Students & Instructors', value: ['student', 'instructor'] },
+        { label: 'Students & Parents', value: ['student', 'parent'] },
+      ]
+    }
   ];
 
   const instructorOptions = [
-    { label: 'My Students', value: ['my_students'] },
-    { label: 'Joint Roles: Students & Parents', value: ['student', 'parent'] },
-    { label: 'All Students', value: ['student'] }
+    {
+      category: 'My Classes',
+      options: [
+        { label: 'My Students', value: ['my_students'] }
+      ]
+    },
+    {
+      category: 'Global',
+      options: [
+        { label: 'Students & Parents', value: ['student', 'parent'] },
+        { label: 'All Students', value: ['student'] }
+      ]
+    }
   ];
 
   const audienceOptions = user?.role === 'admin' ? adminOptions : instructorOptions;
 
   const handleSelectAudience = (valueArray) => {
     setFormData({ ...formData, targetAudiences: valueArray });
-    setIsDropdownOpen(false);
-  };
-
-  const getSelectedLabel = () => {
-    if (formData.targetAudiences.length === 0) return 'Select Target Audience...';
-    // Deep match the array
-    const match = audienceOptions.find(opt => 
-      opt.value.length === formData.targetAudiences.length && 
-      opt.value.every((val, index) => val === formData.targetAudiences[index])
-    );
-    return match ? match.label : formData.targetAudiences.join(', ');
   };
 
   const handleSubmit = async (e) => {
@@ -124,32 +138,12 @@ export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }
               <div className="space-y-4 relative">
                  <h3 className="font-bold text-sm text-slate-300 border-b border-white/5 pb-2 uppercase tracking-wide">Target Audience</h3>
                  
-                 <div className="relative">
-                   <button 
-                     type="button" 
-                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                     className="w-full px-4 py-3 bg-[#0B0E14]/50 border border-white/10 rounded-xl text-sm text-white font-medium flex justify-between items-center hover:border-white/20 transition-colors focus:ring-2 focus:ring-[#FFD700]/50 outline-none"
-                   >
-                     {getSelectedLabel()}
-                     <ChevronDown className="w-4 h-4 text-slate-400" />
-                   </button>
-                   
-                   {isDropdownOpen && (
-                     <div className="absolute z-10 top-full left-0 mt-2 w-full bg-[#1A1F2D] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-2 animate-in fade-in slide-in-from-top-2">
-                       {audienceOptions.map((opt, i) => (
-                         <button
-                           key={i}
-                           type="button"
-                           onClick={() => handleSelectAudience(opt.value)}
-                           className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors flex items-center justify-between group"
-                         >
-                           {opt.label}
-                           {getSelectedLabel() === opt.label && <Check className="w-4 h-4 text-[#FFD700]" />}
-                         </button>
-                       ))}
-                     </div>
-                   )}
-                 </div>
+                 <CustomDropdown
+                   options={audienceOptions}
+                   value={formData.targetAudiences}
+                   onChange={handleSelectAudience}
+                   placeholder="Select Target Audience..."
+                 />
               </div>
 
               <div className="space-y-4 mt-8">

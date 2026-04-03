@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { BellRing, Pin, Plus, Send, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import CustomDropdown from '../components/CustomDropdown';
 
 export default function NoticeView() {
   const { user } = useAuth();
@@ -109,16 +110,18 @@ export default function NoticeView() {
                 </div>
                 <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Audience</label>
-                    <select 
+                    <CustomDropdown
                       value={newNotice.audience}
-                      onChange={(e) => setNewNotice({ ...newNotice, audience: e.target.value })}
-                      className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] transition-all font-semibold capitalize appearance-none cursor-pointer"
-                    >
-                      <option value="all">Entire Platform (All Users)</option>
-                      <option value="student">Students Only</option>
-                      <option value="instructor">Instructors Only</option>
-                      <option value="admin">Administrators Only</option>
-                    </select>
+                      onChange={(val) => setNewNotice({ ...newNotice, audience: val })}
+                      options={[
+                        { label: 'Entire Platform (All Users)', value: 'all' },
+                        { label: 'Students Only', value: 'student' },
+                        { label: 'Instructors Only', value: 'instructor' },
+                        { label: 'Administrators Only', value: 'admin' }
+                      ]}
+                      placeholder="Target Audience"
+                      className="w-full"
+                    />
                 </div>
             </div>
 

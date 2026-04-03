@@ -24,6 +24,7 @@ const attendanceRoutes = require('./routes/attendanceRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const achievementRoutes = require('./routes/achievementRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/achievements', achievementRoutes);
+app.use('/api/search', searchRoutes);
 
 // Static file serving for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -4,6 +4,7 @@ import { BookOpen, Search, Download, Plus, Trash2, FileText, Loader2, AlertCircl
 import { useAuth } from '../context/AuthContext';
 import Markdown from 'markdown-to-jsx';
 import 'github-markdown-css';
+import CustomDropdown from '../components/CustomDropdown';
 
 export default function LibraryView() {
   const { user } = useAuth();
@@ -48,7 +49,11 @@ export default function LibraryView() {
 
   const fetchCourses = async () => {
     try {
-      const { data } = await api.get('/courses');
+      let endpoint = '/courses';
+      if (user?.role === 'admin') endpoint = '/admin/courses';
+      else if (user?.role === 'instructor') endpoint = '/instructor/courses';
+      
+      const { data } = await api.get(endpoint);
       setCourses(data.data || []);
     } catch (error) {
       console.error('Failed to fetch courses', error);
@@ -420,18 +425,19 @@ export default function LibraryView() {
                 </div>
                 <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Category</label>
-                    <select 
-                      value={uploadData.category} onChange={(e) => setUploadData({ ...uploadData, category: e.target.value })}
-                      className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] font-semibold cursor-pointer"
-                    >
-                      <option value="General">General Education</option>
-                      <option value="Science">Science & Technology</option>
-                      <option value="Mathematics">Mathematics</option>
-                      <option value="Literature">Literature & Languages</option>
-                      <option value="History">History & Social Science</option>
-                      <option value="Research">Research Papers</option>
-                      <option value="Syllabus">Curriculum / Syllabus</option>
-                    </select>
+                    <CustomDropdown 
+                      value={uploadData.category}
+                      onChange={(val) => setUploadData({ ...uploadData, category: val })}
+                      options={[
+                        { label: 'General Education', value: 'General' },
+                        { label: 'Science & Technology', value: 'Science' },
+                        { label: 'Mathematics', value: 'Mathematics' },
+                        { label: 'Literature & Languages', value: 'Literature' },
+                        { label: 'History & Social Science', value: 'History' },
+                        { label: 'Research Papers', value: 'Research' },
+                        { label: 'Curriculum / Syllabus', value: 'Syllabus' }
+                      ]}
+                    />
                 </div>
             </div>
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { Search, Filter, Clock, BookOpen, User, ArrowRight, Heart, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomDropdown from '../components/CustomDropdown';
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
@@ -77,15 +78,16 @@ export default function Courses() {
             />
           </div>
 
-          <select
-            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-            className="border px-4 py-3 rounded-lg"
-          >
-            <option value="">All</option>
-            <option value="Programming">Programming</option>
-            <option value="Mathematics">Math</option>
-            <option value="Science">Science</option>
-          </select>
+          <CustomDropdown
+            value={filters.category}
+            onChange={(val) => setFilters({ ...filters, category: val })}
+            options={[
+              { label: 'All', value: '' },
+              { label: 'Programming', value: 'Programming' },
+              { label: 'Math', value: 'Mathematics' },
+              { label: 'Science', value: 'Science' }
+            ]}
+          />
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import AgendaCreationModal from '../components/AgendaCreationModal';
+import CustomDropdown from '../components/CustomDropdown';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity, MessageSquare, UserPlus, Eye, ShieldOff, ArrowRightCircle, UserPlus as UserPlusIcon } from 'lucide-react';
@@ -623,39 +624,46 @@ export default function AdminDashboard() {
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4">
-                          <select 
-                            value={u.role} 
-                            onChange={(e) => updateRole(u._id, e.target.value)}
-                            disabled={u._id === user?._id}
-                            className={`px-3 py-1.5 rounded-lg border text-sm font-semibold capitalize focus:outline-none focus:ring-2 focus:ring-offset-1 cursor-pointer appearance-none pr-8 relative bg-no-repeat bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22currentColor%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_10px_center] bg-[length:10px_10px] ${
-                              u.role === 'admin' 
-                                ? 'bg-red-50 text-red-700 border-red-200 focus:ring-red-500' 
-                                : u.role === 'instructor' 
-                                ? 'bg-purple-50 text-purple-700 border-purple-200 focus:ring-purple-500' 
-                                : 'bg-transparent text-slate-700 border-slate-200 focus:ring-slate-500'
-                            } ${u._id === user?._id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            title={u._id === user?._id ? "Cannot change your own role" : "Change User Role"}
-                          >
-                            <option value="student">Student</option>
-                            <option value="instructor">Instructor</option>
-                            <option value="admin">Admin</option>
-                          </select>
-                        </td>
+                          {u._id === user?._id ? (
+                            <div className="opacity-50 cursor-not-allowed">
+                               <CustomDropdown value={u.role} onChange={() => {}} options={[{ label: u.role, value: u.role }]} />
+                            </div>
+                          ) : (
+                            <CustomDropdown 
+                              value={u.role} 
+                              onChange={(val) => updateRole(u._id, val)}
+                              options={[
+                                { label: 'Student', value: 'student' },
+                                { label: 'Instructor', value: 'instructor' },
+                                { label: 'Admin', value: 'admin' }
+                              ]}
+                              className="w-32"
+                            />
+                          )}
                         <td className="px-6 py-4">
                            {u.role === 'student' ? (
-                              <select 
+                              <CustomDropdown 
                                 value={u.assignedInstructor?._id || u.assignedInstructor || ''}
-                                onChange={(e) => assignInstructor(u._id, e.target.value)}
-                                className="px-3 py-1.5 rounded-lg border text-sm font-semibold bg-transparent text-slate-700 border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer w-full max-w-[150px]"
-                              >
-                                <option value="" disabled>Select Inst...</option>
-                                {usersList.filter(user => user.role === 'instructor').map(inst => (
-                                  <option key={inst._id} value={inst._id}>
-                                    {inst.name}
-                                  </option>
-                                ))}
-                              </select>
+                                onChange={(val) => assignInstructor(u._id, val)}
+                                options={usersList.filter(user => user.role === 'instructor').map(inst => ({ 
+                                  label: inst.name, 
+                                  value: inst._id,
+                                  render: (
+                                    <div className="flex items-center gap-3 w-full py-0.5">
+                                      <div className="w-8 h-8 rounded-full bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold text-xs shrink-0 border border-[#008A32]/30 shadow-sm uppercase">
+                                          {inst.name ? inst.name.charAt(0) : '?'}
+                                      </div>
+                                      <div className="flex flex-col text-left flex-1 min-w-0">
+                                        <span className="font-bold text-white text-xs truncate">{inst.name}</span>
+                                        <span className="text-[10px] text-slate-400 truncate mt-0.5">{inst.email}</span>
+                                      </div>
+                                    </div>
+                                  )
+                                }))}
+                                placeholder="Select Inst..."
+                                searchable={true}
+                                className="w-44"
+                              />
                            ) : (
                              <span className="text-slate-300 text-sm italic">N/A</span>
                            )}
@@ -1104,12 +1112,28 @@ export default function AdminDashboard() {
                         <div className="mt-2">
                           <h5 className="text-xs text-slate-400 uppercase tracking-wide">Add/Remove Child</h5>
                           <div className="flex gap-2 mt-1">
-                            <select value={selectedChildId} onChange={(e) => setSelectedChildId(e.target.value)} className="flex-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs">
-                              <option value="">Select student</option>
-                              {filterCandidates().map((child) => (
-                                <option key={child._id} value={child._id}>{child.name}</option>
-                              ))}
-                            </select>
+                            <CustomDropdown 
+                              value={selectedChildId} 
+                              onChange={setSelectedChildId} 
+                              options={filterCandidates().map(child => ({ 
+                                label: child.name, 
+                                value: child._id,
+                                render: (
+                                  <div className="flex items-center gap-3 w-full py-0.5">
+                                    <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0 border border-blue-500/30 shadow-sm uppercase">
+                                        {child.name ? child.name.charAt(0) : '?'}
+                                    </div>
+                                    <div className="flex flex-col text-left flex-1 min-w-0">
+                                      <span className="font-bold text-white text-xs truncate">{child.name}</span>
+                                      <span className="text-[10px] text-slate-400 truncate mt-0.5">{child.email}</span>
+                                    </div>
+                                  </div>
+                                )
+                              }))}
+                              placeholder="Select student"
+                              searchable={true}
+                              className="flex-1"
+                            />
                             <button onClick={() => { if (selectedChildId) addChildToParent(selectedChildId); }} className="px-2 py-1 bg-blue-600 rounded-lg text-xs text-white">Add</button>
                           </div>
                         </div>
@@ -1142,16 +1166,16 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <label className="text-xs text-slate-400">Role</label>
-                      <select
+                      <CustomDropdown
                         value={selectedUser.role || ''}
-                        onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value })}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-600 bg-black/60 text-white"
-                      >
-                        <option value="student">Student</option>
-                        <option value="instructor">Instructor</option>
-                        <option value="parent">Parent</option>
-                        <option value="admin">Admin</option>
-                      </select>
+                        onChange={(val) => setSelectedUser({ ...selectedUser, role: val })}
+                        options={[
+                          { label: 'Student', value: 'student' },
+                          { label: 'Instructor', value: 'instructor' },
+                          { label: 'Parent', value: 'parent' },
+                          { label: 'Admin', value: 'admin' }
+                        ]}
+                      />
                     </div>
                     <div>
                       <label className="text-xs text-slate-400">Password (min 6 chars)</label>
@@ -1165,16 +1189,16 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <label className="text-xs text-slate-400">Account Status</label>
-                      <select
+                      <CustomDropdown
                         value={selectedUser.status || ''}
-                        onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-600 bg-black/60 text-white"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="blocked">Blocked</option>
-                      </select>
+                        onChange={(val) => setSelectedUser({ ...selectedUser, status: val })}
+                        options={[
+                          { label: 'Pending', value: 'pending' },
+                          { label: 'Approved', value: 'approved' },
+                          { label: 'Rejected', value: 'rejected' },
+                          { label: 'Blocked', value: 'blocked' }
+                        ]}
+                      />
                     </div>
                   </div>
                 </div>

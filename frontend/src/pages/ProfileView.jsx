@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { User, Mail, Phone, MapPin, Save, AlertCircle, CircleCheck, Camera, Loader2, Briefcase, Calendar } from 'lucide-react';
+import CustomDropdown from '../components/CustomDropdown';
 
 export default function ProfileView() {
   const { user, updateUser } = useAuth();
@@ -242,18 +243,18 @@ export default function ProfileView() {
                   <label className="text-sm font-bold text-slate-700">Gender</label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-                    <select 
-                      name="gender"
+                    <CustomDropdown 
                       value={formData.gender}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 appearance-none glass-card" 
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                      <option value="Prefer not to say">Prefer not to say</option>
-                    </select>
+                      onChange={(val) => setFormData({ ...formData, gender: val })}
+                      placeholder="Select Gender"
+                      options={[
+                        { label: 'Male', value: 'Male' },
+                        { label: 'Female', value: 'Female' },
+                        { label: 'Other', value: 'Other' },
+                        { label: 'Prefer not to say', value: 'Prefer not to say' }
+                      ]}
+                      className="w-full [&>button]:pl-10"
+                    />
                   </div>
                 </div>
 

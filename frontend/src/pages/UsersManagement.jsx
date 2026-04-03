@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { ShieldCheck, Users, CheckCircle2, XCircle, Search } from 'lucide-react';
 import UserAvatar from '../components/UserAvatar';
+import UserIntelligenceModal from '../components/UserIntelligenceModal';
+import CustomDropdown from '../components/CustomDropdown';
 
 export default function UsersManagement() {
   const { user } = useAuth();
@@ -182,17 +184,17 @@ export default function UsersManagement() {
               className="col-span-1 md:col-span-1 px-3 py-2 rounded-lg border border-white/10 bg-black/10 text-white"
               required
             />
-            <select
+            <CustomDropdown
               value={newUser.role}
-              onChange={(e) => setNewUser((prev) => ({ ...prev, role: e.target.value }))}
-              className="col-span-1 md:col-span-1 px-3 py-2 rounded-lg border border-white/10 bg-black/10 text-white"
-              required
-            >
-              <option value="student">Student</option>
-              <option value="parent">Parent</option>
-              <option value="instructor">Instructor</option>
-              <option value="admin">Admin</option>
-            </select>
+              onChange={(val) => setNewUser((prev) => ({ ...prev, role: val }))}
+              options={[
+                { label: 'Student', value: 'student' },
+                { label: 'Parent', value: 'parent' },
+                { label: 'Instructor', value: 'instructor' },
+                { label: 'Admin', value: 'admin' }
+              ]}
+              className="col-span-1 md:col-span-1"
+            />
             <button
               type="submit"
               className="col-span-1 md:col-span-1 px-4 py-2 rounded-lg bg-[#008A32] text-white font-semibold hover:bg-[#00712a]"
@@ -258,41 +260,50 @@ export default function UsersManagement() {
                   
                   {/* Role Control */}
                   <td className="px-6 py-4">
-                      <select 
-                        value={u.role} 
-                        onChange={(e) => updateRole(u._id, e.target.value)}
-                        disabled={u._id === user?._id}
-                        className={`px-3 py-1.5 rounded-lg border text-sm font-bold capitalize focus:outline-none focus:ring-2 focus:ring-[#FFD700] cursor-pointer appearance-none pr-8 relative bg-no-repeat bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22currentColor%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_10px_center] bg-[length:10px_10px] ${
-                          u.role === 'admin' 
-                            ? 'bg-[#E30A17]/10 text-[#E30A17] border-[#E30A17]/20' 
-                            : u.role === 'instructor' 
-                            ? 'bg-[#008A32]/10 text-[#008A32] border-[#008A32]/20' 
-                            : 'bg-white/5 text-slate-300 border-white/10'
-                        } ${u._id === user?._id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title={u._id === user?._id ? "Cannot change your own role" : "Change User Role"}
-                    >
-                      <option value="student">Student</option>
-                      <option value="parent">Parent</option>
-                      <option value="instructor">Instructor</option>
-                      <option value="admin">Admin</option>
-                    </select>
+                      {u._id === user?._id ? (
+                        <div className="opacity-50 cursor-not-allowed">
+                           <CustomDropdown value={u.role} onChange={() => {}} options={[{ label: u.role, value: u.role }]} />
+                        </div>
+                      ) : (
+                        <CustomDropdown
+                          value={u.role}
+                          onChange={(val) => updateRole(u._id, val)}
+                          options={[
+                            { label: 'Student', value: 'student' },
+                            { label: 'Parent', value: 'parent' },
+                            { label: 'Instructor', value: 'instructor' },
+                            { label: 'Admin', value: 'admin' }
+                          ]}
+                          className="w-32"
+                        />
+                      )}
                   </td>
 
                   {/* Assignment Control */}
                   <td className="px-6 py-4">
                     {u.role === 'student' ? (
-                      <select 
+                      <CustomDropdown
                         value={u.assignedInstructor?._id || u.assignedInstructor || ''}
-                        onChange={(e) => assignInstructor(u._id, e.target.value)}
-                        className="px-3 py-1.5 rounded-lg border text-sm font-semibold bg-[#0B0E14] text-white border-white/10 focus:outline-none focus:ring-2 focus:ring-[#FFD700] cursor-pointer w-full max-w-[150px]"
-                      >
-                        <option value="" disabled>Assign Inst...</option>
-                        {usersList.filter(uList => uList.role === 'instructor').map(inst => (
-                          <option key={inst._id} value={inst._id}>
-                            {inst.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(val) => assignInstructor(u._id, val)}
+                        options={usersList.filter(uList => uList.role === 'instructor').map(inst => ({ 
+                          label: inst.name, 
+                          value: inst._id,
+                          render: (
+                            <div className="flex items-center gap-3 w-full py-0.5">
+                              <div className="w-8 h-8 rounded-full bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold text-xs shrink-0 border border-[#008A32]/30 shadow-sm uppercase">
+                                  {inst.name ? inst.name.charAt(0) : '?'}
+                              </div>
+                              <div className="flex flex-col text-left flex-1 min-w-0">
+                                <span className="font-bold text-white text-xs truncate">{inst.name}</span>
+                                <span className="text-[10px] text-slate-400 truncate mt-0.5">{inst.email}</span>
+                              </div>
+                            </div>
+                          )
+                        }))}
+                        placeholder="Assign Inst..."
+                        searchable={true}
+                        className="w-44"
+                      />
                     ) : (
                       <span className="text-slate-500 text-sm italic">N/A</span>
                     )}
@@ -310,17 +321,13 @@ export default function UsersManagement() {
           </table>
         </div>
 
-        {selectedUser && (
-          <div className="mt-4 p-4 rounded-xl border border-white/10 bg-black/20">
-            <h3 className="text-sm font-bold text-[#FFD700]">User Detail</h3>
-            <p className="text-sm text-slate-200">Name: {selectedUser.name}</p>
-            <p className="text-sm text-slate-200">Email: {selectedUser.email}</p>
-            <p className="text-sm text-slate-200">Role: {selectedUser.role}</p>
-            <p className="text-sm text-slate-200">Status: {selectedUser.status}</p>
-            <p className="text-sm text-slate-200">Parent Of: {(selectedUser.children || []).map(c => c.name).join(', ') || 'None'}</p>
-            <button onClick={() => setSelectedUser(null)} className="mt-2 text-xs px-2 py-1 rounded-md bg-white/10 hover:bg-white/20">Close</button>
-          </div>
-        )}
+        <UserIntelligenceModal 
+          isOpen={!!selectedUser} 
+          userId={selectedUser?._id} 
+          onClose={() => setSelectedUser(null)} 
+          onRefreshUsers={fetchUsers} 
+          globalUsersList={usersList} 
+        />
       </div>
     </div>
   );

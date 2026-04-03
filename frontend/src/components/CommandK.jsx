@@ -1,35 +1,21 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, User, BookOpen, Settings, LayoutDashboard, X, ArrowRight } from 'lucide-react';
+import { Search, User, BookOpen, BellRing, Settings, LayoutDashboard, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 
 export default function CommandK() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
+  const [results, setResults] = useState([]);
   const inputRef = useRef(null);
   const navigate = useNavigate();
-  void motion;
 
-  // Mocked global search index - in production this would fetch based on query
-  const searchIndex = [
-    { type: 'Page', title: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { type: 'Page', title: 'Settings', icon: Settings, path: '/dashboard/settings' },
-    { type: 'Page', title: 'Course Library', icon: BookOpen, path: '/dashboard/library' },
-    { type: 'User', title: 'Kenenisa Beyan', icon: User, path: '/dashboard/profile' },
-    { type: 'User', title: 'Admin System', icon: User, path: '/dashboard/users' },
-    { type: 'Course', title: 'Advanced React Architecture', icon: BookOpen, path: '/dashboard/courses' },
-    { type: 'Course', title: 'UI/UX Masterclass', icon: BookOpen, path: '/dashboard/courses' },
-  ];
-
-  const filteredResults = searchIndex.filter(item => 
-    item.title.toLowerCase().includes(query.toLowerCase()) || 
-    item.type.toLowerCase().includes(query.toLowerCase())
-  );
-
+  // Handle hotkeys
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Toggle on Cmd+K or Ctrl+K
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsOpen((prev) => !prev);
@@ -39,15 +25,15 @@ export default function CommandK() {
         if (e.key === 'Escape') setIsOpen(false);
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-          setSelectedIndex(prev => (prev < filteredResults.length - 1 ? prev + 1 : prev));
+          setSelectedIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
         }
         if (e.key === 'ArrowUp') {
           e.preventDefault();
           setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
         }
-        if (e.key === 'Enter' && filteredResults.length > 0) {
+        if (e.key === 'Enter' && results.length > 0) {
           e.preventDefault();
-          navigate(filteredResults[selectedIndex].path);
+          navigate(results[selectedIndex].path);
           setIsOpen(false);
           setQuery('');
         }
@@ -56,112 +42,185 @@ export default function CommandK() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, query, selectedIndex, navigate, filteredResults]);
+  }, [isOpen, query, selectedIndex, navigate, results]);
 
+  // Focus input when opened
   useEffect(() => {
-    if (!isOpen) return;
-
+    if (!isOpen) {
+      setQuery('');
+      setResults([]);
+      return;
+    }
     const timeout = setTimeout(() => {
       inputRef.current?.focus();
       setSelectedIndex(0);
     }, 100);
-
     return () => clearTimeout(timeout);
   }, [isOpen]);
+
+  // Real-time API debounced search
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const baseNavigationLinks = [
+      { type: 'Page', title: 'Dashboard Home', icon: LayoutDashboard, path: '/dashboard' },
+      { type: 'Page', title: 'Platform Settings', icon: Settings, path: '/dashboard/settings' },
+      { type: 'Page', title: 'Course Library', icon: BookOpen, path: '/dashboard/library' }
+    ];
+
+    if (query.trim().length === 0) {
+      setResults(baseNavigationLinks);
+      return;
+    }
+
+    const fetchSearchResults = async () => {
+      setIsSearching(true);
+      try {
+        const { data } = await api.get(`/search/global?q=${query}`);
+        let apiResults = data.data || [];
+        
+        // Add icons based on exact type
+        apiResults = apiResults.map(res => {
+          let icon = User;
+          if (res.type === 'Course') icon = BookOpen;
+          if (res.type === 'Notice') icon = BellRing;
+          return { ...res, icon };
+        });
+
+        const merged = [...baseNavigationLinks.filter(item => item.title.toLowerCase().includes(query.toLowerCase())), ...apiResults];
+        setResults(merged);
+        setSelectedIndex(0);
+      } catch (err) {
+        console.error('Search failed', err);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const debounceId = setTimeout(fetchSearchResults, 300);
+    return () => clearTimeout(debounceId);
+  }, [query, isOpen]);
+
+  // Group results visually
+  const groupResults = (list) => {
+    return list.reduce((acc, item) => {
+      const type = item.type || 'Platform';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(item);
+      return acc;
+    }, {});
+  };
+
+  const grouped = groupResults(results);
+  let globalIndex = 0; // Maintain continuous keyboard index mapping across groups
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop Blur */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-[#0F172A]/40 backdrop-blur-md"
+            className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-xl"
             onClick={() => setIsOpen(false)}
           />
 
-          {/* Search Palette */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed inset-x-0 top-[15vh] mx-auto z-50 w-full max-w-2xl px-4 sm:px-0"
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed inset-x-0 top-[12vh] mx-auto z-[201] w-full max-w-3xl px-4 sm:px-0"
           >
-            <div className="overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/10">
+            <div className="overflow-hidden rounded-3xl bg-[#0B0E14]/95 shadow-2xl shadow-[#FFD700]/10 border border-[#FFD700]/30 backdrop-blur-2xl">
               
-              {/* Search Input Area */}
-              <div className="relative flex items-center px-4 py-4 border-b border-slate-100 dark:border-white/10">
-                <Search className="w-5 h-5 text-[#6366F1]" />
+              {/* Search Header */}
+              <div className="relative flex items-center px-5 py-4 border-b border-white/10">
+                <Search className={`w-6 h-6 transition-colors ${isSearching ? 'text-[#FFD700] animate-pulse' : 'text-[#FFD700]'}`} />
                 <input
                   ref={inputRef}
-                  className="w-full bg-transparent border-0 focus:ring-0 text-slate-800 dark:text-white px-4 placeholder-slate-400 dark:placeholder-slate-500 outline-none text-lg font-medium"
-                  placeholder="What do you need?"
+                  className="w-full bg-transparent border-0 focus:ring-0 text-white px-5 placeholder-slate-500 outline-none text-xl font-bold tracking-wide"
+                  placeholder="Query courses, students, parents, or instructors..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  spellCheck="false"
                 />
+                {isSearching ? <Loader2 className="w-5 h-5 text-[#FFD700] animate-spin" /> : (
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="px-2 py-1 text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 hover:text-slate-600 transition-colors"
+                  className="px-2.5 py-1 text-[10px] font-black text-slate-400 bg-white/5 rounded-lg border border-white/10 hover:text-white uppercase tracking-wider transition-colors"
                 >
                   ESC
                 </button>
+                )}
               </div>
 
-              {/* Results List */}
-              <div className="max-h-96 overflow-y-auto p-2">
-                {filteredResults.length === 0 ? (
-                  <div className="px-4 py-12 text-center text-sm text-slate-500">
-                    No results found for <span className="font-bold text-slate-700 dark:text-slate-300">"{query}"</span>
+              {/* Categorised Results List */}
+              <div className="max-h-[60vh] overflow-y-auto custom-scrollbar p-3">
+                {results.length === 0 && !isSearching ? (
+                  <div className="px-4 py-16 text-center text-sm text-slate-500 flex flex-col items-center">
+                    <Search className="w-10 h-10 text-slate-700 mb-3" />
+                    <p>No platform entries found for <span className="font-bold text-[#FFD700]">"{query}"</span></p>
                   </div>
                 ) : (
-                  <ul>
-                    {filteredResults.map((item, index) => {
-                      const Icon = item.icon;
-                      const isSelected = index === selectedIndex;
-                      
-                      return (
-                        <li key={index} className="mb-1">
-                          <button
-                            onClick={() => {
-                              navigate(item.path);
-                              setIsOpen(false);
-                              setQuery('');
-                            }}
-                            onMouseEnter={() => setSelectedIndex(index)}
-                            className={`flex w-full items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 ${
-                              isSelected 
-                                ? 'bg-[#6366F1]/10 text-[#6366F1] dark:bg-[#6366F1]/20 dark:text-indigo-300' 
-                                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                            }`}
-                          >
-                            <div className={`p-1.5 rounded-lg ${isSelected ? 'bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
-                               <Icon className="w-4 h-4" />
-                            </div>
-                            <div className="flex flex-col items-start">
-                              <span className="font-bold text-sm tracking-tight">{item.title}</span>
-                              <span className="text-[10px] uppercase font-bold tracking-widest opacity-60">{item.type}</span>
-                            </div>
+                  <div className="space-y-4">
+                    {Object.entries(grouped).map(([category, items]) => (
+                      <div key={category}>
+                        <div className="px-3 pb-2 pt-1 flex items-center gap-2">
+                           <h3 className="text-[10px] uppercase font-black tracking-widest text-slate-500">{category}</h3>
+                           <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+                        </div>
+                        <ul className="space-y-1">
+                          {items.map((item) => {
+                            const Icon = item.icon;
+                            const isSelected = globalIndex === selectedIndex;
+                            const currentIndex = globalIndex;
+                            globalIndex++;
                             
-                            {isSelected && <ArrowRight className="w-4 h-4 ml-auto" />}
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ul>
+                            return (
+                              <li key={`${item.type}-${item.id || item.title}`}>
+                                <button
+                                  onClick={() => {
+                                    navigate(item.path);
+                                    setIsOpen(false);
+                                    setQuery('');
+                                  }}
+                                  onMouseEnter={() => setSelectedIndex(currentIndex)}
+                                  className={`flex w-full items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 ${
+                                    isSelected 
+                                      ? 'bg-[#FFD700]/10 border border-[#FFD700]/20 text-white shadow-[0_0_15px_rgba(255,215,0,0.1)]' 
+                                      : 'border border-transparent text-slate-400 hover:bg-white/5'
+                                  }`}
+                                >
+                                  <div className={`p-2 rounded-xl transition-colors ${isSelected ? 'bg-[#FFD700] text-[#0B0E14]' : 'bg-white/5 text-slate-500'}`}>
+                                     <Icon className="w-4 h-4" />
+                                  </div>
+                                  <div className="flex flex-col items-start flex-1 overflow-hidden">
+                                    <span className="font-bold text-sm tracking-tight truncate w-full text-left">{item.title}</span>
+                                    {item.subtitle && <span className="text-[11px] font-semibold text-slate-500 truncate w-full text-left mt-0.5">{item.subtitle}</span>}
+                                  </div>
+                                  
+                                  {isSelected && <ArrowRight className="w-4 h-4 ml-auto text-[#FFD700] shrink-0 pointer-events-none" />}
+                                </button>
+                              </li>
+                            )
+                          })}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
               
               {/* Footer Tooltip */}
-              <div className="flex items-center justify-between px-6 py-3 border-t border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-[#0F172A]/50">
-                <span className="text-xs text-slate-500 flex items-center gap-1">
-                  Use <span className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">&uarr;</span> <span className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">&darr;</span> to navigate
+              <div className="flex items-center justify-between px-6 py-3 border-t border-[#FFD700]/20 bg-black/40 backdrop-blur-md shrink-0">
+                <span className="text-[10px] text-slate-500 flex items-center gap-1.5 font-bold uppercase tracking-wider">
+                  Navigate <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">&uarr;</span> <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">&darr;</span>
                 </span>
-                <span className="text-xs text-slate-500 flex items-center gap-1">
-                  <span className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">Enter</span> to select
+                <span className="text-[10px] text-[#FFD700]/70 flex items-center gap-1.5 font-bold uppercase tracking-wider">
+                  Open Selected <span className="px-2 py-0.5 rounded bg-[#FFD700]/10 border border-[#FFD700]/30 text-[#FFD700]">Enter</span>
                 </span>
               </div>
             </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { Calendar, CheckCircle, XCircle, UserX, Clock, Save, ChevronDown } from 'lucide-react';
+import CustomDropdown from '../components/CustomDropdown';
 
 export default function AttendanceManagement() {
   const { user } = useAuth();
@@ -132,19 +133,30 @@ export default function AttendanceManagement() {
       <div className="glass-card p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
          <div className="w-full md:w-1/2">
             <label className="block text-sm font-bold text-slate-700 mb-2">Select Course</label>
-            <div className="relative">
-              <select 
-                value={selectedCourse} 
-                onChange={(e) => setSelectedCourse(e.target.value)}
-                className="w-full pl-4 pr-10 py-3 bg-transparent border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none font-medium"
-              >
-                <option value="">-- Choose a course --</option>
-                {courses.map(c => (
-                  <option key={c._id} value={c._id}>{c.title}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-3.5 w-5 h-5 text-slate-400 pointer-events-none" />
-            </div>
+              <CustomDropdown
+                value={selectedCourse}
+                onChange={setSelectedCourse}
+                options={courses.map(c => ({ 
+                  label: c.title, 
+                  value: c._id,
+                  render: (
+                    <div className="flex items-center gap-3 w-full py-0.5">
+                      <div className="w-9 h-9 rounded-md overflow-hidden shrink-0 bg-slate-800 border border-white/10 shadow-sm">
+                        <img src={c.thumbnail && c.thumbnail !== 'default-course.jpg' && c.thumbnail !== '' ? c.thumbnail : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=100&q=80'} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=100&q=80' }} />
+                      </div>
+                      <div className="flex flex-col text-left flex-1 min-w-0">
+                        <span className="font-bold text-white truncate text-xs">{c.title}</span>
+                        <span className="text-[9px] text-slate-400 capitalize flex items-center gap-1.5 mt-0.5">
+                          <span className="px-1.5 py-0.5 bg-indigo-500/20 text-indigo-300 rounded text-[8px] font-black tracking-wider uppercase border border-indigo-500/20">{c.category || 'Course'}</span>
+                          <span className="truncate font-medium">{c.level ? `${c.level}` : 'All Levels'} {c.duration ? `• ${c.duration}h` : ''}</span>
+                        </span>
+                      </div>
+                    </div>
+                  )
+                }))}
+                placeholder="-- Choose a course --"
+                searchable={true}
+              />
          </div>
          <div className="w-full md:w-1/3">
             <label className="block text-sm font-bold text-slate-700 mb-2">Date</label>

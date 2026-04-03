@@ -10,6 +10,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
 import ActivityFeed from '../components/ActivityFeed';
+import CustomDropdown from '../components/CustomDropdown';
 
 export default function InstructorDashboard() {
   const { user, logout } = useAuth();
@@ -402,18 +403,19 @@ export default function InstructorDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
-                    <select 
-                      value={formData.category} 
-                      onChange={e => setFormData({...formData, category: e.target.value})} 
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[position:right_1rem_center] bg-no-repeat pr-10"
-                    >
-                      <option value="Programming">Programming</option>
-                      <option value="Mathematics">Mathematics</option>
-                      <option value="Science">Science</option>
-                      <option value="Exam Prep">Exam Prep</option>
-                      <option value="Business">Business</option>
-                      <option value="Design">Design</option>
-                    </select>
+                    <CustomDropdown
+                      value={formData.category}
+                      onChange={(val) => setFormData({...formData, category: val})}
+                      options={[
+                        { label: 'Programming', value: 'Programming' },
+                        { label: 'Mathematics', value: 'Mathematics' },
+                        { label: 'Science', value: 'Science' },
+                        { label: 'Exam Prep', value: 'Exam Prep' },
+                        { label: 'Business', value: 'Business' },
+                        { label: 'Design', value: 'Design' }
+                      ]}
+                      className="w-full"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Total Estimated Duration (Hours) <span className="text-red-500">*</span></label>

@@ -489,6 +489,17 @@ router.delete('/users/:id', async (req, res) => {
     }
 });
 
+// @route   GET /api/admin/courses
+// @desc    Get all courses (bypass publish/approved filters constraints)
+router.get('/courses', async (req, res) => {
+    try {
+        const courses = await Course.find().populate('instructor', 'name email');
+        res.status(200).json({ success: true, count: courses.length, data: courses });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
 // @route   GET /api/admin/courses/pending
 // @desc    Get all pending courses
 router.get('/courses/pending', async (req, res) => {

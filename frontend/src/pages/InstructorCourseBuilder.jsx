@@ -7,6 +7,7 @@ import {
   PlayCircle, Trash2, Tag, Image as ImageIcon, Send, FileText
 } from 'lucide-react';
 import QuizBuilder from '../components/QuizBuilder';
+import CustomDropdown from '../components/CustomDropdown';
 
 export default function InstructorCourseBuilder() {
   const navigate = useNavigate();
@@ -315,32 +316,32 @@ export default function InstructorCourseBuilder() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-sm font-bold text-slate-300 mb-2">Category</label>
-                      <select 
-                        value={formData.category} 
-                        onChange={e => setFormData({...formData, category: e.target.value})} 
-                        className="w-full px-4 py-3 bg-[#0B0E14] text-white rounded-xl border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all appearance-none cursor-pointer font-medium"
-                      >
-                        <option value="Programming">Programming</option>
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Science">Science</option>
-                        <option value="Exam Prep">Exam Prep</option>
-                        <option value="Languages">Languages</option>
-                        <option value="Business">Business</option>
-                        <option value="Design">Design</option>
-                      </select>
+                      <CustomDropdown
+                        value={formData.category}
+                        onChange={(val) => setFormData({...formData, category: val})}
+                        options={[
+                          { label: 'Programming', value: 'Programming' },
+                          { label: 'Mathematics', value: 'Mathematics' },
+                          { label: 'Science', value: 'Science' },
+                          { label: 'Exam Prep', value: 'Exam Prep' },
+                          { label: 'Languages', value: 'Languages' },
+                          { label: 'Business', value: 'Business' },
+                          { label: 'Design', value: 'Design' }
+                        ]}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-slate-300 mb-2">Level</label>
-                      <select 
-                        value={formData.level} 
-                        onChange={e => setFormData({...formData, level: e.target.value})} 
-                        className="w-full px-4 py-3 bg-[#0B0E14] text-white rounded-xl border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all appearance-none cursor-pointer font-medium"
-                      >
-                        <option value="Beginner">Beginner</option>
-                        <option value="Intermediate">Intermediate</option>
-                        <option value="Advanced">Advanced</option>
-                        <option value="All Levels">All Levels</option>
-                      </select>
+                      <CustomDropdown
+                        value={formData.level}
+                        onChange={(val) => setFormData({...formData, level: val})}
+                        options={[
+                          { label: 'Beginner', value: 'Beginner' },
+                          { label: 'Intermediate', value: 'Intermediate' },
+                          { label: 'Advanced', value: 'Advanced' },
+                          { label: 'All Levels', value: 'All Levels' }
+                        ]}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-slate-300 mb-2">Duration (Hours) <span className="text-[#E30A17]">*</span></label>
