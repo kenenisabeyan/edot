@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
-import { Users, Clock, BookOpen, ArrowRight, Search, Filter, Shield } from 'lucide-react';
+import { Users, Clock, BookOpen, ArrowRight, Search, Filter, Shield, Zap, CheckCircle } from 'lucide-react';
 import CTA from '../components/CTA';
 
 const ImagePlaceholder = ({ text, className = "h-56" }) => (
-  <div className={`bg-[#0B0E14] flex flex-col items-center justify-center text-slate-600 relative overflow-hidden group ${className}`}>
-    <span className="font-bold tracking-widest uppercase text-[10px] z-10 relative px-6 text-center">[ Thumbnail: {text} ]</span>
+  <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] flex flex-col items-center justify-center text-slate-600 relative overflow-hidden group ${className}`}>
+    <span className="font-bold tracking-widest uppercase text-[10px] z-10 relative px-6 text-center group-hover:text-slate-400 transition-colors">[ Thumbnail: {text} ]</span>
   </div>
 );
 
@@ -15,10 +15,8 @@ export default function Courses() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  // Set default filter to All. The user requested 6 precise categories.
   const [categoryFilter, setCategoryFilter] = useState('All');
 
-  // Hardcoded UI Categories per requirement
   const uiCategories = [
     'All',
     'Social Science', 
@@ -59,19 +57,20 @@ export default function Courses() {
         <div className="absolute bottom-[-10%] md:bottom-[-20%] right-[-10%] md:right-[-10%] w-[50vh] md:w-[60vw] h-[50vh] md:h-[60vh] rounded-full bg-[#FFD700]/10 blur-[150px]"></div>
       </div>
 
-      <div className="relative z-10 pt-32 pb-20">
+      <div className="relative z-10 pt-20">
 
         {/* HERO */}
-        <section className="text-center max-w-4xl mx-auto px-6 mb-16 relative">
-          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mx-auto shadow-xl mb-8">
-             <span className="text-[10px] font-black text-[#008A32] tracking-[0.2em] uppercase">Industry-Leading Curriculum</span>
+        <section className="text-center max-w-4xl mx-auto px-6 pt-20 mb-16 relative">
+          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-[#008A32]/10 border border-[#008A32]/30 backdrop-blur-xl mx-auto shadow-xl mb-8">
+             <Zap className="w-4 h-4 text-[#FFD700]" />
+             <span className="text-[10px] font-black text-[#FFD700] tracking-[0.2em] uppercase">Industry-Leading Curriculum</span>
           </div>
           
-          <h1 className="text-5xl md:text-[5rem] font-black text-white mb-8 tracking-tight leading-[1.05] drop-shadow-2xl">
-             Explore Our <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">Global Masterclasses</span>
+          <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black text-white mb-8 tracking-tight leading-[1.05] drop-shadow-2xl">
+             Explore Global <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">Masterclasses.</span>
           </h1>
-          <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto">
-             Whether you're advancing in programming, grasping natural sciences, or optimizing your personal business skills—we have the blueprint for your execution.
+          <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto mb-10">
+             Whether advancing in programming, grasping natural sciences, or optimizing your corporate skills—we have the exact blueprint for your execution.
           </p>
         </section>
 
@@ -83,7 +82,7 @@ export default function Courses() {
                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-[#008A32] transition-colors" />
                <input 
                  type="text" 
-                 placeholder="Search programs..."
+                 placeholder="Search modules..."
                  value={searchTerm}
                  onChange={(e) => setSearchTerm(e.target.value)}
                  className="w-full pl-14 pr-6 py-4 bg-[#0B0E14] border border-white/5 rounded-[1.5rem] text-white font-medium focus:outline-none focus:border-[#008A32]/50 transition-all shadow-inner"
@@ -112,8 +111,26 @@ export default function Courses() {
           </div>
         </section>
 
+        {/* WHY LEARN BLOCK */}
+        {filteredCourses.length > 0 && !loading && !error && (
+        <section className="max-w-7xl mx-auto px-6 mb-16">
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                "Strict Data Vetting",
+                "World-Class Authorities",
+                "Lifetime Module Access"
+              ].map((benefit, i) => (
+                <div key={i} className="flex items-center justify-center gap-3 bg-[#11151F]/40 border border-white/5 py-4 rounded-xl">
+                   <CheckCircle className="w-5 h-5 text-[#FFD700]" />
+                   <span className="font-bold text-sm tracking-widest uppercase">{benefit}</span>
+                </div>
+              ))}
+           </div>
+        </section>
+        )}
+
         {/* RESULTS GRID */}
-        <section className="max-w-7xl mx-auto px-6 relative z-20">
+        <section className="max-w-7xl mx-auto px-6 relative z-20 mb-32">
           
           {loading ? (
             <div className="flex justify-center items-center h-64">
@@ -134,9 +151,8 @@ export default function Courses() {
               {filteredCourses.map((course) => (
                 <div 
                   key={course._id} 
-                  className="bg-[#11151F]/60 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden hover:bg-[#11151F]/80 hover:border-[#008A32]/30 hover:shadow-2xl transition-all duration-500 flex flex-col group hover:-translate-y-2"
+                  className="bg-[#11151F]/60 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden hover:bg-[#11151F]/80 hover:border-[#008A32]/30 hover:shadow-[0_0_40px_rgba(0,138,50,0.15)] transition-all duration-500 flex flex-col group hover:-translate-y-2"
                 >
-                  {/* Card Header Image */}
                   <div className="h-56 relative overflow-hidden border-b border-white/5">
                     {course.thumbnail ? (
                        <img 
@@ -145,44 +161,44 @@ export default function Courses() {
                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 relative z-0"
                        />
                     ) : (
-                       <ImagePlaceholder text={`Course: ${course.title}`} className="h-full w-full" />
+                       <ImagePlaceholder text={`Course: ${course.title}`} className="h-full w-full border-b border-white/10" />
                     )}
                     
-                    <div className="absolute top-4 left-4 bg-[#0B0E14]/90 backdrop-blur-md border border-[#008A32]/30 text-[#008A32] font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg z-20">
+                    <div className="absolute top-4 left-4 bg-[#0B0E14]/90 backdrop-blur-md border border-[#008A32]/30 text-[#008A32] font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-[0.5rem] shadow-lg z-20">
                       {course.category || 'General'}
                       {(course.category === 'Business' || course.category === 'Personal Development') && ' (Sale)'}
                     </div>
                     
                     <div className="absolute bottom-4 left-4 right-4 flex justify-between text-white text-xs font-bold shrink-0 items-center z-20">
-                      <span className="bg-[#0B0E14]/80 backdrop-blur-md border border-white/5 px-3 py-1.5 rounded-full flex gap-2 items-center shadow-lg">
+                      <span className="bg-[#0B0E14]/80 backdrop-blur-md border border-white/5 px-3 py-1.5 rounded-[0.5rem] flex gap-2 items-center shadow-lg">
                         <Clock className="w-3.5 h-3.5 text-[#FFD700]" /> {(course.lessons?.length || 0) * 15} Min
                       </span>
-                      <span className="bg-[#0B0E14]/80 backdrop-blur-md border border-white/5 px-3 py-1.5 rounded-full flex gap-2 items-center shadow-lg">
+                      <span className="bg-[#0B0E14]/80 backdrop-blur-md border border-white/5 px-3 py-1.5 rounded-[0.5rem] flex gap-2 items-center shadow-lg">
                         <BookOpen className="w-3.5 h-3.5 text-[#FFD700]" /> {course.lessons?.length || 0} Modules
                       </span>
                     </div>
                   </div>
 
                   <div className="p-8 flex-1 flex flex-col">
-                    <h3 className="text-2xl font-black text-white mb-4 leading-tight group-hover:text-[#008A32] transition-colors tracking-tight">{course.title}</h3>
+                    <h3 className="text-2xl font-black text-white mb-4 leading-tight group-hover:text-[#008A32] transition-colors tracking-tight line-clamp-2">{course.title}</h3>
                     <p className="text-slate-400 text-sm mb-8 flex-1 font-medium leading-relaxed line-clamp-3">
-                      {course.description || "In-depth modular training focusing on real-world execution."}
+                      {course.description || "In-depth modular training focusing on strict real-world execution."}
                     </p>
                     
                     <div className="flex items-center gap-3 text-xs font-black text-slate-500 uppercase tracking-[0.1em] mb-8">
                       <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                        <Users className="w-4 h-4 text-[#FFD700]" />
+                        <Users className="w-4 h-4 text-[#008A32]" />
                       </div>
                       <span className="group-hover:text-slate-300 transition-colors uppercase">{course.instructor?.name || 'EDOT Authority'}</span>
                     </div>
 
-                    <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                    <div className="pt-6 border-t border-white/5 flex items-center justify-between mt-auto">
                       <span className="font-black text-2xl text-white">ETB {course.price || 'Free'}</span>
                       <Link 
                         to={`/course/${course._id}`} 
-                        className="bg-white text-[#0B0E14] px-6 py-3 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#008A32] hover:text-white transition-all flex items-center gap-2 shadow-lg group/btn"
+                        className="bg-white text-[#0B0E14] px-6 py-3 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#008A32] hover:text-white transition-all flex items-center gap-2 shadow-lg group/btn"
                       >
-                        Enroll <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                        Enroll Now <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                       </Link>
                     </div>
                   </div>
@@ -193,9 +209,9 @@ export default function Courses() {
         </section>
 
         <CTA 
-          title="Accelerate Your Future" 
-          description="Get immediate access to all premium modules and certified instructors."
-          buttonText="Browse Pricing Plans"
+          title="Accelerate Your Future." 
+          description="Get immediate access to all premium modules and globally certified instructors."
+          buttonText="View Pricing & Plans"
           buttonLink="/register"
         />
 
