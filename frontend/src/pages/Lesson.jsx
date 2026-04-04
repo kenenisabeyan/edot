@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import { PlayCircle, CheckCircle, ArrowLeft, Play, FileText, CheckCircle2, MessageSquare, ThumbsUp, Send, Lock } from 'lucide-react';
+import { PlayCircle, CheckCircle, ArrowLeft, FileText, CheckCircle2, MessageSquare, ThumbsUp, Send, Lock } from 'lucide-react';
 import ReactPlayer from 'react-player';
 
 export default function Lesson() {
@@ -48,21 +48,12 @@ export default function Lesson() {
       likes: 3,
       replies: [
         {
-          user: 'Instructor',
-          avatar: 'I',
-          text: 'Great question! Please ensure that your variables are properly initialized before calling the function.',
+          user: 'Instructor Administrator',
+          avatar: 'IA',
+          text: 'Great question! Please ensure that your variables are properly initialized to the specs laid out in module 1 before execution.',
           time: '1 hour ago'
         }
       ]
-    },
-    {
-      id: 2,
-      user: 'Bob Johnson',
-      avatar: 'B',
-      text: 'This lesson was extremely helpful in understanding the core fundamentals. Thank you for the clear explanation!',
-      time: '1 day ago',
-      likes: 12,
-      replies: []
     }
   ]);
 
@@ -75,7 +66,7 @@ export default function Lesson() {
 
   useEffect(() => {
     if (!courseId) {
-      setError('Course information is missing. Please return and select a valid course.');
+      setError('System parameter missing. Return to catalog and reboot selection.');
       setLoading(false);
       return;
     }
@@ -89,11 +80,11 @@ export default function Lesson() {
         if (currentLesson) {
           setLesson(currentLesson);
         } else {
-          setError('The requested lesson could not be found within this course.');
+          setError('Module not found within this track.');
         }
       } catch (err) {
         console.error('Failed to load lesson', err);
-        setError('An error occurred while loading lesson details. Please try again later.');
+        setError('Transmission failure. Unable to retrieve module resources.');
       } finally {
         setLoading(false);
       }
@@ -115,24 +106,24 @@ export default function Lesson() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-80px)] flex justify-center items-center bg-[#0B0E14]">
-        <div className="w-12 h-12 border-4 border-white/20 border-t-[#FFD700] rounded-full animate-spin shadow-[0_0_15px_rgba(255,215,0,0.4)]"></div>
+      <div className="min-h-[calc(100vh-80px)] flex justify-center items-center bg-gray-50">
+        <div className="w-16 h-16 border-4 border-[#111111] border-t-[#FFC107] rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (error || !lesson || !course) {
     return (
-      <div className="min-h-[calc(100vh-80px)] flex justify-center items-center p-4 bg-[#0B0E14] text-white">
-        <div className="bg-[#E30A17]/10 text-white p-8 rounded-2xl border border-[#E30A17]/30 max-w-md w-full text-center shadow-[0_0_30px_rgba(227,10,23,0.15)] flex flex-col items-center">
-          <div className="w-16 h-16 rounded-full bg-[#E30A17]/20 flex items-center justify-center mb-6">
-             <Lock className="w-8 h-8 text-[#E30A17]" />
+      <div className="min-h-[calc(100vh-80px)] flex justify-center items-center p-4 bg-gray-50">
+        <div className="bg-white border-2 border-[#111111] p-10 rounded-sm shadow-xl text-center max-w-md w-full">
+          <div className="w-20 h-20 outline outline-4 outline-[#111111] outline-offset-4 bg-[#FFC107] text-[#111111] rounded-full flex items-center justify-center mx-auto mb-6">
+             <Lock className="w-10 h-10" />
           </div>
-          <p className="font-bold text-lg mb-6 leading-relaxed">
-            {error || 'The lesson you are looking for is currently unavailable.'}
+          <p className="font-black text-[#111111] mb-8 text-xl uppercase tracking-widest">
+            {error || 'Clearance error. Material locked.'}
           </p>
-          <Link to="/dashboard" className="inline-flex bg-white/5 border border-white/10 px-6 py-3 rounded-xl hover:bg-white/10 font-bold gap-2 items-center transition-colors uppercase tracking-widest text-xs">
-            <ArrowLeft className="w-4 h-4" /> Return to Dashboard
+          <Link to="/dashboard" className="inline-flex items-center justify-center gap-2 bg-[#111111] text-[#FFC107] w-full px-6 py-4 font-black uppercase tracking-widest hover:bg-[#222] transition-colors rounded-sm shadow-md">
+            <ArrowLeft className="w-5 h-5" /> Return Output
           </Link>
         </div>
       </div>
@@ -140,30 +131,30 @@ export default function Lesson() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-[#0B0E14] text-white">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] bg-gray-50 text-gray-800 font-sans">
 
-      {/* Sidebar */}
-      <div className="w-full lg:w-80 bg-[#11151F] border-r border-white/5 lg:h-[calc(100vh-80px)] lg:sticky lg:top-20 flex flex-col z-10 shrink-0">
+      {/* Sidebar Navigation */}
+      <div className="w-full lg:w-80 bg-white border-r-2 border-gray-200 lg:h-[calc(100vh-80px)] lg:sticky lg:top-20 flex flex-col z-10 shrink-0">
 
-        <div className="p-6 border-b border-white/5 bg-[#0B0E14]/50 backdrop-blur-md">
-          <Link to={`/course/${course._id}`} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-[#FFD700] mb-4 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to Course
+        <div className="p-6 border-b-[4px] border-[#FFC107] bg-[#111111] text-white">
+          <Link to={`/course/${course._id}`} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-[#FFC107] mb-4 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </Link>
 
-          <h3 className="text-lg font-bold text-white leading-snug">{course.title}</h3>
+          <h3 className="text-xl font-black text-white uppercase tracking-wider mb-6 leading-tight">{course.title}</h3>
 
-          <div className="mt-6 bg-white/5 p-4 rounded-xl border border-white/5">
-            <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-              <span>Your Progress</span>
-              <span className="text-[#FFD700]">{enrollment?.progress || 0}%</span>
+          <div className="bg-white/10 p-3 rounded-sm border border-white/20">
+            <div className="flex justify-between text-xs font-bold uppercase tracking-widest mb-2 text-gray-300">
+              <span>Execution</span>
+              <span className="text-[#FFC107]">{enrollment?.progress || 0}%</span>
             </div>
-            <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
-              <div className="h-full bg-gradient-to-r from-[#FFD700] to-[#EAB308] shadow-[0_0_10px_rgba(255,215,0,0.5)] transition-all duration-500" style={{ width: `${enrollment?.progress || 0}%` }}></div>
+            <div className="h-1.5 bg-gray-700 w-full overflow-hidden rounded-full">
+              <div className="h-full bg-[#FFC107] transition-all duration-500 shadow-[0_0_10px_#FFC107]" style={{ width: `${enrollment?.progress || 0}%` }}></div>
             </div>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto">
           {course.lessons.map((l, idx) => {
             const isCurrent = l._id === id;
             const lCompleted = enrollment?.completedLessons?.includes(l._id);
@@ -172,24 +163,24 @@ export default function Lesson() {
               <Link
                 key={l._id}
                 to={`/lesson/${l._id}?courseId=${course._id}`}
-                className={`flex px-6 py-4 border-l-[3px] transition-all group ${
-                  isCurrent ? 'border-[#FFD700] bg-[#FFD700]/10' : 'border-transparent hover:bg-white/5'
+                className={`flex px-6 py-5 border-l-4 transition-all group border-b border-gray-100 ${
+                  isCurrent ? 'border-[#FFC107] bg-[#FFC107]/10' : 'border-transparent hover:bg-gray-50'
                 }`}
               >
                 <div className="mr-4 mt-0.5 shrink-0 flex items-center justify-center">
                   {lCompleted ? (
-                     <CheckCircle2 className="w-5 h-5 text-[#008A32]" />
+                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                   ) : (
-                     <PlayCircle className={`w-5 h-5 ${isCurrent ? 'text-[#FFD700]' : 'text-slate-500 group-hover:text-white'}`} />
+                     <PlayCircle className={`w-5 h-5 ${isCurrent ? 'text-[#111111]' : 'text-gray-400 group-hover:text-[#111111]'}`} />
                   )}
                 </div>
 
                 <div>
-                  <div className={`text-sm font-bold mb-1 ${isCurrent ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+                  <div className={`text-sm font-black uppercase tracking-wider mb-1 ${isCurrent ? 'text-[#111111]' : 'text-gray-600 group-hover:text-[#111111]'}`}>
                     {idx + 1}. {l.title}
                   </div>
-                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-                    {l.duration} minutes
+                  <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                    {l.duration} mins block
                   </div>
                 </div>
               </Link>
@@ -198,16 +189,16 @@ export default function Lesson() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 md:p-10 lg:p-12 max-w-5xl">
+      {/* Main Study Interface */}
+      <div className="flex-1 p-6 md:p-8 lg:p-10 max-w-5xl">
 
-        <h1 className="text-3xl sm:text-4xl font-display font-bold mb-6 text-white leading-tight">
+        <h1 className="text-3xl sm:text-4xl font-black mb-6 text-[#111111] uppercase tracking-tight">
           {lesson.title}
         </h1>
 
-        {/* Video */}
+        {/* Video Player */}
         <div 
-          className={`bg-black rounded-2xl overflow-hidden aspect-video flex items-center justify-center text-white mb-10 relative shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-white/10 ${!isActive ? 'filter blur-sm grayscale' : ''}`}
+          className={`bg-[#000] rounded-sm overflow-hidden aspect-video flex items-center justify-center text-white mb-8 relative shadow-[0_10px_40px_rgba(0,0,0,0.1)] outline outline-4 outline-offset-4 outline-[#111111] ${!isActive ? 'filter blur-md grayscale' : ''}`}
           onContextMenu={(e) => e.preventDefault()}
         >
           <ReactPlayer 
@@ -221,7 +212,7 @@ export default function Lesson() {
             onProgress={async ({ played, playedSeconds }) => {
                 if (played > 0.98 && !isVideoFinished) setIsVideoFinished(true);
 
-                // Heartbeat logic: execute every 30 seconds of play
+                // Heartbeat logic
                 const currentBlock = Math.floor(playedSeconds / 30) * 30;
                 
                 if (currentBlock > lastPingedBlock && currentBlock >= 0) {
@@ -235,7 +226,6 @@ export default function Lesson() {
                         
                         if (data.success && data.data) {
                             setProgressData(data.data);
-                            // If backend confirms 100% completion based on tracked time
                             if (data.data.isComplete && !isVideoFinished) {
                                 setIsVideoFinished(true);
                             }
@@ -247,70 +237,70 @@ export default function Lesson() {
             }}
           />
           {(!isActive || isBlocked) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0B0E14]/80 backdrop-blur-md rounded-2xl text-white text-center px-6 border border-white/10">
-              <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mb-6 shadow-2xl">
-                 <Lock className="w-10 h-10 text-[#FFD700]" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#111111]/90 backdrop-blur-md rounded-sm text-center px-6">
+              <div className="w-20 h-20 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mb-6 border-2 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.4)]">
+                 <Lock className="w-10 h-10" />
               </div>
-              <h3 className="text-2xl font-display font-bold mb-2">Access Restricted</h3>
+              <h3 className="text-3xl font-black mb-3 text-white uppercase tracking-widest">Signal Locked</h3>
               {isBlocked ? (
-                <p className="mt-2 text-sm max-w-sm text-slate-300">Your account has been suspended by administration. Content access is disabled.</p>
+                <p className="mt-2 text-sm max-w-sm text-red-400 font-bold uppercase">Administrator Override: Account Suspended.</p>
               ) : isPending ? (
-                <p className="mt-2 text-sm max-w-sm text-slate-300">Your enrollment request is currently pending admin approval. Please wait for authorization.</p>
+                <p className="mt-2 text-sm max-w-sm text-[#FFC107] font-bold uppercase">Clearance Pending Authorization.</p>
               ) : isRejected ? (
-                <p className="mt-2 text-sm max-w-sm text-slate-300">Your enrollment request was rejected. Contact support for details.</p>
+                <p className="mt-2 text-sm max-w-sm text-red-400 font-bold uppercase">Clearance Denied. Contact Authority.</p>
               ) : (
-                <p className="mt-2 text-sm max-w-sm text-slate-300">You need to enroll in this course and receive approval before accessing this core material.</p>
+                <p className="mt-2 text-sm max-w-sm text-gray-300 font-bold uppercase">Enrollment criteria unmet.</p>
               )}
             </div>
           )}
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-8 border-b border-white/10 mb-8 overflow-x-auto custom-scrollbar">
+        {/* Tab Navigation */}
+        <div className="flex gap-2 border-b-2 border-gray-200 mb-8 overflow-x-auto padding-bottom-scroll">
           <button 
             onClick={() => setActiveTab('overview')}
-            className={`pb-4 text-sm font-bold uppercase tracking-widest whitespace-nowrap transition-colors border-b-2 ${activeTab === 'overview' ? 'border-[#FFD700] text-[#FFD700]' : 'border-transparent text-slate-400 hover:text-white'}`}
+            className={`pb-4 px-4 text-sm font-black uppercase tracking-widest whitespace-nowrap transition-all border-b-4 ${activeTab === 'overview' ? 'border-[#111111] text-[#111111]' : 'border-transparent text-gray-400 hover:text-[#111111] hover:border-gray-300'}`}
           >
-            Lesson Overview & Materials
+            Mission Docs
           </button>
           <button 
             onClick={() => setActiveTab('qa')}
-            className={`pb-4 text-sm font-bold uppercase tracking-widest whitespace-nowrap transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'qa' ? 'border-[#FFD700] text-[#FFD700]' : 'border-transparent text-slate-400 hover:text-white'}`}
+            className={`pb-4 px-4 text-sm font-black uppercase tracking-widest whitespace-nowrap transition-all border-b-4 flex items-center gap-2 ${activeTab === 'qa' ? 'border-[#111111] text-[#111111]' : 'border-transparent text-gray-400 hover:text-[#111111] hover:border-gray-300'}`}
           >
-            Discussion <span className="bg-white/10 px-2 py-0.5 rounded text-[10px]">{qaList.length}</span>
+            Comm Link <span className="bg-[#111111] text-[#FFC107] px-2 py-0.5 rounded-sm text-[10px]">{qaList.length}</span>
           </button>
         </div>
 
         {activeTab === 'overview' ? (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-xl font-bold mb-4 text-white">Lesson Description</h2>
-            <p className="text-slate-300 text-base leading-relaxed mb-10 whitespace-pre-wrap">
+          <div className="animate-in fade-in duration-300">
+            <h2 className="text-xl font-black mb-4 text-[#111111] uppercase tracking-widest">Objective Overview</h2>
+            <p className="text-gray-700 text-base font-medium leading-relaxed mb-10 whitespace-pre-wrap bg-white p-6 border-2 border-gray-200 rounded-sm">
               {lesson.description}
             </p>
 
             {/* Reading Materials */}
             {lesson.readingMaterials && (
-              <div className="bg-gradient-to-br from-white/5 to-transparent rounded-2xl p-6 md:p-8 border border-white/10 mb-10 shadow-lg relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700]/5 rounded-bl-full pointer-events-none"></div>
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-3">
-                  <div className="p-2 bg-[#FFD700]/10 rounded-lg"><FileText className="w-5 h-5 text-[#FFD700]" /></div>
-                  Supplementary Materials
+              <div className="bg-white rounded-sm p-6 md:p-8 border-2 border-[#111111] mb-10 shadow-md relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-2 h-full bg-[#FFC107]"></div>
+                <h3 className="text-lg font-black text-[#111111] uppercase tracking-widest mb-6 flex items-center gap-3">
+                  <FileText className="w-6 h-6 text-[#111111] p-1 bg-[#FFC107] rounded-sm" />
+                  Attachment Briefing
                 </h3>
-                <div className="prose prose-invert max-w-none text-slate-300 whitespace-pre-wrap text-sm leading-relaxed">
+                <div className="prose max-w-none text-gray-700 font-medium whitespace-pre-wrap text-sm leading-relaxed">
                   {lesson.readingMaterials}
                 </div>
               </div>
             )}
 
-            {/* Quiz Section */}
+            {/* Assessment Section */}
             {lesson.quiz && lesson.quiz.length > 0 && (
-              <div className="bg-[#11151F] rounded-2xl p-6 md:p-8 border border-white/5 mb-10 shadow-xl relative overflow-hidden">
-                <h3 className="text-xl font-display font-bold text-white mb-6 flex items-center gap-3">
-                   Knowledge Check
+              <div className="bg-white rounded-sm p-6 md:p-8 border-2 border-[#111111] mb-10 shadow-md relative">
+                <h3 className="text-lg font-black text-[#111111] uppercase tracking-widest mb-8 flex items-center gap-3 border-b-4 border-[#FFC107] inline-block pb-1">
+                   Knowledge Audit
                 </h3>
                 {lesson.quiz.map((q, qIndex) => (
                   <div key={qIndex} className="mb-8 last:mb-0">
-                    <p className="font-bold text-white mb-4 leading-relaxed">{qIndex + 1}. {q.question}</p>
+                    <p className="font-black text-[#111111] mb-5 leading-relaxed text-lg">Query 0{qIndex + 1}: {q.question}</p>
                     <div className="space-y-3">
                       {q.options.map((opt, oIndex) => {
                          const isSelected = quizAnswers[qIndex] === oIndex;
@@ -320,11 +310,11 @@ export default function Lesson() {
                          
                          return (
                           <div key={oIndex} className="flex items-center">
-                            <label className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                              showCorrect ? 'bg-[#008A32]/10 border-[#008A32]/50 shadow-[0_0_15px_rgba(0,138,50,0.1)]' :
-                              showWrong ? 'bg-[#E30A17]/10 border-[#E30A17]/50 stroke-[#E30A17]' :
-                              isSelected ? 'bg-[#FFD700]/10 border-[#FFD700]/50 shadow-[0_0_15px_rgba(255,215,0,0.1)]' :
-                              'bg-[#0B0E14] border-white/5 hover:border-white/20'
+                            <label className={`w-full flex items-center gap-4 p-4 rounded-sm border-2 cursor-pointer transition-all ${
+                              showCorrect ? 'bg-green-50 border-green-500' :
+                              showWrong ? 'bg-red-50 border-red-500' :
+                              isSelected ? 'bg-[#111111] border-[#111111] shadow-lg scale-[1.01]' :
+                              'bg-gray-50 border-gray-200 hover:border-gray-300'
                             }`}>
                               <input 
                                 type="radio" 
@@ -332,12 +322,12 @@ export default function Lesson() {
                                 disabled={quizSubmitted}
                                 checked={isSelected}
                                 onChange={() => setQuizAnswers({...quizAnswers, [qIndex]: oIndex})}
-                                className="w-4 h-4 text-[#FFD700] bg-transparent border-white/20 accent-[#FFD700]"
+                                className="w-5 h-5 text-[#FFC107] bg-gray-100 border-gray-300 focus:ring-[#FFC107]"
                               />
-                              <span className={`font-medium text-sm ${showCorrect ? 'text-[#008A32]' : showWrong ? 'text-[#E30A17]' : isSelected ? 'text-[#FFD700]' : 'text-slate-300'}`}>
+                              <span className={`font-bold text-sm tracking-wide ${showCorrect ? 'text-green-700' : showWrong ? 'text-red-700' : isSelected ? 'text-[#FFC107]' : 'text-[#111111]'}`}>
                                 {opt}
                               </span>
-                              {showCorrect && <CheckCircle2 className="w-5 h-5 ml-auto text-[#008A32]" />}
+                              {showCorrect && <CheckCircle2 className="w-6 h-6 ml-auto text-green-600" />}
                             </label>
                           </div>
                          );
@@ -357,22 +347,22 @@ export default function Lesson() {
                         setQuizSubmitted(true);
                     }}
                     disabled={Object.keys(quizAnswers).length < lesson.quiz.length}
-                    className="mt-6 w-full sm:w-auto bg-gradient-to-r from-[#FFD700] to-[#EAB308] text-[#0f172a] font-bold uppercase tracking-widest text-xs py-4 px-8 rounded-xl hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,215,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="mt-6 w-full bg-[#111111] text-[#FFC107] font-black uppercase tracking-widest py-4 px-8 border-b-4 border-[#FFC107] hover:bg-[#222] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Submit Assessment
+                    Transmit Assessment
                   </button>
                 ) : (
-                  <div className={`mt-8 p-5 rounded-xl border font-bold text-center text-sm uppercase tracking-widest ${quizScore === lesson.quiz.length ? 'bg-[#008A32]/10 border-[#008A32]/30 text-[#008A32]' : 'bg-[#E30A17]/10 border-[#E30A17]/30 text-[#E30A17]'}`}>
-                    {quizScore === lesson.quiz.length ? 'Assessment Passed! You may now complete this lesson.' : 'Assessment Failed. Please review the material and try again.'}
+                  <div className={`mt-8 p-6 rounded-sm font-black uppercase tracking-widest text-center shadow-inner ${quizScore === lesson.quiz.length ? 'bg-green-500 text-[#111111]' : 'bg-red-500 text-white'}`}>
+                    {quizScore === lesson.quiz.length ? 'Audit Passed. Proceed to finalize.' : 'Audit Failed. Review intelligence and attempt.'}
                     {quizScore < lesson.quiz.length && (
                         <button 
                           onClick={() => {
                               setQuizSubmitted(false);
                               setQuizAnswers({});
                           }}
-                          className="block mx-auto mt-4 text-[#FFD700] hover:text-white underline decoration-dashed underline-offset-4"
+                          className="block mx-auto mt-4 text-[#111111] hover:text-white bg-white/20 px-6 py-2 transition-colors rounded-sm text-sm"
                         >
-                          Retake Assessment
+                          Reboot Audit
                         </button>
                     )}
                   </div>
@@ -380,65 +370,64 @@ export default function Lesson() {
               </div>
             )}
 
-            {/* Completion Banner */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/5 p-6 md:p-8 rounded-2xl border border-white/10 relative overflow-hidden backdrop-blur-md">
-               <div className="absolute inset-0 bg-gradient-to-r from-[#008A32]/5 to-transparent pointer-events-none"></div>
+            {/* Validation Checkbox Area */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-[#111111] text-white p-6 md:p-8 rounded-sm shadow-xl border-t-8 border-[#FFC107]">
                
-               <div className="flex-1 relative z-10">
-                 <h4 className="text-xl font-bold text-white mb-4">Completion Requirements</h4>
-                 <ul className="text-sm text-slate-300 space-y-3">
-                   <li className="flex items-center gap-3">
-                     <div className={`w-6 h-6 rounded-full flex items-center justify-center border ${isVideoFinished || isCompleted ? 'border-[#008A32] bg-[#008A32]/20 text-[#008A32]' : 'border-white/20 text-slate-500'}`}>
-                        <CheckCircle2 className="w-3.5 h-3.5" />
+               <div className="flex-1">
+                 <h4 className="text-xl font-black uppercase tracking-widest mb-4">Final Validation Protocol</h4>
+                 <ul className="text-sm font-bold text-gray-300 space-y-4">
+                   <li className="flex items-center gap-4 bg-white/5 p-3 rounded-sm border border-white/10">
+                     <div className={`w-6 h-6 rounded-sm flex items-center justify-center border-2 ${isVideoFinished || isCompleted ? 'border-green-500 bg-green-500 text-white' : 'border-gray-600 text-transparent'}`}>
+                        <CheckCircle2 className="w-4 h-4" />
                      </div>
-                     <span className={isVideoFinished || isCompleted ? 'text-white' : ''}>Watch the entire video</span>
+                     <span className={isVideoFinished || isCompleted ? 'text-white' : ''}>Consume visual transmission completely</span>
                      {progressData && !isVideoFinished && (
-                         <span className="text-xs bg-white/10 px-2 py-0.5 rounded text-[#FFD700] ml-2 border border-white/5">
-                             ({Math.round((progressData.watchedSeconds / progressData.requiredSeconds) * 100)}% verified)
+                         <span className="text-xs text-[#FFC107] font-black ml-auto bg-[#111111] px-2 py-1 rounded">
+                             {Math.round((progressData.watchedSeconds / progressData.requiredSeconds) * 100)}%
                          </span>
                      )}
                    </li>
                    {lesson.quiz && lesson.quiz.length > 0 && (
-                     <li className="flex items-center gap-3">
-                       <div className={`w-6 h-6 rounded-full flex items-center justify-center border ${quizSubmitted && quizScore === lesson.quiz.length ? 'border-[#008A32] bg-[#008A32]/20 text-[#008A32]' : 'border-white/20 text-slate-500'}`}>
-                          <CheckCircle2 className="w-3.5 h-3.5" />
+                     <li className="flex items-center gap-4 bg-white/5 p-3 rounded-sm border border-white/10">
+                       <div className={`w-6 h-6 rounded-sm flex items-center justify-center border-2 ${quizSubmitted && quizScore === lesson.quiz.length ? 'border-green-500 bg-green-500 text-white' : 'border-gray-600 text-transparent'}`}>
+                          <CheckCircle2 className="w-4 h-4" />
                        </div>
-                       <span className={quizSubmitted && quizScore === lesson.quiz.length ? 'text-white' : ''}>Pass the lesson assessment</span>
+                       <span className={quizSubmitted && quizScore === lesson.quiz.length ? 'text-white' : ''}>Execute successful audit</span>
                      </li>
                    )}
                  </ul>
                </div>
                
-               <div className="relative z-10 w-full md:w-auto">
+               <div className="w-full md:w-auto border-t border-white/20 md:border-t-0 md:border-l pt-6 md:pt-0 md:pl-8">
                  <button 
                    onClick={handleCompleteLesson} 
                    disabled={(!isVideoFinished && !isCompleted) || (lesson.quiz?.length > 0 && (!quizSubmitted || quizScore < lesson.quiz.length))}
-                   className={`w-full md:w-auto font-bold uppercase tracking-widest text-xs px-8 py-4 rounded-xl transition-all flex items-center justify-center gap-2 ${
+                   className={`w-full font-black uppercase tracking-widest px-8 py-5 rounded-sm transition-all flex items-center justify-center gap-3 ${
                      isCompleted 
-                       ? 'bg-transparent border border-[#008A32]/50 text-[#008A32] cursor-default' 
+                       ? 'bg-green-500 text-[#111111] cursor-default' 
                        : completing 
-                         ? 'bg-[#FFD700]/50 text-[#0f172a] cursor-wait' 
-                         : 'bg-gradient-to-r from-[#008A32] to-[#006622] text-white hover:shadow-[0_0_20px_rgba(0,138,50,0.4)] hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed disabled:shadow-none'
+                         ? 'bg-[#FFC107]/50 text-[#111111] cursor-wait' 
+                         : 'bg-[#FFC107] text-[#111111] hover:bg-[#e0a800] disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed active:scale-95'
                    }`}
                  >
-                   {isCompleted && <CheckCircle2 className="w-4 h-4" />}
-                   {completing ? 'Updating...' : isCompleted ? 'Lesson Completed' : 'Mark as Completed'}
+                   {isCompleted && <CheckCircle2 className="w-5 h-5" />}
+                   {completing ? 'SYNCING...' : isCompleted ? 'AUTHORIZED' : 'DECLARE COMPLETE'}
                  </button>
                </div>
             </div>
           </div>
         ) : (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-xl font-bold mb-6 text-white flex items-center gap-3">
-              <MessageSquare className="w-5 h-5 text-[#FFD700]" /> Discussion Forum
+          <div className="animate-in fade-in duration-300">
+            <h2 className="text-xl font-black mb-6 text-[#111111] uppercase tracking-widest flex items-center gap-3 border-b-4 border-[#FFC107] inline-block pb-1">
+               Decentralized Comm Link
             </h2>
 
-            <div className="bg-[#11151F] border border-white/5 rounded-2xl p-4 sm:p-6 mb-8 shadow-inner">
+            <div className="bg-white border-2 border-gray-200 text-[#111111] p-6 mb-8 shadow-sm">
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Ask a question or share a thought..."
-                className="w-full bg-[#0B0E14] border border-white/10 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 transition-all resize-none min-h-[100px] mb-4 text-sm"
+                placeholder="Initialize message vector..."
+                className="w-full bg-gray-50 text-gray-900 border-2 border-gray-200 rounded-sm p-5 font-bold focus:outline-none focus:border-[#FFC107] resize-y min-h-[120px] mb-4 text-sm"
               />
 
               <div className="flex justify-end">
@@ -451,7 +440,7 @@ export default function Lesson() {
                           user: user?.name,
                           avatar: user?.name?.charAt(0),
                           text: newComment,
-                          time: 'Just now',
+                          time: 'T-00',
                           likes: 0,
                           replies: []
                         },
@@ -460,44 +449,45 @@ export default function Lesson() {
                       setNewComment('');
                     }
                   }}
-                  className="bg-white/10 text-white font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-xl border border-white/10 hover:bg-[#FFD700] hover:border-[#FFD700] hover:text-[#0f172a] transition-all flex items-center gap-2"
+                  className="bg-[#111111] text-[#FFC107] font-black uppercase tracking-widest text-sm px-8 py-3 rounded-sm hover:bg-[#222] transition-colors flex items-center gap-2 shadow-sm"
                 >
-                  <Send className="w-4 h-4" /> Post Comment
+                  <Send className="w-4 h-4" /> Broadcast
                 </button>
               </div>
             </div>
 
             <div className="space-y-6">
                {qaList.map(thread => (
-                  <div key={thread.id} className="bg-white/5 border border-white/5 rounded-2xl p-5 sm:p-6">
+                  <div key={thread.id} className="bg-white border-2 border-gray-200 rounded-sm p-6 shadow-sm">
                      <div className="flex gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FFD700] to-[#EAB308] flex items-center justify-center font-bold text-[#0f172a] shrink-0">
+                        <div className="w-12 h-12 bg-[#FFC107] text-[#111111] flex items-center justify-center font-black text-xl shrink-0 border-2 border-[#111111]">
                            {thread.avatar}
                         </div>
                         <div className="flex-1">
-                           <div className="flex items-center gap-3 mb-1">
-                              <span className="font-bold text-white text-sm">{thread.user}</span>
-                              <span className="text-[10px] text-slate-500 uppercase tracking-widest">{thread.time}</span>
+                           <div className="flex items-center gap-4 mb-2">
+                              <span className="font-black text-[#111111] uppercase tracking-widest">{thread.user}</span>
+                              <span className="bg-gray-100 text-gray-500 font-bold px-2 py-0.5 text-[10px] uppercase rounded-sm border border-gray-200">{thread.time}</span>
                            </div>
-                           <p className="text-slate-300 text-sm leading-relaxed mb-4">{thread.text}</p>
-                           <div className="flex items-center gap-4 text-slate-500">
-                              <button className="flex items-center gap-1.5 text-xs font-bold hover:text-[#FFD700] transition-colors"><ThumbsUp className="w-3.5 h-3.5" /> {thread.likes}</button>
-                              <button className="flex items-center gap-1.5 text-xs font-bold hover:text-white transition-colors"><MessageSquare className="w-3.5 h-3.5" /> Reply</button>
+                           <p className="text-gray-700 text-sm font-medium leading-relaxed mb-6">{thread.text}</p>
+                           
+                           <div className="flex items-center gap-6 text-[#111111] mb-2 border-t-2 border-gray-100 pt-4">
+                              <button className="flex items-center gap-2 text-xs font-black uppercase tracking-widest hover:text-[#FFC107] transition-colors bg-gray-50 px-3 py-1.5 rounded-sm"><ThumbsUp className="w-4 h-4" /> {thread.likes}</button>
+                              <button className="flex items-center gap-2 text-xs font-black uppercase tracking-widest hover:text-[#FFC107] transition-colors bg-gray-50 px-3 py-1.5 rounded-sm"><MessageSquare className="w-4 h-4" /> Link Reply</button>
                            </div>
 
                            {thread.replies.length > 0 && (
-                              <div className="mt-6 space-y-4">
+                              <div className="mt-6 space-y-4 border-l-4 border-[#FFC107] pl-4 lg:pl-6 ml-2">
                                  {thread.replies.map((reply, ridx) => (
-                                    <div key={ridx} className="flex gap-4">
-                                       <div className="w-8 h-8 rounded-full bg-[#008A32]/20 border border-[#008A32]/30 flex items-center justify-center font-bold text-[#008A32] text-xs shrink-0">
+                                    <div key={ridx} className="flex gap-4 bg-gray-50 p-4 border border-gray-100 rounded-sm">
+                                       <div className="w-10 h-10 bg-[#111111] text-[#FFC107] flex items-center justify-center font-black text-sm shrink-0">
                                           {reply.avatar}
                                        </div>
-                                       <div className="flex-1 bg-[#11151F] border border-white/5 rounded-xl p-4">
-                                          <div className="flex items-center gap-3 mb-1">
-                                             <span className="font-bold text-[#FFD700] text-xs uppercase tracking-widest">{reply.user}</span>
-                                             <span className="text-[10px] text-slate-500 uppercase tracking-widest">{reply.time}</span>
+                                       <div className="flex-1">
+                                          <div className="flex items-center gap-4 mb-2">
+                                             <span className="font-black text-[#111111] text-xs uppercase tracking-widest">{reply.user}</span>
+                                             <span className="text-gray-400 font-bold text-[10px] uppercase">{reply.time}</span>
                                           </div>
-                                          <p className="text-slate-300 text-sm">{reply.text}</p>
+                                          <p className="text-gray-700 text-sm font-medium">{reply.text}</p>
                                        </div>
                                     </div>
                                  ))}
@@ -508,7 +498,6 @@ export default function Lesson() {
                   </div>
                ))}
             </div>
-            
           </div>
         )}
 

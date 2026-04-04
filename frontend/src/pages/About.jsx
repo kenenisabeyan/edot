@@ -1,174 +1,155 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Award, MonitorPlay, ArrowRight, PlayCircle, Star } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Award, Target, Users, BookOpen, ChevronRight, CheckCircle, Globe } from 'lucide-react';
+import CTA from '../components/CTA';
 
-import kenoImg from '../assets/keno.jpg';
-import firoImg from '../assets/firo.jpg';
-import bettyImg from '../assets/betty.jpg';
-import yobsanImg from '../assets/yobsan.jpg';
+const ImagePlaceholder = ({ text, className = "h-64" }) => (
+  <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/10 rounded-2xl flex flex-col items-center justify-center text-slate-500 relative overflow-hidden group ${className}`}>
+    <div className="absolute inset-0 bg-[#008A32]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+    <span className="font-bold tracking-widest uppercase text-[10px] z-10 relative px-6 text-center group-hover:text-slate-300 transition-colors">[ Image: {text} ]</span>
+  </div>
+);
 
 export default function About() {
-  const [counts, setCounts] = useState({ students: 0, courses: 0, success: 0 });
-  void motion;
+  const [counts, setCounts] = useState({ students: 0, courses: 0, instructors: 0 });
 
-  // Animated counters
   useEffect(() => {
     let start = 0;
     const interval = setInterval(() => {
       start += 100;
       setCounts({
-        students: Math.min(start, 10000),
-        courses: Math.min(start / 10, 500),
-        success: Math.min(start / 100, 98)
+        students: Math.min(start, 50000),
+        courses: Math.min(Math.floor(start / 100), 250),
+        instructors: Math.min(Math.floor(start / 150), 120)
       });
-      if (start >= 10000) clearInterval(interval);
-    }, 30);
+      if (start >= 50000) clearInterval(interval);
+    }, 10);
     return () => clearInterval(interval);
   }, []);
 
-  const team = [
-    { 
-      name: 'Kenenisa Beyan', 
-      role: 'CEO & Founder / IT Security Officer', 
-      img: kenoImg,
-      desc: 'Leads the company vision and focuses on cyber security. Monitors network access to ensure a secure platform.'
-    },
-    { 
-      name: 'Firomsa Guteta', 
-      role: 'Visionary & Lead Fullstack Developer', 
-      img: firoImg,
-      desc: 'Oversees the entire ecosystem, from the 3D Portfolio marketing to the MERN backend architecture of EDOT.'
-    },
-    { 
-      name: 'Bethelhem Yehuala', 
-      role: 'Academic Director (Curriculum)', 
-      img: bettyImg,
-      desc: 'Reviews courses to ensure all lessons and quizzes meet EDOT\'s high educational standards before they go live.'
-    },
-    { 
-      name: 'Yobsan Girma', 
-      role: 'Financial Controller & Registrar', 
-      img: yobsanImg,
-      desc: 'Oversees tuition payments, instructor payouts, student enrollments, progress validation, and certificate issuance.'
-    }
-  ];
-
-  const testimonials = [
-    { name: 'Student A', text: 'EDOT changed how I learn. Very practical and easy!' },
-    { name: 'Student B', text: 'The best platform for real skills. Highly recommended!' },
-    { name: 'Student C', text: 'I improved my grades and confidence thanks to EDOT.' }
-  ];
-
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#0B0E14] min-h-screen text-white font-sans overflow-hidden">
-
-      {/* Background Decor */}
-      <div className="fixed inset-0 pointer-events-none z-0 flex justify-between">
-        <div className="w-[500px] h-[500px] bg-[#FFD700]/5 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="w-[600px] h-[600px] bg-[#008A32]/5 rounded-full blur-[150px] translate-x-1/2 translate-y-1/2"></div>
+    <div className="min-h-screen bg-[#0B0E14] font-sans overflow-x-hidden relative text-slate-300">
+      
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] md:top-[-20%] left-[-10%] md:left-[-10%] w-[50vh] md:w-[60vw] h-[50vh] md:h-[60vh] rounded-full bg-[#008A32]/10 blur-[150px]"></div>
+        <div className="absolute bottom-[-10%] md:bottom-[-20%] right-[-10%] md:right-[-10%] w-[50vh] md:w-[60vw] h-[50vh] md:h-[60vh] rounded-full bg-[#FFD700]/10 blur-[150px]"></div>
       </div>
 
-      {/* HERO */}
-      <section className="relative z-10 py-32 text-center bg-gradient-to-br from-[#11151F] to-[#0B0E14] border-b border-white/10 shadow-2xl">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
-        <div className="relative z-10 max-w-4xl mx-auto px-4">
-           <h1 className="text-6xl md:text-7xl font-display font-black mb-6 tracking-tight drop-shadow-md">About <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#EAB308]">EDOT</span></h1>
-           <p className="max-w-2xl mx-auto text-xl text-slate-300 font-medium leading-relaxed">A modern, elite platform designed to help students learn smarter, perform faster, and secure real-world success.</p>
-        </div>
-      </section>
+      <div className="relative z-10 pt-32 pb-20">
 
-      {/* VIDEO SECTION */}
-      <section className="relative z-10 py-24 text-center px-4">
-        <h2 className="text-3xl md:text-5xl font-display font-black mb-10">See How EDOT <span className="text-[#008A32]">Works</span></h2>
-        <div className="relative max-w-4xl mx-auto rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group cursor-pointer">
-          <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500 z-10"></div>
-          <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3" className="w-full h-[400px] md:h-[500px] object-cover transform group-hover:scale-105 transition-transform duration-700" alt="Video Placeholder" />
-          <div className="absolute inset-0 m-auto w-24 h-24 bg-[#FFD700]/90 rounded-full flex items-center justify-center z-20 group-hover:scale-110 transition-transform shadow-[0_0_30px_rgba(255,215,0,0.4)] backdrop-blur-md">
-             <PlayCircle className="text-[#0f172a] w-12 h-12 ml-1" />
-          </div>
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section className="relative z-10 py-20 bg-white/5 border-y border-white/10 backdrop-blur-md">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto px-4 text-center">
-          <div className="p-8 rounded-3xl bg-[#0B0E14]/50 border border-white/5 shadow-xl hover:-translate-y-2 transition-transform duration-300">
-            <h3 className="text-6xl font-display font-black text-[#FFD700] mb-2">{counts.students}+</h3>
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">Active Learners</p>
-          </div>
-          <div className="p-8 rounded-3xl bg-[#0B0E14]/50 border border-white/5 shadow-xl hover:-translate-y-2 transition-transform duration-300">
-            <h3 className="text-6xl font-display font-black text-[#008A32] mb-2">{counts.courses}+</h3>
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">Premium Courses</p>
-          </div>
-          <div className="p-8 rounded-3xl bg-[#0B0E14]/50 border border-white/5 shadow-xl hover:-translate-y-2 transition-transform duration-300">
-            <h3 className="text-6xl font-display font-black text-cyan-400 mb-2">{counts.success}%</h3>
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">Success Rate</p>
-          </div>
-        </div>
-      </section>
-
-      {/* TEAM */}
-      <section className="relative z-10 py-32">
-        <h2 className="text-4xl md:text-5xl font-display font-black text-center mb-16">The Architecture <span className="text-[#FFD700]">Team</span></h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-4">
-          {team.map((member, i) => (
-            <motion.div key={i} whileHover={{ y: -10 }} className="bg-[#11151F] p-8 rounded-[2rem] shadow-2xl border border-white/10 text-center flex flex-col h-full group relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700]/5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform"></div>
-              
-              <div className="w-36 h-36 mx-auto mb-8 rounded-full overflow-hidden border-4 border-[#FFD700]/20 shadow-[0_0_20px_rgba(255,215,0,0.15)] relative z-10 group-hover:border-[#FFD700]/50 transition-colors">
-                <img src={member.img} alt={member.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
-              </div>
-              <h4 className="font-display font-black text-2xl text-white mb-2 relative z-10">{member.name}</h4>
-              <p className="text-[#FFD700] font-bold text-xs uppercase tracking-widest leading-relaxed mb-6 relative z-10 border-b border-white/10 pb-6 inline-block w-full">{member.role}</p>
-              <p className="text-slate-400 text-sm leading-relaxed flex-1 relative z-10">{member.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section className="relative z-10 py-32 bg-[#11151F] border-t border-white/10">
-        <h2 className="text-4xl md:text-5xl font-display font-black text-center mb-16">Voices of <span className="text-[#008A32]">Success</span></h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
-          {testimonials.map((t, i) => (
-            <motion.div key={i} whileHover={{ y: -10 }} className="bg-[#0B0E14] border border-white/10 p-8 rounded-[2rem] shadow-2xl relative">
-              <div className="absolute -top-6 left-8 bg-[#008A32] text-white p-3 rounded-full shadow-lg">
-                 <StartIcon />
-              </div>
-              <div className="flex mb-6 mt-4 gap-1">
-                {[...Array(5)].map((_, i) => <Star key={i} className="text-[#FFD700] fill-[#FFD700]" size={18} />)}
-              </div>
-              <p className="text-slate-300 text-lg leading-relaxed italic mb-6">"{t.text}"</p>
-              <div className="border-t border-white/10 pt-4 mt-auto">
-                 <h4 className="font-bold text-white uppercase tracking-widest text-xs">{t.name}</h4>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="relative z-10 py-32 text-center mx-4 sm:mx-8 mb-10">
-        <div className="max-w-5xl mx-auto rounded-[3rem] overflow-hidden relative border border-white/10 shadow-[0_0_50px_rgba(255,215,0,0.15)] bg-[#11151F]">
-           <div className="absolute inset-0 bg-gradient-to-br from-[#008A32]/20 to-[#FFD700]/20 mix-blend-overlay"></div>
-           <div className="relative z-10 py-24 px-6 flex flex-col items-center">
-             <h2 className="text-4xl md:text-6xl font-display font-black mb-6 text-white">Join the Elite Learning Network</h2>
-             <p className="text-slate-300 mb-10 text-lg max-w-2xl font-medium">Take control of your future with advanced analytics, premium courses, and expert mentorship.</p>
-             <Link to="/register" className="inline-flex items-center gap-3 bgGradientToR from-[#FFD700] to-[#EAB308] bg-[#FFD700] text-[#0f172a] px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,215,0,0.4)]">
-               Begin Your Journey <ArrowRight className="w-5 h-5" />
-             </Link>
+        {/* HERO SECTION */}
+        <section className="text-center max-w-5xl mx-auto px-6 mb-24 relative">
+           <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 border border-[#FFD700]/30 backdrop-blur-xl mx-auto shadow-xl mb-8">
+              <span className="text-[10px] font-black text-[#FFD700] tracking-[0.2em] uppercase">Redefining Education globally</span>
            </div>
-        </div>
-      </section>
+           
+           <h1 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tight leading-[1.05] drop-shadow-2xl">
+              About The <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#00c94b]">EDOT Ecosystem</span>
+           </h1>
+           <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-3xl mx-auto">
+             EDOT (Education Digital Online Tutorials) is a cutting-edge hybrid infrastructure bridging the gap between rigorous academic requirements and modern technical execution.
+           </p>
+        </section>
 
-    </motion.div>
+        {/* PLATFORM METRICS */}
+        <section className="max-w-7xl mx-auto px-6 mb-32 relative z-20">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: <Users />, count: `${counts.students}+`, label: "Global Learners" },
+              { icon: <BookOpen />, count: `${counts.courses}+`, label: "Certified Programs" },
+              { icon: <Target />, count: `${counts.instructors}+`, label: "Subject Authorities" }
+            ].map((stat, i) => (
+              <div key={i} className="bg-[#11151F]/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-12 text-center flex flex-col items-center shadow-2xl">
+                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-8 text-[#008A32]">
+                  {stat.icon}
+                </div>
+                <h3 className="text-5xl font-black text-white mb-2 tracking-tighter">{stat.count}</h3>
+                <p className="font-bold text-slate-500 uppercase tracking-[0.2em] text-[10px]">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* THE MISSION & VISION */}
+        <section className="max-w-7xl mx-auto px-6 mb-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="relative">
+               <ImagePlaceholder text="Platform Interface & Analytics Mockup" className="h-[500px]" />
+            </div>
+            <div className="space-y-8">
+              <h2 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">
+                Our Mission & Vision
+              </h2>
+              <p className="text-slate-400 text-lg font-medium leading-relaxed">
+                At EDOT, our mission is to provide world-class, uncompromised access to high-value education. Whether a student is mastering primary mathematics or an adult professional is delving into cloud architecture, our platform provides a scalable, secure, and user-centric experience.
+              </p>
+              <ul className="space-y-4 pt-4">
+                {[
+                  "Unifying fragmented learning paths into one secure dashboard.",
+                  "Connecting elite instructors with eager learners globally.",
+                  "Enabling parental transparency for younger students.",
+                  "Providing verifiable, industry-recognized certificates."
+                ].map((point, i) => (
+                  <li key={i} className="flex gap-4 items-center bg-[#11151F] border border-white/5 p-4 rounded-xl">
+                    <CheckCircle className="w-5 h-5 text-[#FFD700] shrink-0" />
+                    <span className="text-white font-bold text-sm">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* TEAM / LEADERSHIP */}
+        <section className="pb-32 max-w-7xl mx-auto px-6 relative z-20">
+           <div className="text-center mb-16">
+             <h2 className="text-4xl font-black text-white tracking-tight leading-tight">Executive Leadership</h2>
+             <p className="text-slate-400 font-medium mt-4">The visionaries driving the EDOT infrastructure.</p>
+           </div>
+           
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+             {[
+               { name: 'Kenenisa Beyan', role: 'CEO & Founder', desc: 'Platform architect and strategic visionary.' },
+               { name: 'Firomsa Guteta', role: 'Lead Developer', desc: 'Core systems orchestration and deployment.' },
+               { name: 'Bethelhem Yehuala', role: 'Academic Director', desc: 'Curriculum curation and academic standards.' },
+               { name: 'Yobsan Girma', role: 'Financial Controller', desc: 'Enterprise scaling and infrastructure finance.' }
+             ].map((member, i) => (
+               <div key={i} className="bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden text-center group transition-all duration-300 hover:bg-white/5 hover:-translate-y-2">
+                 <div className="h-64 relative overflow-hidden bg-[#0B0E14] border-b border-white/5 p-4">
+                    <ImagePlaceholder text={`Photo: ${member.name}`} className="h-full w-full rounded-xl" />
+                 </div>
+                 <div className="p-8">
+                   <h4 className="font-black text-xl text-white mb-2">{member.name}</h4>
+                   <div className="bg-[#008A32]/10 text-[#008A32] px-4 py-1.5 font-black text-[10px] uppercase tracking-widest rounded-full inline-block mb-4 border border-[#008A32]/20">
+                     {member.role}
+                   </div>
+                   <p className="text-slate-400 font-medium text-sm leading-relaxed">{member.desc}</p>
+                 </div>
+               </div>
+             ))}
+           </div>
+        </section>
+
+        {/* AWARDS & RECOGNITION */}
+        <section className="py-20 bg-[#11151F]/40 border-y border-white/5">
+           <div className="max-w-7xl mx-auto px-6 text-center">
+             <h2 className="text-3xl font-black text-white mb-12">Global Certifications & Awards</h2>
+             <div className="flex flex-wrap justify-center gap-8">
+               {[1,2,3,4].map(num => (
+                 <ImagePlaceholder key={num} text={`Award Badge ${num}`} className="h-32 w-48 bg-transparent border-white/20" />
+               ))}
+             </div>
+           </div>
+        </section>
+
+        <CTA 
+          title="Elevate Your Organization" 
+          description="Bring EDOT's elite education infrastructure to your school or corporate campus."
+          buttonText="Partner With Us"
+          buttonLink="/contact"
+        />
+
+      </div>
+    </div>
   );
-}
-
-// Helper icon component since we mapped it above
-function StartIcon() {
-   return (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"></path></svg>
-   );
 }

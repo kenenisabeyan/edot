@@ -1,267 +1,197 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../utils/api';
-import { motion } from 'framer-motion';
-import {
-  GraduationCap, Code, Calculator, FlaskConical, BookOpen,
-  Play, ArrowRight, ShieldCheck, Sparkles, LayoutGrid
-} from 'lucide-react';
+import axios from 'axios';
+import { ChevronRight, Play, Star, BookOpen, Users, Award, Shield, ArrowRight, Zap, Globe, CheckCircle } from 'lucide-react';
+import AgendaWidget from '../components/AgendaWidget';
+import CTA from '../components/CTA';
+
+const ImagePlaceholder = ({ text, className = "h-64" }) => (
+  <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/10 rounded-2xl flex flex-col items-center justify-center text-slate-500 relative overflow-hidden group ${className}`}>
+    <div className="absolute inset-0 bg-[#008A32]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+    <Award className="w-8 h-8 mb-3 opacity-50 group-hover:text-[#FFD700] transition-colors duration-500" />
+    <span className="font-bold tracking-widest uppercase text-[10px] z-10 relative px-6 text-center group-hover:text-slate-300 transition-colors">[ Image: {text} ]</span>
+  </div>
+);
 
 export default function Home() {
-  const [featuredCourses, setFeaturedCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchAgenda = async () => {
       try {
-        const { data } = await api.get('/courses?limit=3');
-        setFeaturedCourses(data.courses);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await axios.get('http://localhost:5000/api/calendar', { headers });
+        if (Array.isArray(res.data)) setAnnouncements(res.data);
+        else if (res.data && Array.isArray(res.data.events)) setAnnouncements(res.data.events);
+      } catch (error) {
+        console.error("Error fetching agenda", error);
       }
     };
-    fetchCourses();
+    fetchAgenda();
   }, []);
 
-  const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
-
   return (
-    <div className="bg-[#0B0E14] min-h-screen text-white overflow-hidden font-sans pt-8">
-      {/* Background Accent Gradients */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFD700]/5 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-[#008A32]/5 rounded-full blur-[150px]"></div>
+    <div className="min-h-screen bg-[#0B0E14] font-sans overflow-x-hidden relative text-slate-300">
+      
+      {/* Background Mesh Gradient Glow */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] md:top-[-20%] left-[-10%] md:left-[-10%] w-[50vh] md:w-[60vw] h-[50vh] md:h-[60vh] rounded-full bg-[#008A32]/10 blur-[150px]"></div>
+        <div className="absolute bottom-[-10%] md:bottom-[-20%] right-[-10%] md:right-[-10%] w-[50vh] md:w-[60vw] h-[50vh] md:h-[60vh] rounded-full bg-[#FFD700]/10 blur-[150px]"></div>
       </div>
 
-      {/* ================= HERO ================= */}
-      <section className="relative z-10 py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20">
+      <div className="relative z-10 pt-20">
 
-            {/* TEXT */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="show"
-              className="w-full lg:w-1/2 text-center lg:text-left"
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
-                <Sparkles className="w-4 h-4 text-[#FFD700]" />
-                <span className="text-xs font-bold uppercase tracking-widest text-[#FFD700]">The Next Generation of Learning</span>
+        {/* 1. HERO SECTION */}
+        <section className="relative pt-20 pb-32 px-6">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            
+            {/* Hero Content */}
+            <div className="space-y-8 relative z-10">
+              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl shadow-xl">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#008A32] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#008A32]"></span>
+                </span>
+                <span className="text-[10px] font-black text-white tracking-[0.2em] uppercase">Education Digital Online Tutorials</span>
               </div>
-
-              <h1 className="text-5xl sm:text-6xl md:text-7xl font-display font-black text-white mb-6 leading-[1.1] drop-shadow-2xl">
-                Build Your Future with <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#EAB308]">EDOT</span>
+              
+              <h1 className="text-5xl md:text-7xl font-sans font-black text-white leading-[1.1] tracking-tight drop-shadow-2xl">
+                Master The Future <br className="hidden md:block"/> Of <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">Global Learning.</span>
               </h1>
-
-              <p className="text-slate-400 text-lg sm:text-xl mb-10 leading-relaxed font-medium">
-                Discover real-world learning built for students in Ethiopia and beyond.
-                Build practical skills in programming, science, and mathematics all in an elite, data-driven platform.
+              
+              <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-xl drop-shadow-xl">
+                EDOT is the premier hybrid learning ecosystem bridging academic excellence, programming mastery, and career advancement for students, professionals, and global innovators.
               </p>
-
-              {/* BUTTONS */}
-              <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start mb-12">
-                <Link
-                  to="/courses"
-                  className="group flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#FFD700] to-[#EAB308] text-[#0f172a] rounded-xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] transition-all duration-300 hover:-translate-y-1"
-                >
-                  <GraduationCap className="w-5 h-5 group-hover:scale-110 transition" />
-                  Explore Catalog
+              
+              <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
+                <Link to="/courses" className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white text-[#0B0E14] font-black uppercase tracking-widest text-xs shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)] hover:bg-slate-200 transition-all flex items-center justify-center gap-3">
+                  Explore Programs <ArrowRight className="w-4 h-4" />
                 </Link>
-
-                <button
-                  className="group flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/10 rounded-xl text-white font-bold uppercase tracking-widest backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:border-[#FFD700]/30"
-                >
-                  <Play className="w-5 h-5 text-[#FFD700] group-hover:scale-110" />
-                  How it Works
-                </button>
+                <Link to="/about" className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-[#11151F]/80 backdrop-blur-xl border border-white/10 text-white font-black uppercase tracking-widest text-xs hover:bg-white/10 hover:border-white/30 transition-all flex items-center justify-center gap-3">
+                  <Play className="w-4 h-4 text-[#FFD700]" /> See How It Works
+                </Link>
               </div>
 
-              {/* STATS */}
-              <div className="flex justify-center lg:justify-start gap-12 bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md inline-flex shadow-inner">
-                {["Courses", "Learners", "Instructors"].map((label, i) => (
-                  <motion.div
-                    key={i}
-                    whileHover={{ scale: 1.05 }}
-                    className="text-center"
-                  >
-                    <p className="text-2xl sm:text-3xl font-black text-[#FFD700] mb-1">
-                      {i === 1 ? "500+" : "10+"}
-                    </p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{label}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* IMAGE */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="w-full lg:w-1/2 relative"
-            >
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#008A32]/20 to-[#FFD700]/20 rounded-[2.5rem] transform rotate-3 blur-sm"></div>
-              <div className="relative rounded-[2rem] border border-white/10 bg-[#0B0E14] shadow-2xl overflow-hidden group">
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
-                <img
-                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
-                  alt="Students learning"
-                  className="w-full h-[300px] lg:h-[500px] object-cover transform group-hover:scale-105 transition duration-700 opacity-90"
-                />
-                
-                {/* Floating Badge */}
-                <div className="absolute bottom-6 right-6 z-20 bg-[#0B0E14]/90 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex items-center gap-4 group-hover:-translate-y-2 transition-transform duration-500">
-                  <div className="w-12 h-12 bg-[#008A32]/20 border border-[#008A32]/30 rounded-xl flex items-center justify-center text-[#008A32]">
-                    <ShieldCheck className="w-6 h-6" />
+              <div className="pt-8 flex items-center gap-6 text-sm font-bold text-slate-500">
+                <div className="flex -space-x-4">
+                  {[1,2,3,4].map(i => (
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0B0E14] bg-slate-800 flex items-center justify-center shadow-lg z-[1] relative">
+                       <Users className="w-4 h-4 text-slate-400" />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1 text-[#FFD700]">
+                    <Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" />
                   </div>
-                  <div>
-                    <p className="text-white font-bold">Verified Excellence</p>
-                    <p className="text-xs text-slate-400">Top-tier instructors</p>
-                  </div>
+                  <span className="text-xs uppercase tracking-widest mt-1">Join 10k+ Learners</span>
                 </div>
               </div>
-            </motion.div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ================= CATEGORIES ================= */}
-      <section className="relative z-10 py-24 bg-[#11151F]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-display font-black mb-4">
-              Explore Domains
-            </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">Master new skills with our heavily curated, category-specific learning libraries.</p>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { name: 'Architecture', icon: LayoutGrid, color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20' },
-              { name: 'Mathematics', icon: Calculator, color: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20' },
-              { name: 'Science', icon: FlaskConical, color: 'text-[#008A32]', bg: 'bg-[#008A32]/10', border: 'border-[#008A32]/20' },
-              { name: 'Exam Prep', icon: BookOpen, color: 'text-[#FFD700]', bg: 'bg-[#FFD700]/10', border: 'border-[#FFD700]/20' }
-            ].map((cat, i) => {
-              const Icon = cat.icon;
-              return (
-                <motion.div
-                  key={i}
-                  whileHover={{ y: -8 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Link
-                    to={`/courses?category=${cat.name.toLowerCase()}`}
-                    className="group border border-white/5 bg-[#0B0E14] rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-lg hover:shadow-2xl hover:border-white/10 transition-all duration-300 relative overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-white-[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className={`w-16 h-16 rounded-2xl ${cat.bg} ${cat.border} border mb-5 flex items-center justify-center group-hover:scale-110 transition-transform duration-500`}>
-                      <Icon className={`w-8 h-8 ${cat.color}`} />
-                    </div>
-                    <p className="font-bold text-lg text-white group-hover:text-[#FFD700] transition-colors">{cat.name}</p>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ================= COURSES ================= */}
-      <section className="relative z-10 py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-12">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-display font-black mb-3 text-white">
-                Featured Edges
-              </h2>
-              <p className="text-slate-400">The most popular and highly-rated programs right now.</p>
             </div>
-            <Link to="/courses" className="mt-4 sm:mt-0 flex items-center gap-2 text-[#FFD700] font-bold uppercase tracking-widest text-sm hover:text-white transition-colors group">
-              View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {loading ? (
-              <div className="col-span-full flex justify-center py-12">
-                <div className="w-12 h-12 border-4 border-white/10 border-t-[#FFD700] rounded-full animate-spin"></div>
+            {/* Hero Visual */}
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[#008A32]/20 to-[#FFD700]/20 blur-2xl rounded-full opacity-50 z-0"></div>
+              <ImagePlaceholder text="Immersive EDOT Platform Dashboard Mockup" className="h-[500px] w-full shadow-2xl relative z-10" />
+              
+              {/* Floating Elements */}
+              <div className="absolute -left-10 top-20 bg-[#11151F]/90 backdrop-blur-xl border border-white/10 p-4 rounded-xl shadow-2xl z-20 flex items-center gap-4 animate-bounce" style={{animationDuration: '3s'}}>
+                <div className="w-12 h-12 bg-gradient-to-br from-[#008A32] to-[#FFD700] rounded-full flex items-center justify-center">
+                  <Award className="w-6 h-6 text-[#0B0E14]" />
+                </div>
+                <div>
+                  <p className="text-white font-black text-xs uppercase tracking-widest">Global Certified</p>
+                  <p className="text-slate-400 text-xs">Top Tier Instructors</p>
+                </div>
               </div>
-            ) : (
-              featuredCourses.map(course => (
-                <motion.div
-                  key={course._id}
-                  whileHover={{ y: -10 }}
-                  className="bg-[#11151F] border border-white/10 rounded-3xl overflow-hidden shadow-xl hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-300 group flex flex-col"
-                >
-                  <div className="h-56 relative overflow-hidden bg-black">
-                    <img
-                      src={course.thumbnail === 'default-course.jpg' || !course.thumbnail ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80' : course.thumbnail}
-                      alt={course.title}
-                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#11151F] via-transparent to-transparent"></div>
-                    <div className="absolute top-4 left-4 bg-[#0B0E14]/80 backdrop-blur-md px-3 py-1 rounded-md border border-white/10 text-[10px] font-black text-[#FFD700] uppercase tracking-widest shadow-lg">
-                      {course.category}
+            </div>
+
+          </div>
+        </section>
+
+        {/* 2. TRUSTED BY / PARTNERS */}
+        <section className="py-12 border-y border-white/5 bg-[#0B0E14]/80 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-6 text-center">
+            <p className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-8">Recognized & Accredited By Leading Institutions</p>
+            <div className="flex flex-wrap justify-center gap-12 opacity-60 grayscale">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="flex items-center gap-2">
+                  <Shield className="w-8 h-8 text-white" />
+                  <span className="font-bold text-xl text-white tracking-tighter">Partner {i}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 3. PLATFORM CATEGORIES */}
+        <section className="py-32 px-6 max-w-7xl mx-auto relative z-20">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-6">Master Any Domain. <br/> <span className="text-[#008A32]">Accelerate Your Career.</span></h2>
+            <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto">Our rigorous curriculum is curated to transform beginners into industry-ready professionals across high-demand disciplines.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { title: "Social Science", desc: "Understand global dynamics, sociology, and human behavior.", icon: <Globe /> },
+              { title: "Math & Science", desc: "Advanced logic, physics, and mathematical foundations.", icon: <Zap /> },
+              { title: "Programming & Tech", desc: "Software engineering, DevOps, and cloud architecture.", icon: <BookOpen /> },
+              { title: "Natural Language", desc: "Master linguistics, communication, and global languages.", icon: <Users /> },
+              { title: "Business (Sale)", desc: "Entrepreneurship, marketing, and corporate financial strategy.", icon: <Award />, highlight: true },
+              { title: "Personal Dev (Sale)", desc: "Leadership, productivity, and essential soft skills.", icon: <Shield />, highlight: true }
+            ].map((cat, i) => (
+              <div key={i} className={`p-8 rounded-[2rem] border transition-all duration-500 group ${cat.highlight ? 'bg-gradient-to-br from-[#11151F] to-[#0B0E14] border-[#FFD700]/30 shadow-[0_0_30px_rgba(255,215,0,0.05)] hover:border-[#FFD700]/60' : 'bg-[#11151F]/40 backdrop-blur-xl border-white/10 hover:bg-white/5 hover:border-white/20'}`}>
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-inner ${cat.highlight ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'bg-white/5 text-[#008A32]'}`}>
+                  {cat.icon}
+                </div>
+                <h3 className="text-2xl font-black text-white mb-4 tracking-tight group-hover:text-white">{cat.title}</h3>
+                <p className="text-slate-400 font-medium leading-relaxed mb-6">{cat.desc}</p>
+                <Link to="/courses" className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-white hover:text-[#008A32] transition-colors">
+                  Explore <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 4. TARGET AUDIENCES (Who is it for) */}
+        <section className="py-32 px-6 bg-[#11151F]/40 border-y border-white/5">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            
+            <div className="order-2 lg:order-1 relative">
+               <ImagePlaceholder text="Dynamic Collage of Students, Professionals & Instructors" className="h-[600px] w-full" />
+            </div>
+
+            <div className="order-1 lg:order-2 space-y-10">
+              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">A Unified Ecosystem For <span className="text-[#FFD700]">Every Learner</span>.</h2>
+              <ul className="space-y-8">
+                {[
+                  { title: "Students (Primary & Uni)", desc: "Supplement academic studies with rigorous tutorials and foundational skill building." },
+                  { title: "Working Professionals", desc: "Upskill rapidly with programming and business modules designed for modern industry constraints." },
+                  { title: "Involved Parents", desc: "Monitor progress, track attendance, and ensure your absolute certainty in high-quality curriculum." },
+                  { title: "Elite Instructors", desc: "Leverage our advanced course builder, automated analytics, and global reach to teach effectively." }
+                ].map((item, i) => (
+                  <li key={i} className="flex gap-6">
+                    <div className="w-12 h-12 shrink-0 rounded-full bg-[#008A32]/10 border border-[#008A32]/30 flex items-center justify-center text-[#008A32]">
+                      <CheckCircle className="w-6 h-6" />
                     </div>
-                  </div>
+                    <div>
+                      <h4 className="text-xl font-black text-white mb-2">{item.title}</h4>
+                      <p className="text-slate-400 font-medium leading-relaxed">{item.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-                  <div className="p-6 md:p-8 flex-1 flex flex-col">
-                    <h3 className="text-xl font-bold mb-3 text-white line-clamp-2 group-hover:text-[#FFD700] transition-colors">{course.title}</h3>
-                    <p className="text-sm text-slate-400 mb-6 line-clamp-2 leading-relaxed flex-1">
-                      {course.description}
-                    </p>
-
-                    <Link to={`/course/${course._id}`} className="mt-auto px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-center font-bold uppercase tracking-widest text-[#FFD700] text-sm hover:bg-[#FFD700] hover:text-[#0f172a] hover:border-[#FFD700] transition-all flex items-center justify-center gap-2 group/btn shadow-inner">
-                      Explore Course
-                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
-                </motion.div>
-              ))
-            )}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ================= CTA ================= */}
-      <section className="relative z-10 py-24 mb-10 mx-4 sm:mx-6 lg:mx-8">
-        <div className="max-w-5xl mx-auto rounded-[3rem] overflow-hidden relative border border-white/10 shadow-[0_0_50px_rgba(255,215,0,0.1)]">
-          <div className="absolute inset-0 bg-[#0B0E14]"></div>
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80')] opacity-20 bg-cover bg-center mix-blend-overlay"></div>
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0B0E14] via-[#0B0E14]/80 to-[#FFD700]/20"></div>
-          
-          <div className="relative z-10 px-6 py-20 md:py-24 text-center flex flex-col items-center">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-display font-black mb-6 text-white leading-tight"
-            >
-              Ready to Shift Your <br/> <span className="text-[#FFD700]">Learning Paradigm?</span>
-            </motion.h2>
+        {/* 5. CALL TO ACTION */}
+        <CTA />
 
-            <p className="text-slate-300 text-lg sm:text-xl max-w-2xl text-center mb-10 font-medium">
-              Join thousands of students and instructors leveraging our state-of-the-art platform to achieve excellence.
-            </p>
-
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-3 px-10 py-5 bg-[#FFD700] text-[#0f172a] font-black uppercase tracking-widest text-lg rounded-2xl hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,215,0,0.4)]"
-            >
-              Sign Up For Free <ArrowRight className="w-6 h-6" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
