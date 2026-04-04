@@ -131,7 +131,7 @@ export default function ProfileView() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-white/10 border-t-[#FFD700] rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -140,14 +140,14 @@ export default function ProfileView() {
     <div className="animate-in fade-in max-w-3xl mx-auto space-y-6">
       <div className="flex justify-center items-center text-center pb-2">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">My Profile</h1>
-          <p className="text-slate-500 text-sm mt-1">Manage your account settings and preferences.</p>
+          <h1 className="text-3xl font-display font-black text-white tracking-widest uppercase">My Portfolio</h1>
+          <p className="text-[#FFD700] text-xs font-bold uppercase tracking-widest mt-2">Manage your professional identity and platform presence</p>
         </div>
       </div>
 
-      <div className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
         <div 
-          className="h-32 bg-indigo-600 relative group"
+          className="h-48 bg-gradient-to-tr from-[#11151F] to-[#008A32]/20 border-b border-white/10 relative group"
           style={{ 
             backgroundImage: formData.coverPhoto ? `url(http://localhost:5000${formData.coverPhoto})` : 'none',
             backgroundSize: 'cover',
@@ -168,15 +168,15 @@ export default function ProfileView() {
         </div>
         <div className="px-8 pb-8 relative">
            
-           <div className="absolute -top-16 border-4 border-white rounded-full w-32 h-32 bg-slate-200 flex items-center justify-center overflow-hidden group">
+           <div className="absolute -top-20 border-4 border-[#0B0E14] rounded-full w-36 h-36 bg-[#11151F] flex items-center justify-center overflow-hidden group shadow-[0_0_20px_rgba(255,215,0,0.2)]">
               {formData.avatar && formData.avatar !== 'default-avatar.png' ? (
                 <img src={`http://localhost:5000${formData.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <User className="w-16 h-16 text-slate-400" />
+                <User className="w-16 h-16 text-slate-500" />
               )}
               
-              <label htmlFor="avatar-upload" className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity backdrop-blur-sm">
-                {uploadingImage ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-6 h-6" />}
+              <label htmlFor="avatar-upload" className="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all backdrop-blur-sm">
+                {uploadingImage ? <Loader2 className="w-6 h-6 animate-spin text-[#FFD700]" /> : <Camera className="w-6 h-6 text-[#FFD700]" />}
                 <input 
                   id="avatar-upload" 
                   type="file" 
@@ -189,60 +189,60 @@ export default function ProfileView() {
            </div>
 
            <div className="pt-20">
-             {message && <div className="mb-6 p-4 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium border border-emerald-100 flex items-center gap-2"><CircleCheck className="w-4 h-4" /> {message}</div>}
-             {error && <div className="mb-6 p-4 bg-rose-50 text-rose-700 rounded-xl text-sm font-medium border border-rose-100 flex items-center gap-2"><AlertCircle className="w-4 h-4" /> {error}</div>}
+             {message && <div className="mb-6 p-4 bg-[#008A32]/10 text-[#008A32] rounded-xl text-sm font-bold border border-[#008A32]/20 flex items-center gap-2 shadow-sm"><CircleCheck className="w-4 h-4" /> {message}</div>}
+             {error && <div className="mb-6 p-4 bg-[#E30A17]/10 text-[#E30A17] rounded-xl text-sm font-bold border border-[#E30A17]/20 flex items-center gap-2 shadow-sm"><AlertCircle className="w-4 h-4" /> {error}</div>}
 
              <form onSubmit={handleUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                  <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Full Name</label>
+                  <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
+                    <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
                     <input 
                       type="text" 
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
                       required 
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Email Address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                  <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Email Address</label>
+                  <div className="relative border border-white/5 rounded-xl overflow-hidden opacity-50">
+                    <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
                     <input 
                       type="email" 
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
                       disabled
-                      className="w-full pl-10 pr-4 py-2 bg-transparent border border-slate-200 text-slate-400 rounded-xl cursor-not-allowed" 
+                      className="w-full pl-12 pr-4 py-3 bg-transparent text-slate-400 font-medium cursor-not-allowed outline-none" 
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Phone Number (Ethiopian)</label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                  <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Phone Number</label>
+                  <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
+                    <Phone className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
                     <input 
                       type="tel" 
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      placeholder="+251 9XX XXX XXX or 09XX XXX XXX"
-                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                      placeholder="+251 9XX XXX XXX"
+                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Gender</label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                  <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Gender</label>
+                  <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
+                    <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 z-10" />
                     <CustomDropdown 
                       value={formData.gender}
                       onChange={(val) => setFormData({ ...formData, gender: val })}
@@ -253,52 +253,52 @@ export default function ProfileView() {
                         { label: 'Other', value: 'Other' },
                         { label: 'Prefer not to say', value: 'Prefer not to say' }
                       ]}
-                      className="w-full [&>button]:pl-10"
+                      className="w-full [&>button]:pl-12 [&>button]:py-3 [&>button]:bg-[#11151F] [&>button]:border-none [&>button]:font-medium [&>button]:text-white"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Date of Birth</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                  <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Date of Birth</label>
+                  <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
+                    <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
                     <input 
                       type="date" 
                       name="dateOfBirth"
                       value={formData.dateOfBirth}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none color-scheme-dark" 
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-bold text-slate-700">Address</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                  <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Address</label>
+                  <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
+                    <MapPin className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
                     <input 
                       type="text" 
                       name="address"
                       value={formData.address}
                       onChange={handleChange}
                       placeholder="e.g. Bole, Addis Ababa"
-                      className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
                     />
                   </div>
                 </div>
 
                 {user?.role === 'student' && (
                   <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-bold text-slate-700">Emergency Contact</label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <label className="text-xs font-black uppercase tracking-widest text-emerald-400">Emergency Contact</label>
+                    <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/50 transition-all">
+                      <Phone className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
                       <input 
                         type="text" 
                         name="emergencyContact"
                         value={formData.emergencyContact}
                         onChange={handleChange}
                         placeholder="Name and Phone number"
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
                       />
                     </div>
                   </div>
@@ -306,16 +306,16 @@ export default function ProfileView() {
 
                 {(user?.role === 'instructor' || user?.role === 'admin') && (
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Department</label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <label className="text-xs font-black uppercase tracking-widest text-[#008A32]">Department</label>
+                    <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#008A32]/50 focus-within:ring-1 focus-within:ring-[#008A32]/50 transition-all">
+                      <Briefcase className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
                       <input 
                         type="text" 
                         name="department"
                         value={formData.department}
                         onChange={handleChange}
                         placeholder="e.g. Computer Science"
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
                       />
                     </div>
                   </div>
@@ -323,16 +323,16 @@ export default function ProfileView() {
 
                 {user?.role === 'instructor' && (
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Specialization</label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <label className="text-xs font-black uppercase tracking-widest text-[#008A32]">Specialization</label>
+                    <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#008A32]/50 focus-within:ring-1 focus-within:ring-[#008A32]/50 transition-all">
+                      <Briefcase className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
                       <input 
                         type="text" 
                         name="specialization"
                         value={formData.specialization}
                         onChange={handleChange}
                         placeholder="e.g. Web Development"
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
                       />
                     </div>
                   </div>
@@ -340,41 +340,41 @@ export default function ProfileView() {
 
                 {user?.role === 'parent' && (
                   <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-bold text-slate-700">Occupation</label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <label className="text-xs font-black uppercase tracking-widest text-purple-400">Occupation</label>
+                    <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-purple-500/50 focus-within:ring-1 focus-within:ring-purple-500/50 transition-all">
+                      <Briefcase className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
                       <input 
                         type="text" 
                         name="occupation"
                         value={formData.occupation}
                         onChange={handleChange}
                         placeholder="e.g. Engineer"
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-indigo-500" 
+                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
                       />
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-bold text-slate-700">Bio</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Bio</label>
                   <textarea 
                     name="bio"
                     value={formData.bio}
                     onChange={handleChange}
                     rows="4" 
                     placeholder="Tell us a little about yourself"
-                    className="w-full p-4 border border-slate-200 rounded-xl outline-none focus:border-indigo-500"
+                    className="w-full p-4 bg-[#11151F] border border-white/10 text-white rounded-xl outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium resize-none placeholder:text-slate-600 transition-all"
                   ></textarea>
                 </div>
 
-                <div className="md:col-span-2 flex justify-end">
+                <div className="md:col-span-2 flex justify-end mt-4">
                    <button 
                      type="submit" 
                      disabled={updating}
-                     className="flex items-center gap-2 px-8 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition"
+                     className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-black uppercase tracking-widest text-xs rounded-xl hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-50"
                    >
-                     <Save className="w-5 h-5" />
-                     {updating ? 'Saving...' : 'Save Profile'}
+                     <Save className="w-4 h-4" />
+                     {updating ? 'Committing...' : 'Commit Changes'}
                    </button>
                 </div>
 

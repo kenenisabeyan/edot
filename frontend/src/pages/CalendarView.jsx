@@ -7,33 +7,51 @@ import AgendaCreationModal from '../components/AgendaCreationModal';
 export default function CalendarView() {
   const { user } = useAuth();
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const dates = Array.from({ length: 35 }, (_, i) => i - 2);
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  
+  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
+
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const { data } = await api.get('/calendar');
-        if (data.data && data.data.length > 0) {
-           // map backend dates if needed, for calendar UI we just mock map it to dummy dates for visual test
-           setEvents(data.data.map((evt, idx) => ({ ...evt, date: (idx * 5) % 28 + 1 })));
-        } else {
-           // Localized Ethiopian Fallback
-           setEvents([
-             { date: 4, title: 'National Exam Prep', type: 'exam', color: 'bg-indigo-500' },
-             { date: 12, title: 'PTA Meeting Ato Kebede', type: 'meeting', color: 'bg-amber-500' },
-             { date: 18, title: 'Science Fair', type: 'event', color: 'bg-emerald-500' },
-             { date: 24, title: 'Meskel Celebration', type: 'holiday', color: 'bg-rose-500' },
-             { date: 25, title: 'School Holiday', type: 'holiday', color: 'bg-rose-500' },
-           ]);
-        }
-      } catch (err) {
-        console.error('Failed to fetch calendar events', err);
+  const fetchEvents = async () => {
+    try {
+      const { data } = await api.get('/calendar');
+      if (data.data) {
+         setEvents(data.data);
       }
-    };
+    } catch (err) {
+      console.error('Failed to fetch calendar events', err);
+    }
+  };
+
+  useEffect(() => {
     fetchEvents();
   }, []);
+
+  const handlePrevMonth = () => {
+     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+  
+  const handleNextMonth = () => {
+     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
+  const handleToday = () => {
+     setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1));
+  };
+
+  const daysInMonth = getDaysInMonth(currentDate.getFullYear(), currentDate.getMonth());
+  const firstDay = getFirstDayOfMonth(currentDate.getFullYear(), currentDate.getMonth());
+  
+  const calendarGrids = Array.from({ length: firstDay + daysInMonth }, (_, i) => {
+      if (i < firstDay) return null; // Empty padding for correct alignment
+      return i - firstDay + 1; // Actual dates 1, 2, 3...
+  });
+
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   return (
     <div className="h-full flex flex-col space-y-6">
@@ -56,11 +74,11 @@ export default function CalendarView() {
          {/* Calendar Header */}
          <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
            <div className="flex items-center gap-4">
-             <h2 className="text-xl font-bold text-white">September 2030</h2>
+             <h2 className="text-xl font-bold text-white uppercase tracking-widest">{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h2>
              <div className="flex items-center bg-white/5 rounded-lg border border-white/10 overflow-hidden shadow-sm">
-               <button className="p-2 text-slate-400 hover:bg-white/10 hover:text-[#FFD700] border-r border-white/10"><ChevronLeft className="w-5 h-5" /></button>
-               <button className="px-4 py-2 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-[#FFD700]">Today</button>
-               <button className="p-2 text-slate-400 hover:bg-white/10 hover:text-[#FFD700] border-l border-white/10"><ChevronRight className="w-5 h-5" /></button>
+               <button onClick={handlePrevMonth} className="p-2 text-slate-400 hover:bg-white/10 hover:text-[#FFD700] border-r border-white/10 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+               <button onClick={handleToday} className="px-4 py-2 text-sm font-black tracking-widest uppercase text-slate-300 hover:bg-white/10 hover:text-[#FFD700] transition-colors">Today</button>
+               <button onClick={handleNextMonth} className="p-2 text-slate-400 hover:bg-white/10 hover:text-[#FFD700] border-l border-white/10 transition-colors"><ChevronRight className="w-5 h-5" /></button>
              </div>
            </div>
            
@@ -82,33 +100,48 @@ export default function CalendarView() {
             </div>
             
             <div className="grid grid-cols-7 gap-4 h-[calc(100%-2rem)]">
-              {dates.map((date, index) => {
-                const isCurrentMonth = date > 0 && date <= 30;
-                const displayDate = date <= 0 ? 31 + date : date > 30 ? date - 30 : date;
-                const dayEvents = isCurrentMonth ? events.filter(e => e.date === displayDate) : [];
-                const isToday = isCurrentMonth && displayDate === 14; // Mock today
+              {calendarGrids.map((displayDate, index) => {
+                const isCurrentMonth = displayDate !== null;
+                const isToday = isCurrentMonth && 
+                                displayDate === today.getDate() && 
+                                currentDate.getMonth() === today.getMonth() && 
+                                currentDate.getFullYear() === today.getFullYear();
+
+                // Find real events matching the exact parsed true dates
+                const dayEvents = isCurrentMonth ? events.filter(e => {
+                   if (!e.date) return false;
+                   const evtDate = new Date(e.date);
+                   return evtDate.getDate() === displayDate && 
+                          evtDate.getMonth() === currentDate.getMonth() && 
+                          evtDate.getFullYear() === currentDate.getFullYear();
+                }) : [];
 
                 return (
-                  <div key={index} className={`min-h-[100px] p-2 rounded-2xl border ${isCurrentMonth ? 'bg-white/5 border-white/5' : 'bg-transparent border-transparent opacity-30'} relative group hover:border-[#FFD700]/50 transition-colors`}>
-                     <div className={`text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full mb-2 ${
-                       isToday ? 'bg-[#FFD700] text-[#0B0E14] shadow-md shadow-[#FFD700]/40' : 
-                       isCurrentMonth ? 'text-white' : 'text-slate-500'
-                     }`}>
-                       {displayDate}
-                     </div>
-                     
-                     <div className="space-y-1">
-                       {dayEvents.map((evt, i) => (
-                         <div key={i} className={`text-xs px-2 py-1 rounded w-full truncate text-white font-medium ${evt.color}`}>
-                           {evt.title}
-                         </div>
-                       ))}
-                     </div>
-
+                  <div key={index} className={`min-h-[100px] p-2 rounded-2xl border ${isCurrentMonth ? 'bg-white/5 border-white/5 hover:border-[#FFD700]/50' : 'bg-transparent border-transparent'} relative group transition-colors`}>
                      {isCurrentMonth && (
-                       <button className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/10 text-slate-400 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex hover:bg-[#FFD700]/20 hover:text-[#FFD700]">
-                         <Plus className="w-4 h-4" />
-                       </button>
+                       <>
+                         <div className={`text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full mb-2 ${
+                           isToday ? 'bg-[#FFD700] text-[#0B0E14] shadow-[0_0_15px_rgba(255,215,0,0.5)]' : 
+                           'text-white'
+                         }`}>
+                           {displayDate}
+                         </div>
+                         
+                         <div className="space-y-2">
+                           {dayEvents.map((evt, i) => (
+                             <div key={i} className={`text-[9px] uppercase tracking-widest px-2 py-1.5 rounded-md w-full truncate font-black border border-white/10 ${evt.color || 'bg-blue-500/20 text-blue-300 border-blue-500/30'}`}>
+                               {evt.title}
+                             </div>
+                           ))}
+                         </div>
+
+                         <button 
+                           onClick={() => setShowModal(true)} 
+                           className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/10 text-slate-400 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex hover:bg-[#FFD700]/20 hover:text-[#FFD700]"
+                         >
+                           <Plus className="w-4 h-4" />
+                         </button>
+                       </>
                      )}
                   </div>
                 );
@@ -120,7 +153,11 @@ export default function CalendarView() {
        <AgendaCreationModal 
           isOpen={showModal} 
           onClose={() => setShowModal(false)} 
-          onAgendaCreated={(evt) => setEvents([...events, { ...evt, date: new Date(evt.date).getDate() }])}
+          onAgendaCreated={(evt) => {
+             // Directly add into UI and refetch to ensure perfect DB sync
+             setEvents([...events, evt]);
+             fetchEvents();
+          }}
        />
     </div>
   );

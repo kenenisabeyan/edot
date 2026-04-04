@@ -19,7 +19,8 @@ exports.getCourseAttendance = async (req, res) => {
     }
 
     const attendanceRecords = await Attendance.find({ course: courseId })
-      .populate('records.student', 'name email avatar')
+      .populate('records.student', 'name email avatar role')
+      .populate('instructor', 'name email role')
       .sort({ date: -1 });
 
     res.status(200).json({ success: true, count: attendanceRecords.length, data: attendanceRecords });
@@ -123,6 +124,68 @@ exports.getDashboardAggregate = async (req, res) => {
       ],
       raw: { present, absent, total }
     });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// @desc    Submit final semester report
+// @route   POST /api/attendance/report
+// @access  Private (Instructor)
+exports.submitFinalReport = async (req, res) => {
+  try {
+    const { courseId, term, studentRecords } = req.body;
+    
+    const courseObj = await Course.findById(courseId);
+    if (!courseObj) return res.status(404).json({ success: false, message: 'Course not found' });
+
+    if (req.user.role !== 'admin' && courseObj.instructor.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized to submit report for this course' });
+    }
+
+    let report = await CourseReport.findOne({
+      course: courseId,
+      instructor: req.user.role === 'admin' ? courseObj.instructor : req.user.id,
+      term: term || 'Final Term'
+    });
+
+    if (report) {
+      report.studentRecords = studentRecords;
+      report.status = 'submitted';
+      await report.save();
+    } else {
+      report = await CourseReport.create({
+        course: courseId,
+        instructor: req.user.role === 'admin' ? courseObj.instructor : req.user.id,
+        term: term || 'Final Term',
+        studentRecords,
+        status: 'submitted'
+      });
+    }
+
+    res.status(201).json({ success: true, data: report });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// @desc    Get all submitted course reports
+// @route   GET /api/attendance/reports
+// @access  Private (Admin/Instructor)
+exports.getFinalReports = async (req, res) => {
+  try {
+    let matchCondition = {};
+    if (req.user.role === 'instructor') {
+       matchCondition = { instructor: req.user._id };
+    }
+    
+    const reports = await CourseReport.find(matchCondition)
+      .populate('course', 'title category')
+      .populate('instructor', 'name email')
+      .populate('studentRecords.student', 'name email')
+      .sort({ createdAt: -1 });
+      
+    res.status(200).json({ success: true, count: reports.length, data: reports });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

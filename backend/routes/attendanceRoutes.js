@@ -2,7 +2,9 @@ const express = require('express');
 const { 
   getCourseAttendance,
   submitAttendance,
-  getDashboardAggregate 
+  getDashboardAggregate,
+  submitFinalReport,
+  getFinalReports
 } = require('../controllers/attendanceController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -13,6 +15,12 @@ router.use(protect);
 // Protect all attendance routes to ensure user is verified
 router.route('/aggregate')
   .get(getDashboardAggregate);
+
+router.route('/reports')
+  .get(getFinalReports);
+
+router.route('/report')
+  .post(submitFinalReport);
 
 router.route('/')
   .post(submitAttendance);

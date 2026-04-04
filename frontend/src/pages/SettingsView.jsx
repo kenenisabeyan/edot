@@ -83,43 +83,43 @@ export default function SettingsView() {
   };
 
   const ToggleSwitch = ({ label, description, checked, onChange, icon: Icon }) => (
-    <div className="flex items-center justify-between p-4 glass-card rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex items-center justify-between p-6 bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl hover:border-[#FFD700]/30 transition-all">
       <div className="flex items-start gap-4 pr-6">
-        {Icon && <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0"><Icon className="w-5 h-5"/></div>}
+        {Icon && <div className="w-12 h-12 rounded-xl bg-white/5 text-[#FFD700] border border-white/10 flex items-center justify-center shrink-0 shadow-sm"><Icon className="w-6 h-6"/></div>}
         <div>
-          <h4 className="font-semibold text-slate-900">{label}</h4>
-          <p className="text-sm text-slate-500 leading-snug mt-0.5">{description}</p>
+          <h4 className="font-bold text-white text-[15px] tracking-wide">{label}</h4>
+          <p className="text-sm text-slate-400 leading-relaxed mt-1 font-medium">{description}</p>
         </div>
       </div>
       <button 
         type="button" 
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors shrink-0 ${checked ? 'bg-indigo-600' : 'bg-slate-300'}`}
+        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors shrink-0 ${checked ? 'bg-[#008A32]' : 'bg-slate-700'}`}
       >
-        <span className={`inline-block h-5 w-5 transform rounded-full glass-card transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+        <span className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform ${checked ? 'translate-x-7' : 'translate-x-1'}`} />
       </button>
     </div>
   );
 
   const NumberSlider = ({ label, description, value, onChange, min, max, icon: Icon, unit = '' }) => (
-    <div className="p-4 glass-card rounded-xl border border-slate-200 shadow-sm">
+    <div className="p-6 bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
       <div className="flex justify-between items-start mb-6">
-        <div className="flex items-start gap-3">
-          {Icon && <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><Icon className="w-5 h-5"/></div>}
+        <div className="flex items-start gap-4">
+          {Icon && <div className="w-12 h-12 rounded-xl bg-white/5 text-[#FFD700] border border-white/10 flex items-center justify-center shrink-0 shadow-sm"><Icon className="w-6 h-6"/></div>}
           <div>
-            <h4 className="font-semibold text-slate-900">{label}</h4>
-            <p className="text-sm text-slate-500 mt-0.5">{description}</p>
+            <h4 className="font-bold text-white text-[15px] tracking-wide">{label}</h4>
+            <p className="text-sm text-slate-400 mt-1 font-medium">{description}</p>
           </div>
         </div>
-        <span className="font-bold text-lg text-slate-800 bg-slate-100 px-3 py-1 rounded-lg shrink-0">{value}{unit}</span>
+        <span className="font-black text-xl text-[#008A32] bg-[#008A32]/10 border border-[#008A32]/30 px-3 py-1 rounded-lg shrink-0">{value}{unit}</span>
       </div>
       <div className="px-2">
         <input 
           type="range" min={min} max={max} value={value} 
           onChange={(e) => onChange(Number(e.target.value))}
-          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+          className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#FFD700]"
         />
-        <div className="flex justify-between text-xs text-slate-400 mt-2 font-medium">
+        <div className="flex justify-between text-[11px] uppercase font-black text-slate-500 mt-3 tracking-widest">
           <span>{min}{unit}</span>
           <span>{max}{unit}</span>
         </div>
@@ -129,32 +129,32 @@ export default function SettingsView() {
 
   if (loading || !settings) return (
     <div className="flex justify-center items-center h-64">
-      <div className="w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+      <div className="w-10 h-10 border-4 border-white/10 border-t-[#FFD700] rounded-full animate-spin"></div>
     </div>
   );
 
   const roleConfig = settings[user.role] || {};
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto pb-12">
-      <div className="mb-8 p-6 bg-slate-900 rounded-3xl text-white shadow-xl flex items-center gap-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-bl-full opacity-20 -z-0"></div>
-        <div className="w-16 h-16 glass-card/10 rounded-2xl flex items-center justify-center backdrop-blur-md z-10 shrink-0">
-          <Settings className="w-8 h-8 text-indigo-300" />
+    <div className="animate-in fade-in max-w-4xl mx-auto pb-12 space-y-8">
+      <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl flex items-center gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-[#FFD700] rounded-bl-full opacity-5 pointer-events-none"></div>
+        <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md z-10 shrink-0 shadow-lg">
+          <Settings className="w-8 h-8 text-[#FFD700]" />
         </div>
         <div className="z-10">
-          <h2 className="text-3xl font-display font-bold mb-1">Platform Settings</h2>
-          <p className="text-slate-400 font-medium tracking-wide">Manage your preferences, privacy, and system behavior.</p>
+          <h2 className="text-3xl font-display font-black text-white tracking-widest uppercase">Platform Configuration</h2>
+          <p className="text-[#FFD700] font-bold text-xs uppercase tracking-widest mt-1">Manage global preferences, privacy, and system behavior.</p>
         </div>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-8">
+      <form onSubmit={handleSave} className="space-y-10">
         
         {/* STUDENT SETTINGS - The Freedom Toggle */}
         {user.role === 'student' && (
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2">Transparency Center</h3>
-            <div className="grid gap-4">
+            <h3 className="text-xl font-black text-white border-b border-white/10 pb-3 uppercase tracking-widest">Transparency Control</h3>
+            <div className="grid gap-6">
               <ToggleSwitch 
                 icon={Eye} label="Share Milestones with Parents" 
                 description="Allow linked parent accounts to see when you complete a course or lesson."
@@ -175,28 +175,28 @@ export default function SettingsView() {
               />
             </div>
 
-            <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2 mt-8">Connect Parent/Guardian</h3>
-            <div className="p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
-              <label className="block text-sm font-bold text-slate-700 mb-2">Guardian Email</label>
-              <p className="text-sm text-slate-500 mb-4 font-medium">Link your account with a parent's registered email to share progress automatically.</p>
-              <div className="flex gap-4">
+            <h3 className="text-xl font-black text-white border-b border-white/10 pb-3 mt-10 uppercase tracking-widest">Parent / Guardian Sync</h3>
+            <div className="p-8 bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
+              <label className="block text-[11px] font-black uppercase tracking-widest text-[#FFD700] mb-3">Guardian Email Address</label>
+              <p className="text-sm text-slate-400 mb-6 font-medium">Link your account with a parent's registered email to securely share progress dynamically.</p>
+              <div className="flex flex-col md:flex-row gap-4">
                 <input 
                   type="email" 
                   value={connectEmail}
                   onChange={(e) => setConnectEmail(e.target.value)}
                   placeholder="parent@example.com"
-                  className="flex-1 p-4 bg-transparent border border-slate-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 p-4 bg-[#11151F] border border-white/10 text-white rounded-xl font-semibold outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-transparent placeholder:text-slate-600 shadow-inner"
                 />
                 <button 
                   type="button"
                   onClick={handleConnectParent}
                   disabled={connecting}
-                  className="px-6 py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                  className="px-8 py-4 bg-gradient-to-r from-[#008A32] to-[#006622] text-white font-black uppercase tracking-widest text-[11px] rounded-xl shadow-lg hover:shadow-[#008A32]/30 transition-all disabled:opacity-50"
                 >
-                  {connecting ? 'Connecting...' : 'Connect'}
+                  {connecting ? 'Linking...' : 'Establish Link'}
                 </button>
               </div>
-              {connectMsg && <p className={`mt-3 text-sm font-bold ${(connectMsg.includes('Error') || connectMsg.includes('Failed') || connectMsg.includes('not found') || connectMsg.includes('Already')) ? 'text-red-500' : 'text-emerald-600'}`}>{connectMsg}</p>}
+              {connectMsg && <p className={`mt-4 text-xs font-bold uppercase tracking-widest ${(connectMsg.includes('Error') || connectMsg.includes('Failed') || connectMsg.includes('not found') || connectMsg.includes('Already')) ? 'text-[#E30A17]' : 'text-[#008A32]'}`}>{connectMsg}</p>}
             </div>
           </div>
         )}
@@ -204,31 +204,31 @@ export default function SettingsView() {
         {/* PARENT SETTINGS - Supporter Hub */}
         {user.role === 'parent' && (
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2">Supporter Profile & Thresholds</h3>
-            <div className="mb-6 p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
-              <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><CreditCard className="w-5 h-5 text-indigo-500"/> Billing Method</label>
+            <h3 className="text-xl font-black text-white border-b border-white/10 pb-3 uppercase tracking-widest">Support Thresholds</h3>
+            <div className="mb-6 p-8 bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
+              <label className="block text-[11px] font-black uppercase tracking-widest text-[#FFD700] mb-4 flex items-center gap-2"><CreditCard className="w-5 h-5 text-[#FFD700]"/> Subscriptions & Billing</label>
               <CustomDropdown
                 value={roleConfig.billingMethod || 'unlinked'}
                 onChange={(val) => handleChange('billingMethod', val)}
                 options={[
-                  { label: 'Unlinked / Manual', value: 'unlinked' },
-                  { label: 'Credit Card on File', value: 'card' },
-                  { label: 'Direct Bank Transfer', value: 'bank_transfer' }
+                  { label: 'Unlinked / Manual Checkout', value: 'unlinked' },
+                  { label: 'Stored Payment Method', value: 'card' },
+                  { label: 'Direct Bank Wire', value: 'bank_transfer' }
                 ]}
-                className="w-full md:w-1/2"
+                className="w-full md:w-1/2 [&>button]:py-4 [&>button]:bg-[#11151F] [&>button]:text-white [&>button]:border-white/10"
               />
             </div>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid lg:grid-cols-2 gap-6">
               <NumberSlider 
-                icon={Bell} label="Grade Alert Threshold" 
-                description="Notify me if average grades fall below this point."
+                icon={Bell} label="Grade Alert Drop Threshold" 
+                description="Trigger real-time alert if average grades structurally fall below this mark."
                 min={0} max={100} unit="%"
                 value={roleConfig.alertGradeBelow ?? 70} 
                 onChange={(val) => handleChange('alertGradeBelow', val)} 
               />
               <NumberSlider 
-                icon={Clock} label="Absence Alert Threshold" 
-                description="Notify me after this many consecutive missed days."
+                icon={Clock} label="Absence Danger Threshold" 
+                description="Immediately escalate alert after this many consecutive missed sessions."
                 min={1} max={10} unit=" days"
                 value={roleConfig.alertAbsenceCount ?? 3} 
                 onChange={(val) => handleChange('alertAbsenceCount', val)} 
@@ -240,38 +240,38 @@ export default function SettingsView() {
         {/* INSTRUCTOR SETTINGS */}
         {user.role === 'instructor' && (
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2">Pedagogical Settings</h3>
-            <div className="p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
-              <label className="block text-sm font-bold text-slate-700 mb-2">Consultation Windows</label>
-              <p className="text-sm text-slate-500 mb-4 font-medium">Define office hours visible to students and parents.</p>
+            <h3 className="text-xl font-black text-white border-b border-white/10 pb-3 uppercase tracking-widest">Pedagogy & Delivery</h3>
+            <div className="p-8 bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
+              <label className="block text-[11px] font-black uppercase tracking-widest text-[#FFD700] mb-3">Consultation Window (Office Hours)</label>
+              <p className="text-sm text-slate-400 mb-6 font-medium">Define your public schedule for dynamic student booking.</p>
               <input 
                 type="text" 
                 value={roleConfig.consultationHours || ''}
                 onChange={(e) => handleChange('consultationHours', e.target.value)}
-                placeholder="e.g. Mon-Wed 3PM-5PM"
-                className="w-full p-4 bg-transparent border border-slate-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="e.g. Mon-Wed 3PM-5PM (GMT+3)"
+                className="w-full p-4 bg-[#11151F] border border-white/10 text-white rounded-xl font-semibold outline-none focus:ring-2 focus:ring-[#FFD700] placeholder:text-slate-600 shadow-inner"
               />
             </div>
             
-            <div className="grid gap-4">
-              <div className="flex items-center justify-between p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
-                 <div>
-                   <h4 className="font-semibold text-slate-900">Default Course Visibility</h4>
-                   <p className="text-sm text-slate-500 mt-1">Should newly created courses be public in the catalog?</p>
+            <div className="grid gap-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-8 bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
+                 <div className="mb-4 md:mb-0 pr-6">
+                   <h4 className="font-bold text-white text-[15px] tracking-wide">Catalog Autonomy</h4>
+                   <p className="text-sm text-slate-400 mt-1 font-medium">Configure default visibility protocol for unapproved drafted courses.</p>
                  </div>
                  <CustomDropdown
                   value={roleConfig.courseVisibility || 'public'}
                   onChange={(val) => handleChange('courseVisibility', val)}
                   options={[
-                    { label: 'Public (Catalog)', value: 'public' },
-                    { label: 'Hidden (Invite Only)', value: 'enrolled_only' }
+                    { label: 'Public (Requires Approval)', value: 'public' },
+                    { label: 'Hidden (Private Link)', value: 'enrolled_only' }
                   ]}
-                  className="w-48"
+                  className="w-full md:w-64 [&>button]:py-3 [&>button]:bg-[#11151F] [&>button]:text-white [&>button]:border-white/10"
                  />
               </div>
               <ToggleSwitch 
-                icon={Sliders} label="Auto-Tag Templates" 
-                description="Generate automated 'Good/Bad Side' report structures when flagging activity."
+                icon={Sliders} label="Automated Tag Analysis" 
+                description="Generate algorithmic performance reports on student progress asynchronously."
                 checked={roleConfig.autoTags !== false} 
                 onChange={(val) => handleChange('autoTags', val)} 
               />
@@ -282,59 +282,59 @@ export default function SettingsView() {
         {/* ADMIN SETTINGS */}
         {user.role === 'admin' && (
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2">Institutional Governance</h3>
+            <h3 className="text-xl font-black text-white border-b border-white/10 pb-3 uppercase tracking-widest">System Governance</h3>
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
-                <label className="block text-sm font-bold text-slate-700 mb-4 flex items-center gap-2"><Palette className="w-5 h-5 text-indigo-500"/> Primary Brand Color</label>
-                <div className="flex gap-4 items-center">
+              <div className="p-8 bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl flex flex-col justify-center">
+                <label className="block text-[11px] font-black uppercase tracking-widest text-[#FFD700] mb-4 flex items-center gap-2"><Palette className="w-5 h-5 text-[#FFD700]"/> Global Brand DNA</label>
+                <div className="flex gap-4 items-center bg-[#11151F] p-3 rounded-xl border border-white/5">
                   <input 
                     type="color" 
-                    value={roleConfig.primaryColor || '#4f46e5'}
+                    value={roleConfig.primaryColor || '#0B0E14'}
                     onChange={(e) => handleChange('primaryColor', e.target.value)}
-                    className="w-16 h-16 p-1 rounded-xl cursor-pointer border border-slate-200"
+                    className="w-12 h-12 p-0 border-none rounded-lg cursor-pointer bg-transparent"
                   />
-                  <span className="font-mono text-slate-600 bg-slate-100 font-bold px-3 py-2 rounded-lg">{roleConfig.primaryColor || '#4f46e5'}</span>
+                  <span className="font-mono text-white tracking-widest font-black text-lg">{roleConfig.primaryColor || '#0B0E14'}</span>
                 </div>
               </div>
-              <div className="p-6 glass-card rounded-2xl border border-slate-200 shadow-sm">
-                <label className="block text-sm font-bold text-slate-700 mb-4 flex items-center gap-2"><Key className="w-5 h-5 text-amber-500"/> External API Key</label>
+              <div className="p-8 bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
+                <label className="block text-[11px] font-black uppercase tracking-widest text-[#E30A17] mb-4 flex items-center gap-2"><Key className="w-5 h-5 text-[#E30A17]"/> Ext-Auth Key</label>
                 <input 
                   type="password" 
                   value={roleConfig.apiKey || ''}
                   onChange={(e) => handleChange('apiKey', e.target.value)}
                   placeholder="sk_live_..."
-                  className="w-full p-4 bg-transparent font-medium border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full p-4 bg-[#11151F] font-mono tracking-widest border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-[#E30A17] placeholder:text-slate-700"
                 />
               </div>
             </div>
             
             <NumberSlider 
-              label="Standard Platform Fee" 
-              description="The default percentage cut taken from premium course sales."
+              label="Standard Ledger Commission" 
+              description="Default global percentage fee cut extracted from instructor ticket sales."
               min={0} max={30} unit="%"
               value={roleConfig.feePercentage ?? 10} 
               onChange={(val) => handleChange('feePercentage', val)} 
             />
 
             <ToggleSwitch 
-              icon={Shield} label="Global Auto-Intervention Rules" 
-              description="Automatically send alert emails to parents when critical thresholds are breached system-wide."
+              icon={Shield} label="AI Intervention Triggers" 
+              description="Aggressively trigger automated behavioral interventions server-side for severe attendance drops."
               checked={roleConfig.autoInterventionTriggers !== false} 
               onChange={(val) => handleChange('autoInterventionTriggers', val)} 
             />
           </div>
         )}
 
-        <div className="pt-8 flex items-center gap-4">
+        <div className="pt-8 flex flex-col sm:flex-row items-center gap-6">
           <button 
             type="submit" 
             disabled={saving}
-            className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-[0_8px_16px_-4px_rgba(79,70,229,0.4)] hover:bg-indigo-700 hover:-translate-y-1 hover:shadow-[0_12px_20px_-4px_rgba(79,70,229,0.5)] transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0"
+            className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-black uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0"
           >
-            {saving ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Save className="w-5 h-5" />}
-            {saving ? 'Saving...' : 'Save Settings'}
+            {saving ? <div className="w-5 h-5 border-2 border-[#0B0E14]/30 border-t-[#0B0E14] rounded-full animate-spin"></div> : <Save className="w-5 h-5" />}
+            {saving ? 'Persisting...' : 'Commit Settings'}
           </button>
-          {successMsg && <span className="text-emerald-600 font-bold text-sm bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-100 animate-in fade-in">{successMsg}</span>}
+          {successMsg && <span className="text-[#008A32] font-black uppercase tracking-widest text-[11px] bg-[#008A32]/10 px-4 py-2 rounded-lg border border-[#008A32]/20 animate-in fade-in shadow-sm flex items-center gap-2"><Shield className="w-4 h-4"/> {successMsg}</span>}
         </div>
       </form>
     </div>
