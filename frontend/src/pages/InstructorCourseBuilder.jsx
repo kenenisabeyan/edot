@@ -284,8 +284,9 @@ export default function InstructorCourseBuilder() {
           </div>
 
           {/* Form Area */}
-          <div className="rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden mb-8">
-            <div className="p-6 md:p-8">
+          <div className="rounded-3xl border border-white/10 bg-[#0B0E14]/80 backdrop-blur-2xl shadow-2xl overflow-hidden mb-8 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/5 to-transparent pointer-events-none"></div>
+            <div className="p-8 md:p-12 relative z-10">
               
               {/* STEP 1: Basic Information */}
               {currentStep === 1 && (

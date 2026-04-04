@@ -77,10 +77,10 @@ export default function ParentLearners() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[60vh]">
+      <div className="flex items-center justify-center h-full min-h-[60vh] bg-[#0B0E14]">
         <div className="relative w-16 h-16">
-           <div className="absolute inset-0 rounded-full border-t-2 border-indigo-600 animate-spin"></div>
-           <div className="absolute inset-2 rounded-full border-r-2 border-emerald-500 animate-[spin_1.5s_linear_infinite_reverse]"></div>
+           <div className="absolute inset-0 rounded-full border-t-2 border-[#FFD700] animate-spin"></div>
+           <div className="absolute inset-2 rounded-full border-r-2 border-[#008A32] animate-[spin_1.5s_linear_infinite_reverse]"></div>
         </div>
       </div>
     );
@@ -88,33 +88,34 @@ export default function ParentLearners() {
 
   if (learners.length === 0) {
     return (
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card rounded-3xl p-12 text-center shadow-sm border border-slate-100 max-w-2xl mx-auto mt-12">
-        <div className="w-24 h-24 bg-indigo-50/50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-3xl p-12 text-center shadow-2xl border border-white/10 max-w-2xl mx-auto mt-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[#FFD700]/5 opacity-20 pointer-events-none blur-3xl"></div>
+        <div className="w-24 h-24 bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner relative z-10">
           <Users className="w-12 h-12" />
         </div>
-        <h2 className="text-3xl font-extrabold text-slate-800 mb-3 tracking-tight">No Learners Linked</h2>
-        <p className="text-slate-500 text-lg max-w-md mx-auto leading-relaxed mb-8">
+        <h2 className="text-3xl font-display font-black text-white mb-3 tracking-tight relative z-10">No Learners Linked</h2>
+        <p className="text-slate-400 text-lg max-w-md mx-auto leading-relaxed mb-8 relative z-10 font-medium">
           Your account is not currently linked to any student profiles. Please enter your child's email address below to connect.
         </p>
         
-        <div className="max-w-md mx-auto mb-4 relative text-left">
+        <div className="max-w-md mx-auto mb-4 relative z-10 text-left">
           <input 
             type="email"
             value={connectEmail}
             onChange={(e) => setConnectEmail(e.target.value)}
             placeholder="Student's registered email"
-            className="w-full pl-5 pr-32 py-4 bg-transparent border border-slate-200 rounded-2xl font-medium outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
+            className="w-full pl-5 pr-32 py-4 bg-[#11151F] border border-white/10 text-white placeholder-slate-500 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-[#FFD700] transition-shadow shadow-inner"
           />
           <button 
             onClick={handleConnectLearner}
             disabled={connecting || !connectEmail}
-            className="absolute right-2 top-2 bottom-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 rounded-xl transition-colors disabled:opacity-50"
+            className="absolute right-2 top-2 bottom-2 bg-gradient-to-r from-[#FFD700] to-[#EAB308] text-[#0f172a] font-black uppercase tracking-widest text-xs px-6 rounded-xl hover:scale-105 transition-all shadow-[0_0_15px_rgba(255,215,0,0.3)] disabled:opacity-50 disabled:hover:scale-100"
           >
             {connecting ? 'Linking...' : 'Connect'}
           </button>
         </div>
         {connectMsg && (
-          <p className={`text-sm font-bold max-w-md mx-auto ${(connectMsg.includes('Failed') || connectMsg.includes('Error') || connectMsg.includes('not found') || connectMsg.includes('Only') || connectMsg.includes('Already')) ? 'text-red-500' : 'text-emerald-600'}`}>
+          <p className={`text-sm font-bold uppercase tracking-widest relative z-10 max-w-md mx-auto ${(connectMsg.includes('Failed') || connectMsg.includes('Error') || connectMsg.includes('not found') || connectMsg.includes('Only') || connectMsg.includes('Already')) ? 'text-[#E30A17]' : 'text-[#008A32]'}`}>
             {connectMsg}
           </p>
         )}
@@ -123,12 +124,13 @@ export default function ParentLearners() {
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-8 pb-10">
-      <motion.div variants={itemVariants} className="bg-gradient-to-r from-slate-900 to-indigo-900 rounded-3xl p-8 lg:p-10 text-white relative overflow-hidden shadow-xl">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-8 pb-10 min-h-screen">
+      <motion.div variants={itemVariants} className="bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl p-8 lg:p-10 text-white relative overflow-hidden shadow-2xl backdrop-blur-xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#008A32]/10 via-transparent to-[#FFD700]/10 opacity-30 pointer-events-none"></div>
         <div className="relative z-10 lg:flex lg:justify-between lg:items-center">
           <div>
-            <h1 className="text-3xl lg:text-4xl font-extrabold mb-3">Learner Profiles</h1>
-            <p className="text-indigo-200 text-lg max-w-xl">Deep dive into your assigned learners' academic portfolios, progress, and recent activity.</p>
+            <h1 className="text-3xl lg:text-4xl font-display font-black mb-3 text-white drop-shadow-md">Learner Profiles</h1>
+            <p className="text-slate-300 font-medium text-lg max-w-xl">Deep dive into your assigned learners' academic portfolios, progress, and recent activity.</p>
           </div>
           <div className="mt-6 lg:mt-0 lg:ml-6 max-w-sm w-full relative group">
             <input 
@@ -136,23 +138,22 @@ export default function ParentLearners() {
               value={connectEmail}
               onChange={(e) => setConnectEmail(e.target.value)}
               placeholder="Connect another learner email..."
-              className="w-full pl-5 pr-28 py-3.5 bg-indigo-900/50 border border-indigo-700/50 text-white placeholder-indigo-300 rounded-2xl font-medium outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-indigo-900 transition-all shadow-inner backdrop-blur-sm"
+              className="w-full pl-5 pr-28 py-3.5 bg-black/40 border border-white/10 text-white placeholder-slate-500 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-[#FFD700] transition-all shadow-inner backdrop-blur-md"
             />
             <button 
               onClick={handleConnectLearner}
               disabled={connecting || !connectEmail}
-              className="absolute right-2 top-2 bottom-2 bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-bold px-4 rounded-xl shadow transition-colors disabled:opacity-50"
+              className="absolute right-2 top-2 bottom-2 bg-gradient-to-r from-[#008A32] to-[#006622] text-white text-xs font-black uppercase tracking-widest px-4 rounded-xl shadow-[0_0_15px_rgba(0,138,50,0.3)] hover:scale-105 transition-all disabled:opacity-50 disabled:transform-none"
             >
               {connecting ? '...' : 'Add'}
             </button>
             {connectMsg && (
-              <div className={`absolute top-full left-0 right-0 mt-2 p-2 rounded-lg text-sm font-bold shadow-lg z-50 ${connectMsg.includes('successfully') ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'}`}>
+              <div className={`absolute top-full left-0 right-0 mt-2 p-3 rounded-xl text-xs font-bold uppercase tracking-widest shadow-2xl z-50 border ${connectMsg.includes('successfully') ? 'bg-[#008A32]/90 border-[#008A32] text-white backdrop-blur-md' : 'bg-[#E30A17]/90 border-[#E30A17] text-white backdrop-blur-md'}`}>
                 {connectMsg}
               </div>
             )}
           </div>
         </div>
-        <div className="absolute right-0 top-0 w-1/2 h-full opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
       </motion.div>
 
       <div className="grid grid-cols-1 gap-10">
@@ -162,91 +163,91 @@ export default function ParentLearners() {
           const completedCourses = learner.enrolledCourses?.filter(c => c.passedFinalExam).length || 0;
           
           return (
-            <motion.div variants={itemVariants} key={learner._id} className="glass-card rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col xl:flex-row hover:shadow-lg transition-shadow duration-300">
-              
+            <motion.div variants={itemVariants} key={learner._id} className="bg-[#0B0E14]/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col xl:flex-row hover:border-white/20 transition-all duration-300 relative group">
+              <div className="absolute top-0 left-0 w-32 h-32 bg-[#FFD700]/5 rounded-br-full pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+
               {/* Sidebar Profile Panel */}
-              <div className="xl:w-[340px] bg-transparent p-8 border-b xl:border-b-0 xl:border-r border-slate-100 flex flex-col relative shrink-0">
-                <div className="absolute top-0 left-0 w-full h-32 bg-indigo-600/5 rounded-tl-3xl"></div>
-                
+              <div className="xl:w-[340px] bg-[#11151F]/80 backdrop-blur-md p-8 border-b xl:border-b-0 xl:border-r border-white/5 flex flex-col relative shrink-0">
                 <div className="flex flex-col items-center text-center relative z-10 mb-8 mt-4">
-                  <motion.div whileHover={{ scale: 1.05 }} className="w-28 h-28 rounded-full glass-card border-4 border-white shadow-xl mb-5 overflow-hidden ring-4 ring-indigo-50">
+                  <motion.div whileHover={{ scale: 1.05 }} className="w-28 h-28 rounded-full bg-white/5 border-2 border-white/10 shadow-2xl mb-5 overflow-hidden ring-4 ring-black/40">
                     <img 
                       src={`http://localhost:5000/uploads/avatars/${learner.avatar || 'default-avatar.png'}`} 
                       alt={learner.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(learner.name) + '&background=ebf4ff&color=4338ca&size=200';
+                        e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(learner.name) + '&background=11151F&color=FFD700&size=200';
                       }}
                     />
                   </motion.div>
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{learner.name}</h2>
-                  <p className="text-indigo-500 font-medium text-sm mt-1">{learner.email}</p>
+                  <h2 className="text-2xl font-display font-black text-white tracking-tight">{learner.name}</h2>
+                  <p className="text-[#FFD700] font-bold text-xs uppercase tracking-widest mt-2">{learner.email}</p>
                 </div>
                 
                 {/* Navigation Tabs */}
-                <div className="flex flex-col gap-2 mt-auto">
+                <div className="flex flex-col gap-3 mt-auto relative z-10">
                    <button 
                      onClick={() => setTab(learner._id, 'overview')}
-                     className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-semibold transition-all ${tab === 'overview' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-600 hover:glass-card hover:shadow-sm'}`}
+                     className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${tab === 'overview' ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_20px_rgba(255,215,0,0.3)]' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/10'}`}
                    >
-                     <BarChart2 className="w-5 h-5" /> Overview
+                     <BarChart2 className="w-4 h-4" /> Overview
                    </button>
                    <button 
                      onClick={() => setTab(learner._id, 'courses')}
-                     className={`flex items-center justify-between px-5 py-3.5 rounded-2xl font-semibold transition-all ${tab === 'courses' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-600 hover:glass-card hover:shadow-sm'}`}
+                     className={`flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${tab === 'courses' ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_20px_rgba(255,215,0,0.3)]' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/10'}`}
                    >
-                     <div className="flex items-center gap-3"><BookOpen className="w-5 h-5" /> Enrolled Courses</div>
-                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${tab === 'courses' ? 'glass-card/20 text-white' : 'bg-slate-200 text-slate-700'}`}>{totalEnrollments}</span>
+                     <div className="flex items-center gap-3"><BookOpen className="w-4 h-4" /> Enrolled</div>
+                     <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${tab === 'courses' ? 'bg-[#0f172a]/20 text-[#0f172a]' : 'bg-white/10 text-white'}`}>{totalEnrollments}</span>
                    </button>
                    <button 
                      onClick={() => setTab(learner._id, 'activity')}
-                     className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-semibold transition-all ${tab === 'activity' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20' : 'text-slate-600 hover:glass-card hover:shadow-sm'}`}
+                     className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${tab === 'activity' ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_20px_rgba(255,215,0,0.3)]' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/10'}`}
                    >
-                     <Activity className="w-5 h-5" /> Activity Log
+                     <Activity className="w-4 h-4" /> Activity Log
                    </button>
                 </div>
               </div>
 
               {/* Main Content Area */}
-              <div className="flex-1 p-8 xl:p-10 min-w-0 glass-card relative">
+              <div className="flex-1 p-8 xl:p-10 min-w-0 bg-transparent relative">
                  <AnimatePresence mode="wait">
                     
                     {/* TAB: OVERVIEW */}
                     {tab === 'overview' && (
                       <motion.div key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="space-y-8 h-full flex flex-col">
                         <div>
-                          <h3 className="text-2xl font-bold text-slate-800 mb-1">Academic Overview</h3>
-                          <p className="text-slate-500 font-medium">Quick glance at current trajectory and totals.</p>
+                          <h3 className="text-2xl font-display font-black text-white mb-2">Academic Overview</h3>
+                          <p className="text-slate-400 font-medium text-sm">Quick glance at current trajectory and totals.</p>
                         </div>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div className="bg-gradient-to-br from-indigo-50 to-blue-50/30 border border-indigo-100 rounded-3xl p-6 relative overflow-hidden group hover:shadow-md transition-shadow">
-                                <div className="absolute -right-6 -top-6 text-indigo-100 group-hover:text-indigo-200 transition-colors">
-                                   <BookOpen className="w-32 h-32 transform -rotate-12" />
+                            <div className="bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-[#FFD700]/20 rounded-3xl p-8 relative overflow-hidden group hover:border-[#FFD700]/50 transition-colors shadow-xl">
+                                <div className="absolute -right-6 -top-6 text-[#FFD700]/10 group-hover:text-[#FFD700]/20 transition-colors duration-500">
+                                   <BookOpen className="w-36 h-36 transform -rotate-12 group-hover:scale-110 transition-transform" />
                                 </div>
-                                <p className="text-indigo-600 font-bold uppercase tracking-widest text-xs mb-2 relative z-10">Total Enrolled</p>
+                                <p className="text-[#FFD700] font-black uppercase tracking-widest text-[10px] mb-3 relative z-10 bg-[#FFD700]/10 inline-block px-3 py-1 rounded-md border border-[#FFD700]/20">Total Enrolled</p>
                                 <div className="flex items-baseline gap-2 relative z-10">
-                                   <span className="text-5xl font-extrabold text-slate-900">{totalEnrollments}</span>
-                                   <span className="text-slate-500 font-medium">courses</span>
+                                   <span className="text-6xl font-display font-black text-white drop-shadow-md">{totalEnrollments}</span>
+                                   <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">courses</span>
                                 </div>
                             </div>
-                            <div className="bg-gradient-to-br from-emerald-50 to-teal-50/30 border border-emerald-100 rounded-3xl p-6 relative overflow-hidden group hover:shadow-md transition-shadow">
-                                <div className="absolute -right-6 -top-6 text-emerald-100 group-hover:text-emerald-200 transition-colors">
-                                   <Award className="w-32 h-32 transform -rotate-12" />
+                            <div className="bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-[#008A32]/20 rounded-3xl p-8 relative overflow-hidden group hover:border-[#008A32]/50 transition-colors shadow-xl">
+                                <div className="absolute -right-6 -top-6 text-[#008A32]/10 group-hover:text-[#008A32]/20 transition-colors duration-500">
+                                   <Award className="w-36 h-36 transform -rotate-12 group-hover:scale-110 transition-transform" />
                                 </div>
-                                <p className="text-emerald-600 font-bold uppercase tracking-widest text-xs mb-2 relative z-10">Certifications</p>
+                                <p className="text-[#008A32] font-black uppercase tracking-widest text-[10px] mb-3 relative z-10 bg-[#008A32]/10 inline-block px-3 py-1 rounded-md border border-[#008A32]/20">Certifications</p>
                                 <div className="flex items-baseline gap-2 relative z-10">
-                                   <span className="text-5xl font-extrabold text-slate-900">{completedCourses}</span>
-                                   <span className="text-slate-500 font-medium">completed</span>
+                                   <span className="text-6xl font-display font-black text-white drop-shadow-md">{completedCourses}</span>
+                                   <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">completed</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex-1 bg-transparent rounded-3xl border border-slate-100 p-8 flex flex-col justify-center items-center text-center relative overflow-hidden">
-                           <CalendarDays className="w-12 h-12 text-slate-300 mb-4" />
-                           <h4 className="font-bold text-slate-700 text-lg mb-2">Detailed Analytics Locked</h4>
-                           <p className="text-slate-500 max-w-sm">Deeper timeline analytics and predictive grading are available in the expanded premium parent tier coming soon.</p>
+                        <div className="flex-1 bg-white/5 rounded-3xl border border-white/10 p-8 flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                           <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                           <CalendarDays className="w-12 h-12 text-slate-500 mb-4 group-hover:scale-110 transition-transform" />
+                           <h4 className="font-bold text-white text-lg mb-2">Detailed Analytics Locked</h4>
+                           <p className="text-slate-400 max-w-sm text-sm">Deeper timeline analytics and predictive grading are available in the expanded premium parent tier coming soon.</p>
                         </div>
                       </motion.div>
                     )}
@@ -254,8 +255,8 @@ export default function ParentLearners() {
                     {/* TAB: COURSES */}
                     {tab === 'courses' && (
                       <motion.div key="courses" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="space-y-6">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-2xl font-bold text-slate-800">Enrolled Courses</h3>
+                        <div className="flex justify-between items-center mb-6">
+                          <h3 className="text-2xl font-display font-black text-white">Enrolled Courses</h3>
                         </div>
                         
                         {learner.enrolledCourses?.length > 0 ? (
@@ -264,47 +265,48 @@ export default function ParentLearners() {
                               <motion.div 
                                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
                                 key={idx} 
-                                className="group glass-card p-5 rounded-3xl border border-slate-100 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300"
+                                className="group bg-[#11151F] border border-white/10 p-6 rounded-3xl hover:border-[#FFD700]/30 hover:shadow-[0_10px_30px_rgba(255,215,0,0.05)] transition-all duration-300 relative overflow-hidden"
                               >
-                                <div className="flex items-start gap-4 mb-5">
-                                  <div className="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden shrink-0 shadow-sm relative group-hover:ring-2 ring-indigo-500 ring-offset-2 transition-all">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-full pointer-events-none group-hover:bg-[#FFD700]/10 transition-colors"></div>
+                                <div className="flex items-start gap-5 mb-6 relative z-10">
+                                  <div className="w-16 h-16 rounded-2xl bg-black overflow-hidden shrink-0 shadow-lg relative group-hover:ring-2 ring-[#FFD700] ring-offset-2 ring-offset-[#11151F] transition-all">
                                     <img 
                                       src={`http://localhost:5000${enrollment.course?.thumbnail || '/default.jpg'}`} 
                                       alt={enrollment.course?.title}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/150'; }}
+                                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                                      onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=150&q=80'; }}
                                     />
                                     {enrollment.passedFinalExam && (
-                                       <div className="absolute inset-0 bg-emerald-500/20 backdrop-blur-[1px] flex items-center justify-center">
-                                          <CheckCircle className="w-6 h-6 text-emerald-500 glass-card rounded-full" />
+                                       <div className="absolute inset-0 bg-[#008A32]/50 backdrop-blur-sm flex items-center justify-center">
+                                          <CheckCircle className="w-6 h-6 text-white" />
                                        </div>
                                     )}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-slate-800 text-lg leading-tight mb-1 truncate group-hover:text-indigo-600 transition-colors">
+                                    <h4 className="font-bold text-white text-lg leading-tight mb-2 truncate group-hover:text-[#FFD700] transition-colors">
                                       {enrollment.course?.title || 'Unknown Course'}
                                     </h4>
-                                    <p className="text-sm font-medium text-slate-500 flex items-center gap-1.5 line-clamp-1">
-                                       <span className="w-2 h-2 rounded-full bg-slate-300"></span> {enrollment.course?.category || 'General'}
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#FFD700] flex items-center gap-2 line-clamp-1 bg-[#FFD700]/10 border border-[#FFD700]/20 px-2 py-1 rounded-md w-fit">
+                                       {enrollment.course?.category || 'General'}
                                     </p>
                                   </div>
                                 </div>
 
-                                <div>
-                                  <div className="flex justify-between items-end mb-2">
-                                     <span className={`text-xs font-bold uppercase tracking-wider ${enrollment.progress === 100 ? 'text-emerald-600' : 'text-slate-500'}`}>
-                                       {enrollment.progress === 100 ? 'Certified' : 'Progress'}
+                                <div className="relative z-10">
+                                  <div className="flex justify-between items-end mb-3">
+                                     <span className={`text-[10px] font-black uppercase tracking-widest ${enrollment.progress === 100 ? 'text-[#008A32]' : 'text-slate-400'}`}>
+                                       {enrollment.progress === 100 ? 'Certified' : 'Progress Status'}
                                      </span>
-                                     <span className="text-2xl font-extrabold text-slate-800 tabular-nums tracking-tight">
-                                        {enrollment.progress || 0}<span className="text-sm text-slate-400 font-semibold">%</span>
+                                     <span className="text-2xl font-display font-black text-white tabular-nums tracking-tight">
+                                        {enrollment.progress || 0}<span className="text-sm text-slate-500 ml-1">%</span>
                                      </span>
                                   </div>
-                                  <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                                  <div className="h-1.5 w-full bg-black rounded-full overflow-hidden shadow-inner border border-white/5">
                                     <motion.div 
                                       initial={{ width: 0 }}
                                       animate={{ width: `${enrollment.progress || 0}%` }}
                                       transition={{ duration: 1, delay: 0.2 + (idx * 0.1), ease: "easeOut" }}
-                                      className={`h-full rounded-full ${enrollment.progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                                      className={`h-full rounded-full shadow-[0_0_10px_rgba(255,215,0,0.5)] ${enrollment.progress === 100 ? 'bg-gradient-to-r from-[#008A32] to-[#00b341]' : 'bg-gradient-to-r from-[#FFD700] to-[#EAB308]'}`}
                                     />
                                   </div>
                                 </div>
@@ -312,9 +314,9 @@ export default function ParentLearners() {
                             ))}
                           </div>
                         ) : (
-                          <div className="h-64 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-transparent/50">
-                             <BookOpen className="w-12 h-12 text-slate-300 mb-3" />
-                             <p className="text-slate-500 font-medium text-lg">No courses enrolled yet.</p>
+                          <div className="h-64 flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/20 bg-white/5">
+                             <BookOpen className="w-12 h-12 text-slate-500 mb-4" />
+                             <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No courses enrolled yet.</p>
                           </div>
                         )}
                       </motion.div>
@@ -323,38 +325,38 @@ export default function ParentLearners() {
                     {/* TAB: ACTIVITY */}
                     {tab === 'activity' && (
                       <motion.div key="activity" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="space-y-6">
-                        <div className="flex justify-between items-center mb-6">
-                          <h3 className="text-2xl font-bold text-slate-800">Recent Activity</h3>
+                        <div className="flex justify-between items-center mb-8">
+                          <h3 className="text-2xl font-display font-black text-white">Recent Activity</h3>
                         </div>
-                        <div className="relative pl-4 border-l-2 border-indigo-100 space-y-8 py-2">
+                        <div className="relative pl-6 border-l border-white/20 space-y-10 py-2">
                            {/* Mocking activity timeline based on enrollments and progress */}
                            {learner.enrolledCourses?.length > 0 ? learner.enrolledCourses.map((enrollment, idx) => (
                               <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} key={idx} className="relative">
-                                 <div className={`absolute -left-[25px] top-1 w-3 h-3 rounded-full ring-4 ring-white ${enrollment.progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`}></div>
-                                 <div className="glass-card p-5 rounded-2xl border border-slate-100 shadow-sm ml-4">
-                                    <div className="flex justify-between items-start mb-2">
-                                       <h4 className="font-bold text-slate-800">
+                                 <div className={`absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full ring-4 ring-[#11151F] ${enrollment.progress === 100 ? 'bg-[#008A32] shadow-[0_0_10px_rgba(0,138,50,0.6)]' : 'bg-[#FFD700] shadow-[0_0_10px_rgba(255,215,0,0.6)]'}`}></div>
+                                 <div className="bg-[#11151F] p-6 rounded-2xl border border-white/10 shadow-lg ml-6 hover:border-white/20 transition-colors">
+                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
+                                       <h4 className="font-bold text-white text-lg leading-tight">
                                          {enrollment.progress === 100 ? 'Completed a Course' : 'Started a Course'}
                                        </h4>
-                                       <span className="text-xs font-semibold text-slate-400 bg-transparent px-2 py-1 rounded-md">
+                                       <span className="text-[10px] font-black text-slate-400 bg-white/5 border border-white/10 px-2.5 py-1 rounded-md uppercase tracking-widest whitespace-nowrap">
                                           {new Date(enrollment.enrolledAt).toLocaleDateString()}
                                        </span>
                                     </div>
-                                    <p className="text-slate-600 text-sm">
-                                      {learner.name.split(' ')[0]} {enrollment.progress === 100 ? 'successfully finished and earned a certificate for' : 'began their journey in'} <strong className="text-indigo-600">{enrollment.course?.title}</strong>.
+                                    <p className="text-slate-400 text-sm leading-relaxed">
+                                      {learner.name.split(' ')[0]} {enrollment.progress === 100 ? 'successfully finished and earned a certificate for' : 'began their journey in'} <strong className="text-[#FFD700]">{enrollment.course?.title}</strong>.
                                     </p>
                                  </div>
                               </motion.div>
                            )) : (
-                              <p className="text-slate-500 italic ml-4">No recent activity found.</p>
+                              <p className="text-slate-500 italic ml-6 font-medium">No recent activity found.</p>
                            )}
                            
                            {/* Mock generic login activity */}
                            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="relative">
-                                 <div className="absolute -left-[25px] top-1 w-3 h-3 rounded-full bg-slate-300 ring-4 ring-white"></div>
-                                 <div className="bg-transparent p-4 rounded-xl border border-slate-100 ml-4 opacity-70 cursor-not-allowed">
-                                    <h4 className="font-bold text-slate-600 text-sm">Account Created</h4>
-                                    <p className="text-slate-500 text-xs mt-1">Learner profile was initialized.</p>
+                                 <div className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-600 ring-4 ring-[#11151F]"></div>
+                                 <div className="bg-white/5 p-5 rounded-2xl border border-white/5 ml-6 opacity-70">
+                                    <h4 className="font-bold text-slate-300 text-base mb-1">Account Created</h4>
+                                    <p className="text-slate-500 text-sm">Learner profile was initialized.</p>
                                  </div>
                            </motion.div>
                         </div>

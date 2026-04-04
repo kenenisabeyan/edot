@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
-import { BellRing, Pin, Plus, Send, AlertCircle } from 'lucide-react';
+import { BellRing, Pin, Plus, Send, AlertCircle, Radio, Clock, ShieldAlert, CheckCircle2, Globe2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CustomDropdown from '../components/CustomDropdown';
 
@@ -14,6 +14,7 @@ export default function NoticeView() {
   const [newNotice, setNewNotice] = useState({ title: '', content: '', audience: 'all' });
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   const fetchNotices = async () => {
     try {
@@ -41,9 +42,11 @@ export default function NoticeView() {
       await api.post('/notices', newNotice);
       setNewNotice({ title: '', content: '', audience: 'all' });
       setShowCreateForm(false);
+      setSuccessMsg('Signal broadcasted successfully.');
+      setTimeout(() => setSuccessMsg(''), 3000);
       await fetchNotices();
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Failed to create notice');
+      setErrorMsg(err.response?.data?.message || 'Failed to establish broadcast tunnel.');
     } finally {
       setSubmitting(false);
     }
@@ -54,136 +57,153 @@ export default function NoticeView() {
 
   if (loading && notices.length === 0) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="w-10 h-10 border-4 border-white/10 border-t-[#FFD700] rounded-full animate-spin"></div>
+      <div className="flex justify-center items-center h-[60vh]">
+        <div className="w-12 h-12 border-4 border-white/10 border-t-[#FFD700] rounded-full animate-spin shadow-[0_0_15px_rgba(255,215,0,0.5)]"></div>
       </div>
     );
   }
 
   return (
-    <div className="animate-in fade-in flex flex-col space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="animate-in fade-in flex flex-col space-y-8 max-w-6xl mx-auto pb-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-6 mt-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-white">Global Notices</h1>
-          <p className="text-slate-300 text-sm mt-1">Official announcements and platform-wide updates.</p>
+          <h1 className="text-3xl font-display font-black text-white tracking-widest uppercase flex items-center gap-3">
+             <Radio className="w-8 h-8 text-[#FFD700]" /> Global Notices
+          </h1>
+          <p className="text-slate-400 font-medium text-sm mt-2">Official announcements and platform-wide updates.</p>
         </div>
         
-        {canCreate && !showCreateForm && (
-          <button 
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#008A32] to-[#006622] hover:shadow-lg hover:shadow-[#008A32]/20 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm"
-          >
-            <Plus className="w-5 h-5" /> Let's Broadcast
-          </button>
-        )}
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          {successMsg && (
+            <span className="text-[#008A32] font-bold uppercase tracking-widest text-[10px] bg-[#008A32]/10 px-3 py-1.5 rounded-md border border-[#008A32]/20 animate-in slide-in-from-right-4 flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5"/> {successMsg}
+            </span>
+          )}
+          {canCreate && !showCreateForm && (
+            <button 
+              onClick={() => setShowCreateForm(true)}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-black uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_25px_rgba(255,215,0,0.4)] hover:-translate-y-0.5 transition-all outline-none focus:ring-2 focus:ring-[#FFD700]/50"
+            >
+              <Plus className="w-4 h-4" /> Create Notice
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Create Notice Form */}
       {showCreateForm && (
-        <div className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-[#008A32]"></div>
-          <div className="flex justify-between items-center mb-6">
-             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                 <BellRing className="w-5 h-5 text-[#E30A17]" /> Draft New Notice
+        <div className="bg-[#0B0E14]/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-6 md:p-8 relative overflow-hidden animate-in fade-in slide-in-from-top-4">
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-bl from-[#E30A17]/10 to-transparent rounded-full blur-[80px] pointer-events-none -z-10"></div>
+          
+          <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+             <h2 className="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
+                 <ShieldAlert className="w-5 h-5 text-[#E30A17]" /> Draft New Notice
              </h2>
-             <button onClick={() => setShowCreateForm(false)} className="text-slate-400 hover:text-white font-medium text-sm">Cancel</button>
+             <button onClick={() => setShowCreateForm(false)} className="text-slate-400 hover:text-white font-black uppercase tracking-widest text-[10px] bg-white/5 px-4 py-2 rounded-lg border border-white/10 transition-colors">Cancel</button>
           </div>
           
           {errorMsg && (
-             <div className="mb-4 bg-[#E30A17]/10 border border-[#E30A17]/20 text-[#E30A17] p-3 rounded-xl flex items-center gap-2 text-sm font-semibold">
-                <AlertCircle className="w-5 h-5" /> {errorMsg}
+             <div className="mb-6 px-4 py-3 bg-[#E30A17]/10 text-[#E30A17] rounded-xl text-xs font-bold uppercase tracking-widest border border-[#E30A17]/20 flex items-center gap-2 shadow-sm animate-in fade-in">
+                <AlertCircle className="w-4 h-4" /> {errorMsg}
              </div>
           )}
 
-          <form onSubmit={handleCreateNotice} className="space-y-5 flex flex-col">
+          <form onSubmit={handleCreateNotice} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 space-y-1">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Announcement Title</label>
-                    <input 
-                      type="text" 
-                      required
-                      placeholder="e.g. End of Semester Examinations"
-                      value={newNotice.title}
-                      onChange={(e) => setNewNotice({ ...newNotice, title: e.target.value })}
-                      className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] transition-all font-semibold placeholder-slate-500"
-                    />
+                <div className="md:col-span-2 space-y-2">
+                    <label className="text-[10px] font-black text-[#FFD700] uppercase tracking-widest">Announcement Title</label>
+                    <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 bg-[#11151F] shadow-inner transition-all">
+                      <input 
+                        type="text" 
+                        required
+                        placeholder="e.g. End of Semester Examinations Update"
+                        value={newNotice.title}
+                        onChange={(e) => setNewNotice({ ...newNotice, title: e.target.value })}
+                        className="w-full px-4 py-3.5 bg-transparent text-white font-medium text-sm outline-none placeholder:text-slate-600"
+                      />
+                    </div>
                 </div>
-                <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Audience</label>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black text-[#FFD700] uppercase tracking-widest">Target Audience</label>
                     <CustomDropdown
                       value={newNotice.audience}
                       onChange={(val) => setNewNotice({ ...newNotice, audience: val })}
                       options={[
-                        { label: 'Entire Platform (All Users)', value: 'all' },
+                        { label: 'Global (All Nodes)', value: 'all' },
                         { label: 'Students Only', value: 'student' },
                         { label: 'Instructors Only', value: 'instructor' },
-                        { label: 'Administrators Only', value: 'admin' }
+                        { label: 'Alpha Clearance (Admins)', value: 'admin' }
                       ]}
-                      placeholder="Target Audience"
-                      className="w-full"
+                      className="w-full [&>button]:py-3.5 [&>button]:bg-[#11151F] [&>button]:border-white/10 [&>button]:text-white [&>button]:font-medium"
                     />
                 </div>
             </div>
 
-            <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message Content</label>
+            <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#FFD700] uppercase tracking-widest">Message Content</label>
                 <textarea 
                   required
                   placeholder="Type your official announcement here..."
-                  rows={4}
+                  rows={5}
                   value={newNotice.content}
                   onChange={(e) => setNewNotice({ ...newNotice, content: e.target.value })}
-                  className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#FFD700] transition-all resize-none font-medium placeholder-slate-500"
+                  className="w-full p-4 bg-[#11151F] border border-white/10 text-white rounded-xl outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium resize-none placeholder:text-slate-600 shadow-inner transition-all text-sm"
                 ></textarea>
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end pt-4 border-t border-white/10">
                 <button 
                   type="submit" 
                   disabled={submitting}
-                  className="bg-[#008A32] hover:bg-[#006622] text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all w-full sm:w-auto disabled:opacity-70"
+                  className="flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-[#E30A17] to-red-800 text-white font-black uppercase tracking-widest text-[11px] rounded-xl hover:shadow-[0_0_20px_rgba(227,10,23,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-50 min-w-[200px]"
                 >
-                  {submitting ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><Send className="w-4 h-4" /> Publish Notice</>}
+                  {submitting ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Send className="w-4 h-4" />}
+                  {submitting ? 'Publishing...' : 'Publish Notice'}
                 </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Feed */}
+      {/* Feed Architecture */}
       {notices.length === 0 && !showCreateForm ? (
-        <div className="p-12 text-center rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm flex flex-col items-center justify-center">
-           <div className="w-20 h-20 bg-white/5 text-slate-400 rounded-full flex items-center justify-center mb-4 border border-white/10">
-             <BellRing className="w-8 h-8" />
+        <div className="p-16 text-center rounded-3xl border border-white/10 bg-[#0B0E14]/80 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center relative overflow-hidden">
+           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-repeat opacity-[0.03] pointer-events-none"></div>
+           <div className="w-24 h-24 bg-[#11151F] text-[#FFD700]/30 rounded-full flex items-center justify-center mb-6 border border-white/5 shadow-inner">
+             <BellRing className="w-10 h-10" />
            </div>
-           <h3 className="text-xl font-bold text-white mb-2">You're caught up!</h3>
-           <p className="text-slate-400 max-w-sm mb-6">There are no official announcements at this time.</p>
+           <h3 className="text-xl font-bold text-white mb-2 tracking-wide">You're caught up!</h3>
+           <p className="text-slate-400 max-w-sm mb-6 text-sm font-medium">There are no official announcements at this time.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-6">
           {notices.map((notice) => (
-            <div key={notice._id} className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm overflow-hidden p-6 hover:shadow-md hover:border-[#FFD700]/30 transition-all relative group">
-                <div className="flex gap-4 items-start relative z-10">
-                  <div className="w-12 h-12 bg-[#FFD700]/10 text-[#FFD700] rounded-2xl flex items-center justify-center shrink-0">
-                    <Pin className="w-6 h-6 transform group-hover:-rotate-12 transition-transform" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
-                      <h3 className="font-bold text-lg text-white truncate pr-4">{notice.title}</h3>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className={`text-[10px] uppercase tracking-wide font-bold px-2 py-1 rounded-lg ${
-                            notice.audience === 'all' ? 'bg-[#FFD700]/10 text-[#FFD700]' :
-                            notice.audience === 'student' ? 'bg-[#008A32]/10 text-[#008A32]' :
-                            notice.audience === 'instructor' ? 'bg-blue-500/20 text-blue-400' :
-                            'bg-[#E30A17]/10 text-[#E30A17]'
-                        }`}>
-                          {notice.audience === 'all' ? 'Global' : notice.audience}
-                        </span>
-                        <span className="text-xs font-semibold text-slate-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
-                          {new Date(notice.date).toLocaleDateString()}
-                        </span>
-                      </div>
+            <div key={notice._id} className="rounded-3xl border border-white/10 bg-[#0B0E14]/80 backdrop-blur-xl shadow-2xl overflow-hidden p-6 md:p-8 hover:shadow-[0_0_30px_rgba(255,215,0,0.1)] hover:border-[#FFD700]/30 transition-all duration-300 relative group flex flex-col md:flex-row gap-6">
+                
+                <div className="absolute top-0 left-0 w-1 h-full bg-[#FFD700] opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div className="w-14 h-14 bg-[#11151F] border border-white/10 text-[#FFD700] rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+                  <Pin className="w-6 h-6 transform group-hover:rotate-12 transition-transform" />
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-3">
+                    <h3 className="font-bold text-lg md:text-xl text-white tracking-wide pr-4 group-hover:text-[#FFD700] transition-colors">{notice.title}</h3>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className={`text-[9px] uppercase tracking-widest font-black px-3 py-1.5 rounded-lg border shadow-sm ${
+                          notice.audience === 'all' ? 'bg-[#FFD700]/10 border-[#FFD700]/20 text-[#FFD700]' :
+                          notice.audience === 'student' ? 'bg-[#008A32]/10 border-[#008A32]/20 text-[#008A32]' :
+                          notice.audience === 'instructor' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+                          'bg-[#E30A17]/10 border-[#E30A17]/20 text-[#E30A17]'
+                      }`}>
+                        {notice.audience === 'all' ? 'Global Alpha' : notice.audience}
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-[#11151F] px-3 py-1.5 rounded-lg border border-white/5 flex items-center gap-1.5 shadow-inner">
+                        <Clock className="w-3 h-3" /> {new Date(notice.date || notice.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
+                  </div>
+                  <div className="p-4 bg-[#11151F] border border-white/5 rounded-xl shadow-inner mt-2">
                     <p className="text-slate-300 whitespace-pre-wrap leading-relaxed text-sm font-medium">{notice.content}</p>
                   </div>
                 </div>

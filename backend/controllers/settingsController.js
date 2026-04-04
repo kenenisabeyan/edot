@@ -18,9 +18,10 @@ const updateSettings = async (req, res) => {
   try {
     const role = req.user.role; // 'student', 'parent', 'instructor', 'admin'
     const settingsData = req.body[role];
+    const commonData = req.body.common;
 
-    if (!settingsData) {
-      return res.status(400).json({ success: false, message: 'No valid setting payload provided for role: ' + role });
+    if (!settingsData && !commonData) {
+      return res.status(400).json({ success: false, message: 'No valid setting payload provided.' });
     }
 
     let settings = await UserSetting.findOne({ user: req.user._id });
@@ -28,10 +29,15 @@ const updateSettings = async (req, res) => {
       settings = new UserSetting({ user: req.user._id });
     }
 
-    // Isolate updating exactly and only by role context
-    // Example: If a student updates settings, req.body.student is applied to settings.student
-    // Anything else provided is ignored.
-    settings[role] = { ...settings[role]?._doc || settings[role], ...settingsData };
+    // Role specific
+    if (settingsData) {
+      settings[role] = { ...settings[role]?._doc || settings[role], ...settingsData };
+    }
+    
+    // Common properties
+    if (commonData) {
+      settings.common = { ...settings.common?._doc || settings.common, ...commonData };
+    }
     
     await settings.save();
     res.status(200).json({ success: true, data: settings });

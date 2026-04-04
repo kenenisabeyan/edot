@@ -7,6 +7,12 @@ const userSettingSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  common: {
+    timezone: { type: String, default: '(GMT+03:00) East Africa Time' },
+    notifySystem: { type: Boolean, default: true },
+    notifyMessages: { type: Boolean, default: true },
+    notifyDigest: { type: Boolean, default: false }
+  },
   student: {
     shareMilestones: { type: Boolean, default: true },
     shareGrades: { type: Boolean, default: true },
@@ -20,10 +26,11 @@ const userSettingSchema = new mongoose.Schema({
   instructor: {
     consultationHours: { type: String, default: 'Mon-Wed 3PM-5PM' },
     courseVisibility: { type: String, enum: ['public', 'enrolled_only'], default: 'public' },
-    autoTags: { type: Boolean, default: true }
+    autoTags: { type: Boolean, default: true },
+    autoGrade: { type: Boolean, default: false }
   },
   admin: {
-    primaryColor: { type: String, default: '#4f46e5' },
+    primaryColor: { type: String, default: '#0B0E14' },
     feePercentage: { type: Number, default: 10 },
     autoInterventionTriggers: { type: Boolean, default: true },
     apiKey: { type: String, default: '' }

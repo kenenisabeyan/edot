@@ -20,59 +20,69 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-transparent py-16 lg:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[calc(100vh-80px)] bg-[#0B0E14] text-white py-20 lg:py-28 relative overflow-hidden font-sans">
+      
+      {/* Background Decor */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFD700]/5 rounded-full blur-[150px] pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#008A32]/5 rounded-full blur-[150px] pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        <div className="text-center mb-16 max-w-2xl mx-auto">
-          <h1 className="text-4xl font-display font-bold text-slate-900 mb-4 inline-block relative after:content-[''] after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-blue-600 after:to-blue-400 after:rounded-full">
-            Connect with EDOT
+        <div className="text-center mb-20 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#FFD700]">Get In Touch</span>
+          </div>
+          <h1 className="text-5xl sm:text-6xl font-display font-black text-white mb-6 tracking-tight drop-shadow-md">
+            Connect with <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#EAB308]">EDOT</span>
           </h1>
-          <p className="text-lg text-slate-600 mt-8">
+          <p className="text-lg text-slate-400 font-medium leading-relaxed">
             Whether you're a student, instructor, or partner, EDOT is here to support your learning journey. 
-            Reach out to us for guidance, collaboration, or technical support — our team is ready to assist you.
+            Reach out to our elite team for guidance, collaboration, or technical support.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           
           {/* Contact Information Cards */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="glass-card p-8 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="bg-[#11151F] p-8 rounded-3xl border border-white/10 shadow-2xl flex items-start gap-5 hover:border-[#FFD700]/30 hover:shadow-[0_0_30px_rgba(255,215,0,0.1)] transition-all group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFD700]/5 rounded-bl-[100px] pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+              <div className="w-14 h-14 rounded-2xl bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                 <Mail className="w-6 h-6" />
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Email Support</h3>
-                <p className="text-slate-600">support@edot.com</p>
-                <p className="text-slate-500 text-sm mt-1">
+              <div className="relative z-10">
+                <h3 className="text-lg font-bold text-white mb-1 drop-shadow-sm">Email Support</h3>
+                <p className="text-[#FFD700] font-bold text-sm tracking-wide">support@edot.com</p>
+                <p className="text-slate-400 text-xs mt-3 leading-relaxed font-medium">
                   Get help with courses, accounts, or platform issues within 24 hours.
                 </p>
               </div>
             </div>
 
-            <div className="glass-card p-8 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <div className="bg-[#11151F] p-8 rounded-3xl border border-white/10 shadow-2xl flex items-start gap-5 hover:border-[#008A32]/30 hover:shadow-[0_0_30px_rgba(0,138,50,0.1)] transition-all group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#008A32]/5 rounded-bl-[100px] pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+              <div className="w-14 h-14 rounded-2xl bg-[#008A32]/10 border border-[#008A32]/20 text-[#008A32] flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                 <Phone className="w-6 h-6" />
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Call Assistance</h3>
-                <p className="text-slate-600">+251 900 000 000</p>
-                <p className="text-slate-500 text-sm mt-1">
+              <div className="relative z-10">
+                <h3 className="text-lg font-bold text-white mb-1 drop-shadow-sm">Call Assistance</h3>
+                <p className="text-[#008A32] font-bold text-sm tracking-wide">+251 900 000 000</p>
+                <p className="text-slate-400 text-xs mt-3 leading-relaxed font-medium">
                   Available Monday to Friday to support your learning experience.
                 </p>
               </div>
             </div>
 
-            <div className="glass-card p-8 rounded-2xl shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <div className="bg-[#11151F] p-8 rounded-3xl border border-white/10 shadow-2xl flex items-start gap-5 hover:border-cyan-400/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.1)] transition-all group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-400/5 rounded-bl-[100px] pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+              <div className="w-14 h-14 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                 <MapPin className="w-6 h-6" />
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Our Location</h3>
-                <p className="text-slate-600">
+              <div className="relative z-10">
+                <h3 className="text-lg font-bold text-white mb-3 drop-shadow-sm">Our Command Center</h3>
+                <p className="text-slate-300 text-sm leading-relaxed font-medium">
                   Adama Science and Technology Area<br/>
-                  Oromia Region<br/>
-                  Ethiopia
+                  Oromia Region, Ethiopia
                 </p>
               </div>
             </div>
@@ -80,79 +90,81 @@ export default function Contact() {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="glass-card p-8 md:p-10 rounded-2xl shadow-sm border border-slate-100 h-full">
+            <div className="bg-[#0B0E14]/80 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] shadow-2xl border border-white/10 h-full relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50 pointer-events-none"></div>
+
               {submitted ? (
-                <div className="flex flex-col items-center justify-center h-full text-center py-12 animate-in zoom-in duration-500">
-                  <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6">
-                    <CheckCircle2 className="w-10 h-10 text-green-500" />
+                <div className="flex flex-col items-center justify-center h-full text-center py-16 animate-in zoom-in slide-in-from-bottom-8 duration-700 relative z-10">
+                  <div className="w-24 h-24 bg-[#008A32]/10 border border-[#008A32]/30 rounded-full flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(0,138,50,0.3)]">
+                    <CheckCircle2 className="w-12 h-12 text-[#008A32]" />
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Successfully Sent</h3>
-                  <p className="text-slate-600 max-w-sm mx-auto">
-                    Your message has been received by the EDOT team. We’ll review it and respond shortly to support your learning needs.
+                  <h3 className="text-3xl font-display font-black text-white mb-4 drop-shadow-md">Transmission Received</h3>
+                  <p className="text-slate-400 max-w-sm mx-auto font-medium leading-relaxed">
+                    Your message has successfully reached the EDOT secure servers. Our team will review your inquiry and respond shortly.
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-[#FFD700] mb-2 px-1">Full Name</label>
                       <input 
                         type="text" 
                         value={formData.name} 
                         onChange={e => setFormData({...formData, name: e.target.value})} 
                         required 
-                        placeholder="Enter your full name"
-                        className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow" 
+                        placeholder="John Doe"
+                        className="w-full px-5 py-4 bg-[#11151F] rounded-xl border border-white/10 text-white placeholder-slate-500 font-bold focus:outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-[#FFD700] transition-all shadow-inner" 
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-[#FFD700] mb-2 px-1">Email Address</label>
                       <input 
                         type="email" 
                         value={formData.email} 
                         onChange={e => setFormData({...formData, email: e.target.value})} 
                         required 
-                        placeholder="Enter your email"
-                        className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow" 
+                        placeholder="john@example.com"
+                        className="w-full px-5 py-4 bg-[#11151F] rounded-xl border border-white/10 text-white placeholder-slate-500 font-bold focus:outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-[#FFD700] transition-all shadow-inner" 
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Subject</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-[#FFD700] mb-2 px-1">Subject</label>
                     <input 
                       type="text" 
                       value={formData.subject} 
                       onChange={e => setFormData({...formData, subject: e.target.value})} 
                       required 
-                      placeholder="What would you like to discuss?"
-                      className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow" 
+                      placeholder="Transmission Subject"
+                      className="w-full px-5 py-4 bg-[#11151F] rounded-xl border border-white/10 text-white placeholder-slate-500 font-bold focus:outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-[#FFD700] transition-all shadow-inner" 
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Message</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-[#FFD700] mb-2 px-1">Message Body</label>
                     <textarea 
-                      rows="6" 
+                      rows="5" 
                       value={formData.message} 
                       onChange={e => setFormData({...formData, message: e.target.value})} 
                       required 
-                      placeholder="Write your message, question, or feedback here..."
-                      className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow resize-y"
+                      placeholder="Write your detailed message here..."
+                      className="w-full px-5 py-4 bg-[#11151F] rounded-xl border border-white/10 text-white placeholder-slate-500 font-medium focus:outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-[#FFD700] transition-all shadow-inner resize-y custom-scrollbar"
                     ></textarea>
                   </div>
                   
                   <button 
                     type="submit" 
                     disabled={loadingSubmit}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 w-full md:w-auto bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 hover:-translate-y-0.5 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                    className="mt-4 w-full bg-gradient-to-r from-[#FFD700] to-[#EAB308] text-[#0f172a] font-black uppercase tracking-widest text-sm px-8 py-4 rounded-xl hover:scale-[1.02] transition-transform shadow-[0_0_30px_rgba(255,215,0,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
                   >
                     {loadingSubmit ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-[#0f172a]/30 border-t-[#0f172a] rounded-full animate-spin"></div>
                     ) : (
                       <Send className="w-5 h-5" />
                     )}
-                    {loadingSubmit ? 'Sending your message...' : 'Send Message to EDOT'}
+                    {loadingSubmit ? 'Transmitting...' : 'Send Transmission'}
                   </button>
                 </form>
               )}

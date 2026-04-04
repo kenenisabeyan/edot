@@ -33,7 +33,7 @@ export default function InstructorClasses() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h2 className="text-2xl font-display font-black text-white uppercase tracking-widest">My Classes</h2>
-        <Link to="/instructor/builder" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-black uppercase tracking-widest text-[11px] rounded-xl hover:-translate-y-0.5 transition-transform shadow-[0_0_20px_rgba(255,215,0,0.3)]">
+        <Link to="/dashboard/builder" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-black uppercase tracking-widest text-[11px] rounded-xl hover:-translate-y-0.5 transition-transform shadow-[0_0_20px_rgba(255,215,0,0.3)]">
           <PlusCircle className="w-4 h-4" /> Create New Course
         </Link>
       </div>
@@ -45,7 +45,7 @@ export default function InstructorClasses() {
             </div>
             <h3 className="text-xl font-bold text-white mb-2">No classes yet</h3>
             <p className="text-slate-400 max-w-sm mb-6">Create your first course to start teaching.</p>
-            <Link to="/instructor/builder" className="px-8 py-3.5 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-black uppercase tracking-widest text-xs rounded-xl hover:-translate-y-0.5 transition-transform shadow-[0_0_20px_rgba(255,215,0,0.3)]">
+            <Link to="/dashboard/builder" className="px-8 py-3.5 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-black uppercase tracking-widest text-xs rounded-xl hover:-translate-y-0.5 transition-transform shadow-[0_0_20px_rgba(255,215,0,0.3)]">
               Create Course
             </Link>
           </div>
@@ -81,8 +81,8 @@ export default function InstructorClasses() {
                 
                 <div className="w-full md:w-auto md:pl-6 md:border-l md:border-white/10 shrink-0 pt-4 md:pt-0 relative z-10">
                   <Link 
-                    to={`/instructor/builder/${course._id}`} 
-                    className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 bg-white/5 text-white font-bold uppercase tracking-widest text-[10px] rounded-xl border border-white/10 hover:bg-[#FFD700] hover:text-[#0B0E14] hover:border-[#FFD700] transition-colors shadow-sm"
+                    to={`/dashboard/builder/${course._id}`} 
+                    className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 bg-white/5 text-[#FFD700] font-black uppercase tracking-widest text-[10px] rounded-xl border border-white/10 hover:bg-[#FFD700] hover:text-[#0B0E14] hover:border-[#FFD700] transition-colors shadow-sm drop-shadow-md"
                   >
                     Edit Course
                   </Link>

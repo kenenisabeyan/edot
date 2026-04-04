@@ -17,20 +17,20 @@ export default function Navbar() {
   };
 
   const navLinkClass = ({ isActive }) => 
-    `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+    `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-widest transition-all ${
       isActive 
-        ? 'text-blue-600 bg-blue-50' 
-        : 'text-slate-600 hover:text-blue-600 hover:bg-transparent'
+        ? 'text-[#FFD700] bg-[#FFD700]/10 border border-[#FFD700]/20 shadow-[0_0_10px_rgba(255,215,0,0.1)]' 
+        : 'text-slate-300 hover:text-white hover:bg-white/5 border border-transparent'
     }`;
 
   return (
-    <nav className="glass-card border-b border-slate-200 sticky top-0 z-50">
+    <nav className="bg-[#0B0E14]/90 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
-            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-              <img src={edotLogo} alt="EDOT Logo" className="h-8 w-auto" />
-              <span className="font-display font-bold text-xl tracking-tight text-slate-900">EDOT</span>
+            <Link to="/" className="flex-shrink-0 flex items-center gap-3">
+              <img src={edotLogo} alt="EDOT Logo" className="h-8 w-auto rounded-md shadow-[0_0_10px_rgba(255,215,0,0.2)]" />
+              <span className="font-display font-black text-xl tracking-widest text-white uppercase drop-shadow-md">EDOT</span>
             </Link>
           </div>
 
@@ -59,25 +59,25 @@ export default function Navbar() {
           <div className="hidden md:flex md:items-center md:space-x-4">
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-slate-700">Hi, {user?.name}</span>
+                <span className="text-sm font-bold text-[#FFD700] uppercase tracking-widest">Hi, {user?.name}</span>
                 <button 
                   onClick={handleLogout} 
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-slate-700 glass-card hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-md shadow-sm text-sm font-bold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors uppercase tracking-widest"
                 >
-                  <LogOut className="w-4 h-4 text-slate-500" /> Logout
+                  <LogOut className="w-4 h-4" /> Logout
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-3">
                 <Link 
                   to="/login" 
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-white/10 text-sm font-bold rounded-md text-white bg-white/5 hover:bg-white/10 transition-colors uppercase tracking-widest"
                 >
                   <LogIn className="w-4 h-4" /> Login
                 </Link>
                 <Link 
                   to="/register" 
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-sm hover:shadow"
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-black rounded-md text-[#0f172a] bg-gradient-to-r from-[#FFD700] to-[#EAB308] hover:scale-105 transition-transform shadow-[0_0_15px_rgba(255,215,0,0.3)] uppercase tracking-widest"
                 >
                   <UserPlus className="w-4 h-4" /> Sign Up
                 </Link>
@@ -88,9 +88,9 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
             <button
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-              aria-expanded={mobileMenuOpen}
+               onClick={toggleMenu}
+               className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#FFD700]"
+               aria-expanded={mobileMenuOpen}
             >
               <span className="sr-only">Open main menu</span>
               {mobileMenuOpen ? (
@@ -105,8 +105,8 @@ export default function Navbar() {
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 glass-card">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="md:hidden border-t border-white/10 bg-[#11151F]">
+          <div className="px-2 pt-2 pb-3 space-y-2 sm:px-3">
             <NavLink to="/" className={navLinkClass} onClick={toggleMenu} end>Home</NavLink>
             <NavLink to="/courses" className={navLinkClass} onClick={toggleMenu}><BookOpen className="w-4 h-4" /> Courses</NavLink>
             {isAuthenticated && (
@@ -116,25 +116,25 @@ export default function Navbar() {
             <NavLink to="/contact" className={navLinkClass} onClick={toggleMenu}><Mail className="w-4 h-4" /> Contact</NavLink>
           </div>
           
-          <div className="pt-4 pb-3 border-t border-slate-200">
+          <div className="pt-4 pb-3 border-t border-white/10 bg-[#0B0E14]">
             {isAuthenticated ? (
               <div className="px-4 space-y-3">
                 <div className="flex items-center px-2">
                   <div className="flex-shrink-0">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
+                    <div className="h-10 w-10 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/20 flex items-center justify-center text-[#FFD700] font-black text-lg shadow-[0_0_10px_rgba(255,215,0,0.2)]">
                       {user?.name?.charAt(0).toUpperCase()}
                     </div>
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium text-slate-800">{user?.name}</div>
-                    <div className="text-sm font-medium text-slate-500 capitalize">{user?.role}</div>
+                    <div className="text-base font-bold text-white tracking-wide">{user?.name}</div>
+                    <div className="text-xs font-black text-[#008A32] uppercase tracking-widest">{user?.role}</div>
                   </div>
                 </div>
                 <button
                   onClick={() => { handleLogout(); toggleMenu(); }}
-                  className="mt-3 flex w-full items-center gap-2 px-4 py-2 border border-transparent text-base font-medium rounded-md text-slate-700 bg-slate-100 hover:bg-slate-200"
+                  className="mt-3 flex w-full items-center gap-2 px-4 py-2.5 border border-transparent text-sm font-bold uppercase tracking-widest rounded-md text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 transition-colors"
                 >
-                  <LogOut className="w-5 h-5 text-slate-500" /> Logout
+                  <LogOut className="w-4 h-4" /> Logout
                 </button>
               </div>
             ) : (
@@ -142,16 +142,16 @@ export default function Navbar() {
                 <Link
                   to="/login"
                   onClick={toggleMenu}
-                  className="flex w-full items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md shadow-sm text-base font-medium text-slate-700 glass-card hover:bg-transparent"
+                  className="flex w-full items-center justify-center gap-2 px-4 py-2.5 border border-white/10 rounded-md shadow-sm text-sm font-bold uppercase tracking-widest text-white bg-white/5 hover:bg-white/10"
                 >
-                  <LogIn className="w-5 h-5 text-slate-400" /> Login
+                  <LogIn className="w-4 h-4" /> Login
                 </Link>
                 <Link
                   to="/register"
                   onClick={toggleMenu}
-                  className="flex w-full items-center justify-center gap-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
+                  className="flex w-full items-center justify-center gap-2 px-4 py-2.5 border border-transparent rounded-md shadow-[0_0_15px_rgba(255,215,0,0.3)] text-sm font-black uppercase tracking-widest text-[#0f172a] bg-gradient-to-r from-[#FFD700] to-[#EAB308]"
                 >
-                  <UserPlus className="w-5 h-5" /> Sign Up
+                  <UserPlus className="w-4 h-4" /> Sign Up
                 </Link>
               </div>
             )}
