@@ -8,6 +8,9 @@ import {
   Award, Shield, Star, Play, Clock, Globe, Code, LineChart, Flame, PlayCircle, Percent, Compass
 } from 'lucide-react';
 import CTA from '../components/CTA';
+import feature1Img from '../assets/features-1.png';
+import feature2Img from '../assets/features-2.png';
+import feature3Img from '../assets/features-3.png';
 
 // Image Placeholders to make the UI look rich in dark mode
 const ImagePlaceholder = ({ text, className = "h-64", icon: Icon = BookOpen }) => (
@@ -451,48 +454,70 @@ export default function Home() {
            </div>
         </section>
 
-        {/* 5. FEATURES / PLATFORM TOOLS */}
-        <section className="py-32 border-t border-white/5 bg-[#0B0E14] relative z-20">
+        {/* 5. ZIG ZAG FEATURES SECTION */}
+        <section className="py-32 border-t border-white/5 bg-[#0B0E14] relative z-20 overflow-hidden">
            <div className="max-w-7xl mx-auto px-6">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                
-                <div className="order-2 lg:order-1 relative">
-                  <div className="grid grid-cols-2 gap-4">
-                     <div className="space-y-4 pt-10">
-                        <ImagePlaceholder text="Dashboard Interface" icon={LayoutDashboard} className="h-64 rounded-[2rem]" />
-                        <ImagePlaceholder text="Parent Portal" icon={Users} className="h-48 rounded-[2rem]" />
-                     </div>
-                     <div className="space-y-4">
-                        <ImagePlaceholder text="Live Video Class" icon={Video} className="h-48 rounded-[2rem]" />
-                        <ImagePlaceholder text="Progress Analytics" icon={Target} className="h-64 rounded-[2rem]" />
-                     </div>
-                  </div>
-                </div>
+              
+              <div className="text-center mb-28 animate-in slide-in-from-bottom-5 duration-700">
+                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
+                   Finally, a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#008A32]">smarter and easier</span> way to learn
+                 </h2>
+                 <p className="text-lg md:text-xl text-slate-400 font-medium max-w-3xl mx-auto leading-relaxed">
+                   Say goodbye to confusing platforms and scattered resources — EDOT brings everything together into one simple, structured learning experience for everyone.
+                 </p>
+              </div>
 
-                <div className="order-1 lg:order-2 space-y-12">
-                   <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Smart tools. <br/><span className="text-[#008A32]">Simpler learning.</span></h2>
-                   
-                   <div className="space-y-10">
-                      {[
-                        { icon: <LayoutDashboard />, title: "Interactive Dashboards", desc: "Clean, dark-mode focused views. Navigate assignments, modules, and schedules effortlessly." },
-                        { icon: <Video />, title: "Live + Recorded Classes", desc: "Join real-time interactive streams or catch up later with full HD playback and materials." },
-                        { icon: <Target />, title: "Progress Tracking", desc: "Algorithmic data-driven analytics that show exactly where you excel and what needs more focus." },
-                        { icon: <Users />, title: "Parent Involvement", desc: "A connected portal ensuring parents can monitor attendance, grades, and engagement securely." }
-                      ].map((feat, i) => (
-                        <div key={i} className="flex gap-6 items-start group">
-                          <div className="w-14 h-14 rounded-2xl bg-[#11151F] border border-white/10 flex items-center justify-center text-[#FFD700] shrink-0 group-hover:scale-110 group-hover:bg-[#FFD700]/10 group-hover:border-[#FFD700]/30 transition-all">
-                            {feat.icon}
-                          </div>
-                          <div>
-                            <h4 className="text-2xl font-black text-white mb-2">{feat.title}</h4>
-                            <p className="text-slate-400 font-medium leading-[1.8] text-sm md:text-base">{feat.desc}</p>
-                          </div>
-                        </div>
-                      ))}
+              <div className="space-y-32">
+                 {/* Row 1 */}
+                 <div className="flex flex-col lg:flex-row items-center gap-16 group">
+                   <div className="w-full lg:w-1/2 space-y-6">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#008A32]/10 text-[#008A32] font-black text-[10px] uppercase tracking-widest border border-[#008A32]/20">01. Click & Learn</div>
+                      <h3 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">Start your journey with <br/> just a few clicks</h3>
+                      <p className="text-lg text-slate-400 leading-relaxed font-medium">Say goodbye to confusing platforms and scattered resources — EDOT brings everything together into one simple, structured learning experience for everyone.</p>
                    </div>
-                </div>
+                   <div className="w-full lg:w-1/2 relative">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-[#008A32]/20 to-transparent rounded-[3rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                      <div className="relative bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl overflow-hidden hover:-translate-y-2 transition-transform duration-500">
+                         <img src={feature1Img} alt="Start your journey" className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700 drop-shadow-2xl rounded-[1.5rem]" />
+                      </div>
+                   </div>
+                 </div>
 
-             </div>
+                 {/* Row 2 */}
+                 <div className="flex flex-col lg:flex-row-reverse items-center gap-16 group">
+                   <div className="w-full lg:w-1/2 space-y-6 lg:pl-10">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFD700]/10 text-[#FFD700] font-black text-[10px] uppercase tracking-widest border border-[#FFD700]/20">02. Paced Growth</div>
+                      <h3 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">Learn step by step — <br/> at your own pace</h3>
+                      <p className="text-lg text-slate-400 leading-relaxed font-medium">No more guessing what to study next. Our courses are clearly organized to guide you from basic subjects to advanced skills. Learn anywhere, anytime — whether you're a school student or a university learner, EDOT adapts to your level and goals.</p>
+                   </div>
+                   <div className="w-full lg:w-1/2 relative">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-[#FFD700]/10 to-transparent rounded-[3rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                      <div className="relative bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl overflow-hidden hover:-translate-y-2 transition-transform duration-500">
+                         <img src={feature2Img} alt="Learn step by step" className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700 drop-shadow-2xl rounded-[1.5rem]" />
+                      </div>
+                   </div>
+                 </div>
+
+                 {/* Row 3 */}
+                 <div className="flex flex-col lg:flex-row items-center gap-16 group">
+                   <div className="w-full lg:w-1/2 space-y-6">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 text-orange-400 font-black text-[10px] uppercase tracking-widest border border-orange-500/20">03. Achieve Opportunities</div>
+                      <h3 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">Turn learning into <br/> real success</h3>
+                      <p className="text-lg text-slate-400 leading-relaxed font-medium">Gain practical skills in technology, business, and personal development — and prepare yourself for real-world opportunities.</p>
+                      
+                      <div className="pt-4 border-t border-white/10 mt-6">
+                         <p className="text-[#FFD700] font-black text-xl tracking-tight">Your future starts with one decision.</p>
+                      </div>
+                   </div>
+                   <div className="w-full lg:w-1/2 relative">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 to-transparent rounded-[3rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                      <div className="relative bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl overflow-hidden hover:-translate-y-2 transition-transform duration-500">
+                         <img src={feature3Img} alt="Turn learning into success" className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700 drop-shadow-2xl rounded-[1.5rem]" />
+                      </div>
+                   </div>
+                 </div>
+
+              </div>
            </div>
         </section>
 

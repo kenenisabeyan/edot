@@ -6,6 +6,20 @@ import kenoImg from '../assets/keno.jpg';
 import firoImg from '../assets/firo.jpg';
 import bettyImg from '../assets/betty.jpg';
 import yobsanImg from '../assets/yobsan.jpg';
+import mahiImg from '../assets/mahi.jpg';
+import joImg from '../assets/jo.jpg';
+import hayleImg from '../assets/hayle.jpg';
+import chalaImg from '../assets/chala.jpg';
+
+import presentationImg from '../assets/presantetion.jpg';
+import edotCertificateImg from '../assets/edot-taken-certificates.jpg';
+import edotCareImg from '../assets/edot-cere.jpg';
+import edotLogoImg from '../assets/edot-logo.jpg';
+import mintImg from '../assets/mint.jpg';
+import koicaImg from '../assets/koica-logo.jpg';
+import astuImg from '../assets/astu.jpg';
+import innobizImg from '../assets/innobiz-K.jpg';
+import ostImg from '../assets/ost.jpg';
 
 const ImagePlaceholder = ({ text, className = "h-64", icon: Icon = Award }) => (
   <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/10 flex flex-col items-center justify-center text-slate-500 relative overflow-hidden group ${className}`}>
@@ -94,39 +108,73 @@ export default function About() {
 
         {/* 4. OUR TEAM */}
         <section className="py-32 max-w-7xl mx-auto px-6 relative z-20 border-t border-white/5">
-           <div className="text-center mb-16">
-             <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mx-auto mb-6">
-                <span className="text-[10px] font-black text-white tracking-[0.2em] uppercase">The Architects</span>
+           <div className="text-center mb-20 relative">
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#008A32]/20 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+             <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mx-auto mb-6 hover:bg-white/10 hover:scale-105 transition-all duration-300 shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+                <span className="text-[10px] font-black text-white tracking-[0.2em] uppercase">The Visionaries</span>
              </div>
-             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Executive Board</h2>
+             <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight uppercase drop-shadow-2xl">
+               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] via-[#00c94a] to-[#FFD700] hover:from-[#FFD700] hover:to-[#008A32] transition-colors duration-700 cursor-default">Synergy</span> Dynamics
+             </h2>
+             <p className="mt-8 text-slate-400 font-medium text-lg max-w-2xl mx-auto">The elite multidisciplinary architects pushing the boundaries of what is possible in the educational matrix.</p>
            </div>
            
            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
              {[
-               { name: 'Kenenisa Beyan', role: 'Chief Executive Officer', desc: 'Platform architect and strategic visionary expanding global relations.', image: kenoImg },
-               { name: 'Firomsa Guteta', role: 'Lead Developer', desc: 'Core systems orchestration, database engineering, and deployment.', image: firoImg },
-               { name: 'Bethelhem Yehuala', role: 'Academic Director', desc: 'Strict curriculum curation, instructor vetting, and compliance.', image: bettyImg },
-               { name: 'Yobsan Girma', role: 'Financial Controller', desc: 'Enterprise scaling, infrastructure finance, and strategic growth.', image: yobsanImg }
+               { name: 'Kenenisa Beyan', role: 'Chief Executive Officer', desc: 'Platform architect and strategic visionary expanding global relations. Mastering the art of the possible.', image: kenoImg, color: 'from-[#008A32]' },
+               { name: 'Mahlet Zena', role: 'Chief Operations Officer', desc: 'Orchestrating global operations and ensuring seamless platform scaling and flawless execution.', image: mahiImg, color: 'from-[#FFD700]' },
+               { name: 'Firomsa Guteta', role: 'Chief Technology Officer', desc: 'Engineering the core architectural infrastructure and maintaining zero-trust data protocols.', image: firoImg, color: 'from-[#e84118]' },
+               { name: 'Yobsan Girma', role: 'Chief Financial Officer', desc: 'Strategizing enterprise growth, securing venture dynamics, and driving massive market expansion.', image: yobsanImg, color: 'from-[#8c7ae6]' },
+               { name: 'Yohannes Belete', role: 'VP of Engineering', desc: 'Leading agile development pipelines, scaling server-less ecosystems, and optimizing edge logic.', image: joImg, color: 'from-[#00a8ff]' },
+               { name: 'Haylemelekot Bantealem', role: 'Lead Product Innovator', desc: 'Architecting ultra-modern UI/UX paradigms and immersive human-centric dynamic accessibility features.', image: hayleImg, color: 'from-[#e1b12c]' },
+               { name: 'Betelhem Yehuala', role: 'Chief Academic Officer', desc: 'Curating elite standard curriculums and establishing partnerships with global academic institutions.', image: bettyImg, color: 'from-[#44bd32]' },
+               { name: 'Chala Temesgen', role: 'Growth & Marketing Director', desc: 'Spearheading global user acquisition and defining the forward-facing brand identity of the ecosystem.', image: chalaImg, color: 'from-[#9c88ff]' }
              ].map((member, i) => (
-               <div key={i} className="bg-[#11151F]/40 border border-white/10 rounded-[2rem] overflow-hidden text-center group transition-all duration-300 hover:border-white/30 hover:-translate-y-2 hover:bg-[#11151F]">
-                 <div className="h-64 relative overflow-hidden border-b border-white/5">
-                    {member.image ? (
-                        <img src={member.image} alt={member.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    ) : (
-                        <ImagePlaceholder text={`Photo: ${member.name}`} icon={Users} className="h-full w-full rounded-none border-0" />
-                    )}
+               <div key={i} className={`group relative bg-[#11151F]/60 backdrop-blur-sm border border-white/10 rounded-[2.5rem] overflow-hidden text-center transition-all duration-500 hover:border-white/30 hover:-translate-y-4 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-10 w-full animate-fade-in-up`} style={{ animationDelay: `${i * 100}ms` }}>
+                 {/* Animated Gradient Border Overlay */}
+                 <div className={`absolute inset-0 bg-gradient-to-br ${member.color} to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-500 z-0`}></div>
+                 
+                 <div className="h-72 relative overflow-hidden border-b border-white/5 z-10 p-2">
+                    <div className="w-full h-full rounded-[2rem] overflow-hidden relative">
+                        {/* Overlay Gradient on Image */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#11151F] via-[#11151F]/40 to-transparent z-10 opacity-80 group-hover:opacity-40 transition-opacity duration-500"></div>
+                        {member.image ? (
+                            <img src={member.image} alt={member.name} className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110 group-hover:rotate-1 filter grayscale-[40%] group-hover:grayscale-0" />
+                        ) : (
+                            <ImagePlaceholder text={`Photo: ${member.name}`} icon={Users} className="h-full w-full border-0" />
+                        )}
+                        
+                        {/* Hover Role Badge */}
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 translate-y-10 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 w-max max-w-[90%]">
+                            <div className="bg-black/80 backdrop-blur-md text-white px-5 py-2.5 font-black text-[10px] uppercase tracking-widest rounded-xl border border-white/20 shadow-[0_10px_20px_rgba(0,0,0,0.4)] whitespace-nowrap">
+                                {member.role}
+                            </div>
+                        </div>
+                    </div>
                  </div>
-                 <div className="p-8">
-                   <h4 className="font-black text-xl text-white mb-2 tracking-tight">{member.name}</h4>
-                   <div className="bg-[#008A32]/10 text-[#008A32] px-4 py-1.5 font-black text-[10px] uppercase tracking-widest rounded-md inline-block mb-4 border border-[#008A32]/20">
-                     {member.role}
+                 
+                 <div className="p-8 relative z-10 overflow-hidden">
+                   {/* Background glowing orb for card text area */}
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full group-hover:bg-white/10 transition-colors duration-500 pointer-events-none"></div>
+
+                   <h4 className="font-black text-2xl text-white mb-1 tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-400 transition-all duration-300">{member.name}</h4>
+                   
+                   <p className="text-slate-400 font-medium text-sm leading-relaxed mt-5 group-hover:text-slate-300 transition-colors duration-300 line-clamp-3">
+                     {member.desc}
+                   </p>
+                   
+                   {/* Decorative Elements */}
+                   <div className="mt-8 flex justify-center gap-2 opacity-30 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100">
+                       <span className="w-2 h-2 rounded-full bg-[#008A32] shadow-[0_0_10px_rgba(0,138,50,0.8)]"></span>
+                       <span className="w-2 h-2 rounded-full bg-[#FFD700] shadow-[0_0_10px_rgba(255,215,0,0.8)]"></span>
+                       <span className="w-2 h-2 rounded-full bg-white/40"></span>
                    </div>
-                   <p className="text-slate-400 font-medium text-sm leading-relaxed">{member.desc}</p>
                  </div>
                </div>
              ))}
            </div>
         </section>
+
 
         {/* 4.5 EDOT PLATFORM BIO */}
         <section className="py-24 px-6 max-w-5xl mx-auto relative z-20">
@@ -150,27 +198,35 @@ export default function About() {
            </div>
         </section>
 
-        {/* 5. ACHIEVEMENTS & RECOGNITION (Gallery) */}
+        {/* 5. STRATEGIC PARTNERSHIPS & ACHIEVEMENTS */}
         <section className="py-24 bg-[#11151F]/60 border-y border-white/5 relative z-20">
            <div className="max-w-7xl mx-auto px-6">
              <div className="text-center mb-16">
-               <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">Institutional Achievements</h2>
-               <p className="text-slate-400 font-medium mt-4">Officially audited and validated by global industry standards.</p>
+               <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mx-auto mb-6">
+                  <span className="text-[10px] font-black text-white tracking-[0.2em] uppercase">Alliances</span>
+               </div>
+               <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Strategic Partnerships <br className="hidden md:block"/><span className="text-[#008A32]">& Institutional Achievements</span></h2>
+               <p className="text-slate-400 font-medium mt-6 text-lg">Officially recognized, audited, and partnered with critically respected global and state institutions.</p>
              </div>
              
-             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                  "ISO Security Compliance",
-                  "Top E-Learning Startup 2026",
-                  "Global Academic Council Cert",
-                  "Data Privacy Guarantee",
-                  "Enterprise Partner Program",
-                  "Best UI/UX Infrastructure",
-                  "Platform Scalability Award",
-                  "Verified Instructional Standard"
-                ].map((cert, i) => (
-                  <div key={i} className="group cursor-pointer">
-                     <ImagePlaceholder text={cert} icon={Award} className="h-40 rounded-[1.5rem] border border-white/5 group-hover:border-[#FFD700]/40 group-hover:shadow-[0_0_20px_rgba(255,215,0,0.1)] transition-all" />
+                  { src: presentationImg, title: "Official Presentation", desc: "Delivering structural blueprints to regional stakeholders.", customFit: 'object-cover' },
+                  { src: mintImg, title: "MiNT", desc: "Ministry of Innovation & Technology", customFit: 'object-contain bg-white/90 p-4' },
+                  { src: koicaImg, title: "KOICA", desc: "Korea International Cooperation Agency", customFit: 'object-contain bg-white/90 p-4' },
+                  { src: edotCertificateImg, title: "EDOT Recognition", desc: "Awards for pioneering academic technology.", customFit: 'object-cover' },
+                  { src: astuImg, title: "ASTU", desc: "Adama Science and Technology University", customFit: 'object-contain bg-white/90 p-4' },
+                  { src: innobizImg, title: "Innobiz-K", desc: "Innobiz-K Ethiopia", customFit: 'object-contain bg-white/90 p-4' },
+                  { src: edotCareImg, title: "Ecosystem Care", desc: "Fostering local tech talent and education.", customFit: 'object-cover' },
+                  { src: ostImg, title: "OSTA", desc: "Oromia Science and Technology Authority", customFit: 'object-contain bg-white/90 p-4' }
+                ].map((item, i) => (
+                  <div key={i} className="bg-[#0B0E14] border border-white/10 rounded-[1.5rem] overflow-hidden group hover:border-[#FFD700]/40 transition-all duration-500 h-48 relative flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_30px_rgba(255,215,0,0.1)] hover:-translate-y-1">
+                      <img src={item.src} alt={item.title} className={`absolute inset-0 w-full h-full ${item.customFit} opacity-60 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105 bg-white/5`} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E14] via-[#0B0E14]/70 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="absolute inset-x-0 bottom-0 p-5 z-10 translate-y-4 group-hover:translate-y-0 transition-transform duration-500 text-left">
+                         <h4 className="text-white font-black text-lg leading-tight group-hover:text-[#FFD700] transition-colors drop-shadow-md">{item.title}</h4>
+                         <p className="text-slate-300 text-[10px] font-bold uppercase tracking-wide mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">{item.desc}</p>
+                      </div>
                   </div>
                 ))}
              </div>

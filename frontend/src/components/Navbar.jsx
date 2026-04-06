@@ -6,6 +6,7 @@ import {
   Bell, BookOpen, Shield, Zap, Globe, Code, UserCheck, 
   GraduationCap, ArrowRight
 } from 'lucide-react';
+import edotLogo from '../assets/edot-logo.jpg';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -80,11 +81,11 @@ export default function Navbar() {
         
         {/* LEFT: Logo */}
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-3 text-white hover:text-[#FFD700] transition-colors group">
-            <div className="w-10 h-10 bg-[#008A32]/10 border border-[#008A32]/30 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform shadow-[0_0_15px_rgba(0,138,50,0.1)]">
-               <GraduationCap className="w-6 h-6 text-[#008A32]" />
+          <Link to="/" className="flex items-center gap-3 transition-transform hover:scale-105 group">
+            <div className="w-12 h-12 bg-white/5 border border-white/20 rounded-full overflow-hidden shadow-[0_0_20px_rgba(0,138,50,0.3)]">
+               <img src={edotLogo} alt="EDOT" className="w-full h-full object-cover shadow-inner" />
             </div>
-            <span className="text-2xl font-black tracking-widest uppercase">EDOT</span>
+            <span className="text-2xl font-black tracking-widest uppercase text-white group-hover:text-[#FFD700] transition-colors">EDOT</span>
           </Link>
         </div>
         
