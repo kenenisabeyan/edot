@@ -6,6 +6,33 @@ const Message = require('../models/Message');
 const Course = require('../models/Course');
 const Certificate = require('../models/Certificate');
 
+// @route   GET /api/users/public/recent
+// @desc    Get recent users for public display
+// @access  Public
+router.get('/public/recent', async (req, res) => {
+    try {
+        const users = await User.find({ status: 'approved' })
+            .sort({ createdAt: -1 })
+            .limit(3)
+            .select('name avatar');
+        
+        // Also get total count approximately for the UI badge
+        const totalCount = await User.countDocuments({ status: 'approved' });
+
+        res.json({
+            success: true,
+            users,
+            totalCount
+        });
+    } catch (error) {
+        console.error('Get recent public users error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+
 // @route   GET /api/users/profile
 // @desc    Get user profile
 // @access  Private

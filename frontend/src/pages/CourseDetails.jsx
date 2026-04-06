@@ -79,10 +79,10 @@ export default function CourseDetails() {
 
   if (error || !course) {
     return (
-      <div className="min-h-[calc(100vh-80px)] flex justify-center items-center p-4 bg-gray-50 text-center">
-        <div className="bg-white p-10 border-2 border-dashed border-gray-300 rounded-sm">
-           <ShieldCheck className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-           <p className="font-bold text-[#111111] uppercase tracking-widest">{error || 'Data Not Found'}</p>
+      <div className="min-h-[calc(100vh-80px)] flex justify-center items-center p-4 bg-transparent text-center">
+        <div className="bg-[#11151F]/60 backdrop-blur-xl p-10 border border-white/10 rounded-2xl shadow-xl">
+           <ShieldCheck className="w-16 h-16 mx-auto mb-4 text-[#FFC107]" />
+           <p className="font-black text-white uppercase tracking-widest">{error || 'Data Not Found'}</p>
         </div>
       </div>
     );
@@ -92,10 +92,11 @@ export default function CourseDetails() {
   const totalDuration = course.lessons?.length ? course.lessons.length * 15 : 0;
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-gray-50 text-gray-800 font-sans pb-20">
+    <div style={{ backgroundColor: 'var(--bg-base, #0B0E14)' }} className="min-h-[calc(100vh-80px)] w-full font-sans pb-20 text-slate-100 relative transition-colors duration-300">
+      <div className="fixed inset-0 pointer-events-none z-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(0,138,50,0.30), transparent 35%), radial-gradient(circle at 80% 15%, rgba(255,215,0,0.20), transparent 40%), radial-gradient(circle at 50% 75%, rgba(227,10,23,0.10), transparent 45%), linear-gradient(180deg, rgba(11,14,20,1), rgba(11,14,20,0.95), rgba(11,14,20,1))', backgroundBlendMode: 'screen, screen, screen, normal' }} />
       
       {/* Dynamic Hero Banner */}
-      <div className="bg-[#111111] text-white pt-16 pb-24 border-b-[6px] border-[#FFC107]">
+      <div className="bg-[#11151F]/60 backdrop-blur-2xl text-white pt-16 pb-24 border-b border-white/10 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <Link to="/courses" className="inline-flex items-center gap-2 text-sm font-bold text-[#FFC107] hover:text-white transition-colors mb-8 uppercase tracking-widest">
@@ -146,13 +147,13 @@ export default function CourseDetails() {
            <div className="w-full lg:w-2/3">
               
               {/* Desktop Navigation Tabs */}
-              <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-2 flex overflow-x-auto scrollbar-hide mb-8">
+              <div className="bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-2xl p-2 flex overflow-x-auto scrollbar-hide mb-8 shadow-sm">
                  {['overview', 'curriculum', 'instructor'].map(tab => (
                     <button 
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`flex-1 py-3 px-6 font-bold uppercase tracking-widest text-sm transition-all rounded-sm whitespace-nowrap ${
-                        activeTab === tab ? 'bg-[#111111] text-[#FFC107]' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+                      className={`flex-1 py-3 px-6 font-black uppercase tracking-widest text-[10px] transition-all rounded-xl whitespace-nowrap ${
+                        activeTab === tab ? 'bg-[#FFD700] text-[#0B0E14] shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'text-slate-400 hover:bg-white/5 hover:text-white'
                       }`}
                     >
                       {tab}
@@ -163,16 +164,17 @@ export default function CourseDetails() {
               {/* Tab: Overview */}
               {activeTab === 'overview' && (
                 <div className="space-y-8 animate-in fade-in duration-300">
-                  <div className="bg-white p-8 rounded-sm shadow-sm border border-gray-200">
-                     <h2 className="text-2xl font-black text-[#111111] uppercase tracking-widest mb-6 border-b-4 border-[#FFC107] inline-block pb-1">Program Details</h2>
-                     <div className="prose max-w-none text-gray-700 text-base leading-loose whitespace-pre-wrap font-medium">
+                  <div className="bg-[#11151F]/60 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-sm">
+                     <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-6 flex items-center gap-3"><FileText className="w-6 h-6 text-[#008A32]"/> Program Details</h2>
+                     <div className="prose max-w-none text-slate-300 text-sm md:text-base leading-relaxed whitespace-pre-wrap font-medium">
                        {course.description}
                      </div>
                   </div>
 
-                  <div className="bg-[#111111] text-white p-8 rounded-sm shadow-sm border-l-8 border-[#FFC107]">
-                     <h3 className="text-xl font-black uppercase tracking-widest flex items-center gap-3 mb-6">
-                       <CheckCircle className="w-6 h-6 text-[#FFC107]" /> What You'll Learn
+                  <div className="bg-[#11151F]/80 backdrop-blur-xl text-white p-8 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden">
+                     <div className="absolute top-[-50px] right-[-50px] w-32 h-32 bg-[#FFD700]/10 rounded-full blur-[40px] pointer-events-none"></div>
+                     <h3 className="text-xl font-black uppercase tracking-widest flex items-center gap-3 mb-6 relative z-10">
+                       <CheckCircle className="w-6 h-6 text-[#FFD700]" /> What You'll Learn
                      </h3>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {[
@@ -193,10 +195,10 @@ export default function CourseDetails() {
 
               {/* Tab: Curriculum */}
               {activeTab === 'curriculum' && (
-                <div className="bg-white p-8 rounded-sm shadow-sm border border-gray-200 animate-in fade-in duration-300">
+                <div className="bg-[#11151F]/60 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-xl animate-in fade-in duration-300">
                   <div className="flex items-center justify-between mb-8">
-                     <h2 className="text-2xl font-black text-[#111111] uppercase tracking-widest border-b-4 border-[#FFC107] inline-block pb-1">Syllabus</h2>
-                     <div className="text-sm font-bold bg-gray-100 px-3 py-1 rounded text-gray-600 border border-gray-200">
+                     <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3"><BookOpen className="w-6 h-6 text-[#FFD700]"/> Syllabus</h2>
+                     <div className="text-[10px] font-black uppercase tracking-widest bg-white/10 px-3 py-1.5 rounded-lg text-white border border-white/20">
                        {course.lessons?.length || 0} Modules
                      </div>
                   </div>
@@ -204,9 +206,9 @@ export default function CourseDetails() {
                   <div className="space-y-3">
                     {course.lessons && course.lessons.length > 0 ? (
                       course.lessons.map((lesson, idx) => (
-                        <div key={lesson._id} className="group border-2 border-gray-100 hover:border-[#111111] rounded-sm p-5 transition-all flex items-center justify-between cursor-default bg-gray-50 hover:bg-white text-[#111111]">
+                        <div key={lesson._id} className="group border border-white/10 hover:border-[#FFD700]/50 rounded-xl p-5 transition-all flex items-center justify-between cursor-default bg-[#0B0E14]/50 hover:bg-[#11151F] text-white hover:shadow-[0_0_20px_rgba(255,215,0,0.05)]">
                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-full bg-[#111111] text-[#FFC107] flex items-center justify-center font-black shrink-0 relative overflow-hidden transition-colors">
+                              <div className="w-10 h-10 rounded-xl bg-white/5 text-[#FFD700] flex items-center justify-center font-black shrink-0 relative overflow-hidden transition-colors border border-white/10 group-hover:bg-[#FFD700] group-hover:text-[#0B0E14]">
                                  {idx + 1}
                               </div>
                               <div>
@@ -232,14 +234,14 @@ export default function CourseDetails() {
 
               {/* Tab: Instructor */}
               {activeTab === 'instructor' && (
-                <div className="bg-white p-8 rounded-sm shadow-sm border border-gray-200 animate-in fade-in duration-300 flex items-center gap-8">
-                   <div className="w-32 h-32 bg-gray-100 rounded-full overflow-hidden shrink-0 border-4 border-[#111111]">
-                     <img src="https://ui-avatars.com/api/?name=Instructor&background=FFC107&color=111111" alt="Instructor" className="w-full h-full object-cover" />
+                <div className="bg-[#11151F]/60 backdrop-blur-xl p-8 rounded-2xl shadow-xl border border-white/10 animate-in fade-in duration-300 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+                   <div className="w-32 h-32 bg-[#0B0E14] rounded-full overflow-hidden shrink-0 border-4 border-[#008A32]/50 shadow-[0_0_20px_rgba(0,138,50,0.2)]">
+                     <img src="https://ui-avatars.com/api/?name=Instructor&background=008A32&color=FFFFFF" alt="Instructor" className="w-full h-full object-cover" />
                    </div>
                    <div>
-                     <h2 className="text-2xl font-black text-[#111111] uppercase tracking-widest mb-1">{course.instructor?.name || 'EDOT Expert Personnel'}</h2>
-                     <p className="text-[#FFC107] font-bold text-sm uppercase tracking-widest mb-4 bg-[#111111] inline-block px-2 py-0.5 rounded-sm">Lead Authority</p>
-                     <p className="text-gray-600 font-medium leading-relaxed">
+                     <h2 className="text-2xl font-black text-white uppercase tracking-widest mb-1">{course.instructor?.name || 'EDOT Expert Personnel'}</h2>
+                     <p className="text-[#008A32] font-black text-[10px] uppercase tracking-widest mb-4 border border-[#008A32]/30 bg-[#008A32]/10 inline-block px-3 py-1 rounded-md">Lead Authority</p>
+                     <p className="text-slate-300 font-medium leading-relaxed max-w-lg mx-auto md:mx-0">
                         Instructor is a certified professional with extensive verifiable experience in building out large-scale technical systems and leading dynamic teams across the globe.
                      </p>
                    </div>
@@ -248,28 +250,29 @@ export default function CourseDetails() {
            </div>
 
            {/* Sticky Interaction Sidebar (Order Box) */}
-           <div className="w-full lg:w-1/3">
-              <div className="bg-white border-2 border-[#111111] p-6 lg:p-8 shadow-xl sticky top-24 rounded-sm">
+           <div className="w-full lg:w-1/3 mt-8 lg:mt-0">
+              <div className="bg-[#11151F]/80 backdrop-blur-xl border border-white/10 p-6 lg:p-8 shadow-2xl relative overflow-hidden rounded-3xl sticky top-24">
+                 <div className="absolute top-[-50px] right-[-50px] w-32 h-32 bg-[#008A32]/10 rounded-full blur-[40px] pointer-events-none"></div>
                  
-                 <div className="text-center mb-6 border-b-2 border-gray-100 pb-6">
-                    <h3 className="text-gray-500 font-bold uppercase tracking-widest text-xs mb-2">Program Value</h3>
-                    <div className="text-4xl font-black text-[#111111]">
+                 <div className="text-center mb-6 border-b border-white/10 pb-6 relative z-10">
+                    <h3 className="text-slate-400 font-black uppercase tracking-widest text-[10px] mb-2">Program Value</h3>
+                    <div className="text-4xl font-black text-[#FFD700]">
                       ETB {course.price || 'Free'}
                     </div>
                  </div>
 
-                 <div className="space-y-4 mb-8">
-                    <div className="flex justify-between items-center text-sm font-bold border-b border-gray-100 pb-3">
-                       <span className="text-gray-500 uppercase tracking-widest flex items-center gap-2"><Clock className="w-4 h-4 text-[#111111]"/> Duration</span>
-                       <span className="text-[#111111]">{totalDuration} Mins Runtime</span>
+                 <div className="space-y-4 mb-8 relative z-10">
+                    <div className="flex justify-between items-center text-[11px] font-black border-b border-white/5 pb-3">
+                       <span className="text-slate-400 uppercase tracking-widest flex items-center gap-2"><Clock className="w-4 h-4 text-[#008A32]"/> Duration</span>
+                       <span className="text-white">{totalDuration} Mins Runtime</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm font-bold border-b border-gray-100 pb-3">
-                       <span className="text-gray-500 uppercase tracking-widest flex items-center gap-2"><BookOpen className="w-4 h-4 text-[#111111]"/> Syllabus Length</span>
-                       <span className="text-[#111111]">{course.lessons?.length || 0} Modules</span>
+                    <div className="flex justify-between items-center text-[11px] font-black border-b border-white/5 pb-3">
+                       <span className="text-slate-400 uppercase tracking-widest flex items-center gap-2"><BookOpen className="w-4 h-4 text-[#008A32]"/> Syllabus Length</span>
+                       <span className="text-white">{course.lessons?.length || 0} Modules</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm font-bold border-b border-gray-100 pb-3">
-                       <span className="text-gray-500 uppercase tracking-widest flex items-center gap-2"><MapPin className="w-4 h-4 text-[#111111]"/> Location</span>
-                       <span className="text-[#111111]">Global Digital</span>
+                    <div className="flex justify-between items-center text-[11px] font-black border-b border-white/5 pb-3">
+                       <span className="text-slate-400 uppercase tracking-widest flex items-center gap-2"><MapPin className="w-4 h-4 text-[#008A32]"/> Location</span>
+                       <span className="text-white">Global Digital</span>
                     </div>
                  </div>
 
@@ -277,30 +280,30 @@ export default function CourseDetails() {
                  {enrollmentStatus === 'active' ? (
                    <Link 
                      to={`/lesson/${course.lessons[0]?._id}?courseId=${course._id}`}
-                     className="w-full block text-center bg-[#111111] text-[#FFC107] font-black uppercase tracking-widest py-4 rounded-sm hover:bg-[#222] transition-colors shadow-sm"
+                     className="w-full relative z-10 block text-center bg-white/5 border border-white/10 text-[#FFD700] hover:bg-[#FFD700] hover:text-[#0B0E14] font-black uppercase tracking-widest py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(255,215,0,0.1)] text-xs"
                    >
                      Access Material
                    </Link>
                  ) : enrollmentStatus === 'pending' ? (
-                   <div className="w-full text-center bg-[#FFC107] text-[#111111] font-black uppercase tracking-widest py-4 rounded-sm shadow-sm opacity-90 cursor-wait">
+                   <div className="w-full relative z-10 text-center bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]/50 font-black uppercase tracking-widest py-4 rounded-xl opacity-90 cursor-wait text-xs">
                      Authorizing...
                    </div>
                  ) : enrollmentStatus === 'rejected' ? (
-                   <div className="w-full text-center bg-red-100 text-red-600 font-black uppercase tracking-widest py-4 rounded-sm border-2 border-red-500 cursor-not-allowed">
+                   <div className="w-full relative z-10 text-center bg-rose-500/10 text-rose-500 border border-rose-500/30 font-black uppercase tracking-widest py-4 rounded-xl cursor-not-allowed text-xs">
                      Clearance Denied
                    </div>
                  ) : (
                    <button 
                      onClick={handleEnroll}
                      disabled={enrolling}
-                     className="w-full bg-[#FFC107] text-[#111111] font-black uppercase tracking-widest py-4 rounded-sm hover:bg-[#e0a800] transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                     className="w-full relative z-10 bg-gradient-to-r from-[#008A32] to-[#00A13B] text-white font-black uppercase tracking-widest py-4 rounded-xl hover:shadow-[0_0_20px_rgba(0,138,50,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:-translate-y-0.5 flex items-center justify-center gap-2 text-xs"
                    >
-                     {enrolling ? 'Processing...' : 'Secure Placement'} <ArrowRight className="w-5 h-5"/>
+                     {enrolling ? 'Processing...' : 'Secure Placement'} <ArrowRight className="w-4 h-4"/>
                    </button>
                  )}
 
-                 <div className="mt-4 text-center">
-                   <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Guaranteed Encrypted Processing</p>
+                 <div className="mt-6 text-center relative z-10">
+                   <p className="text-[9px] uppercase font-black text-slate-500 tracking-widest">Guaranteed Encrypted Processing</p>
                  </div>
               </div>
            </div>

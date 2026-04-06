@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { performanceService } from '../services/api';
+import api, { performanceService } from '../services/api';
 import SummaryCard from '../components/cards/SummaryCard';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 

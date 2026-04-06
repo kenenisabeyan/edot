@@ -1,286 +1,539 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
+import { getRecentPublicUsers } from '../utils/api';
 import { 
-  Play, Star, BookOpen, Users, Award, Shield, ArrowRight, Zap, Globe, 
-  CheckCircle, Video, LayoutDashboard, LineChart, Code, Clock
+  ArrowRight, BookOpen, GraduationCap, Sparkles, Database, Users, 
+  BrainCircuit, Rocket, CheckCircle, Video, LayoutDashboard, Target,
+  Award, Shield, Star, Play, Clock, Globe, Code, LineChart, Flame, PlayCircle, Percent, Compass
 } from 'lucide-react';
 import CTA from '../components/CTA';
 
-const ImagePlaceholder = ({ text, className = "h-64", icon: Icon = Award }) => (
-  <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/10 rounded-2xl flex flex-col items-center justify-center text-slate-500 relative overflow-hidden group ${className}`}>
-    <div className="absolute inset-0 bg-[#008A32]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-    {Icon && <Icon className="w-8 h-8 mb-3 opacity-50 group-hover:text-[#FFD700] transition-colors duration-500" />}
-    <span className="font-bold tracking-widest uppercase text-[10px] z-10 relative px-6 text-center group-hover:text-slate-300 transition-colors">[ Virtual Asset: {text} ]</span>
+// Image Placeholders to make the UI look rich in dark mode
+const ImagePlaceholder = ({ text, className = "h-64", icon: Icon = BookOpen }) => (
+  <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/10 flex flex-col items-center justify-center text-slate-500 relative overflow-hidden group ${className}`}>
+    <div className="absolute inset-0 bg-[#008A32]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    {Icon && <Icon className="w-8 h-8 mb-3 opacity-50 group-hover:text-[#FFD700] transition-colors duration-300" />}
+    <span className="font-black uppercase tracking-widest text-[10px] z-10 px-6 text-center group-hover:text-white transition-colors">[{text}]</span>
   </div>
 );
 
 export default function Home() {
-  const [featuredCourses, setFeaturedCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const [recentUsers, setRecentUsers] = useState([]);
+  const [totalUsers, setTotalUsers] = useState('10k+');
+
+  const getAvatarUrl = (avatarPath) => {
+    if (!avatarPath || avatarPath === 'default-avatar.png') return null;
+    if (avatarPath.startsWith('http')) return avatarPath;
+    return `http://localhost:5000${avatarPath.startsWith('/') ? '' : '/'}${avatarPath}`;
+  };
 
   useEffect(() => {
-    const fetchFeatured = async () => {
-      try {
-        const { data } = await api.get('/courses/public');
-        // Grab the first 3 courses as featured
-        if (data.courses && Array.isArray(data.courses)) {
-           setFeaturedCourses(data.courses.slice(0, 3));
+    const fetchUsers = async () => {
+      const data = await getRecentPublicUsers();
+      if (data && data.success) {
+        setRecentUsers(data.users || []);
+        if (data.totalCount > 10000) {
+           setTotalUsers('10k+');
+        } else if (data.totalCount > 0) {
+           setTotalUsers(data.totalCount + '+');
         }
-      } catch (error) {
-        console.error("Error fetching featured courses", error);
-      } finally {
-        setLoading(false);
       }
     };
-    fetchFeatured();
+    fetchUsers();
   }, []);
 
+  // Filter out the current user from recentUsers so we don't display them twice
+  const displayUsers = recentUsers.filter(u => u._id !== user?._id);
+
   return (
-    <div className="min-h-screen bg-[#0B0E14] font-sans overflow-x-hidden relative text-slate-300">
-      
-      {/* Background Mesh Gradient Glow */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] md:top-[-20%] left-[-10%] md:left-[-10%] w-[50vh] md:w-[60vw] h-[50vh] md:h-[60vh] rounded-full bg-[#008A32]/10 blur-[150px]"></div>
-        <div className="absolute bottom-[-10%] md:bottom-[-20%] right-[-10%] md:right-[-10%] w-[50vh] md:w-[60vw] h-[50vh] md:h-[60vh] rounded-full bg-[#FFD700]/10 blur-[150px]"></div>
-      </div>
+    <div style={{ backgroundColor: 'var(--bg-base, #0B0E14)' }} className="min-h-screen w-full font-sans overflow-x-hidden text-slate-100 relative transition-colors duration-300">
+      <div className="fixed inset-0 pointer-events-none z-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(0,138,50,0.30), transparent 35%), radial-gradient(circle at 80% 15%, rgba(255,215,0,0.20), transparent 40%), radial-gradient(circle at 50% 75%, rgba(227,10,23,0.10), transparent 45%), linear-gradient(180deg, rgba(11,14,20,1), rgba(11,14,20,0.95), rgba(11,14,20,1))', backgroundBlendMode: 'screen, screen, screen, normal' }} />
 
       <div className="relative z-10 pt-20">
 
         {/* 1. HERO SECTION */}
-        <section className="relative pt-24 pb-32 px-6">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            
-            <div className="space-y-8 relative z-10 pr-0 lg:pr-8">
-              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl shadow-xl">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFD700] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#FFD700]"></span>
-                </span>
-                <span className="text-[10px] font-black text-white tracking-[0.2em] uppercase">Enterprise-Grade E-Learning</span>
-              </div>
-              
-              <h1 className="text-5xl md:text-7xl lg:text-[5rem] font-sans font-black text-white leading-[1.05] tracking-tight drop-shadow-2xl">
-                Deploy Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">Full Potential.</span>
-              </h1>
-              
-              <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-xl drop-shadow-xl">
-                EDOT is an elite hybrid learning infrastructure bridging rigorous academic knowledge with high-performance technical execution for global learners and professionals.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
-                <Link to="/register" className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-gradient-to-r from-[#008A32] to-[#006e28] text-white font-black uppercase tracking-widest text-xs shadow-[0_0_30px_rgba(0,138,50,0.4)] hover:shadow-[0_0_40px_rgba(0,138,50,0.6)] hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
-                  Start Execution <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link to="/courses" className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-[#11151F]/80 backdrop-blur-xl border border-white/10 text-white font-black uppercase tracking-widest text-xs hover:bg-white/10 hover:border-white/30 transition-all flex items-center justify-center gap-3 group">
-                  <Play className="w-4 h-4 text-[#FFD700] group-hover:scale-110 transition-transform" /> Browse Modules
-                </Link>
-              </div>
+        <section className="relative pt-24 pb-28 md:pt-32 md:pb-36 px-6 overflow-hidden border-b border-white/5">
+           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+             <div className="space-y-8 pr-0 lg:pr-8">
+               <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 text-[#FFD700] font-black text-[10px] tracking-widest uppercase shadow-lg">
+                 <Sparkles className="w-4 h-4" /> The Complete Educational Hub
+               </div>
+               
+               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight">
+                 Empowering the learners of <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">today & tomorrow.</span>
+               </h1>
+               
+               <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-lg">
+                 Your complete learning journey in one place. From primary school fundamentals to advanced university careers, EDOT provides the structure to grow.
+               </p>
+               
+               <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
+                 <Link to="/register" className="w-full sm:w-auto px-8 py-5 rounded-2xl bg-[#008A32] text-white font-black text-xs uppercase tracking-widest hover:bg-[#007028] shadow-[0_0_20px_rgba(0,138,50,0.3)] transition-all flex items-center justify-center gap-3 group">
+                   Start Learning <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                 </Link>
+                 <Link to="/courses" className="w-full sm:w-auto px-8 py-5 rounded-2xl bg-[#11151F] border border-white/20 text-white font-black text-xs uppercase tracking-widest hover:border-[#FFD700]/50 hover:text-[#FFD700] hover:shadow-[0_0_15px_rgba(255,215,0,0.1)] transition-all flex items-center justify-center gap-2">
+                    Explore Courses
+                 </Link>
+               </div>
 
-              <div className="pt-8 flex items-center gap-6 text-sm font-bold text-slate-500">
-                <div className="flex -space-x-4">
-                  {[1,2,3,4].map(i => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0B0E14] bg-[#11151F] flex items-center justify-center shadow-lg z-[1] relative overflow-hidden">
-                       <ImagePlaceholder text={`User ${i}`} icon={null} className="w-full h-full rounded-full" />
-                    </div>
-                  ))}
+               <div className="pt-8 flex items-center gap-5 border-t border-white/5 mt-8">
+                 <div className="flex -space-x-4">
+                   
+                   {/* Render current user photo if logged in */}
+                   {user && (
+                     <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-[#0B0E14] flex items-center justify-center shadow-lg relative overflow-hidden group shrink-0">
+                        {getAvatarUrl(user.avatar) ? (
+                          <img 
+                            src={getAvatarUrl(user.avatar)} 
+                            alt="Current User" 
+                            className="w-full h-full object-cover rounded-full"
+                          />
+                        ) : (
+                          <span className="text-white font-black text-xl">{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>
+                        )}
+                     </div>
+                   )}
+
+                   {/* Render actual recent users from database */}
+                   {displayUsers.slice(0, user ? 2 : 3).map((dbUser, i) => (
+                     <div key={dbUser._id || i} className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-[#11151F] flex items-center justify-center shadow-lg relative overflow-hidden group shrink-0">
+                        {getAvatarUrl(dbUser.avatar) ? (
+                          <img 
+                            src={getAvatarUrl(dbUser.avatar)} 
+                            alt={dbUser.name} 
+                            className="w-full h-full object-cover rounded-full"
+                          />
+                        ) : (
+                          <span className="text-white font-black text-xl opacity-80">{dbUser.name ? dbUser.name.charAt(0).toUpperCase() : 'A'}</span>
+                        )}
+                     </div>
+                   ))}
+
+                   {/* Fill remaining slots with generic placeholders if not enough actual users */}
+                   {Array.from({ length: Math.max(0, (user ? 2 : 3) - displayUsers.length) }).map((_, i) => (
+                     <div key={`filler-${i}`} className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-[#11151F] flex items-center justify-center shadow-lg relative overflow-hidden group shrink-0">
+                        <span className="text-slate-500 font-black text-xl opacity-50">?</span>
+                     </div>
+                   ))}
+
+                   <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-gradient-to-br from-[#008A32] to-[#00A13B] flex items-center justify-center shadow-lg z-10 text-[10px] font-black text-white shrink-0">
+                     {totalUsers}
+                   </div>
                 </div>
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1 text-[#FFD700]">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-[#FFD700]" />)}
                   </div>
-                  <span className="text-xs uppercase tracking-widest mt-1 text-slate-400">Trusted by over 10,000+ Global Achievers</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest mt-1.5 text-slate-500">Global learners growing daily</span>
                 </div>
               </div>
             </div>
 
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-tr from-[#008A32]/20 to-[#FFD700]/20 blur-2xl rounded-full opacity-50 z-0"></div>
-              <ImagePlaceholder text="Immersive EDOT Platform Dashboard Mockup" icon={LayoutDashboard} className="h-[550px] w-full shadow-2xl relative z-10 border-white/20" />
-            </div>
+              <div className="relative rounded-[3rem] p-3 bg-[#11151F]/40 backdrop-blur-xl shadow-[0_0_50px_rgba(0,138,50,0.1)] border border-white/10 z-10">
+                <ImagePlaceholder text="Young Learners Collaborating with University Students" icon={Users} className="h-[550px] w-full rounded-[2.5rem] border-0" />
+              </div>
+              
+              {/* Floating elements */}
+              <div className="absolute top-12 -left-8 bg-[#11151F]/90 backdrop-blur-xl p-5 rounded-3xl border border-white/10 shadow-2xl flex items-center gap-4 z-20 animate-bounce" style={{animationDuration: '3.5s'}}>
+                 <div className="w-12 h-12 rounded-2xl bg-[#008A32]/20 flex items-center justify-center text-[#008A32] border border-[#008A32]/30"><CheckCircle className="w-6 h-6" /></div>
+                 <div>
+                    <h4 className="font-black text-white text-sm uppercase tracking-widest">A+ Grades</h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Primary Success</p>
+                 </div>
+              </div>
 
+              <div className="absolute bottom-16 -right-8 bg-[#11151F]/90 backdrop-blur-xl p-5 rounded-3xl border border-white/10 shadow-2xl flex items-center gap-4 z-20 animate-bounce" style={{animationDuration: '4s', animationDelay: '1s'}}>
+                 <div className="w-12 h-12 rounded-2xl bg-[#FFD700]/20 flex items-center justify-center text-[#FFD700] border border-[#FFD700]/30"><Target className="w-6 h-6" /></div>
+                 <div>
+                    <h4 className="font-black text-white text-sm uppercase tracking-widest">Job Ready</h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Career Skills</p>
+                 </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* 2. PLATFORM INTRODUCTION */}
-        <section className="py-24 border-y border-white/5 bg-[#11151F]/40 backdrop-blur-xl relative z-20">
-           <div className="max-w-5xl mx-auto px-6 text-center">
-             <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight mb-8">
-               Beyond Standard Education. <br/> A <span className="text-[#FFD700]">Global Catalyst</span> For Success.
+        {/* 2. INTRO SECTION */}
+        <section className="py-24 border-b border-white/5 bg-[#0B0E14] relative z-20 text-center px-6">
+           <div className="max-w-4xl mx-auto">
+             <h2 className="text-3xl md:text-5xl font-black text-white leading-tight mb-8 tracking-tight">
+               Designed for every stage of your life.
              </h2>
-             <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-3xl mx-auto">
-               We eliminate the boundaries between theoretical constraints and real-world application. By synthesizing primary academic principles with deep-tech programming and business dynamics, EDOT engineers a new breed of highly capable, internationally competitive professionals.
+             <p className="text-xl md:text-2xl text-slate-400 font-medium leading-relaxed">
+               EDOT actively supports learners from <span className="text-[#FFD700] font-black border-b border-[#FFD700]/30 px-1 rounded bg-[#FFD700]/10">primary and secondary school</span> to <span className="text-[#008A32] font-black border-b border-[#008A32]/30 px-1 rounded bg-[#008A32]/10">university and professional careers.</span> We combine simple foundations with deep challenges.
              </p>
            </div>
         </section>
 
-        {/* 3. COURSE CATEGORIES */}
-        <section className="py-32 px-6 max-w-7xl mx-auto relative z-20">
-          <div className="text-center mb-20">
-             <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mx-auto shadow-xl mb-6">
-                <span className="text-[10px] font-black text-[#008A32] tracking-[0.2em] uppercase">Core Disciplines</span>
-             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Master The <span className="text-[#FFD700]">Six Pillars</span>.</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { title: "Social Science", desc: "Understand global dynamics, sociology, and human behavior paradigms.", icon: <Globe /> },
-              { title: "Mathematics & Science", desc: "Advanced logic, quantitative physics, and core scientific methodology.", icon: <Zap /> },
-              { title: "Programming & Tech", desc: "Software engineering, DevOps, algorithms, and cloud architecture.", icon: <Code /> },
-              { title: "Natural Language", desc: "Master complex linguistics, communication arts, and global languages.", icon: <Users /> },
-              { title: "Business & Corporate", desc: "Elite entrepreneurship, strategic marketing, and financial execution.", icon: <Award />, premium: true },
-              { title: "Personal Development", desc: "High-performance leadership, productivity tracking, and soft skills.", icon: <Shield />, premium: true }
-            ].map((cat, i) => (
-              <div key={i} className={`p-10 rounded-[2.5rem] border transition-all duration-500 group ${cat.premium ? 'bg-gradient-to-br from-[#11151F] to-[#0B0E14] border-[#FFD700]/30 shadow-[0_0_30px_rgba(255,215,0,0.05)] hover:border-[#FFD700]/60' : 'bg-[#11151F]/60 backdrop-blur-xl border-white/10 hover:bg-white/5 hover:border-white/20'}`}>
-                <div className="flex items-center justify-between mb-8">
-                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner ${cat.premium ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'bg-white/5 text-[#008A32]'}`}>
-                     {cat.icon}
-                   </div>
-                   {cat.premium && <span className="bg-[#FFD700]/10 text-[#FFD700] text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full border border-[#FFD700]/30">Discount Category</span>}
-                </div>
-                <h3 className="text-2xl font-black text-white mb-4 tracking-tight">{cat.title}</h3>
-                <p className="text-slate-400 font-medium leading-relaxed">{cat.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 4. KEY FEATURES (Data-driven Dashboard Specs) */}
-        <section className="py-32 px-6 bg-[#11151F]/40 border-y border-white/5 relative z-20">
+        {/* 3. LEARNING PATH SECTION (VERY IMPORTANT) */}
+        <section className="py-24 px-6 relative z-20 overflow-hidden">
            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-                 
-                 <div className="lg:col-span-5 space-y-10">
-                    <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Engineered For <br/> <span className="text-[#008A32]">Maximum Velocity.</span></h2>
-                    
-                    <div className="space-y-8">
-                       {[
-                         { icon: <LayoutDashboard />, title: "Precision Dashboards", desc: "Role-aware telemetry for students, instructors, and parental oversight." },
-                         { icon: <Video />, title: "Immersive Live Sync", desc: "High-definition, low-latency live classes with seamless playback archiving." },
-                         { icon: <LineChart />, title: "Algorithmic Tracking", desc: "Automated progress logging, attendance validation, and real-time metrics." }
-                       ].map((feat, i) => (
-                         <div key={i} className="flex gap-6 group hover:-translate-y-1 transition-transform">
-                           <div className="w-14 h-14 rounded-2xl bg-[#008A32]/10 border border-[#008A32]/30 flex items-center justify-center text-[#008A32] shrink-0 group-hover:bg-[#008A32] group-hover:text-[#0B0E14] transition-colors">
-                             {feat.icon}
-                           </div>
-                           <div>
-                             <h4 className="text-xl font-black text-white mb-2 tracking-tight">{feat.title}</h4>
-                             <p className="text-slate-400 font-medium leading-relaxed text-sm">{feat.desc}</p>
-                           </div>
-                         </div>
-                       ))}
+              <div className="text-center mb-16">
+                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#008A32]/10 text-[#008A32] font-black text-[10px] uppercase tracking-[0.2em] mb-4 border border-[#008A32]/20">
+                    The Edot Journey
+                 </div>
+                 <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">A continuous path of progression</h2>
+              </div>
+              
+              <div className="relative">
+                 {/* Connecting Line (Desktop) */}
+                 <div className="hidden lg:block absolute top-[45%] left-10 right-10 h-1 bg-gradient-to-r from-[#008A32] via-[#FFD700] to-white z-0 opacity-20"></div>
+
+                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 relative z-10">
+                    {/* Path 1 */}
+                    <div className="bg-[#11151F]/60 backdrop-blur-xl p-10 rounded-[2.5rem] border border-[#008A32]/20 shadow-[0_0_30px_rgba(0,138,50,0.05)] relative group hover:-translate-y-2 transition-transform duration-300">
+                       <div className="w-20 h-20 rounded-2xl bg-[#008A32]/10 text-[#008A32] flex items-center justify-center mb-8 border border-[#008A32]/30 group-hover:scale-110 transition-transform">
+                          <BookOpen className="w-10 h-10" />
+                       </div>
+                       <div className="absolute top-10 right-10 text-[#008A32] font-black text-6xl opacity-10 select-none hidden md:block">01</div>
+                       <h3 className="text-2xl font-black text-white mb-3">Primary & Secondary</h3>
+                       <h4 className="text-[#008A32] font-black uppercase tracking-widest text-[10px] mb-5 border-b border-[#008A32]/20 inline-block pb-1">Building Foundations</h4>
+                       <p className="text-slate-400 font-medium leading-[1.8]">Simple, engaging, and friendly modules to help young students grasp fundamental logic, math, and social sciences comfortably.</p>
+                    </div>
+
+                    {/* Path 2 */}
+                    <div className="bg-[#11151F]/60 backdrop-blur-xl p-10 rounded-[2.5rem] border border-[#FFD700]/20 shadow-[0_0_30px_rgba(255,215,0,0.05)] relative group hover:-translate-y-2 transition-transform duration-300">
+                       <div className="w-20 h-20 rounded-2xl bg-[#FFD700]/10 text-[#FFD700] flex items-center justify-center mb-8 border border-[#FFD700]/30 group-hover:scale-110 transition-transform">
+                          <GraduationCap className="w-10 h-10" />
+                       </div>
+                       <div className="absolute top-10 right-10 text-[#FFD700] font-black text-6xl opacity-10 select-none hidden md:block">02</div>
+                       <h3 className="text-2xl font-black text-white mb-3">University Phase</h3>
+                       <h4 className="text-[#FFD700] font-black uppercase tracking-widest text-[10px] mb-5 border-b border-[#FFD700]/20 inline-block pb-1">Molding Careers</h4>
+                       <p className="text-slate-400 font-medium leading-[1.8]">Challenging, deeply technical pathways designed to prepare students for real-world enterprise engineering, business, and tech sectors.</p>
+                    </div>
+
+                    {/* Path 3 */}
+                    <div className="bg-[#11151F]/60 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.02)] relative group hover:-translate-y-2 transition-transform duration-300">
+                       <div className="w-20 h-20 rounded-2xl bg-white/5 text-white flex items-center justify-center mb-8 border border-white/20 group-hover:scale-110 transition-transform">
+                          <Rocket className="w-10 h-10" />
+                       </div>
+                       <div className="absolute top-10 right-10 text-white font-black text-6xl opacity-5 select-none hidden md:block">03</div>
+                       <h3 className="text-2xl font-black text-white mb-3">Lifelong Learning</h3>
+                       <h4 className="text-white font-black uppercase tracking-widest text-[10px] mb-5 border-b border-white/20 inline-block pb-1">Continual Growth</h4>
+                       <p className="text-slate-400 font-medium leading-[1.8]">Upskilling for established professionals through dynamic personal development and advanced industry-vetted certifications.</p>
                     </div>
                  </div>
-
-                 <div className="lg:col-span-7 relative">
-                    <div className="absolute -inset-10 bg-gradient-to-tr from-[#008A32]/10 to-[#FFD700]/10 blur-3xl rounded-full z-0 pointer-events-none"></div>
-                    <ImagePlaceholder text="High-Fidelity Dashboard Interface Display" icon={LineChart} className="h-[600px] w-full z-10 border-white/20 shadow-[0_0_80px_rgba(0,138,50,0.1)] relative" />
-                 </div>
-
               </div>
            </div>
         </section>
 
-        {/* 5. TRUST & CREDIBILITY */}
-        <section className="py-32 px-6 max-w-7xl mx-auto text-center relative z-20">
-           <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mx-auto shadow-xl mb-8">
-              <span className="text-[10px] font-black text-slate-400 tracking-[0.3em] uppercase">Industry Verification</span>
+        {/* 4. LEARNING PATH SECTION */}
+        <section className="py-24 px-6 max-w-7xl mx-auto relative z-20">
+           <div className="text-center mb-16 animate-in slide-in-from-bottom-5 duration-700">
+             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Start Your Learning Journey <br className="hidden md:block" /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">From Foundation to Career</span></h2>
+             <p className="text-lg text-slate-400 font-medium mt-6 max-w-2xl mx-auto">
+               Visually guiding you through EDOT’s intelligently structured system, step by step.
+             </p>
            </div>
-           <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-20">Certifications & Acclaim</h2>
            
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
-             {[1,2,3,4].map(num => (
-               <ImagePlaceholder key={num} text={`Institution Award Standard 0${num}`} icon={Award} className="h-48 border-white/10 hover:border-[#FFD700]/50" />
-             ))}
+           <div className="flex justify-center mb-16 relative z-20">
+              <div className="inline-flex items-center gap-3 bg-[#11151F]/80 backdrop-blur-md text-white px-6 py-4 rounded-2xl border border-white/10 shadow-xl overflow-hidden relative group">
+                 <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700]/10 to-[#008A32]/10 opacity-50"></div>
+                 <Compass className="w-5 h-5 shrink-0 text-[#FFD700] relative z-10" />
+                 <span className="font-bold text-[11px] md:text-sm tracking-wide relative z-10 text-slate-300">
+                   <strong className="text-white">Note:</strong> All learners are welcome to explore any course based on their interest — start where you are and grow at your own pace.
+                 </span>
+              </div>
            </div>
 
-           <div className="bg-[#11151F]/80 backdrop-blur-2xl border border-[#008A32]/30 p-12 md:p-16 rounded-[3rem] shadow-[0_0_50px_rgba(0,138,50,0.1)] relative overflow-hidden">
-               <div className="text-[#FFD700] mb-8 flex justify-center gap-2">
-                 {[...Array(5)].map((_, i) => <Star key={i} className="w-8 h-8 fill-current" />)}
-               </div>
-               <p className="text-2xl md:text-3xl text-white font-bold leading-relaxed max-w-4xl mx-auto mb-10 tracking-tight">
-                 "EDOT is a fundamentally transformative platform. The integration of high-level academic theory with strictly disciplined programming execution has forged a completely new standard for global e-learning."
-               </p>
-               <div className="flex items-center justify-center gap-6">
-                 <ImagePlaceholder text="Portrait" icon={null} className="w-16 h-16 rounded-full border-2 border-white/20" />
-                 <div className="text-left">
-                   <h4 className="font-black text-white text-lg tracking-tight">Kenenisa Beyan</h4>
-                   <p className="text-slate-400 text-xs uppercase tracking-widest font-black">Chief Executive Officer, EDOT</p>
-                 </div>
-               </div>
-           </div>
-        </section>
+           <div className="space-y-24">
+             {/* 🔰 SECTION 1: FOUNDATION LEARNING */}
+             <div className="relative">
+                <div className="mb-10 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 bg-[#0B0E14] px-4 py-2 border border-white/10 rounded-full mb-3 shadow-md">
+                     <div className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse"></div>
+                     <span className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6]">Phase 01</span>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight">Foundation Learning</h3>
+                  <p className="text-slate-400 font-medium mt-2 text-lg">Build strong academic foundations.</p>
+                </div>
 
-        {/* 6. FEATURED COURSES */}
-        <section className="py-32 px-6 bg-[#11151F]/40 border-y border-white/5 relative z-20">
-           <div className="max-w-7xl mx-auto">
-             
-             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-               <div>
-                 <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-4">Elite Capabilities. <br/><span className="text-[#008A32]">Featured Modules.</span></h2>
-                 <p className="text-slate-400 font-medium">Explore the apex of our global curriculum.</p>
-               </div>
-               <Link to="/courses" className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-widest hover:bg-white hover:text-[#0B0E14] transition-all flex items-center gap-3">
-                 View Entire Index <ArrowRight className="w-4 h-4" />
-               </Link>
+                <div className="grid grid-cols-1 gap-6">
+                   {/* Card 1 */}
+                   <div className="bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 lg:p-8 relative group overflow-hidden transition-all duration-300 w-full hover:-translate-y-1 hover:shadow-2xl hover:border-[#F97316]/30">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#F97316]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="flex flex-col md:flex-row gap-6 relative z-10 items-start md:items-center">
+                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-[1.5rem] bg-[#F97316]/10 border border-[#F97316]/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-500 shadow-[0_0_20px_rgba(249,115,22,0.1)]">
+                            <Globe className="w-10 h-10 md:w-12 md:h-12 text-[#F97316]" />
+                         </div>
+                         <div className="flex-1 flex flex-col w-full">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-3 sm:gap-0">
+                               <h4 className="text-2xl font-black text-white group-hover:text-[#F97316] transition-colors leading-tight">Social Science</h4>
+                               <span className="w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/20">FREE</span>
+                            </div>
+                            <p className="text-slate-400 font-medium mb-6 leading-relaxed max-w-xl text-sm md:text-base">
+                               Learn how human societies work from the ground up — histories, geographies, and cultures made simple and practical.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-auto">
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5">
+                                  <Clock className="w-4 h-4 text-slate-500" /> 15 Hours
+                               </div>
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5">
+                                  <Users className="w-4 h-4 text-slate-500" /> Beginner Friendly
+                               </div>
+                               <Link to="/courses" className="sm:ml-auto w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#F97316] text-white font-black text-[10px] uppercase tracking-widest hover:bg-[#EA580C] shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all flex items-center justify-center gap-2 mt-2 sm:mt-0">
+                                  Start Learning <PlayCircle className="w-4 h-4" />
+                               </Link>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+
+                   {/* Card 2 */}
+                   <div className="bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 lg:p-8 relative group overflow-hidden transition-all duration-300 w-full hover:-translate-y-1 hover:shadow-2xl hover:border-[#3B82F6]/30">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#3B82F6]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="flex flex-col md:flex-row gap-6 relative z-10 items-start md:items-center">
+                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-[1.5rem] bg-[#3B82F6]/10 border border-[#3B82F6]/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-500 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                            <BrainCircuit className="w-10 h-10 md:w-12 md:h-12 text-[#3B82F6]" />
+                         </div>
+                         <div className="flex-1 flex flex-col w-full">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-3 sm:gap-0">
+                               <h4 className="text-2xl font-black text-white group-hover:text-[#3B82F6] transition-colors leading-tight">Mathematics & Natural Science</h4>
+                               <span className="w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/10 text-slate-300 border border-white/10">Coming Soon</span>
+                            </div>
+                            <p className="text-slate-400 font-medium mb-6 leading-relaxed max-w-xl text-sm md:text-base">
+                               Master arithmetic, logical reasoning, and basic physics through visually clear, exciting examples.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-auto">
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5">
+                                  <Clock className="w-4 h-4 text-slate-500" /> 20 Hours
+                               </div>
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5">
+                                  <Users className="w-4 h-4 text-slate-500" /> Beginner Friendly
+                               </div>
+                               <button disabled className="sm:ml-auto w-full sm:w-auto px-8 py-3.5 rounded-xl bg-slate-800 text-slate-400 font-black text-[10px] uppercase tracking-widest cursor-not-allowed border border-white/5 mt-2 sm:mt-0 flex items-center justify-center gap-2">
+                                  Notify Me
+                               </button>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+
+                   {/* Card 3 */}
+                   <div className="bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 lg:p-8 relative group overflow-hidden transition-all duration-300 w-full hover:-translate-y-1 hover:shadow-2xl hover:border-[#A855F7]/30">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#A855F7]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="flex flex-col md:flex-row gap-6 relative z-10 items-start md:items-center">
+                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-[1.5rem] bg-[#A855F7]/10 border border-[#A855F7]/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-500 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+                            <BookOpen className="w-10 h-10 md:w-12 md:h-12 text-[#A855F7]" />
+                         </div>
+                         <div className="flex-1 flex flex-col w-full">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-3 sm:gap-0">
+                               <h4 className="text-2xl font-black text-white group-hover:text-[#A855F7] transition-colors leading-tight">Natural Language</h4>
+                               <span className="w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#A855F7]/10 text-[#A855F7] border border-[#A855F7]/20">Most Popular</span>
+                            </div>
+                            <p className="text-slate-400 font-medium mb-6 leading-relaxed max-w-xl text-sm md:text-base">
+                               Develop strong communication skills by learning fundamental linguistics and clear expression strategies.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-auto">
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5">
+                                  <Clock className="w-4 h-4 text-slate-500" /> 18 Hours
+                               </div>
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5">
+                                  <Users className="w-4 h-4 text-slate-500" /> Beginner Friendly
+                               </div>
+                               <Link to="/courses" className="sm:ml-auto w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#A855F7] text-white font-black text-[10px] uppercase tracking-widest hover:bg-[#9333EA] shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all flex items-center justify-center gap-2 mt-2 sm:mt-0">
+                                  Start Learning <PlayCircle className="w-4 h-4"/>
+                               </Link>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+                </div>
              </div>
 
-             {loading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="w-12 h-12 border-4 border-white/10 border-t-[#008A32] rounded-full animate-spin"></div>
-                </div>
-             ) : featuredCourses.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {featuredCourses.map(course => (
-                    <div key={course._id} className="bg-[#0B0E14]/80 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden hover:border-[#008A32]/30 hover:shadow-2xl transition-all duration-500 flex flex-col group hover:-translate-y-2">
-                       <div className="h-56 relative overflow-hidden border-b border-white/5">
-                          {course.thumbnail ? (
-                             <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 relative z-0"/>
-                          ) : (
-                             <ImagePlaceholder text={`Thumbnail: ${course.title}`} className="h-full w-full rounded-none border-0" />
-                          )}
-                          <div className="absolute top-4 left-4 bg-[#11151F]/90 backdrop-blur-md border border-[#008A32]/30 text-[#008A32] font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg z-20">
-                            {course.category || 'General'}
-                          </div>
-                       </div>
-                       <div className="p-8 flex-1 flex flex-col">
-                          <h3 className="text-2xl font-black text-white mb-4 leading-tight group-hover:text-[#008A32] transition-colors tracking-tight line-clamp-2">{course.title}</h3>
-                          <div className="flex items-center gap-4 mb-8 text-xs font-bold text-slate-400">
-                             <span className="flex items-center gap-2"><Clock className="w-4 h-4 text-[#FFD700]" /> {(course.lessons?.length || 0) * 15} Min</span>
-                             <span className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-[#FFD700]" /> {course.lessons?.length || 0} Mods</span>
-                          </div>
-                          <div className="pt-6 border-t border-white/5 flex items-center justify-between mt-auto">
-                            <span className="font-black text-2xl text-white">ETB {course.price || 'Free'}</span>
-                            <Link to={`/course/${course._id}`} className="bg-white/10 border border-white/10 text-white px-6 py-3 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#008A32] hover:border-[#008A32] hover:text-[#0B0E14] transition-all">Enroll</Link>
-                          </div>
-                       </div>
-                    </div>
-                  ))}
-                </div>
-             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {[1,2,3].map(i => (
-                    <div key={i} className="bg-[#0B0E14]/80 border border-white/5 rounded-[2rem] p-6">
-                       <ImagePlaceholder text={`Course Fallback 0${i}`} className="h-48 mb-6" />
-                       <div className="h-6 bg-white/5 rounded w-3/4 mb-4"></div>
-                       <div className="h-4 bg-white/5 rounded w-full mb-8"></div>
-                       <div className="h-10 bg-white/5 rounded-xl w-full"></div>
-                    </div>
-                  ))}
-                </div>
-             )}
 
+             {/* 🚀 SECTION 2: ADVANCED & CAREER LEARNING */}
+             <div className="relative pt-10">
+                <div className="mb-10 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 bg-[#0B0E14] px-4 py-2 border border-white/10 rounded-full mb-3 shadow-md">
+                     <div className="w-2 h-2 rounded-full bg-[#FFD700] animate-pulse"></div>
+                     <span className="text-[10px] font-black uppercase tracking-widest text-[#FFD700]">Phase 02</span>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight">Advanced & Career</h3>
+                  <p className="text-slate-400 font-medium mt-2 text-lg">Develop skills for university and beyond.</p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6">
+                   {/* Card 4 */}
+                   <div className="bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 lg:p-8 relative group overflow-hidden transition-all duration-300 w-full hover:-translate-y-1 hover:shadow-2xl hover:border-[#6366F1]/30">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#6366F1]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="flex flex-col md:flex-row gap-6 relative z-10 items-start md:items-center">
+                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-[1.5rem] bg-[#6366F1]/10 border border-[#6366F1]/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-500 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
+                            <Code className="w-10 h-10 md:w-12 md:h-12 text-[#6366F1]" />
+                         </div>
+                         <div className="flex-1 flex flex-col w-full">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-3 sm:gap-0">
+                               <h4 className="text-2xl font-black text-white group-hover:text-[#6366F1] transition-colors leading-tight">Programming & Technology</h4>
+                               <span className="w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/10 text-white border border-white/20 flex items-center gap-1"><Flame className="w-3 h-3 text-[#FFD700]"/> Hot Skill</span>
+                            </div>
+                            <p className="text-slate-400 font-medium mb-6 leading-relaxed max-w-xl text-sm md:text-base">
+                               Learn how websites and applications work from the ground up — dive into algorithms, web frameworks, and cloud systems.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-auto">
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5">
+                                  <Clock className="w-4 h-4 text-slate-500" /> 40 Hours
+                               </div>
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5 text-amber-500/80">
+                                  <Users className="w-4 h-4 opacity-70" /> Intermediate / Advanced
+                               </div>
+                               <Link to="/courses" className="sm:ml-auto w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#6366F1] text-white font-black text-[10px] uppercase tracking-widest hover:bg-[#4F46E5] shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all flex items-center justify-center gap-2 mt-2 sm:mt-0">
+                                  Explore Now <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
+                               </Link>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+
+                   {/* Card 5 */}
+                   <div className="bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 lg:p-8 relative group overflow-hidden transition-all duration-300 w-full hover:-translate-y-1 hover:shadow-2xl hover:border-[#FFD700]/30">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="flex flex-col md:flex-row gap-6 relative z-10 items-start md:items-center">
+                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-[1.5rem] bg-[#FFD700]/10 border border-[#FFD700]/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-500 shadow-[0_0_20px_rgba(255,215,0,0.1)]">
+                            <LineChart className="w-10 h-10 md:w-12 md:h-12 text-[#FFD700]" />
+                         </div>
+                         <div className="flex-1 flex flex-col w-full">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-3 sm:gap-0">
+                               <h4 className="text-2xl font-black text-white group-hover:text-[#FFD700] transition-colors leading-tight">Business & Entrepreneurship</h4>
+                               <span className="w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center gap-1"><Percent className="w-3 h-3"/> Discounted</span>
+                            </div>
+                            <p className="text-slate-400 font-medium mb-6 leading-relaxed max-w-xl text-sm md:text-base">
+                               Understand markets, financial scaling, and effective leadership tactics to build organizations that last.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-auto">
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5">
+                                  <Clock className="w-4 h-4 text-slate-500" /> 35 Hours
+                               </div>
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5 text-amber-500/80">
+                                  <Users className="w-4 h-4 opacity-70" /> Intermediate / Advanced
+                               </div>
+                               <Link to="/courses" className="sm:ml-auto w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#FFD700] text-[#0B0E14] font-black text-[10px] uppercase tracking-widest hover:brightness-110 shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all flex items-center justify-center gap-2 mt-2 sm:mt-0">
+                                  Explore Now <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
+                               </Link>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+
+                   {/* Card 6 */}
+                   <div className="bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 lg:p-8 relative group overflow-hidden transition-all duration-300 w-full hover:-translate-y-1 hover:shadow-2xl hover:border-[#22C55E]/30">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#22C55E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="flex flex-col md:flex-row gap-6 relative z-10 items-start md:items-center">
+                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-[1.5rem] bg-[#22C55E]/10 border border-[#22C55E]/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-500 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+                            <Target className="w-10 h-10 md:w-12 md:h-12 text-[#22C55E]" />
+                         </div>
+                         <div className="flex-1 flex flex-col w-full">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-3 sm:gap-0">
+                               <h4 className="text-2xl font-black text-white group-hover:text-[#22C55E] transition-colors leading-tight">Personal Development</h4>
+                               <span className="w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center gap-1"><Percent className="w-3 h-3"/> Discounted</span>
+                            </div>
+                            <p className="text-slate-400 font-medium mb-6 leading-relaxed max-w-xl text-sm md:text-base">
+                               Develop high-value habits, public speaking confidence, and strong decision-making tools for life and career.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-auto">
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5">
+                                  <Clock className="w-4 h-4 text-slate-500" /> 12 Hours
+                               </div>
+                               <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#0B0E14] px-4 py-2 rounded-xl border border-white/5 text-amber-500/80">
+                                  <Users className="w-4 h-4 opacity-70" /> Intermediate / Advanced
+                               </div>
+                               <Link to="/courses" className="sm:ml-auto w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#22C55E] text-white font-black text-[10px] uppercase tracking-widest hover:bg-[#16A34A] shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all flex items-center justify-center gap-2 mt-2 sm:mt-0">
+                                  Explore Now <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
+                               </Link>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
            </div>
         </section>
 
-        {/* 7. FINAL CTA */}
-        <CTA 
-          title="Ready To Execute?" 
-          description="Do not hesitate. Transform your core understanding into actionable results with EDOT Platform."
-          buttonText="Initialize Registration"
-          buttonLink="/register"
-        />
+        {/* 5. FEATURES / PLATFORM TOOLS */}
+        <section className="py-32 border-t border-white/5 bg-[#0B0E14] relative z-20">
+           <div className="max-w-7xl mx-auto px-6">
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                
+                <div className="order-2 lg:order-1 relative">
+                  <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-4 pt-10">
+                        <ImagePlaceholder text="Dashboard Interface" icon={LayoutDashboard} className="h-64 rounded-[2rem]" />
+                        <ImagePlaceholder text="Parent Portal" icon={Users} className="h-48 rounded-[2rem]" />
+                     </div>
+                     <div className="space-y-4">
+                        <ImagePlaceholder text="Live Video Class" icon={Video} className="h-48 rounded-[2rem]" />
+                        <ImagePlaceholder text="Progress Analytics" icon={Target} className="h-64 rounded-[2rem]" />
+                     </div>
+                  </div>
+                </div>
+
+                <div className="order-1 lg:order-2 space-y-12">
+                   <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Smart tools. <br/><span className="text-[#008A32]">Simpler learning.</span></h2>
+                   
+                   <div className="space-y-10">
+                      {[
+                        { icon: <LayoutDashboard />, title: "Interactive Dashboards", desc: "Clean, dark-mode focused views. Navigate assignments, modules, and schedules effortlessly." },
+                        { icon: <Video />, title: "Live + Recorded Classes", desc: "Join real-time interactive streams or catch up later with full HD playback and materials." },
+                        { icon: <Target />, title: "Progress Tracking", desc: "Algorithmic data-driven analytics that show exactly where you excel and what needs more focus." },
+                        { icon: <Users />, title: "Parent Involvement", desc: "A connected portal ensuring parents can monitor attendance, grades, and engagement securely." }
+                      ].map((feat, i) => (
+                        <div key={i} className="flex gap-6 items-start group">
+                          <div className="w-14 h-14 rounded-2xl bg-[#11151F] border border-white/10 flex items-center justify-center text-[#FFD700] shrink-0 group-hover:scale-110 group-hover:bg-[#FFD700]/10 group-hover:border-[#FFD700]/30 transition-all">
+                            {feat.icon}
+                          </div>
+                          <div>
+                            <h4 className="text-2xl font-black text-white mb-2">{feat.title}</h4>
+                            <p className="text-slate-400 font-medium leading-[1.8] text-sm md:text-base">{feat.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+
+             </div>
+           </div>
+        </section>
+
+        {/* 6. FINAL CTA BLOCK */}
+        <section className="py-24 px-6 max-w-7xl mx-auto relative z-20">
+           <div className="bg-[#11151F]/60 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 md:p-16 relative overflow-hidden shadow-2xl group flex flex-col md:flex-row items-center justify-between gap-10">
+              <div className="absolute top-[-50%] left-[-10%] w-[500px] h-[500px] bg-[#008A32]/20 rounded-full blur-[100px] pointer-events-none transition-transform duration-1000 group-hover:translate-x-20"></div>
+              <div className="absolute bottom-[-50%] right-[-10%] w-[500px] h-[500px] bg-[#FFD700]/10 rounded-full blur-[100px] pointer-events-none transition-transform duration-1000 group-hover:-translate-x-20"></div>
+              
+              <div className="hidden lg:block w-1/4 relative z-10">
+                 <div className="aspect-square bg-[#0B0E14] rounded-full border-4 border-white/10 p-2 shadow-2xl -rotate-6 group-hover:rotate-0 transition-transform duration-500">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&q=80" alt="Students" className="w-full h-full object-cover rounded-full opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all" />
+                 </div>
+              </div>
+
+              <div className="flex-1 text-center relative z-10">
+                 <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 text-[#FFD700] font-black text-[10px] tracking-widest uppercase mb-6 shadow-md shadow-[#FFD700]/5">
+                    <Sparkles className="w-4 h-4" /> Unlock Your Potential
+                 </div>
+                 
+                 <h2 className="text-4xl md:text-6xl font-black text-white leading-[1.1] mb-8 tracking-tight">
+                    Your future <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#008A32]">starts here.</span>
+                 </h2>
+
+                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <Link to="/courses" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#008A32] text-white font-black uppercase tracking-widest text-xs hover:bg-[#00A13B] shadow-[0_0_25px_rgba(0,138,50,0.4)] transition-all hover:-translate-y-1">
+                       Start Learning <PlayCircle className="w-5 h-5" />
+                    </Link>
+                    <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white text-[#0B0E14] font-black uppercase tracking-widest text-xs hover:bg-slate-200 shadow-xl transition-all hover:-translate-y-1">
+                       Join EDOT <ArrowRight className="w-5 h-5" />
+                    </Link>
+                 </div>
+              </div>
+
+              <div className="hidden lg:block w-1/4 relative z-10">
+                 <div className="aspect-square bg-[#0B0E14] rounded-full border-4 border-white/10 p-2 shadow-2xl rotate-6 group-hover:rotate-0 transition-transform duration-500">
+                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=400&q=80" alt="Professionals" className="w-full h-full object-cover rounded-full opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all" />
+                 </div>
+              </div>
+           </div>
+        </section>
 
       </div>
     </div>

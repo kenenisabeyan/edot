@@ -13,7 +13,7 @@ const enrollmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'active', 'rejected'],
+    enum: ['pending', 'approved', 'active', 'rejected'],
     default: 'pending'
   },
   reason: {

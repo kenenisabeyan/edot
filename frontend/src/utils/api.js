@@ -33,4 +33,13 @@ export const logoutUser = async () => {
     return data;
 };
 
+export const getRecentPublicUsers = async () => {
+    try {
+        const { data } = await api.get('/users/public/recent');
+        return data;
+    } catch {
+        return null;
+    }
+};
+
 export default api;

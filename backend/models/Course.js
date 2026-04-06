@@ -26,13 +26,20 @@ const courseSchema = new mongoose.Schema({
         required: [true, 'Please select a category'],
         enum: [
             'Programming',
+            'Programming & Tech',
             'Mathematics',
             'Science',
-            'Exam Prep',
+            'Math & Science',
+            'Math & Natural Science',
+            'Social Science',
+            'Natural Language',
             'Languages',
+            'Exam Prep',
             'Business',
             'Design',
-            'Marketing'
+            'Marketing',
+            'Personal Dev',
+            'Personal Development'
         ]
     },
     level: {

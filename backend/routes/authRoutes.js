@@ -22,6 +22,11 @@ router.post('/register', [
 
   const { name, email, password, role } = req.body;
 
+  // PREVENT ROLE ESCALATION & AUTO-PENDING LOGIC ERROR
+  const allowedRoles = ['student', 'instructor'];
+  const finalRole = allowedRoles.includes(role) ? role : 'student';
+  const initialStatus = finalRole === 'instructor' ? 'pending' : 'approved';
+
   try {
     let user = await User.findOne({ email });
 
@@ -33,8 +38,8 @@ router.post('/register', [
       name,
       email,
       password,
-      role: role || 'student', // Allow instructor roles
-      status: 'pending' // Natively set to pending
+      role: finalRole,
+      status: initialStatus
     });
 
     await user.save();
@@ -56,7 +61,9 @@ router.post('/register', [
       email: user.email,
       role: user.role,
       status: user.status,
-      message: 'Account created successfully. Awaiting administrator approval.'
+      message: user.status === 'pending' 
+        ? 'Account created successfully. Awaiting administrator approval.' 
+        : 'Account created successfully. You can now log in.'
     });
   } catch (err) {
     console.error(err.message);
@@ -95,9 +102,11 @@ router.post('/login', [
       return res.status(403).json({ message: 'Account has been rejected. Contact support.' });
     }
 
+    if (user.status === 'blocked') {
+      return res.status(403).json({ message: 'Account has been blocked. Contact support.' });
+    }
+
     const isMatch = await user.comparePassword(password);
-
-
 
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -118,9 +127,9 @@ router.post('/login', [
 
     res.cookie('token', token, {
         httpOnly: true,  // Prevents JavaScript from reading the cookie (Security)
-        secure: false,   // Set to true in production (HTTPS)
+        secure: process.env.NODE_ENV === 'production',   // Set to true in production (HTTPS)
         sameSite: 'lax', // Helps prevent CSRF attacks
-        maxAge: 3600000  // 1 hour in milliseconds
+        maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days in milliseconds
     });
 
     res.json({
