@@ -53,8 +53,8 @@ export default function Login() {
           <GraduationCap className="w-12 h-12" />
         </div>
         
-        <h1 className="text-5xl lg:text-7xl font-black text-white leading-tight tracking-tight mb-8">
-          Welcome <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">Back.</span>
+        <h1 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mb-8">
+          Welcome <br/> <span className="text-white">Back.</span>
         </h1>
         <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-lg mb-12">
           Continue your learning journey. Securely authenticate your credentials to access the EDOT platform.

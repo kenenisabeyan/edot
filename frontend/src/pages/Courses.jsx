@@ -73,8 +73,8 @@ export default function Courses() {
              <span className="text-[10px] font-black text-[#FFD700] tracking-[0.2em] uppercase">Course Selection Hub</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl lg:text-[5rem] font-black text-white mb-8 tracking-tight leading-[1.05]">
-             Find the Right Course <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">for Your Journey.</span>
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-8 tracking-tight leading-tight">
+             Find the Right Course <br/> <span className="text-white">for Your Journey.</span>
           </h1>
           <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto mb-10">
              Whether you're starting your first day of school or stepping into an enterprise career, we have the perfect pathway for you.

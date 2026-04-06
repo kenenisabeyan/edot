@@ -61,9 +61,9 @@ export default function Contact() {
              <span className="text-[10px] font-black text-[#FFD700] tracking-[0.2em] uppercase">Always Available</span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tight leading-[1.1]">
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-8 tracking-tight leading-tight">
             We are here to <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">help you.</span>
+            <span className="text-white">help you.</span>
           </h1>
           <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto">
             Whether you have a simple question, need friendly guidance, or want to explore platform options, our warm support team is ready to assist you.

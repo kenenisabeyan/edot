@@ -42,8 +42,8 @@ export default function About() {
               <span className="text-[10px] font-black text-[#FFD700] tracking-[0.2em] uppercase">The EDOT Infrastructure</span>
            </div>
            
-           <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black text-white mb-8 tracking-tight leading-[1.05] drop-shadow-2xl">
-              Building the Future <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">of Learning.</span>
+           <h1 className="text-4xl md:text-5xl font-black text-white mb-8 tracking-tight leading-tight drop-shadow-2xl">
+              Who We <span className="text-[#FFD700]">Are.</span>
            </h1>
            <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-4xl mx-auto">
              EDOT is not just a platform — it is a continuous learning journey from your first day of school to the peak of your professional career.
@@ -113,8 +113,8 @@ export default function About() {
              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mx-auto mb-6 hover:bg-white/10 hover:scale-105 transition-all duration-300 shadow-[0_0_15px_rgba(255,215,0,0.2)]">
                 <span className="text-[10px] font-black text-white tracking-[0.2em] uppercase">The Visionaries</span>
              </div>
-             <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight uppercase drop-shadow-2xl">
-               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] via-[#00c94a] to-[#FFD700] hover:from-[#FFD700] hover:to-[#008A32] transition-colors duration-700 cursor-default">Synergy</span> Dynamics
+             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight uppercase drop-shadow-2xl">
+                Democratizing Quality <br/> <span className="text-[#FFD700]">Education.</span>
              </h2>
              <p className="mt-8 text-slate-400 font-medium text-lg max-w-2xl mx-auto">The elite multidisciplinary architects pushing the boundaries of what is possible in the educational matrix.</p>
            </div>

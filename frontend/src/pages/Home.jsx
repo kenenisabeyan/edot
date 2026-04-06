@@ -5,7 +5,8 @@ import { getRecentPublicUsers } from '../utils/api';
 import { 
   ArrowRight, BookOpen, GraduationCap, Sparkles, Database, Users, 
   BrainCircuit, Rocket, CheckCircle, Video, LayoutDashboard, Target,
-  Award, Shield, Star, Play, Clock, Globe, Code, LineChart, Flame, PlayCircle, Percent, Compass
+  Award, Shield, Star, Play, Clock, Globe, Code, LineChart, Flame, PlayCircle, Percent, Compass,
+  Lightbulb, ToggleRight, BarChart, Laptop
 } from 'lucide-react';
 import CTA from '../components/CTA';
 import feature1Img from '../assets/features-1.png';
@@ -64,8 +65,8 @@ export default function Home() {
                  <Sparkles className="w-4 h-4" /> The Complete Educational Hub
                </div>
                
-               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight">
-                 Empowering the learners of <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">today & tomorrow.</span>
+               <h1 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">
+                 Democratizing Quality <br /> Education for <span className="text-white">Ethiopia.</span>
                </h1>
                
                <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-lg">
@@ -171,53 +172,52 @@ export default function Home() {
            </div>
         </section>
 
-        {/* 3. LEARNING PATH SECTION (VERY IMPORTANT) */}
+        {/* 3. DESIGNED FOR COMPLETE BEGINNERS SECTION */}
         <section className="py-24 px-6 relative z-20 overflow-hidden">
            <div className="max-w-7xl mx-auto">
               <div className="text-center mb-16">
-                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#008A32]/10 text-[#008A32] font-black text-[10px] uppercase tracking-[0.2em] mb-4 border border-[#008A32]/20">
-                    The Edot Journey
-                 </div>
-                 <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">A continuous path of progression</h2>
+                 <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight max-w-4xl mx-auto">
+                   Designed for complete beginners ready to make their next big move
+                 </h2>
               </div>
               
-              <div className="relative">
-                 {/* Connecting Line (Desktop) */}
-                 <div className="hidden lg:block absolute top-[45%] left-10 right-10 h-1 bg-gradient-to-r from-[#008A32] via-[#FFD700] to-white z-0 opacity-20"></div>
-
-                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 relative z-10">
-                    {/* Path 1 */}
-                    <div className="bg-[#11151F]/60 backdrop-blur-xl p-10 rounded-[2.5rem] border border-[#008A32]/20 shadow-[0_0_30px_rgba(0,138,50,0.05)] relative group hover:-translate-y-2 transition-transform duration-300">
-                       <div className="w-20 h-20 rounded-2xl bg-[#008A32]/10 text-[#008A32] flex items-center justify-center mb-8 border border-[#008A32]/30 group-hover:scale-110 transition-transform">
-                          <BookOpen className="w-10 h-10" />
-                       </div>
-                       <div className="absolute top-10 right-10 text-[#008A32] font-black text-6xl opacity-10 select-none hidden md:block">01</div>
-                       <h3 className="text-2xl font-black text-white mb-3">Primary & Secondary</h3>
-                       <h4 className="text-[#008A32] font-black uppercase tracking-widest text-[10px] mb-5 border-b border-[#008A32]/20 inline-block pb-1">Building Foundations</h4>
-                       <p className="text-slate-400 font-medium leading-[1.8]">Simple, engaging, and friendly modules to help young students grasp fundamental logic, math, and social sciences comfortably.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 relative z-10">
+                 {/* Card 1 */}
+                 <div className="bg-[#11151F]/40 backdrop-blur-xl p-8 lg:p-10 rounded-[2.5rem] border border-white/10 hover:border-white/20 transition-all duration-300 shadow-xl hover:shadow-[0_10px_40px_rgba(0,138,50,0.1)]">
+                    <div className="w-12 h-12 mb-6 text-indigo-400">
+                       <Lightbulb className="w-full h-full drop-shadow-[0_0_15px_rgba(129,140,248,0.5)]" strokeWidth={1.5} />
                     </div>
+                    <h3 className="text-2xl font-black text-white mb-4">Starting Strong</h3>
+                    <p className="text-slate-400 leading-relaxed font-medium">Whether you're in primary or secondary school, EDOT helps you build a strong academic foundation. Understand your subjects clearly, improve your performance, and gain the confidence to succeed in your exams and beyond.</p>
+                 </div>
 
-                    {/* Path 2 */}
-                    <div className="bg-[#11151F]/60 backdrop-blur-xl p-10 rounded-[2.5rem] border border-[#FFD700]/20 shadow-[0_0_30px_rgba(255,215,0,0.05)] relative group hover:-translate-y-2 transition-transform duration-300">
-                       <div className="w-20 h-20 rounded-2xl bg-[#FFD700]/10 text-[#FFD700] flex items-center justify-center mb-8 border border-[#FFD700]/30 group-hover:scale-110 transition-transform">
-                          <GraduationCap className="w-10 h-10" />
+                 {/* Card 2 */}
+                 <div className="bg-[#11151F]/40 backdrop-blur-xl p-8 lg:p-10 rounded-[2.5rem] border border-white/10 hover:border-white/20 transition-all duration-300 shadow-xl hover:shadow-[0_10px_40px_rgba(168,85,247,0.1)]">
+                    <div className="w-12 h-12 mb-6 text-purple-400 flex items-center justify-center">
+                       <div className="w-12 h-6 bg-purple-500/20 rounded-full border border-purple-500/30 flex items-center p-1 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                          <div className="w-4 h-4 bg-purple-400 rounded-full ml-auto"></div>
                        </div>
-                       <div className="absolute top-10 right-10 text-[#FFD700] font-black text-6xl opacity-10 select-none hidden md:block">02</div>
-                       <h3 className="text-2xl font-black text-white mb-3">University Phase</h3>
-                       <h4 className="text-[#FFD700] font-black uppercase tracking-widest text-[10px] mb-5 border-b border-[#FFD700]/20 inline-block pb-1">Molding Careers</h4>
-                       <p className="text-slate-400 font-medium leading-[1.8]">Challenging, deeply technical pathways designed to prepare students for real-world enterprise engineering, business, and tech sectors.</p>
                     </div>
+                    <h3 className="text-2xl font-black text-white mb-4">Growing Further</h3>
+                    <p className="text-slate-400 leading-relaxed font-medium">As you move forward in your education, EDOT supports you with structured and deeper learning. From advanced subjects to new areas like technology and communication, you develop clarity, skills, and readiness for university-level challenges.</p>
+                 </div>
 
-                    {/* Path 3 */}
-                    <div className="bg-[#11151F]/60 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.02)] relative group hover:-translate-y-2 transition-transform duration-300">
-                       <div className="w-20 h-20 rounded-2xl bg-white/5 text-white flex items-center justify-center mb-8 border border-white/20 group-hover:scale-110 transition-transform">
-                          <Rocket className="w-10 h-10" />
-                       </div>
-                       <div className="absolute top-10 right-10 text-white font-black text-6xl opacity-5 select-none hidden md:block">03</div>
-                       <h3 className="text-2xl font-black text-white mb-3">Lifelong Learning</h3>
-                       <h4 className="text-white font-black uppercase tracking-widest text-[10px] mb-5 border-b border-white/20 inline-block pb-1">Continual Growth</h4>
-                       <p className="text-slate-400 font-medium leading-[1.8]">Upskilling for established professionals through dynamic personal development and advanced industry-vetted certifications.</p>
+                 {/* Card 3 */}
+                 <div className="bg-[#11151F]/40 backdrop-blur-xl p-8 lg:p-10 rounded-[2.5rem] border border-white/10 hover:border-white/20 transition-all duration-300 shadow-xl hover:shadow-[0_10px_40px_rgba(249,115,22,0.1)]">
+                    <div className="w-12 h-12 mb-6 text-orange-400">
+                       <BarChart className="w-full h-full drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]" strokeWidth={1.5} />
                     </div>
+                    <h3 className="text-2xl font-black text-white mb-4">Upskilling for the Future</h3>
+                    <p className="text-slate-400 leading-relaxed font-medium">Already have the basics? Take your learning to the next level. Explore programming, business, and personal development to strengthen your skills and prepare for real-world opportunities.</p>
+                 </div>
+
+                 {/* Card 4 */}
+                 <div className="bg-[#11151F]/40 backdrop-blur-xl p-8 lg:p-10 rounded-[2.5rem] border border-white/10 hover:border-white/20 transition-all duration-300 shadow-xl hover:shadow-[0_10px_40px_rgba(59,130,246,0.1)]">
+                    <div className="w-12 h-12 mb-6 text-blue-400">
+                       <Laptop className="w-full h-full drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-2xl font-black text-white mb-4">Future Builders</h3>
+                    <p className="text-slate-400 leading-relaxed font-medium">Have big goals or ideas for the future? EDOT helps you turn knowledge into action — learn how to think, create, and build solutions that can impact your career, your community, and the world.</p>
                  </div>
               </div>
            </div>
@@ -226,7 +226,7 @@ export default function Home() {
         {/* 4. LEARNING PATH SECTION */}
         <section className="py-24 px-6 max-w-7xl mx-auto relative z-20">
            <div className="text-center mb-16 animate-in slide-in-from-bottom-5 duration-700">
-             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Start Your Learning Journey <br className="hidden md:block" /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#008A32] to-[#FFD700]">From Foundation to Career</span></h2>
+             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Start Your Learning Journey <br className="hidden md:block" /> From Foundation to Career</h2>
              <p className="text-lg text-slate-400 font-medium mt-6 max-w-2xl mx-auto">
                Visually guiding you through EDOT’s intelligently structured system, step by step.
              </p>
@@ -459,8 +459,8 @@ export default function Home() {
            <div className="max-w-7xl mx-auto px-6">
               
               <div className="text-center mb-28 animate-in slide-in-from-bottom-5 duration-700">
-                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
-                   Finally, a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#008A32]">smarter and easier</span> way to learn
+                 <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-6">
+                   Finally, a smarter and easier way to learn
                  </h2>
                  <p className="text-lg md:text-xl text-slate-400 font-medium max-w-3xl mx-auto leading-relaxed">
                    Say goodbye to confusing platforms and scattered resources — EDOT brings everything together into one simple, structured learning experience for everyone.
@@ -538,16 +538,16 @@ export default function Home() {
                     <Sparkles className="w-4 h-4" /> Unlock Your Potential
                  </div>
                  
-                 <h2 className="text-4xl md:text-6xl font-black text-white leading-[1.1] mb-8 tracking-tight">
-                    Your future <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#008A32]">starts here.</span>
+                 <h2 className="text-4xl md:text-5xl font-black text-white leading-tight mb-8 tracking-tight">
+                    Your future <br/>starts here.
                  </h2>
 
                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <Link to="/courses" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#008A32] text-white font-black uppercase tracking-widest text-xs hover:bg-[#00A13B] shadow-[0_0_25px_rgba(0,138,50,0.4)] transition-all hover:-translate-y-1">
-                       Start Learning <PlayCircle className="w-5 h-5" />
+                    <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#008A32] text-white font-black uppercase tracking-widest text-xs hover:bg-[#00A13B] shadow-[0_0_25px_rgba(0,138,50,0.4)] transition-all hover:-translate-y-1">
+                       START LEARNING <ArrowRight className="w-5 h-5" />
                     </Link>
-                    <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white text-[#0B0E14] font-black uppercase tracking-widest text-xs hover:bg-slate-200 shadow-xl transition-all hover:-translate-y-1">
-                       Join EDOT <ArrowRight className="w-5 h-5" />
+                    <Link to="/courses" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-transparent border border-white/20 text-white font-black uppercase tracking-widest text-xs hover:bg-white/5 transition-all hover:-translate-y-1">
+                       EXPLORE COURSES
                     </Link>
                  </div>
               </div>

@@ -69,8 +69,8 @@ export default function Register() {
           <GraduationCap className="w-12 h-12" />
         </div>
         
-        <h1 className="text-5xl lg:text-7xl font-black text-white leading-tight tracking-tight mb-8">
-          Join The <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#008A32]">Community.</span>
+        <h1 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mb-8">
+          Join The <br/> <span className="text-white">Community.</span>
         </h1>
         <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-lg mb-12">
           Start your journey with EDOT today. Empower yourself with structured curriculums and high-end enterprise tools.
