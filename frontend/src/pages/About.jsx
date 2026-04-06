@@ -2,6 +2,11 @@ import React from 'react';
 import { CheckCircle, Globe, Award, Shield, Zap, TrendingUp, Users, Target, BookOpen, Key } from 'lucide-react';
 import CTA from '../components/CTA';
 
+import kenoImg from '../assets/keno.jpg';
+import firoImg from '../assets/firo.jpg';
+import bettyImg from '../assets/betty.jpg';
+import yobsanImg from '../assets/yobsan.jpg';
+
 const ImagePlaceholder = ({ text, className = "h-64", icon: Icon = Award }) => (
   <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/10 flex flex-col items-center justify-center text-slate-500 relative overflow-hidden group ${className}`}>
     <div className="absolute inset-0 bg-[#008A32]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -98,14 +103,18 @@ export default function About() {
            
            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
              {[
-               { name: 'Kenenisa Beyan', role: 'Chief Executive Officer', desc: 'Platform architect and strategic visionary expanding global relations.' },
-               { name: 'Firomsa Guteta', role: 'Lead Developer', desc: 'Core systems orchestration, database engineering, and deployment.' },
-               { name: 'Bethelhem Yehuala', role: 'Academic Director', desc: 'Strict curriculum curation, instructor vetting, and compliance.' },
-               { name: 'Yobsan Girma', role: 'Financial Controller', desc: 'Enterprise scaling, infrastructure finance, and strategic growth.' }
+               { name: 'Kenenisa Beyan', role: 'Chief Executive Officer', desc: 'Platform architect and strategic visionary expanding global relations.', image: kenoImg },
+               { name: 'Firomsa Guteta', role: 'Lead Developer', desc: 'Core systems orchestration, database engineering, and deployment.', image: firoImg },
+               { name: 'Bethelhem Yehuala', role: 'Academic Director', desc: 'Strict curriculum curation, instructor vetting, and compliance.', image: bettyImg },
+               { name: 'Yobsan Girma', role: 'Financial Controller', desc: 'Enterprise scaling, infrastructure finance, and strategic growth.', image: yobsanImg }
              ].map((member, i) => (
                <div key={i} className="bg-[#11151F]/40 border border-white/10 rounded-[2rem] overflow-hidden text-center group transition-all duration-300 hover:border-white/30 hover:-translate-y-2 hover:bg-[#11151F]">
                  <div className="h-64 relative overflow-hidden border-b border-white/5">
-                    <ImagePlaceholder text={`Photo: ${member.name}`} icon={Users} className="h-full w-full rounded-none border-0" />
+                    {member.image ? (
+                        <img src={member.image} alt={member.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    ) : (
+                        <ImagePlaceholder text={`Photo: ${member.name}`} icon={Users} className="h-full w-full rounded-none border-0" />
+                    )}
                  </div>
                  <div className="p-8">
                    <h4 className="font-black text-xl text-white mb-2 tracking-tight">{member.name}</h4>
@@ -131,7 +140,7 @@ export default function About() {
               </p>
               <div className="mt-10 pt-8 border-t border-white/5 mx-auto flex flex-col md:flex-row items-center justify-center gap-6">
                  <div className="w-24 h-24 shrink-0">
-                    <ImagePlaceholder text="KB" icon={Users} className="w-full h-full rounded-full border-2 border-[#008A32]/50 shadow-[0_0_20px_rgba(0,138,50,0.2)]" />
+                    <img src={kenoImg} alt="Kenenisa Beyan" className="w-full h-full rounded-full border-2 border-[#008A32]/50 shadow-[0_0_20px_rgba(0,138,50,0.2)] object-cover" />
                  </div>
                  <div className="text-center md:text-left">
                     <h4 className="text-2xl font-black text-white tracking-tight">Kenenisa Beyan</h4>
