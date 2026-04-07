@@ -16,7 +16,9 @@ import {
   ChevronRight,
   MonitorPlay,
   Lock,
-  Unlock
+  Unlock,
+  BookOpen,
+  ArrowRight
 } from 'lucide-react';
 
 export default function CourseDetails() {
