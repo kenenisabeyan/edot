@@ -7,6 +7,7 @@ import {
   GraduationCap, ArrowRight
 } from 'lucide-react';
 import edotLogo from '../assets/edot-logo.jpg';
+import { foundationCategories, advancedCategories } from '../constants/courseCategories';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -63,18 +64,6 @@ export default function Navbar() {
         : 'text-slate-400 hover:text-white'
     }`;
 
-  const foundationCategories = [
-    { name: 'Social Science', icon: <Globe className="w-4 h-4 text-[#008A32]" />, path: '/courses' },
-    { name: 'Mathematics & Natural Science', icon: <Zap className="w-4 h-4 text-[#008A32]" />, path: '/courses' },
-    { name: 'Natural Language', icon: <BookOpen className="w-4 h-4 text-[#008A32]" />, path: '/courses' },
-  ];
-
-  const advancedCategories = [
-    { name: 'Programming & Technology', icon: <Code className="w-4 h-4 text-[#FFD700]" />, path: '/courses' },
-    { name: 'Business & Entrepreneurship', icon: <Shield className="w-4 h-4 text-[#FFD700]" />, path: '/courses' },
-    { name: 'Personal Development', icon: <UserCheck className="w-4 h-4 text-[#FFD700]" />, path: '/courses' },
-  ];
-
   return (
     <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 font-sans ${isScrolled ? 'bg-[#0B0E14]/90 backdrop-blur-xl border-b border-white/10 py-4 shadow-lg' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -114,7 +103,7 @@ export default function Navbar() {
                        {foundationCategories.map((cat, idx) => (
                          <Link key={idx} to={cat.path} className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#0B0E14] border border-transparent hover:border-white/5 transition-all group">
                            <div className="w-8 h-8 rounded-lg bg-[#008A32]/5 flex items-center justify-center group-hover:bg-[#008A32]/10 transition-colors shrink-0">
-                             {cat.icon}
+                               {cat.iconSmall}
                            </div>
                            <h4 className="text-slate-300 text-xs font-bold group-hover:text-white transition-colors">{cat.name}</h4>
                          </Link>
@@ -131,7 +120,7 @@ export default function Navbar() {
                        {advancedCategories.map((cat, idx) => (
                          <Link key={idx} to={cat.path} className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#0B0E14] border border-transparent hover:border-white/5 transition-all group">
                            <div className="w-8 h-8 rounded-lg bg-[#FFD700]/5 flex items-center justify-center group-hover:bg-[#FFD700]/10 transition-colors shrink-0">
-                             {cat.icon}
+                               {cat.iconSmall}
                            </div>
                            <h4 className="text-slate-300 text-xs font-bold group-hover:text-white transition-colors">{cat.name}</h4>
                          </Link>

@@ -9,6 +9,7 @@ import {
 import QuizBuilder from '../components/QuizBuilder';
 import CustomDropdown from '../components/CustomDropdown';
 import { useAuth } from '../context/AuthContext';
+import { courseDropdownOptions } from '../constants/courseCategories';
 
 export default function InstructorCourseBuilder() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function InstructorCourseBuilder() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'Programming',
+    category: 'Social Science',
     level: 'Beginner',
     duration: 1,
     thumbnail: '',
@@ -50,7 +51,7 @@ export default function InstructorCourseBuilder() {
         setFormData({
           title: data.course.title || '',
           description: data.course.description || '',
-          category: data.course.category || 'Programming',
+          category: data.course.category || 'Social Science',
           level: data.course.level || 'Beginner',
           duration: data.course.duration || 1,
           thumbnail: data.course.thumbnail || '',
@@ -323,15 +324,7 @@ export default function InstructorCourseBuilder() {
                       <CustomDropdown
                         value={formData.category}
                         onChange={(val) => setFormData({...formData, category: val})}
-                        options={[
-                          { label: 'Programming', value: 'Programming' },
-                          { label: 'Mathematics', value: 'Mathematics' },
-                          { label: 'Science', value: 'Science' },
-                          { label: 'Exam Prep', value: 'Exam Prep' },
-                          { label: 'Languages', value: 'Languages' },
-                          { label: 'Business', value: 'Business' },
-                          { label: 'Design', value: 'Design' }
-                        ]}
+                        options={courseDropdownOptions}
                       />
                     </div>
                     <div>

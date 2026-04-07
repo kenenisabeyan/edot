@@ -11,12 +11,13 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsToolti
 import edotLogo from '../assets/edot-logo.jpg';
 import ActivityFeed from '../components/ActivityFeed';
 import CustomDropdown from '../components/CustomDropdown';
+import { courseDropdownOptions } from '../constants/courseCategories';
 
 export default function InstructorDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
-  const [formData, setFormData] = useState({ title: '', description: '', category: 'Programming', duration: 1, thumbnail: '' });
+  const [formData, setFormData] = useState({ title: '', description: '', category: 'Social Science', duration: 1, thumbnail: '' });
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
@@ -406,14 +407,7 @@ export default function InstructorDashboard() {
                     <CustomDropdown
                       value={formData.category}
                       onChange={(val) => setFormData({...formData, category: val})}
-                      options={[
-                        { label: 'Programming', value: 'Programming' },
-                        { label: 'Mathematics', value: 'Mathematics' },
-                        { label: 'Science', value: 'Science' },
-                        { label: 'Exam Prep', value: 'Exam Prep' },
-                        { label: 'Business', value: 'Business' },
-                        { label: 'Design', value: 'Design' }
-                      ]}
+                      options={courseDropdownOptions}
                       className="w-full bg-[#11151F]"
                     />
                   </div>

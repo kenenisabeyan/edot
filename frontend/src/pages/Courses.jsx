@@ -14,6 +14,8 @@ const ImagePlaceholder = ({ text, className = "h-56" }) => (
   </div>
 );
 
+import { foundationCategories as initialFoundation, advancedCategories as initialAdvanced } from '../constants/courseCategories';
+
 export default function Courses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,17 +23,8 @@ export default function Courses() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
 
-  const foundationCategories = [
-    'Social Science', 
-    'Mathematics & Natural Science', 
-    'Natural Language'
-  ];
-
-  const advancedCategories = [
-    'Programming & Technology', 
-    'Business & Entrepreneurship', 
-    'Personal Development'
-  ];
+  const foundationCategories = initialFoundation.map(c => c.name);
+  const advancedCategories = initialAdvanced.map(c => c.name);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -52,9 +45,7 @@ export default function Courses() {
     const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           (course.description && course.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    // Loosely handle existing "Business" strings returning from older databases
-    const mappedCategory = course.category === 'Business' ? 'Business & Entrepreneurship' : course.category;
-    const matchesCategory = categoryFilter === 'All' || mappedCategory === categoryFilter;
+    const matchesCategory = categoryFilter === 'All' || course.category === categoryFilter;
     
     return matchesSearch && matchesCategory;
   });
@@ -231,7 +222,7 @@ export default function Courses() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
               {filteredCourses.map((course) => {
-                const isAdvanced = advancedCategories.includes(course.category === 'Business' ? 'Business & Entrepreneurship' : course.category);
+                const isAdvanced = advancedCategories.includes(course.category);
                 const targetAudience = course.targetAudience || (isAdvanced ? 'University / Corporate' : 'School');
 
                 return (

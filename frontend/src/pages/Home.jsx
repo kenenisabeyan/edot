@@ -12,6 +12,8 @@ import CTA from '../components/CTA';
 import feature1Img from '../assets/features-1.png';
 import feature2Img from '../assets/features-2.png';
 import feature3Img from '../assets/features-3.png';
+import ctaLeftImg from '../assets/presantetion.jpg';
+import ctaRightImg from '../assets/edot-taken-certificates.jpg';
 
 // Image Placeholders to make the UI look rich in dark mode
 const ImagePlaceholder = ({ text, className = "h-64", icon: Icon = BookOpen }) => (
@@ -523,38 +525,36 @@ export default function Home() {
 
         {/* 6. FINAL CTA BLOCK */}
         <section className="py-24 px-6 max-w-7xl mx-auto relative z-20">
-           <div className="bg-[#11151F]/60 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 md:p-16 relative overflow-hidden shadow-2xl group flex flex-col md:flex-row items-center justify-between gap-10">
-              <div className="absolute top-[-50%] left-[-10%] w-[500px] h-[500px] bg-[#008A32]/20 rounded-full blur-[100px] pointer-events-none transition-transform duration-1000 group-hover:translate-x-20"></div>
-              <div className="absolute bottom-[-50%] right-[-10%] w-[500px] h-[500px] bg-[#FFD700]/10 rounded-full blur-[100px] pointer-events-none transition-transform duration-1000 group-hover:-translate-x-20"></div>
+           <div className="bg-gradient-to-br from-[#1b1e24] to-[#121418] border border-white/5 rounded-[2.5rem] p-10 md:p-14 relative overflow-hidden shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-10">
               
-              <div className="hidden lg:block w-1/4 relative z-10">
-                 <div className="aspect-square bg-[#0B0E14] rounded-full border-4 border-white/10 p-2 shadow-2xl -rotate-6 group-hover:rotate-0 transition-transform duration-500">
-                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&q=80" alt="Students" className="w-full h-full object-cover rounded-full opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all" />
+              <div className="hidden lg:block w-56 h-56 relative z-10 shrink-0">
+                 <div className="w-full h-full rounded-full border-[8px] border-[#0d0f13] shadow-2xl overflow-hidden">
+                    <img src={ctaLeftImg} alt="Students" className="w-full h-full object-cover grayscale opacity-90 transition-all duration-500 hover:grayscale-0 hover:opacity-100" />
                  </div>
               </div>
 
-              <div className="flex-1 text-center relative z-10">
-                 <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 text-[#FFD700] font-black text-[10px] tracking-widest uppercase mb-6 shadow-md shadow-[#FFD700]/5">
-                    <Sparkles className="w-4 h-4" /> Unlock Your Potential
+              <div className="flex-1 text-center relative z-10 flex flex-col items-center">
+                 <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-[#FFD700]/20 text-[#FFD700] font-black text-[9px] tracking-[0.15em] uppercase mb-6 shadow-md bg-black/40">
+                    <Sparkles className="w-3 h-3" /> UNLOCK YOUR POTENTIAL
                  </div>
                  
-                 <h2 className="text-4xl md:text-5xl font-black text-white leading-tight mb-8 tracking-tight">
-                    Your future <br/>starts here.
+                 <h2 className="text-4xl md:text-[3.25rem] font-black text-white leading-[1.1] mb-8 tracking-tight">
+                    Your future <br/>starts <span className="text-[#008A32]">here.</span>
                  </h2>
 
-                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#008A32] text-white font-black uppercase tracking-widest text-xs hover:bg-[#00A13B] shadow-[0_0_25px_rgba(0,138,50,0.4)] transition-all hover:-translate-y-1">
-                       START LEARNING <ArrowRight className="w-5 h-5" />
+                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full px-4">
+                    <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#008A32] text-white font-black uppercase tracking-widest text-[11px] hover:bg-[#007028] transition-all">
+                       START LEARNING <ArrowRight className="w-4 h-4 text-white" />
                     </Link>
-                    <Link to="/courses" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-transparent border border-white/20 text-white font-black uppercase tracking-widest text-xs hover:bg-white/5 transition-all hover:-translate-y-1">
+                    <Link to="/courses" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#16181d] border border-white/10 text-white font-black uppercase tracking-widest text-[11px] hover:bg-[#1a1c22] transition-all">
                        EXPLORE COURSES
                     </Link>
                  </div>
               </div>
 
-              <div className="hidden lg:block w-1/4 relative z-10">
-                 <div className="aspect-square bg-[#0B0E14] rounded-full border-4 border-white/10 p-2 shadow-2xl rotate-6 group-hover:rotate-0 transition-transform duration-500">
-                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=400&q=80" alt="Professionals" className="w-full h-full object-cover rounded-full opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all" />
+              <div className="hidden lg:block w-56 h-56 relative z-10 shrink-0">
+                 <div className="w-full h-full rounded-full border-[8px] border-[#0d0f13] shadow-2xl overflow-hidden">
+                    <img src={ctaRightImg} alt="Professionals" className="w-full h-full object-cover grayscale opacity-90 transition-all duration-500 hover:grayscale-0 hover:opacity-100" />
                  </div>
               </div>
            </div>
