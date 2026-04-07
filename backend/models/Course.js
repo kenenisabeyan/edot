@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { COURSE_CATEGORIES, MAIN_CATEGORIES } = require('../utils/courseCategories');
 
 const courseSchema = new mongoose.Schema({
     title: {
@@ -21,33 +22,29 @@ const courseSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    category: {
+    mainCategory: {
         type: String,
-        required: [true, 'Please select a category'],
-        enum: [
-            'Programming',
-            'Programming & Tech',
-            'Programming & Technology',
-            'Mathematics',
-            'Science',
-            'Math & Science',
-            'Mathematics & Natural Science',
-            'Math & Natural Science',
-            'Social Science',
-            'Natural Language',
-            'Languages',
-            'Exam Prep',
-            'Business',
-            'Business & Entrepreneurship',
-            'Design',
-            'Marketing',
-            'Personal Dev',
-            'Personal Development'
-        ]
+        required: [true, 'Please select a main category'],
+        enum: {
+            values: MAIN_CATEGORIES,
+            message: '{VALUE} is not a valid main category'
+        }
+    },
+    subCategory: {
+        type: String,
+        required: [true, 'Please select a sub category'],
+        validate: {
+            validator: function(v) {
+                if (!this.mainCategory) return false;
+                const validSubcategories = COURSE_CATEGORIES[this.mainCategory] || [];
+                return validSubcategories.includes(v);
+            },
+            message: props => `${props.value} is not a valid subcategory for the selected main category.`
+        }
     },
     level: {
         type: String,
-        enum: ['Beginner', 'Intermediate', 'Advanced', 'All Levels'],
+        enum: ['Beginner', 'Intermediate', 'Advanced'],
         default: 'Beginner'
     },
     duration: {
@@ -58,6 +55,9 @@ const courseSchema = new mongoose.Schema({
     thumbnail: {
         type: String,
         default: 'default-course.jpg'
+    },
+    videoUrl: {
+        type: String
     },
     price: {
         type: Number,

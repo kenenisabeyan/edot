@@ -95,6 +95,10 @@ export default function Home() {
                             src={getAvatarUrl(user.avatar)} 
                             alt="Current User" 
                             className="w-full h-full object-cover rounded-full"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=11151F&color=FFFFFF&bold=true`;
+                            }}
                           />
                         ) : (
                           <span className="text-white font-black text-xl">{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>
@@ -110,6 +114,10 @@ export default function Home() {
                             src={getAvatarUrl(dbUser.avatar)} 
                             alt={dbUser.name} 
                             className="w-full h-full object-cover rounded-full"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(dbUser.name || 'A')}&background=11151F&color=FFFFFF&bold=true`;
+                            }}
                           />
                         ) : (
                           <span className="text-white font-black text-xl opacity-80">{dbUser.name ? dbUser.name.charAt(0).toUpperCase() : 'A'}</span>

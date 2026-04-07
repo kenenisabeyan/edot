@@ -107,8 +107,14 @@ export default function CourseDetails() {
 
           <div className="flex flex-col lg:flex-row gap-12 lg:items-center">
              <div className="lg:w-2/3">
-                <div className="mb-4 inline-block bg-[#FFC107] text-[#111111] px-3 py-1 font-black text-xs uppercase tracking-widest rounded-sm">
-                   {course.category}
+                <div className="mb-4 flex flex-wrap items-center gap-2 text-[#FFC107] font-black text-xs uppercase tracking-widest">
+                   <span>{course.mainCategory || 'General'}</span>
+                   {course.subCategory && (
+                     <>
+                        <ChevronRight className="w-4 h-4 text-white/50" />
+                        <span className="text-white px-2 py-1 bg-white/10 rounded-md border border-white/20">{course.subCategory}</span>
+                     </>
+                   )}
                 </div>
                 <h1 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase tracking-tight">{course.title}</h1>
                 <p className="text-gray-300 text-lg font-medium leading-relaxed max-w-3xl mb-8">

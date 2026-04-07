@@ -13,7 +13,8 @@ const { logActivity } = require('../controllers/activityController');
 router.get('/', async (req, res) => {
     try {
         const { 
-            category, 
+            mainCategory,
+            subCategory,
             level, 
             search, 
             page = 1, 
@@ -24,7 +25,8 @@ router.get('/', async (req, res) => {
         // Build query
         let query = { isPublished: true, status: 'approved' };
         
-        if (category) query.category = category;
+        if (mainCategory) query.mainCategory = mainCategory;
+        if (subCategory) query.subCategory = subCategory;
         if (level) query.level = level;
         if (search) {
             query.$or = [
@@ -172,6 +174,32 @@ router.put('/:id', protect, authorize('instructor', 'admin'), async (req, res) =
             success: false,
             message: 'Server error'
         });
+    }
+});
+
+// @route   DELETE /api/courses/:id
+// @desc    Delete course
+// @access  Private/Instructor or Admin
+router.delete('/:id', protect, authorize('instructor', 'admin'), async (req, res) => {
+    try {
+        const course = await Course.findById(req.params.id);
+
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Course not found' });
+        }
+
+        if (course.instructor.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Not authorized to delete this course' });
+        }
+
+        await Course.findByIdAndDelete(req.params.id);
+        
+        await logActivity(req.user.id, `Deleted a course: ${course.title}`, 'course', course.title);
+
+        res.json({ success: true, data: {} });
+    } catch (error) {
+        console.error('Delete course error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 
