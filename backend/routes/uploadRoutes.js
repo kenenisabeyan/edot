@@ -1,37 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('cloudinary').v2;
 const { protect } = require('../middleware/auth');
 const path = require('path');
+const fs = require('fs');
 
-// Configure Cloudinary (Keys must be securely stored in .env)
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    return {
-      folder: 'edot_uploads',
-      resource_type: 'auto', // Cloudinary will automatically decide if it is image or video
-      allowed_formats: ['jpeg', 'png', 'jpg', 'webp', 'mp4', 'mkv', 'webm', 'pdf', 'doc', 'docx', 'zip', 'rar']
-    };
-  },
-});
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Init upload
+const storage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename(req, file, cb) {
+    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+  }
+});
+
 const upload = multer({ 
-    storage: storage,
+    storage,
     limits: { fileSize: 1000000000 } // 1GB Limit
 });
 
 // @route   POST /api/upload
-// @desc    Upload an image or video to Cloudinary
+// @desc    Upload an image or video locally
 // @access  Private
 router.post('/', protect, upload.single('image'), (req, res) => {
     try {
@@ -40,7 +36,7 @@ router.post('/', protect, upload.single('image'), (req, res) => {
         }
         res.json({
             success: true,
-            filePath: req.file.path // Cloudinary URL
+            filePath: `/${req.file.destination}${req.file.filename}` // Local URL e.g. /uploads/image-123.png
         });
     } catch (error) {
         console.error('Upload error:', error);

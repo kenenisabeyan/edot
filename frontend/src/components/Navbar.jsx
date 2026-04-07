@@ -4,10 +4,23 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Menu, X, ChevronDown, User, LogOut, Settings, 
   Bell, BookOpen, Shield, Zap, Globe, Code, UserCheck, 
-  GraduationCap, ArrowRight
+  GraduationCap, ArrowRight, BrainCircuit, LineChart, Target
 } from 'lucide-react';
 import edotLogo from '../assets/edot-logo.jpg';
-import { foundationCategories, advancedCategories } from '../constants/courseCategories';
+import { MAIN_CATEGORIES } from '../constants/courseCategories';
+
+// Link dynamic centralized categories to the generic UI Dropdown
+const foundationCategories = [
+  { name: MAIN_CATEGORIES[0] || 'Social Science', path: '/courses?mainCategory=Social%20Science', iconSmall: <Globe className="w-4 h-4 text-[#008A32]" /> },
+  { name: MAIN_CATEGORIES[1] || 'Mathematics & Natural Science', path: '/courses?mainCategory=Mathematics%20%26%20Natural%20Science', iconSmall: <BrainCircuit className="w-4 h-4 text-[#008A32]" /> },
+  { name: MAIN_CATEGORIES[2] || 'Natural Language', path: '/courses?mainCategory=Natural%20Language', iconSmall: <BookOpen className="w-4 h-4 text-[#008A32]" /> }
+];
+
+const advancedCategories = [
+  { name: MAIN_CATEGORIES[3] || 'Programming & Technology', path: '/courses?mainCategory=Programming%20%26%20Technology', iconSmall: <Code className="w-4 h-4 text-[#FFD700]" /> },
+  { name: MAIN_CATEGORIES[4] || 'Business & Entrepreneurship', path: '/courses?mainCategory=Business%20%26%20Entrepreneurship', iconSmall: <LineChart className="w-4 h-4 text-[#FFD700]" /> },
+  { name: MAIN_CATEGORIES[5] || 'Personal Development', path: '/courses?mainCategory=Personal%20Development', iconSmall: <Target className="w-4 h-4 text-[#FFD700]" /> }
+];
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

@@ -56,4 +56,9 @@ export const MAIN_CATEGORIES = Object.keys(COURSE_CATEGORIES);
 
 export const ALL_SUBCATEGORIES = Object.values(COURSE_CATEGORIES).flat();
 
+export const courseDropdownOptions = MAIN_CATEGORIES.map(category => ({
+  label: category,
+  value: category
+}));
+
 export default COURSE_CATEGORIES;
