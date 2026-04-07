@@ -14,7 +14,62 @@ const ImagePlaceholder = ({ text, className = "h-56" }) => (
   </div>
 );
 
-import { foundationCategories as initialFoundation, advancedCategories as initialAdvanced } from '../constants/courseCategories';
+import { foundationCategories as initialFoundation, advancedCategories as initialAdvanced, allCategories as initialAllCategories } from '../constants/courseCategories';
+
+const CourseCard = ({ course, advancedCategories, layout = 'grid' }) => {
+  const isAdvanced = advancedCategories.includes(course.category);
+  const targetAudience = course.targetAudience || (isAdvanced ? 'University / Corporate' : 'School');
+  const widthClass = layout === 'scroll' ? 'w-[85vw] sm:w-[320px] md:w-[380px] shrink-0' : 'w-full';
+
+  return (
+    <div 
+      className={`bg-[#11151F]/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-[#008A32]/40 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(0,138,50,0.15)] transition-all duration-500 flex flex-col group p-3 ${widthClass}`}
+    >
+      <div className="h-56 relative overflow-hidden bg-[#0B0E14] rounded-[2rem]">
+        {course.thumbnail ? (
+           <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100" />
+        ) : (
+           <ImagePlaceholder text={`Thumbnail`} className="h-full w-full" />
+        )}
+        
+        <div className="absolute top-4 left-4 bg-[#0B0E14]/90 backdrop-blur text-white font-black text-[9px] uppercase tracking-widest px-3 py-1.5 rounded-lg border border-white/10 z-10 shadow-lg">
+          {course.category || 'General'}
+        </div>
+      </div>
+
+      <div className="p-6 flex-1 flex flex-col">
+        <div className="flex flex-wrap items-center gap-2 mb-5">
+           <span className="bg-gradient-to-r from-[#008A32] to-[#00A13B] text-white border border-[#008A32]/50 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest shadow-md">
+              {course.level || 'Beginner'}
+           </span>
+           <span className="bg-white/5 text-slate-300 border border-white/10 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest">
+              Target: {targetAudience}
+           </span>
+        </div>
+
+        <h3 className="text-2xl font-black text-white mb-4 leading-tight group-hover:text-[#FFD700] transition-colors line-clamp-2">{course.title}</h3>
+        
+        <div className="flex items-center gap-3 mb-8 text-sm text-slate-400 font-medium">
+           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#11151F] to-[#0B0E14] flex items-center justify-center shrink-0 border border-white/10 shadow-inner">
+              <Users className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
+           </div>
+           <span className="font-semibold group-hover:text-white transition-colors">{course.instructor?.name || 'EDOT Educator'}</span>
+        </div>
+
+        <div className="pt-6 border-t border-white/5 flex items-center justify-between mt-auto">
+          <div>
+             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Price</span>
+             <span className="font-black text-2xl text-[#FFD700]">ETB {course.price || 'Free'}</span>
+          </div>
+          <Link to={`/course/${course._id}`} className="bg-[#11151F] text-white px-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#FFD700] hover:text-black border border-white/10 hover:border-[#FFD700]/50 shadow-lg transition-all flex items-center gap-2">
+            Enroll <ArrowRight className="w-4 h-4"/>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
@@ -25,11 +80,12 @@ export default function Courses() {
 
   const foundationCategories = initialFoundation.map(c => c.name);
   const advancedCategories = initialAdvanced.map(c => c.name);
+  const allCategories = initialAllCategories;
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const { data } = await api.get('/courses/public');
+        const { data } = await api.get('/courses');
         setCourses(data.courses || []);
         setLoading(false);
       } catch (err) {
@@ -145,63 +201,54 @@ export default function Courses() {
              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">Browse All Courses</h2>
           </div>
 
-          <div className="bg-[#11151F]/60 backdrop-blur-2xl p-6 rounded-[2.5rem] shadow-sm border border-white/10 flex flex-col gap-8 mb-16">
-             <div className="w-full relative group">
-               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 w-6 h-6 group-focus-within:text-[#FFD700] transition-colors" />
+          <div className="mb-16">
+             {/* Unified Search Bar */}
+             <div className="w-full relative group max-w-4xl mx-auto mb-10 shadow-[0_0_40px_rgba(0,0,0,0.3)] rounded-3xl">
+               <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-500 w-6 h-6 group-focus-within:text-[#FFD700] transition-colors" />
                <input 
                  type="text" 
-                 placeholder="Search by title or topic..."
+                 placeholder="Search courses, skills, or subjects..."
                  value={searchTerm}
                  onChange={(e) => setSearchTerm(e.target.value)}
-                 className="w-full pl-16 pr-6 py-4 bg-[#0B0E14] border border-white/10 rounded-2xl text-white placeholder-slate-500 font-medium focus:outline-none focus:ring-1 focus:ring-[#FFD700]/50 focus:border-[#FFD700]/50 transition-all text-lg"
+                 className="w-full pl-20 pr-8 py-6 bg-[#11151F]/80 backdrop-blur-2xl border border-white/10 rounded-3xl text-white placeholder-slate-500 font-bold focus:outline-none focus:ring-1 focus:ring-[#FFD700]/50 focus:border-[#FFD700]/50 transition-all text-xl shadow-inner"
                />
+               {searchTerm && (
+                 <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-[#FFD700] uppercase tracking-widest bg-[#FFD700]/10 px-3 py-1 rounded-full border border-[#FFD700]/30 animate-in fade-in">
+                   {filteredCourses.length} results
+                 </div>
+               )}
              </div>
              
-             {/* Unified Filter UI grouped into Foundation and Advanced */}
-             <div>
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 ml-2">Filter Categories</h4>
-                <div className="flex flex-col lg:flex-row gap-6">
-                   <button 
-                     onClick={() => setCategoryFilter('All')}
-                     className={`px-8 py-3 h-fit rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shrink-0 border ${categoryFilter === 'All' ? 'bg-[#FFD700] text-black border-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'bg-[#0B0E14] text-slate-400 border-white/10 hover:border-white/30'}`}
-                   >
-                     All
-                   </button>
-                   
-                   <div className="flex-1 bg-gradient-to-br from-[#008A32]/10 to-transparent border border-[#008A32]/20 p-5 rounded-2xl">
-                      <div className="text-[#008A32] font-black text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2"><CheckCircle className="w-4 h-4"/> Foundation Focus</div>
-                      <div className="flex flex-wrap gap-2">
-                        {foundationCategories.map((cat, i) => (
-                           <button 
-                             key={`f-${i}`}
-                             onClick={() => setCategoryFilter(cat)}
-                             className={`px-4 py-2 text-[10px] uppercase tracking-widest font-black rounded-lg transition-all border ${
-                               categoryFilter === cat ? 'bg-[#008A32] text-white border-[#008A32] shadow-[0_0_10px_rgba(0,138,50,0.3)]' : 'bg-[#0B0E14] text-slate-400 border-white/10 hover:border-white/30'
-                             }`}
-                           >
-                             {cat}
-                           </button>
-                        ))}
-                      </div>
-                   </div>
-
-                   <div className="flex-1 bg-gradient-to-br from-[#FFD700]/10 to-transparent border border-[#FFD700]/20 p-5 rounded-2xl">
-                      <div className="text-[#FFD700] font-black text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2"><Zap className="w-4 h-4"/> Advanced Tech & Biz</div>
-                      <div className="flex flex-wrap gap-2">
-                        {advancedCategories.map((cat, i) => (
-                           <button 
-                             key={`a-${i}`}
-                             onClick={() => setCategoryFilter(cat)}
-                             className={`px-4 py-2 text-[10px] uppercase tracking-widest font-black rounded-lg transition-all border ${
-                               categoryFilter === cat ? 'bg-[#FFD700] text-black border-[#FFD700] shadow-[0_0_10px_rgba(255,215,0,0.3)]' : 'bg-[#0B0E14] text-slate-400 border-white/10 hover:border-white/30'
-                             }`}
-                           >
-                             {cat}
-                           </button>
-                        ))}
-                      </div>
-                   </div>
-                </div>
+             {/* Modern Sleek Categorized Pill Filter Bar */}
+             <div className="flex flex-col items-center">
+                 <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2"><Filter className="w-3 h-3"/> Filter by Discipline</h4>
+                 <div className="flex flex-wrap justify-center gap-3 max-w-5xl">
+                    <button 
+                      onClick={() => setCategoryFilter('All')}
+                      className={`px-6 py-3 rounded-full font-black uppercase tracking-widest text-[10px] transition-all shadow-md ${categoryFilter === 'All' ? 'bg-gradient-to-r from-[#FFD700] to-[#E5C100] text-black shadow-[0_0_20px_rgba(255,215,0,0.4)] scale-105' : 'bg-[#11151F] text-slate-400 border border-white/10 hover:border-white/30 hover:bg-[#1a1f2e]'}`}
+                    >
+                      All Modules
+                    </button>
+                    {allCategories.map((cat, i) => {
+                      const isFoundation = foundationCategories.includes(cat);
+                      return (
+                        <button 
+                          key={i}
+                          onClick={() => setCategoryFilter(cat)}
+                          className={`px-5 py-3 rounded-full font-black uppercase tracking-widest text-[10px] transition-all border shadow-md flex items-center gap-2 ${
+                            categoryFilter === cat 
+                              ? isFoundation 
+                                ? 'bg-gradient-to-r from-[#008A32] to-[#00A13B] text-white border-[#008A32] shadow-[0_0_20px_rgba(0,138,50,0.4)] scale-105' 
+                                : 'bg-gradient-to-r from-[#FFD700] to-[#E5C100] text-black border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)] scale-105'
+                              : 'bg-[#11151F] text-slate-400 border-white/10 hover:border-white/30 hover:bg-[#1a1f2e]'
+                          }`}
+                        >
+                          {isFoundation ? <CheckCircle className={`w-3 h-3 ${categoryFilter === cat ? 'text-white' : 'text-[#008A32]'}`} /> : <Zap className={`w-3 h-3 ${categoryFilter === cat ? 'text-black' : 'text-[#FFD700]'}`} />}
+                          {cat}
+                        </button>
+                      );
+                    })}
+                 </div>
              </div>
           </div>
           
@@ -219,61 +266,51 @@ export default function Courses() {
                <h3 className="text-2xl font-black text-slate-400">No matching modules found</h3>
                <p className="text-slate-500 mt-2 font-medium">Try adjusting your search or category filters.</p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
-              {filteredCourses.map((course) => {
-                const isAdvanced = advancedCategories.includes(course.category);
-                const targetAudience = course.targetAudience || (isAdvanced ? 'University / Corporate' : 'School');
+          ) : categoryFilter === 'All' && !searchTerm ? (
+             <div className="flex flex-col gap-24">
+               {allCategories.map(category => {
+                 const categoryCourses = courses.filter(c => c.category === category);
+                 if (categoryCourses.length === 0) return null;
+                 
+                 const isFoundation = foundationCategories.includes(category);
+                 const themeColor = isFoundation ? 'text-[#008A32]' : 'text-[#FFD700]';
+                 const themeBorder = isFoundation ? 'border-[#008A32]' : 'border-[#FFD700]';
+                 const themeBg = isFoundation ? 'bg-[#008A32]/10' : 'bg-[#FFD700]/10';
 
-                return (
-                 <div 
-                   key={course._id} 
-                   className="bg-[#0B0E14] border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-[#008A32]/40 hover:-translate-y-1 hover:shadow-[0_0_40px_rgba(0,138,50,0.1)] transition-all duration-300 flex flex-col group p-3"
-                 >
-                   <div className="h-56 relative overflow-hidden bg-[#11151F] rounded-[2rem]">
-                     {course.thumbnail ? (
-                        <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100" />
-                     ) : (
-                        <ImagePlaceholder text={`Thumbnail`} className="h-full w-full" />
-                     )}
-                     
-                     <div className="absolute top-4 left-4 bg-[#0B0E14]/90 backdrop-blur text-white font-black text-[9px] uppercase tracking-widest px-3 py-1.5 rounded-lg border border-white/10">
-                       {course.category || 'General'}
-                     </div>
-                   </div>
-
-                   <div className="p-6 flex-1 flex flex-col">
-                     <div className="flex flex-wrap items-center gap-2 mb-5">
-                        <span className="bg-[#008A32]/10 text-[#008A32] border border-[#008A32]/20 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest">
-                           {course.level || 'Beginner'}
-                        </span>
-                        <span className="bg-white/5 text-slate-300 border border-white/10 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest">
-                           Target: {targetAudience}
-                        </span>
-                     </div>
-
-                     <h3 className="text-2xl font-black text-white mb-4 leading-tight group-hover:text-[#008A32] transition-colors line-clamp-2">{course.title}</h3>
-                     
-                     <div className="flex items-center gap-3 mb-8 text-sm text-slate-400 font-medium">
-                        <div className="w-8 h-8 rounded-full bg-[#11151F] flex items-center justify-center shrink-0 border border-white/10">
-                           <Users className="w-4 h-4 text-slate-500" />
+                 return (
+                   <div key={category} className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-10 duration-700">
+                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/5 pb-6">
+                         <div>
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${themeBg} ${themeColor} font-black text-[9px] uppercase tracking-widest shadow-sm mb-3 border ${themeBorder}/20`}>
+                               {isFoundation ? 'Foundation Focus' : 'Advanced Market'}
+                            </div>
+                            <h3 className={`text-3xl md:text-4xl font-black text-white tracking-tight`}>{category}</h3>
+                         </div>
+                         <button 
+                           onClick={() => setCategoryFilter(category)}
+                           className="text-slate-400 hover:text-white font-bold text-[10px] uppercase tracking-widest flex items-center gap-1 transition-colors bg-[#11151F] px-4 py-2 rounded-full border border-white/10 hover:border-white/30"
+                         >
+                           View All {categoryCourses.length} <ArrowRight className="w-3 h-3" />
+                         </button>
+                      </div>
+                      
+                      {/* Horizontal Scrollable Row for Market Feel */}
+                      <div className="w-full overflow-x-auto pb-8 hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
+                        <div className="flex gap-8 w-max">
+                           {categoryCourses.map((course) => (
+                              <CourseCard key={course._id} course={course} advancedCategories={advancedCategories} layout="scroll" />
+                           ))}
                         </div>
-                        <span className="font-semibold">{course.instructor?.name || 'EDOT Educator'}</span>
-                     </div>
-
-                     <div className="pt-6 border-t border-white/5 flex items-center justify-between mt-auto">
-                       <div>
-                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1">Price</span>
-                          <span className="font-black text-2xl text-[#FFD700]">ETB {course.price || 'Free'}</span>
-                       </div>
-                       <Link to={`/course/${course._id}`} className="bg-[#008A32] text-white px-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#007028] shadow-[0_0_15px_rgba(0,138,50,0.2)] transition-colors flex items-center gap-2">
-                         Enroll <ArrowRight className="w-4 h-4"/>
-                       </Link>
-                     </div>
+                      </div>
                    </div>
-                 </div>
-                )
-              })}
+                 )
+               })}
+             </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in zoom-in-95 duration-500">
+              {filteredCourses.map((course) => (
+                  <CourseCard key={course._id} course={course} advancedCategories={advancedCategories} layout="grid" />
+              ))}
             </div>
           )}
         </section>
