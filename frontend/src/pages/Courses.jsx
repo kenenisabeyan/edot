@@ -2,13 +2,102 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { 
-  Users, BookOpen, ArrowRight, Search, Filter, Shield, 
+  Users, BookOpen, ArrowRight, ArrowLeft, Search, Filter, Shield, 
   Zap, CheckCircle, Star, Target, Rocket, ChevronDown
 } from 'lucide-react';
 import CTA from '../components/CTA';
 
 // Import new centralized category data
-import { MAIN_CATEGORIES } from '../constants/courseCategories';
+import COURSE_CATEGORIES, { MAIN_CATEGORIES } from '../constants/courseCategories';
+
+const CATEGORY_DETAILS = {
+  "Social Science": {
+    image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=600&auto=format&fit=crop",
+    description: "Explore the complexities of human society, history, and behavior through comprehensive social science programs.",
+    duration: "Flexible (1-3 months)",
+    students: "850+"
+  },
+  "Mathematics & Natural Science": {
+    image: "https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=600&auto=format&fit=crop",
+    description: "Master foundational and advanced concepts in mathematics, physics, and natural sciences.",
+    duration: "Flexible (2-6 months)",
+    students: "1200+"
+  },
+  "Natural Language": {
+    image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=600&auto=format&fit=crop",
+    description: "Enhance communication skills, dive deep into literature, linguistics, and foreign language.",
+    duration: "Flexible (1-4 months)",
+    students: "900+"
+  },
+  "Programming & Technology": {
+    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=600&auto=format&fit=crop",
+    description: "Break into tech with courses ranging from full-stack web development to AI and machine learning.",
+    duration: "Flexible (3-6 months)",
+    students: "2500+"
+  },
+  "Business & Entrepreneurship": {
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop",
+    description: "Develop critical business acumen, leadership skills, and entrepreneurial mindset for the economy.",
+    duration: "Flexible (1-3 months)",
+    students: "1500+"
+  },
+  "Personal Development": {
+    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=600&auto=format&fit=crop",
+    description: "Invest in your personal growth with courses designed to boost leadership and time management.",
+    duration: "Flexible (1-2 months)",
+    students: "3000+"
+  }
+};
+
+const CategoryCard = ({ category, onLearnMore, stats }) => {
+  const details = CATEGORY_DETAILS[category] || CATEGORY_DETAILS["Programming & Technology"];
+  
+  const subCategories = stats?.subCategories?.length > 0 
+      ? stats.subCategories.slice(0, 3) 
+      : (COURSE_CATEGORIES[category] || []).slice(0, 3);
+  
+  const hasMoreSubs = stats?.subCategories?.length > 3 || (COURSE_CATEGORIES[category] || []).length > 3;
+  const durationText = stats ? (stats.durationRange || "Flexible") : details.duration;
+  const studentsText = stats ? stats.totalStudents.toString() : details.students;
+  
+  return (
+    <div className="bg-white rounded-[2rem] overflow-hidden shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-500 flex flex-col group p-3.5 w-full border border-slate-100">
+      <div className="h-52 relative overflow-hidden rounded-[1.5rem] mb-4">
+        <img src={details.image} alt={category} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
+      </div>
+
+      <div className="flex-1 flex flex-col px-3">
+        <h3 className="text-[20px] font-bold text-slate-900 mb-2">{category}</h3>
+        <p className="text-slate-500 text-[14px] mb-5 line-clamp-2 leading-relaxed">{details.description}</p>
+        
+        <div className="flex flex-wrap items-center gap-2 mb-6 mt-auto">
+           {subCategories.map((sub, i) => (
+             <span key={i} className="bg-[#FFF1EB] text-[#F97316] px-3.5 py-1.5 rounded-full text-[10.5px] font-bold tracking-wide">
+                {sub}
+             </span>
+           ))}
+           {hasMoreSubs && (
+             <span className="bg-[#FFF1EB] text-[#F97316] px-3.5 py-1.5 rounded-full text-[10.5px] font-bold tracking-wide">
+               More...
+             </span>
+           )}
+        </div>
+
+        <div className="flex items-center justify-between mt-auto mb-5 text-[12px] text-slate-400 font-medium tracking-wide">
+          <span>Duration: {durationText}</span>
+          <span>Students: {studentsText}</span>
+        </div>
+
+        <button 
+          onClick={() => onLearnMore(category)} 
+          className="w-full py-4 rounded-xl font-bold text-[14px] text-[#F97316] border-[1.5px] border-[#F97316] hover:bg-[#F97316] hover:text-white transition-all duration-300 flex items-center justify-center -mb-1"
+        >
+          Learn More
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const ImagePlaceholder = ({ text, className = "h-56" }) => (
   <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border-b border-white/5 flex flex-col items-center justify-center text-slate-500 relative overflow-hidden group ${className}`}>
@@ -69,7 +158,9 @@ const CourseCard = ({ course, layout = 'grid' }) => {
 
 
 export default function Courses() {
+  const [viewMode, setViewMode] = useState('categories');
   const [courses, setCourses] = useState([]);
+  const [categoryStats, setCategoryStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
@@ -88,6 +179,24 @@ export default function Courses() {
     const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data } = await api.get('/courses/categorized');
+        const statsMap = {};
+        if (data && data.success && data.data) {
+           data.data.forEach(s => {
+             statsMap[s.mainCategory] = s;
+           });
+        }
+        setCategoryStats(statsMap);
+      } catch (err) {
+        console.error('Failed to fetch category stats', err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const fetchCourses = async (isLoadMore = false) => {
     if (!isLoadMore) setLoading(true);
@@ -157,15 +266,128 @@ export default function Courses() {
           </div>
         </section>
 
+        {/* WHAT YOU'LL LEARN SECTION */}
+        <section className="py-24 px-6 relative z-20">
+           <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-24 animate-in slide-in-from-bottom-5 duration-700">
+                 <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl mx-auto shadow-xl mb-6">
+                    <span className="text-[10px] font-black text-slate-300 tracking-[0.2em] uppercase">Curriculum Overview</span>
+                 </div>
+                 <h2 className="text-4xl md:text-[3.5rem] font-black text-white tracking-tight leading-tight mb-6">
+                   What You'll Learn with <span className="text-[#F97316]">EDOT</span> Courses
+                 </h2>
+                 <p className="text-xl md:text-2xl text-slate-400 font-medium max-w-3xl mx-auto">
+                   Master in-demand skills from foundational learning to advanced career growth — all in one place.
+                 </p>
+              </div>
+
+              {/* 6 Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10 px-4 md:px-0">
+                 
+                 {/* Card 1: Social Science */}
+                 <div className="bg-white rounded-[2rem] p-10 hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 flex flex-col items-center text-center group border border-slate-100 relative shadow-xl">
+                    <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                       <CheckCircle className="w-10 h-10 text-blue-500" strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-[22px] font-black text-slate-900 mb-5 leading-tight">Social Science</h3>
+                    <p className="text-slate-500 leading-relaxed font-medium text-[15px]">Explore human societies, history, and behavior through comprehensive programs.</p>
+                 </div>
+
+                 {/* Card 2: Math & Science (Highlighted 1) */}
+                 <div className="rounded-[2.5rem] p-[3px] relative hover:-translate-y-4 transition-all duration-500 lg:-translate-y-4 shadow-[0_30px_60px_rgba(0,0,0,0.15)] group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-300 via-indigo-500 to-[#F97316]/30 rounded-[2.5rem] blur-[3px] transition-all duration-700 opacity-80 group-hover:opacity-100"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#E2E8F0] via-indigo-400 to-[#FFE4D6] rounded-[2.5rem] transition-all duration-700 opacity-80 group-hover:opacity-100 group-hover:via-indigo-300"></div>
+                    <div className="bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] rounded-[2.3rem] p-10 h-full flex flex-col items-center text-center relative z-10">
+                        <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center mb-8 border-[6px] border-white shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                           <Star className="w-8 h-8 text-white" strokeWidth={2} />
+                        </div>
+                        <h3 className="text-[22px] font-black text-slate-900 mb-5 leading-tight">Mathematics & Science</h3>
+                        <p className="text-slate-500 leading-relaxed font-medium text-[15px]">Master foundational and advanced concepts in mathematics, physics, and natural sciences.</p>
+                    </div>
+                 </div>
+
+                 {/* Card 3: Natural Language */}
+                 <div className="bg-white rounded-[2rem] p-10 hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 flex flex-col items-center text-center group border border-slate-100 relative shadow-xl">
+                    <div className="w-20 h-20 rounded-full bg-purple-50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                       <BookOpen className="w-10 h-10 text-purple-500" strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-[22px] font-black text-slate-900 mb-5 leading-tight">Natural Language</h3>
+                    <p className="text-slate-500 leading-relaxed font-medium text-[15px]">Enhance communication skills, dive deep into literature, linguistics, and language.</p>
+                 </div>
+
+                 {/* Card 4: Business & Entrepreneurship */}
+                 <div className="bg-white rounded-[2rem] p-10 hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 flex flex-col items-center text-center group border border-slate-100 relative shadow-xl">
+                    <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                       <Target className="w-10 h-10 text-green-500" strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-[22px] font-black text-slate-900 mb-5 leading-tight">Business & Strategy</h3>
+                    <p className="text-slate-500 leading-relaxed font-medium text-[15px]">Develop critical business acumen, dynamic leadership skills, and entrepreneurial mindsets.</p>
+                 </div>
+
+                 {/* Card 5: Programming & Tech (Highlighted 2) */}
+                 <div className="rounded-[2.5rem] p-[3px] relative hover:-translate-y-4 transition-all duration-500 lg:-translate-y-4 shadow-[0_30px_60px_rgba(0,0,0,0.15)] group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-300 via-[#F97316]/70 to-[#F97316]/40 rounded-[2.5rem] blur-[3px] transition-all duration-700 opacity-80 group-hover:opacity-100"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#E2E8F0] via-[#F97316] to-[#FFE4D6] rounded-[2.5rem] transition-all duration-700 opacity-80 group-hover:opacity-100 group-hover:via-[#F97316]"></div>
+                    <div className="bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] rounded-[2.3rem] p-10 h-full flex flex-col items-center text-center relative z-10">
+                        <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center mb-8 border-[6px] border-white shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                           <Rocket className="w-8 h-8 text-white" strokeWidth={2} />
+                        </div>
+                        <h3 className="text-[22px] font-black text-slate-900 mb-5 leading-tight">Programming & Tech</h3>
+                        <p className="text-slate-500 leading-relaxed font-medium text-[15px]">Break into tech with full-stack web development, AI, and deployment sessions.</p>
+                    </div>
+                 </div>
+
+                 {/* Card 6: Personal Development */}
+                 <div className="bg-white rounded-[2rem] p-10 hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-500 flex flex-col items-center text-center group border border-slate-100 relative shadow-xl">
+                    <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                       <Users className="w-10 h-10 text-amber-500" strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-[22px] font-black text-slate-900 mb-5 leading-tight">Personal Development</h3>
+                    <p className="text-slate-500 leading-relaxed font-medium text-[15px]">Invest in your growth with scientifically proven habits and psychological tools.</p>
+                 </div>
+                 
+              </div>
+           </div>
+        </section>
+
         {/* 2. CATEGORY FILTER & 3. COURSE CARDS */}
         <section id="course-catalog" className="max-w-7xl mx-auto px-6 relative z-20 mb-32 pt-10">
           <div className="text-center mb-12">
-             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">Browse API Catalog</h2>
+             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">
+               {viewMode === 'categories' ? 'Program Categories' : `Catalog: ${categoryFilter}`}
+             </h2>
           </div>
 
-          <div className="mb-16">
-             {/* Unified Search Bar */}
-             <div className="w-full relative group max-w-4xl mx-auto mb-10 shadow-[0_0_40px_rgba(0,0,0,0.3)] rounded-3xl">
+          {viewMode === 'categories' ? (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full animate-in fade-in zoom-in-95 duration-500 mb-12">
+               {MAIN_CATEGORIES.map(cat => (
+                 <CategoryCard 
+                   key={cat} 
+                   category={cat} 
+                   stats={categoryStats[cat]}
+                   onLearnMore={(selectedCat) => {
+                     setCategoryFilter(selectedCat);
+                     setViewMode('courses');
+                     setSearchTerm('');
+                     setTimeout(() => {
+                       document.getElementById('course-catalog').scrollIntoView({ behavior: 'smooth' });
+                     }, 100);
+                   }} 
+                 />
+               ))}
+             </div>
+          ) : (
+             <>
+               <div className="mb-16">
+                 <button 
+                   onClick={() => setViewMode('categories')}
+                   className="mb-8 flex items-center gap-2 text-slate-400 hover:text-white transition-colors bg-white/5 border border-white/10 px-6 py-3 rounded-full font-bold text-[11px] uppercase tracking-widest"
+                 >
+                   <ArrowLeft className="w-4 h-4" /> Back to Categories
+                 </button>
+                 
+                 {/* Unified Search Bar */}
+                 <div className="w-full relative group max-w-4xl mx-auto mb-10 shadow-[0_0_40px_rgba(0,0,0,0.3)] rounded-3xl">
                <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-500 w-6 h-6 group-focus-within:text-[#FFD700] transition-colors" />
                <input 
                  type="text" 
@@ -244,6 +466,8 @@ export default function Courses() {
                    </button>
                  )}
              </div>
+          )}
+             </>
           )}
         </section>
 

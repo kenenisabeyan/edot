@@ -20,6 +20,7 @@ import koicaImg from '../assets/koica-logo.jpg';
 import astuImg from '../assets/astu.jpg';
 import innobizImg from '../assets/innobiz-K.jpg';
 import ostImg from '../assets/ost.jpg';
+import teamImg from '../assets/team.jpg';
 
 const ImagePlaceholder = ({ text, className = "h-64", icon: Icon = Award }) => (
   <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/10 flex flex-col items-center justify-center text-slate-500 relative overflow-hidden group ${className}`}>
@@ -80,8 +81,8 @@ export default function About() {
                      </div>
                   </div>
                </div>
-               <div className="h-full min-h-[400px]">
-                  <ImagePlaceholder text="Early Startup Boarding / Blueprint Sketches" icon={TrendingUp} className="h-full w-full border-white/10 rounded-3xl" />
+               <div className="h-full min-h-[400px] rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(0,138,50,0.1)]">
+                  <img src={teamImg} alt="Early Startup Boarding / Blueprint Sketches" className="h-full w-full object-cover hover:scale-105 transition-transform duration-700" />
                </div>
             </div>
           </div>

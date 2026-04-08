@@ -66,6 +66,64 @@ router.get('/', async (req, res) => {
     }
 });
 
+// @route   GET /api/courses/categorized
+// @desc    Get courses grouped by category with stats
+// @access  Public
+router.get('/categorized', async (req, res) => {
+    try {
+        const courses = await Course.find({ isPublished: true, status: 'approved' })
+            .populate('instructor', 'name email');
+
+        const grouped = {};
+        courses.forEach(c => {
+            if (!grouped[c.mainCategory]) {
+                grouped[c.mainCategory] = {
+                    mainCategory: c.mainCategory,
+                    courses: [],
+                    totalStudents: 0,
+                    minDuration: c.duration,
+                    maxDuration: c.duration,
+                    subCategories: new Set()
+                };
+            }
+            const g = grouped[c.mainCategory];
+            g.courses.push(c);
+            g.totalStudents += (c.totalStudents || 0);
+            if (c.duration < g.minDuration) g.minDuration = c.duration;
+            if (c.duration > g.maxDuration) g.maxDuration = c.duration;
+            if (c.subCategory) g.subCategories.add(c.subCategory);
+        });
+
+        const formatted = Object.values(grouped).map(g => {
+            let durationRange;
+            if (g.minDuration === g.maxDuration) {
+                 durationRange = `${g.minDuration} hours`;
+            } else {
+                 durationRange = `${g.minDuration}-${g.maxDuration} hours`;
+            }
+
+            return {
+                mainCategory: g.mainCategory,
+                courses: g.courses, // Can be used directly if frontend needs them
+                totalStudents: g.totalStudents,
+                durationRange: durationRange,
+                subCategories: Array.from(g.subCategories)
+            };
+        });
+
+        res.json({
+            success: true,
+            data: formatted
+        });
+    } catch (error) {
+        console.error('Get categorized courses error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+
 // @route   GET /api/courses/:id
 // @desc    Get single course by ID
 // @access  Public

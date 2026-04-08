@@ -14,6 +14,7 @@ import feature2Img from '../assets/features-2.png';
 import feature3Img from '../assets/features-3.png';
 import ctaLeftImg from '../assets/presantetion.jpg';
 import ctaRightImg from '../assets/edot-taken-certificates.jpg';
+import homePageImg from '../assets/home-page.png';
 
 // Image Placeholders to make the UI look rich in dark mode
 const ImagePlaceholder = ({ text, className = "h-64", icon: Icon = BookOpen }) => (
@@ -43,7 +44,7 @@ export default function Home() {
         if (data.totalCount > 10000) {
            setTotalUsers('10k+');
         } else if (data.totalCount > 0) {
-           setTotalUsers(data.totalCount + '+');
+           setTotalUsers(data.totalCount.toString());
         }
       }
     };
@@ -85,69 +86,45 @@ export default function Home() {
                </div>
 
                <div className="pt-8 flex items-center gap-5 border-t border-white/5 mt-8">
-                 <div className="flex -space-x-4">
-                   
-                   {/* Render current user photo if logged in */}
-                   {user && (
-                     <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-[#0B0E14] flex items-center justify-center shadow-lg relative overflow-hidden group shrink-0">
-                        {getAvatarUrl(user.avatar) ? (
-                          <img 
-                            src={getAvatarUrl(user.avatar)} 
-                            alt="Current User" 
-                            className="w-full h-full object-cover rounded-full"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=11151F&color=FFFFFF&bold=true`;
-                            }}
-                          />
-                        ) : (
-                          <span className="text-white font-black text-xl">{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>
-                        )}
-                     </div>
+                 <div className="flex -space-x-4 relative z-10">
+                   {displayUsers.length > 0 ? (
+                     displayUsers.slice(0, 3).map((u, i) => {
+                       const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-rose-500'];
+                       const zIndexes = ['z-30', 'z-20', 'z-10'];
+                       const avatar = getAvatarUrl(u.avatar);
+                       return (
+                         <div key={u._id || i} className={`w-12 h-12 rounded-full border-2 border-[#11151F] ${colors[i % colors.length]} overflow-hidden flex items-center justify-center shadow-lg shrink-0 relative ${zIndexes[i]}`}>
+                           {avatar ? (
+                             <img src={avatar} alt={u.name || "User Avatar"} className="w-full h-full object-cover" />
+                           ) : (
+                             <span className="text-white font-black text-xl">{u.name ? u.name[0].toUpperCase() : 'U'}</span>
+                           )}
+                         </div>
+                       );
+                     })
+                   ) : (
+                     <>
+                       <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-blue-500 overflow-hidden flex items-center justify-center shadow-lg shrink-0 relative z-30"><span className="text-white font-black text-xl">K</span></div>
+                       <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-emerald-500 overflow-hidden flex items-center justify-center shadow-lg shrink-0 relative z-20"><span className="text-white font-black text-xl">N</span></div>
+                       <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-rose-500 overflow-hidden flex items-center justify-center shadow-lg shrink-0 relative z-10"><span className="text-white font-black text-xl">A</span></div>
+                     </>
                    )}
-
-                   {/* Render actual recent users from database */}
-                   {displayUsers.slice(0, user ? 2 : 3).map((dbUser, i) => (
-                     <div key={dbUser._id || i} className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-[#11151F] flex items-center justify-center shadow-lg relative overflow-hidden group shrink-0">
-                        {getAvatarUrl(dbUser.avatar) ? (
-                          <img 
-                            src={getAvatarUrl(dbUser.avatar)} 
-                            alt={dbUser.name} 
-                            className="w-full h-full object-cover rounded-full"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(dbUser.name || 'A')}&background=11151F&color=FFFFFF&bold=true`;
-                            }}
-                          />
-                        ) : (
-                          <span className="text-white font-black text-xl opacity-80">{dbUser.name ? dbUser.name.charAt(0).toUpperCase() : 'A'}</span>
-                        )}
-                     </div>
-                   ))}
-
-                   {/* Fill remaining slots with generic placeholders if not enough actual users */}
-                   {Array.from({ length: Math.max(0, (user ? 2 : 3) - displayUsers.length) }).map((_, i) => (
-                     <div key={`filler-${i}`} className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-[#11151F] flex items-center justify-center shadow-lg relative overflow-hidden group shrink-0">
-                        <span className="text-slate-500 font-black text-xl opacity-50">?</span>
-                     </div>
-                   ))}
-
-                   <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-gradient-to-br from-[#008A32] to-[#00A13B] flex items-center justify-center shadow-lg z-10 text-[10px] font-black text-white shrink-0">
+                   <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-gradient-to-br from-[#008A32] to-[#00A13B] flex items-center justify-center shadow-lg z-0 text-[10px] font-black text-white shrink-0 relative">
                      {totalUsers}
                    </div>
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1 text-[#FFD700]">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-[#FFD700]" />)}
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest mt-1.5 text-slate-500">Global learners growing daily</span>
-                </div>
+                 </div>
+                 <div className="flex flex-col">
+                   <div className="flex items-center gap-1 text-[#FFD700]">
+                     {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-[#FFD700]" />)}
+                   </div>
+                   <span className="text-[10px] font-black uppercase tracking-widest mt-1.5 text-slate-500">Global learners growing daily</span>
+                 </div>
               </div>
             </div>
 
             <div className="relative">
               <div className="relative rounded-[3rem] p-3 bg-[#11151F]/40 backdrop-blur-xl shadow-[0_0_50px_rgba(0,138,50,0.1)] border border-white/10 z-10">
-                <ImagePlaceholder text="Young Learners Collaborating with University Students" icon={Users} className="h-[550px] w-full rounded-[2.5rem] border-0" />
+                <img src={homePageImg} alt="Young Learners Collaborating with University Students" className="h-auto w-full object-cover rounded-[2.5rem] shadow-lg border border-white/5" />
               </div>
               
               {/* Floating elements */}

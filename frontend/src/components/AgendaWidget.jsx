@@ -1,9 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getRecentPublicUsers } from '../utils/api';
 import { MoreHorizontal, Calendar, Bell, BookOpen, AlertCircle, HeartHandshake, Users, X, CheckCircle, Presentation } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AgendaWidget({ events, userRole, isAdmin, onDelete, onCreateClick }) {
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [recentUsers, setRecentUsers] = useState([]);
+  const [totalUsers, setTotalUsers] = useState('10k+');
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const data = await getRecentPublicUsers();
+      if (data && data.success) {
+        setRecentUsers(data.users || []);
+        if (data.totalCount > 10000) {
+           setTotalUsers('10k+');
+        } else if (data.totalCount > 0) {
+           setTotalUsers(data.totalCount.toString());
+        }
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  const getAvatarUrl = (avatarPath) => {
+    if (!avatarPath || avatarPath === 'default-avatar.png') return null;
+    if (avatarPath.startsWith('http')) return avatarPath;
+    return `http://localhost:5000${avatarPath.startsWith('/') ? '' : '/'}${avatarPath}`;
+  };
+
+  const getEventParticipants = (evt) => {
+    let participants = recentUsers;
+    if (!evt.targetAudiences?.includes('all')) {
+       participants = recentUsers.filter(u => {
+           const target = evt.targetAudiences || [];
+           if (target.includes(u.role)) return true;
+           // If instructor post targeting 'my_students', fallback to students for display
+           if (target.includes('my_students') && u.role === 'student') return true;
+           return false;
+       });
+    }
+    return participants;
+  };
+
+  const renderAvatarStack = (evt, isModal = false) => {
+    const participants = getEventParticipants(evt);
+    return (
+      <div className="flex -space-x-1.5 relative z-10">
+        {participants.length > 0 ? (
+          participants.slice(0, 3).map((u, i) => {
+            const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-rose-500'];
+            const zIndexes = ['z-30', 'z-20', 'z-10'];
+            const avatar = getAvatarUrl(u.avatar);
+            return (
+              <div key={u._id || i} className={`${isModal ? 'w-8 h-8 border-2' : 'w-5 h-5 border'} rounded-full border-[#0B0E14] ${colors[i % colors.length]} overflow-hidden flex items-center justify-center shrink-0 relative ${zIndexes[i]}`}>
+                {avatar ? (
+                  <img src={avatar} alt={u.name || "User Avatar"} className="w-full h-full object-cover" />
+                ) : (
+                  <span className={`text-white font-bold ${isModal ? 'text-xs' : 'text-[10px]'}`}>{u.name ? u.name[0].toUpperCase() : 'U'}</span>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <>
+            <div className={`${isModal ? 'w-8 h-8 border-2' : 'w-5 h-5 border'} rounded-full border-[#0B0E14] bg-blue-500 overflow-hidden flex items-center justify-center shrink-0 relative z-30`}><span className={`text-white font-bold ${isModal ? 'text-xs' : 'text-[10px]'}`}>K</span></div>
+            <div className={`${isModal ? 'w-8 h-8 border-2' : 'w-5 h-5 border'} rounded-full border-[#0B0E14] bg-emerald-500 overflow-hidden flex items-center justify-center shrink-0 relative z-20`}><span className={`text-white font-bold ${isModal ? 'text-xs' : 'text-[10px]'}`}>N</span></div>
+            <div className={`${isModal ? 'w-8 h-8 border-2' : 'w-5 h-5 border'} rounded-full border-[#0B0E14] bg-rose-500 overflow-hidden flex items-center justify-center shrink-0 relative z-10`}><span className={`text-white font-bold ${isModal ? 'text-xs' : 'text-[10px]'}`}>A</span></div>
+          </>
+        )}
+        <div className={`${isModal ? 'w-8 h-8 border-2' : 'w-5 h-5 border'} rounded-full border-[#0B0E14] bg-gradient-to-br from-[#008A32] to-[#00A13B] flex items-center justify-center z-0 font-black text-white shrink-0 relative ${isModal ? 'text-[8px]' : 'text-[7px]'}`}>
+          {totalUsers}
+        </div>
+      </div>
+    );
+  };
 
   const getCategoryIcon = (type) => {
     switch(type) {
@@ -84,11 +155,10 @@ export default function AgendaWidget({ events, userRole, isAdmin, onDelete, onCr
                        <h4 className="text-sm font-bold text-white group-hover:text-[#FFD700] transition-colors">{evt.title}</h4>
                        
                        <div className="flex items-center gap-1.5 mt-2">
-                         <div className="flex -space-x-1.5">
-                            <div className="w-5 h-5 rounded-full bg-slate-700 border border-[#0B0E14] flex items-center justify-center overflow-hidden"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" alt="Avatar 1" /></div>
-                            <div className="w-5 h-5 rounded-full bg-slate-600 border border-[#0B0E14] flex items-center justify-center overflow-hidden"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=2" alt="Avatar 2" /></div>
-                         </div>
-                         <span className="text-[10px] text-slate-400 font-medium ml-1">involving {(evt.targetAudiences || []).join(', ')}</span>
+                         {renderAvatarStack(evt)}
+                         <span className="text-[10px] text-slate-400 font-medium ml-1 flex items-center gap-1">
+                            involving {(evt.targetAudiences || []).join(', ')}
+                         </span>
                        </div>
                      </div>
                      
@@ -167,11 +237,8 @@ export default function AgendaWidget({ events, userRole, isAdmin, onDelete, onCr
                  </div>
                  
                  <div className="mt-8 flex items-center justify-between bg-black/30 p-3 rounded-xl border border-white/5">
-                   <div className="flex -space-x-2">
-                       <img className="w-8 h-8 rounded-full border-2 border-[#11151F]" src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin1" alt="Admin" />
-                       <img className="w-8 h-8 rounded-full border-2 border-[#11151F]" src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin2" alt="Instructor" />
-                   </div>
-                   <span className="text-xs font-medium text-slate-400">Authorized Post</span>
+                   {renderAvatarStack(selectedEvent, true)}
+                   <span className="text-xs font-medium text-slate-400">Targeting {(selectedEvent.targetAudiences || []).join(', ')}</span>
                  </div>
                </div>
 
