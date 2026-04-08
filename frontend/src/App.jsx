@@ -41,6 +41,7 @@ import TeachingActivity from './pages/TeachingActivity';
 import AnalyticsReport from './pages/AnalyticsReport';
 import SettingsView from './pages/SettingsView';
 import UsersManagement from './pages/UsersManagement';
+import SectionManagement from './pages/SectionManagement';
 import { Outlet } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -101,6 +102,7 @@ export default function App() {
           <Route path="progress" element={<ParentLearners />} />
           <Route path="courses" element={<StudentCourses />} />
           <Route path="classes" element={<InstructorClasses />} />
+          <Route path="sections" element={<SectionManagement />} />
           <Route path="my-courses" element={<InstructorManageCourses />} />
           <Route path="builder" element={<InstructorCourseBuilder />} />
           <Route path="builder/:id" element={<InstructorCourseBuilder />} />

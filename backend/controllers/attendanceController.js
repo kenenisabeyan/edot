@@ -1,26 +1,26 @@
 const Attendance = require('../models/Attendance');
 const CourseReport = require('../models/CourseReport');
 const Course = require('../models/Course');
+const Section = require('../models/Section');
 const User = require('../models/User');
 
-// @desc    Get attendance for a specific course
-// @route   GET /api/attendance/course/:courseId
+// @desc    Get attendance for a specific section
+// @route   GET /api/attendance/section/:sectionId
 // @access  Private (Admin/Instructor)
 exports.getCourseAttendance = async (req, res) => {
   try {
-    const { courseId } = req.params;
+    const { sectionId } = req.params;
     
-    // Validate requestor (Admin or Instructor teaching the course)
-    const course = await Course.findById(courseId);
-    if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
+    // Find section and validate requestor
+    const section = await Section.findById(sectionId);
+    if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
     
-    if (req.user.role !== 'admin' && course.instructor.toString() !== req.user.id) {
-      return res.status(403).json({ success: false, message: 'Not authorized to view this course attendance' });
+    if (req.user.role !== 'admin' && section.instructor?.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized to view this sections attendance' });
     }
 
-    const attendanceRecords = await Attendance.find({ course: courseId })
-      .populate('records.student', 'name email avatar role')
-      .populate('instructor', 'name email role')
+    const attendanceRecords = await Attendance.find({ section: sectionId })
+      .populate('records.user', 'name email avatar role')
       .sort({ date: -1 });
 
     res.status(200).json({ success: true, count: attendanceRecords.length, data: attendanceRecords });
@@ -29,47 +29,131 @@ exports.getCourseAttendance = async (req, res) => {
   }
 };
 
-// @desc    Submit or update daily class attendance
-// @route   POST /api/attendance
-// @access  Private (Admin/Instructor)
-exports.submitAttendance = async (req, res) => {
+// @desc    Fetch attendance for a specific course, section, and date
+// @route   GET /api/attendance?courseId=...&section=...&date=...
+// @access  Private
+exports.getAttendanceByQuery = async (req, res) => {
   try {
-    const { course, date, records } = req.body;
+    const { courseId, section, date } = req.query;
     
-    const courseObj = await Course.findById(course);
-    if (!courseObj) return res.status(404).json({ success: false, message: 'Course not found' });
-
-    if (req.user.role !== 'admin' && courseObj.instructor.toString() !== req.user.id) {
-      return res.status(403).json({ success: false, message: 'Not authorized to submit attendance' });
+    if (!courseId || !section || !date) {
+      return res.status(400).json({ success: false, message: 'courseId, section, and date are required parameters' });
     }
 
-    // Try to find existing attendance for this course and exact date day
-    const queryDate = new Date(date || Date.now());
+    const queryDate = new Date(date);
+    const startOfDay = new Date(Date.UTC(queryDate.getUTCFullYear(), queryDate.getUTCMonth(), queryDate.getUTCDate()));
+
+    const attendance = await Attendance.findOne({
+      course: courseId,
+      section,
+      date: startOfDay
+    }).populate('records.user', 'name email avatar role');
+
+    if (!attendance) {
+      return res.status(200).json({ success: true, data: null });
+    }
+
+    res.status(200).json({ success: true, data: attendance });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// @desc    Submit or update daily class attendance
+// @route   POST /api/attendance
+// @access  Private
+exports.submitAttendance = async (req, res) => {
+  try {
+    const { courseId, section, date, records } = req.body;
     
-    // Set to start of day in UTC roughly
-    const startOfDay = new Date(queryDate.setHours(0,0,0,0));
-    const endOfDay = new Date(queryDate.setHours(23,59,59,999));
+    if (!courseId || !section || !date || !records) {
+      return res.status(400).json({ success: false, message: 'Please provide courseId, section, date, and records' });
+    }
+
+    const courseObj = await Course.findById(courseId);
+    if (!courseObj) return res.status(404).json({ success: false, message: 'Course not found' });
+
+    // Format records array to exactly match requirement [ { user, role, status } ]
+    const formattedRecords = records.map(r => ({
+      user: r.userId,
+      role: r.role,
+      status: r.status.toLowerCase()
+    }));
+
+    // Find the normalized date exactly as the pre-validate hook does
+    const queryDate = new Date(date);
+    const startOfDay = new Date(Date.UTC(queryDate.getUTCFullYear(), queryDate.getUTCMonth(), queryDate.getUTCDate()));
 
     let attendance = await Attendance.findOne({
-      course,
-      date: { $gte: startOfDay, $lte: endOfDay }
+      course: courseId,
+      section,
+      date: startOfDay
     });
 
     if (attendance) {
-      // Update existing
-      attendance.records = records;
+      // Update existing instead of duplicate
+      attendance.records = formattedRecords;
       await attendance.save();
     } else {
-      // Create new
+      // Create new presence registry
       attendance = await Attendance.create({
-        course,
-        instructor: req.user.id,
+        course: courseId,
+        section,
         date: startOfDay,
-        records
+        records: formattedRecords
       });
     }
 
     res.status(200).json({ success: true, data: attendance });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// @desc    Fetch all users enrolled in that course and section
+// @route   GET /api/attendance/users?courseId=...&section=...
+// @access  Private
+exports.getEnrolledUsers = async (req, res) => {
+  try {
+    const { courseId, section } = req.query;
+
+    if (!courseId || !section) {
+      return res.status(400).json({ success: false, message: 'courseId and section are required parameters' });
+    }
+
+    const sectionDoc = await Section.findOne({ course: courseId, name: section })
+      .populate('instructor', 'name email avatar role')
+      .populate('students', 'name email avatar role');
+
+    if (!sectionDoc) {
+      return res.status(404).json({ success: false, message: 'Section not found for this course' });
+    }
+
+    const students = [];
+    const instructors = [];
+
+    if (sectionDoc.instructor) {
+      instructors.push({
+        userId: sectionDoc.instructor._id,
+        name: sectionDoc.instructor.name,
+        role: 'instructor'
+      });
+    }
+
+    if (sectionDoc.students && sectionDoc.students.length > 0) {
+      sectionDoc.students.forEach(student => {
+        students.push({
+          userId: student._id,
+          name: student.name,
+          role: 'student'
+        });
+      });
+    }
+
+    res.status(200).json({
+      students,
+      instructors
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

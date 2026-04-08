@@ -4,7 +4,9 @@ const {
   submitAttendance,
   getDashboardAggregate,
   submitFinalReport,
-  getFinalReports
+  getFinalReports,
+  getAttendanceByQuery,
+  getEnrolledUsers
 } = require('../controllers/attendanceController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -22,10 +24,14 @@ router.route('/reports')
 router.route('/report')
   .post(submitFinalReport);
 
+router.route('/users')
+  .get(getEnrolledUsers);
+
 router.route('/')
+  .get(getAttendanceByQuery)
   .post(submitAttendance);
 
-router.route('/course/:courseId')
+router.route('/section/:sectionId')
   .get(getCourseAttendance);
 
 module.exports = router;
