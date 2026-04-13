@@ -172,7 +172,7 @@ export default function ProfileView() {
               {formData.avatar && formData.avatar !== 'default-avatar.png' ? (
                 <img src={`http://localhost:5000${formData.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <User className="w-16 h-16 text-slate-500" />
+                <User className="w-16 h-16 text-slate-300" />
               )}
               
               <label htmlFor="avatar-upload" className="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all backdrop-blur-sm">
@@ -197,13 +197,13 @@ export default function ProfileView() {
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Full Name</label>
                   <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
-                    <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                    <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-300" />
                     <input 
                       type="text" 
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
+                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-300" 
                       required 
                     />
                   </div>
@@ -212,14 +212,14 @@ export default function ProfileView() {
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Email Address</label>
                   <div className="relative border border-white/5 rounded-xl overflow-hidden opacity-50">
-                    <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                    <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-300" />
                     <input 
                       type="email" 
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
                       disabled
-                      className="w-full pl-12 pr-4 py-3 bg-transparent text-slate-400 font-medium cursor-not-allowed outline-none" 
+                      className="w-full pl-12 pr-4 py-3 bg-transparent text-slate-200 font-medium cursor-not-allowed outline-none" 
                     />
                   </div>
                 </div>
@@ -227,14 +227,14 @@ export default function ProfileView() {
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Phone Number</label>
                   <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
-                    <Phone className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                    <Phone className="absolute left-4 top-3.5 w-5 h-5 text-slate-300" />
                     <input 
                       type="tel" 
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+251 9XX XXX XXX"
-                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
+                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-300" 
                     />
                   </div>
                 </div>
@@ -242,7 +242,7 @@ export default function ProfileView() {
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Gender</label>
                   <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
-                    <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 z-10" />
+                    <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-300 z-10" />
                     <CustomDropdown 
                       value={formData.gender}
                       onChange={(val) => setFormData({ ...formData, gender: val })}
@@ -261,7 +261,7 @@ export default function ProfileView() {
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Date of Birth</label>
                   <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
-                    <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                    <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-slate-300" />
                     <input 
                       type="date" 
                       name="dateOfBirth"
@@ -275,14 +275,14 @@ export default function ProfileView() {
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-xs font-black uppercase tracking-widest text-[#FFD700]">Address</label>
                   <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#FFD700]/50 focus-within:ring-1 focus-within:ring-[#FFD700]/50 transition-all">
-                    <MapPin className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                    <MapPin className="absolute left-4 top-3.5 w-5 h-5 text-slate-300" />
                     <input 
                       type="text" 
                       name="address"
                       value={formData.address}
                       onChange={handleChange}
                       placeholder="e.g. Bole, Addis Ababa"
-                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
+                      className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-300" 
                     />
                   </div>
                 </div>
@@ -291,14 +291,14 @@ export default function ProfileView() {
                   <div className="space-y-2 md:col-span-2">
                     <label className="text-xs font-black uppercase tracking-widest text-emerald-400">Emergency Contact</label>
                     <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/50 transition-all">
-                      <Phone className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                      <Phone className="absolute left-4 top-3.5 w-5 h-5 text-slate-300" />
                       <input 
                         type="text" 
                         name="emergencyContact"
                         value={formData.emergencyContact}
                         onChange={handleChange}
                         placeholder="Name and Phone number"
-                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
+                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-300" 
                       />
                     </div>
                   </div>
@@ -308,14 +308,14 @@ export default function ProfileView() {
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-widest text-[#008A32]">Department</label>
                     <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#008A32]/50 focus-within:ring-1 focus-within:ring-[#008A32]/50 transition-all">
-                      <Briefcase className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                      <Briefcase className="absolute left-4 top-3.5 w-5 h-5 text-slate-300" />
                       <input 
                         type="text" 
                         name="department"
                         value={formData.department}
                         onChange={handleChange}
                         placeholder="e.g. Computer Science"
-                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
+                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-300" 
                       />
                     </div>
                   </div>
@@ -325,14 +325,14 @@ export default function ProfileView() {
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-widest text-[#008A32]">Specialization</label>
                     <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-[#008A32]/50 focus-within:ring-1 focus-within:ring-[#008A32]/50 transition-all">
-                      <Briefcase className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                      <Briefcase className="absolute left-4 top-3.5 w-5 h-5 text-slate-300" />
                       <input 
                         type="text" 
                         name="specialization"
                         value={formData.specialization}
                         onChange={handleChange}
                         placeholder="e.g. Web Development"
-                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
+                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-300" 
                       />
                     </div>
                   </div>
@@ -342,14 +342,14 @@ export default function ProfileView() {
                   <div className="space-y-2 md:col-span-2">
                     <label className="text-xs font-black uppercase tracking-widest text-purple-400">Occupation</label>
                     <div className="relative border border-white/10 rounded-xl overflow-hidden focus-within:border-purple-500/50 focus-within:ring-1 focus-within:ring-purple-500/50 transition-all">
-                      <Briefcase className="absolute left-4 top-3.5 w-5 h-5 text-slate-500" />
+                      <Briefcase className="absolute left-4 top-3.5 w-5 h-5 text-slate-300" />
                       <input 
                         type="text" 
                         name="occupation"
                         value={formData.occupation}
                         onChange={handleChange}
                         placeholder="e.g. Engineer"
-                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-600" 
+                        className="w-full pl-12 pr-4 py-3 bg-[#11151F] text-white font-medium outline-none placeholder:text-slate-300" 
                       />
                     </div>
                   </div>
@@ -363,7 +363,7 @@ export default function ProfileView() {
                     onChange={handleChange}
                     rows="4" 
                     placeholder="Tell us a little about yourself"
-                    className="w-full p-4 bg-[#11151F] border border-white/10 text-white rounded-xl outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium resize-none placeholder:text-slate-600 transition-all"
+                    className="w-full p-4 bg-[#11151F] border border-white/10 text-white rounded-xl outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium resize-none placeholder:text-slate-300 transition-all"
                   ></textarea>
                 </div>
 

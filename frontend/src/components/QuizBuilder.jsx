@@ -29,7 +29,7 @@ export default function QuizBuilder({ quiz, setQuiz, title = "Mini-Quiz Question
   };
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mt-6 shadow-inner backdrop-blur-md">
+    <div className="bg-[#11151F]/5 border border-white/10 rounded-2xl p-6 mt-6 shadow-inner backdrop-blur-md">
       <h4 className="font-bold text-white text-lg mb-5 flex items-center gap-2">
         <div className="w-2 h-6 bg-[#FFD700] rounded-full"></div>
         {title}
@@ -40,25 +40,25 @@ export default function QuizBuilder({ quiz, setQuiz, title = "Mini-Quiz Question
           <button 
             type="button"
             onClick={() => removeQuestion(qIndex)}
-            className="absolute top-4 right-4 text-slate-500 hover:text-[#E30A17] bg-white/5 hover:bg-[#E30A17]/10 p-1.5 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+            className="absolute top-4 right-4 text-slate-300 hover:text-[#E30A17] bg-[#11151F]/5 hover:bg-[#E30A17]/10 p-1.5 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
           >
             <Trash2 className="w-4 h-4" />
           </button>
           
           <div className="mb-5 pr-10">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Question {qIndex + 1}</label>
+            <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider mb-2">Question {qIndex + 1}</label>
             <input 
               type="text" 
               required
               value={q.question}
               onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
-              className="w-full px-4 py-3 bg-[#0B0E14] border border-white/10 text-white rounded-xl focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 outline-none font-semibold placeholder:text-slate-600 transition-all"
+              className="w-full px-4 py-3 bg-[#0B0E14] border border-white/10 text-white rounded-xl focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 outline-none font-semibold placeholder:text-slate-300 transition-all"
               placeholder="e.g., What is the primary purpose of React?"
             />
           </div>
           
           <div className="space-y-3">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Options & Correct Answer</label>
+            <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider mb-2">Options & Correct Answer</label>
             {q.options.map((opt, oIndex) => (
               <div key={oIndex} className="flex items-center gap-3">
                 <input 

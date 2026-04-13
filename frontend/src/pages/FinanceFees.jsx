@@ -7,10 +7,10 @@ import api from '../utils/api';
 const StatBox = ({ title, value, percentage, type }) => (
   <div className={`p-6 rounded-3xl border shadow-sm ${type === 'primary' ? 'bg-gradient-to-r from-[#008A32] to-[#006622] text-white border-[#008A32]/50' : 'bg-[#0B0E14]/90 backdrop-blur-xl text-white border-white/10'}`}>
     <div className="flex justify-between items-start mb-4">
-      <h3 className={`font-black text-[10px] uppercase tracking-widest ${type === 'primary' ? 'text-white/80' : 'text-slate-400'}`}>{title}</h3>
+      <h3 className={`font-black text-[10px] uppercase tracking-widest ${type === 'primary' ? 'text-white/80' : 'text-slate-200'}`}>{title}</h3>
       {percentage && (
         <span className={`text-[10px] uppercase font-black tracking-widest px-2 py-0.5 rounded-md border ${
-          type === 'primary' ? 'bg-white/20 border-white/30 text-white' : 
+          type === 'primary' ? 'bg-[#11151F]/20 border-white/30 text-white' : 
           percentage.startsWith('+') ? 'bg-[#008A32]/20 border-[#008A32]/30 text-[#008A32]' : 'bg-[#E30A17]/20 border-[#E30A17]/30 text-[#E30A17]'
         }`}>
           {percentage}%
@@ -18,7 +18,7 @@ const StatBox = ({ title, value, percentage, type }) => (
       )}
     </div>
     <h2 className={`text-4xl font-black ${type === 'primary' ? 'text-white' : 'text-[#FFD700]'}`}>{value}</h2>
-    <p className={`text-[10px] uppercase tracking-widest mt-2 font-bold ${type === 'primary' ? 'text-white/70' : 'text-slate-500'}`}>Total Computed Ledger</p>
+    <p className={`text-[10px] uppercase tracking-widest mt-2 font-bold ${type === 'primary' ? 'text-white/70' : 'text-slate-300'}`}>Total Computed Ledger</p>
   </div>
 );
 
@@ -74,7 +74,7 @@ export default function FinanceFees() {
         <div className="lg:col-span-2 bg-[#0B0E14]/90 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl">
            <div className="flex justify-between items-center mb-6">
              <h3 className="font-bold text-white text-xl">System Collection Trajectory</h3>
-             <button className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest text-[#FFD700] hover:text-yellow-600 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 transition-colors">
+             <button className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest text-[#FFD700] hover:text-yellow-600 bg-[#11151F]/5 px-3 py-1.5 rounded-lg border border-white/10 transition-colors">
                Year-to-Date <ChevronDown className="w-3 h-3" />
              </button>
            </div>
@@ -115,16 +115,16 @@ export default function FinanceFees() {
       </div>
 
       <div className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-        <div className="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5">
+        <div className="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 bg-[#11151F]/5">
           <h3 className="font-bold text-white text-xl">Active Financial Enrollments</h3>
           
           <div className="flex gap-4 w-full md:w-auto">
             <div className="relative flex-1 md:w-64">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
               <input 
                 type="text" 
                 placeholder="Search ledger..." 
-                className="w-full pl-11 pr-4 py-2.5 bg-[#11151F] border border-white/10 text-white rounded-xl text-sm font-medium outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 placeholder:text-slate-600 transition-all shadow-inner"
+                className="w-full pl-11 pr-4 py-2.5 bg-[#11151F] border border-white/10 text-white rounded-xl text-sm font-medium outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 placeholder:text-slate-300 transition-all shadow-inner"
               />
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function FinanceFees() {
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left whitespace-nowrap">
             <thead>
-              <tr className="bg-[#11151F] text-slate-400 text-[10px] font-black uppercase tracking-widest">
+              <tr className="bg-[#11151F] text-slate-200 text-[10px] font-black uppercase tracking-widest">
                 <th className="px-6 py-5 border-b border-white/5">Ledger Entity (Course)</th>
                 <th className="px-6 py-5 border-b border-white/5">Instructor</th>
                 <th className="px-6 py-5 border-b border-white/5">Base Tuition Fee</th>
@@ -146,7 +146,7 @@ export default function FinanceFees() {
               {courses.length > 0 ? courses.map(c => {
                  const volume = c.enrolledStudents?.length || c.totalStudents || 0;
                  return (
-                <tr key={c._id} className="hover:bg-white/5 transition-colors">
+                <tr key={c.id} className="hover:bg-[#11151F]/5 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30 flex items-center justify-center font-black text-[10px] shrink-0 uppercase tracking-widest shadow-sm">
@@ -154,11 +154,11 @@ export default function FinanceFees() {
                       </div>
                       <div>
                         <p className="font-bold text-sm text-white">{c.title}</p>
-                        <p className="text-[10px] font-black tracking-widest uppercase text-slate-500 mt-1">{c.category}</p>
+                        <p className="text-[10px] font-black tracking-widest uppercase text-slate-300 mt-1">{c.category}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-slate-400 text-xs font-bold uppercase tracking-wider">{c.instructor?.name || 'Assigned Instructor'}</td>
+                  <td className="px-6 py-4 text-slate-200 text-xs font-bold uppercase tracking-wider">{c.instructor?.name || 'Assigned Instructor'}</td>
                   <td className="px-6 py-4 text-[#FFD700] font-black tracking-wider">${c.price || 0}</td>
                   <td className="px-6 py-4 text-slate-300 font-bold">{volume}</td>
                   <td className="px-6 py-4 text-[#008A32] font-black tracking-wider">${(c.price || 0) * volume}</td>
@@ -166,7 +166,7 @@ export default function FinanceFees() {
                     <span className={`inline-flex items-center justify-center px-3 py-1 border rounded-[4px] text-[9px] font-black tracking-widest uppercase shadow-sm
                       ${c.status === 'approved' ? 'bg-[#008A32]/20 text-[#008A32] border-[#008A32]/30' : 
                         c.status === 'pending' ? 'bg-[#E30A17]/20 text-[#E30A17] border-[#E30A17]/30' : 
-                        'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                        'bg-slate-800 text-slate-200 border-slate-700'}`}>
                       {c.status || 'draft'}
                     </span>
                   </td>
@@ -175,8 +175,8 @@ export default function FinanceFees() {
                  <tr>
                     <td colSpan="6" className="p-12 text-center">
                        <div className="flex flex-col items-center justify-center opacity-50">
-                          <CircleDollarSign className="w-10 h-10 text-slate-500 mb-4" />
-                          <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">No active tuition ledgers established.</span>
+                          <CircleDollarSign className="w-10 h-10 text-slate-300 mb-4" />
+                          <span className="text-slate-200 font-bold uppercase tracking-widest text-xs">No active tuition ledgers established.</span>
                        </div>
                     </td>
                  </tr>

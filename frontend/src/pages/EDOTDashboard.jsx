@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import SupportDashboard from './SupportDashboard';
+import { useNavigate } from 'react-router-dom';
 import AgendaCreationModal from '../components/AgendaCreationModal';
 import AgendaWidget from '../components/AgendaWidget';
 import { 
@@ -28,12 +30,16 @@ export default function EDOTDashboard() {
   const [agendaEvents, setAgendaEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const userRole = user?.role ? user.role.toLowerCase().trim() : 'student';
   void motion;
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
+      if (userRole === 'sponsor') {
+        return setLoading(false);
+      }
       try {
         const { data } = await api.get(`/${userRole}/dashboard`);
         setStats(data.data);
@@ -73,9 +79,9 @@ export default function EDOTDashboard() {
 
     return (
       <motion.div whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
-        <Card hover={false} className={`rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl flex flex-col justify-between group relative overflow-hidden transition-all duration-300 ${glowClass}`}>
+        <Card hover={false} className={`rounded-2xl p-6 border border-white/5 bg-[#11151F]/5 backdrop-blur-xl flex flex-col justify-between group relative overflow-hidden transition-all duration-300 ${glowClass}`}>
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
+            <div className="w-10 h-10 rounded-xl bg-[#11151F]/10 border border-white/20 flex items-center justify-center text-white">
               {Icon && <Icon className="w-5 h-5" />}
             </div>
             <h3 className="text-white font-medium text-sm tracking-wide">{title}</h3>
@@ -111,7 +117,7 @@ export default function EDOTDashboard() {
   const deleteAgenda = async (agendaId) => {
     try {
       await api.delete(`/calendar/${agendaId}`);
-      setAgendaEvents((prev) => prev.filter((e) => e._id !== agendaId));
+      setAgendaEvents((prev) => prev.filter((e) => e.id !== agendaId));
     } catch (err) {
       console.error('Failed to delete agenda event', err);
     }
@@ -269,6 +275,11 @@ export default function EDOTDashboard() {
     );
   }
 
+  // Render Support Dashboard specifically for sponsors
+  if (userRole === 'sponsor') {
+    return <SupportDashboard />;
+  }
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 15 }}
@@ -278,7 +289,7 @@ export default function EDOTDashboard() {
       className="space-y-6 max-w-[1600px] mx-auto pb-10"
     >
       {/* 1. Welcome Banner (Heritage Glow) */}
-      <div className={`rounded-2xl p-8 border border-white/5 relative overflow-hidden backdrop-blur-xl bg-white/5`}>
+      <div className={`rounded-2xl p-8 border border-white/5 relative overflow-hidden backdrop-blur-xl bg-[#11151F]/5`}>
         {/* Heritage Mesh Glow placed completely underneath text */}
         <div className={`absolute inset-0 opacity-10 pointer-events-none ${headerConfig.gradient}`}></div>
         <div className="relative z-10">
@@ -291,22 +302,34 @@ export default function EDOTDashboard() {
 
           <div className="mt-5">
             {userRole === 'admin' && (
-              <button className="px-4 py-2 rounded-lg border border-[#FFD700] text-[#FFD700] font-semibold hover:bg-[#FFD700]/20 shadow-glow-yellow">
-                + Quick Action
+              <button 
+                onClick={() => setIsAgendaModalOpen(true)}
+                className="px-4 py-2 rounded-lg border border-[#FFD700] text-[#FFD700] font-semibold hover:bg-[#FFD700]/20 shadow-glow-yellow transition-all"
+              >
+                + Broadcast Notice
               </button>
             )}
             {userRole === 'instructor' && (
-              <button className="px-4 py-2 rounded-lg border border-[#008A32] text-[#008A32] font-semibold hover:bg-[#008A32]/20 shadow-glow-green">
+              <button 
+                onClick={() => navigate('/dashboard/builder')}
+                className="px-4 py-2 rounded-lg border border-[#008A32] text-[#008A32] font-semibold hover:bg-[#008A32]/20 shadow-glow-green transition-all"
+              >
                 + Create New Course
               </button>
             )}
             {userRole === 'student' && (
-              <button className="px-4 py-2 rounded-lg border border-[#FFD700] text-[#0f172a] font-semibold hover:bg-[#FFD700]/20 shadow-glow-yellow">
+              <button 
+                onClick={() => navigate('/dashboard/courses')}
+                className="px-4 py-2 rounded-lg border border-[#FFD700] text-[#FFD700] font-semibold hover:bg-[#FFD700]/10 shadow-glow-yellow transition-all"
+              >
                 + Start a Lesson
               </button>
             )}
             {userRole === 'parent' && (
-              <button className="px-4 py-2 rounded-lg border border-[#FFD700] text-[#FFD700] font-semibold hover:bg-[#FFD700]/20 shadow-glow-yellow">
+              <button 
+                onClick={() => navigate('/dashboard/messages')}
+                className="px-4 py-2 rounded-lg border border-[#FFD700] text-[#FFD700] font-semibold hover:bg-[#FFD700]/20 shadow-glow-yellow transition-all"
+              >
                 ✉️ Message Instructor
               </button>
             )}
@@ -325,7 +348,7 @@ export default function EDOTDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left Widget: Radial Gauge */}
-        <Card hover={false} className="lg:col-span-3 rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg flex flex-col items-center justify-center relative min-h-[350px]">
+        <Card hover={false} className="lg:col-span-3 rounded-2xl p-6 border border-white/5 bg-[#11151F]/5 backdrop-blur-xl shadow-lg flex flex-col items-center justify-center relative min-h-[350px]">
           <h3 className="font-semibold text-sm text-white absolute top-6 left-6">{gaugeConfig.title}</h3>
           
           <div className="w-full flex-1 flex flex-col justify-center items-center relative mt-8">
@@ -352,7 +375,7 @@ export default function EDOTDashboard() {
              </ResponsiveContainer>
              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center pt-2">
                 {gaugeConfig.valStr.split('\n').map((line, i) => (
-                  <span key={i} className={i === 0 ? "text-3xl font-display font-bold text-white mb-1" : "text-xs font-bold text-slate-400 uppercase tracking-widest"}>
+                  <span key={i} className={i === 0 ? "text-3xl font-display font-bold text-white mb-1" : "text-xs font-bold text-slate-200 uppercase tracking-widest"}>
                     {line}
                   </span>
                 ))}
@@ -361,10 +384,10 @@ export default function EDOTDashboard() {
         </Card>
 
         {/* Right Widget: Line/Area Chart */}
-        <Card hover={false} className="lg:col-span-6 rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
+        <Card hover={false} className="lg:col-span-6 rounded-2xl p-6 border border-white/5 bg-[#11151F]/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
           <div className="flex justify-between items-center mb-6 shrink-0">
             <h3 className="font-semibold text-sm text-white">{areaConfig.title}</h3>
-            <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-white/5 px-2 py-1 rounded">
+            <div className="flex items-center gap-1 text-[10px] text-slate-200 bg-[#11151F]/5 px-2 py-1 rounded">
               Recharts <MoreHorizontal className="w-3 h-3" />
             </div>
           </div>
@@ -414,10 +437,10 @@ export default function EDOTDashboard() {
            )}
 
            {widgetConfig.type === 'claim' && (
-             <Card hover={false} className="rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
+             <Card hover={false} className="rounded-2xl p-6 border border-white/5 bg-[#11151F]/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
                 <div className="flex justify-between items-start mb-6">
                   <h3 className="font-semibold text-sm text-slate-200">{widgetConfig.title}</h3>
-                  <MoreHorizontal className="w-4 h-4 text-slate-500" />
+                  <MoreHorizontal className="w-4 h-4 text-slate-300" />
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
                   <div className="w-32 h-32 mb-6 opacity-80">
@@ -432,7 +455,10 @@ export default function EDOTDashboard() {
                         <path d="M57 60 L61 75 L65 70 L69 75 L73 60" fill="#FFD700" />
                      </svg>
                   </div>
-                  <button className="w-full py-3 bg-[#FFD700] hover:bg-[#EAB308] text-slate-900 font-bold rounded-xl transition-colors text-sm shadow-[0_0_15px_rgba(255,215,0,0.3)]">
+                  <button 
+                    onClick={() => navigate('/dashboard/certificates')}
+                    className="w-full py-3 bg-[#FFD700] hover:bg-[#EAB308] text-[#0B0E14] font-bold rounded-xl transition-colors text-sm shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+                  >
                     {widgetConfig.action}
                   </button>
                 </div>
@@ -440,16 +466,19 @@ export default function EDOTDashboard() {
            )}
 
            {widgetConfig.type === 'communication' && (
-             <Card hover={false} className="rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
+             <Card hover={false} className="rounded-2xl p-6 border border-white/5 bg-[#11151F]/5 backdrop-blur-xl shadow-lg flex flex-col min-h-[350px]">
                 <div className="flex justify-between items-start mb-6">
                   <h3 className="font-semibold text-sm text-white">{widgetConfig.title}</h3>
-                  <MoreHorizontal className="w-4 h-4 text-slate-500" />
+                  <MoreHorizontal className="w-4 h-4 text-slate-300" />
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
                   <div className="w-24 h-24 mb-6 rounded-full bg-gradient-to-br from-[#008A32]/20 to-[#FFD700]/20 flex items-center justify-center border border-[#008A32]/30">
                      <Mail className="w-10 h-10 text-[#FFD700]" />
                   </div>
-                  <button className="w-full py-3 border-2 border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700] hover:text-slate-900 font-bold rounded-xl transition-all text-sm shadow-[inset_0_0_15px_rgba(255,215,0,0.1)]">
+                  <button 
+                    onClick={() => navigate('/dashboard/messages')}
+                    className="w-full py-3 border-2 border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700] hover:text-[#0B0E14] font-bold rounded-xl transition-all text-sm shadow-[inset_0_0_15px_rgba(255,215,0,0.1)]"
+                  >
                     {widgetConfig.action}
                   </button>
                 </div>

@@ -74,7 +74,7 @@ export default function Navbar() {
     `text-xs font-black uppercase tracking-widest transition-colors py-2 ${
       isActive 
         ? 'text-[#FFD700]'
-        : 'text-slate-400 hover:text-white'
+        : 'text-slate-200 hover:text-white'
     }`;
 
   return (
@@ -84,7 +84,7 @@ export default function Navbar() {
         {/* LEFT: Logo */}
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-3 transition-transform hover:scale-105 group">
-            <div className="w-12 h-12 bg-white/5 border border-white/20 rounded-full overflow-hidden shadow-[0_0_20px_rgba(0,138,50,0.3)]">
+            <div className="w-12 h-12 bg-[#11151F]/5 border border-white/20 rounded-full overflow-hidden shadow-[0_0_20px_rgba(0,138,50,0.3)]">
                <img src={edotLogo} alt="EDOT" className="w-full h-full object-cover shadow-inner" />
             </div>
             <span className="text-2xl font-black tracking-widest uppercase text-white group-hover:text-[#FFD700] transition-colors">EDOT</span>
@@ -99,9 +99,9 @@ export default function Navbar() {
           <div className="relative" ref={catDropdownRef}>
             <button 
               onClick={() => setCatDropdownOpen(!catDropdownOpen)}
-              className={`text-xs font-black uppercase tracking-widest transition-colors py-2 flex items-center gap-1.5 ${catDropdownOpen ? 'text-white' : 'text-slate-400 hover:text-white'}`}
+              className={`text-xs font-black uppercase tracking-widest transition-colors py-2 flex items-center gap-1.5 ${catDropdownOpen ? 'text-white' : 'text-slate-200 hover:text-white'}`}
             >
-              Categories <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${catDropdownOpen ? 'rotate-180 text-[#FFD700]' : 'text-slate-500'}`} />
+              Categories <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${catDropdownOpen ? 'rotate-180 text-[#FFD700]' : 'text-slate-300'}`} />
             </button>
             
             <div className={`absolute top-[calc(100%+1.5rem)] left-1/2 -translate-x-1/2 w-[600px] bg-[#11151F] border border-white/10 rounded-3xl p-6 shadow-2xl transition-all duration-200 origin-top ${catDropdownOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
@@ -156,7 +156,7 @@ export default function Navbar() {
         <div className="hidden lg:flex items-center justify-end gap-4 min-w-[200px]">
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
-              <Link to="/dashboard/messages" className="text-slate-400 hover:text-[#FFD700] transition-colors relative bg-[#11151F] w-10 h-10 flex items-center justify-center rounded-full border border-white/5 group shadow-inner">
+              <Link to="/dashboard/messages" className="text-slate-200 hover:text-[#FFD700] transition-colors relative bg-[#11151F] w-10 h-10 flex items-center justify-center rounded-full border border-white/5 group shadow-inner">
                 <Bell className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#FFD700] rounded-full border border-[#0B0E14]"></span>
               </Link>
@@ -169,7 +169,7 @@ export default function Navbar() {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#008A32] to-[#FFD700] flex items-center justify-center text-[#0B0E14] shadow-md">
                     <span className="font-black text-xs">{user?.name?.charAt(0) || 'U'}</span>
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${userDropdownOpen ? 'rotate-180 text-[#FFD700]' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-slate-200 transition-transform ${userDropdownOpen ? 'rotate-180 text-[#FFD700]' : ''}`} />
                 </button>
 
                 <div className={`absolute top-[calc(100%+1rem)] right-0 w-64 bg-[#11151F] border border-white/10 rounded-[2rem] shadow-2xl transition-all duration-200 origin-top-right overflow-hidden ${userDropdownOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
@@ -178,13 +178,13 @@ export default function Navbar() {
                     <p className="text-[10px] uppercase tracking-widest text-[#008A32] font-black truncate mt-1">{user?.email || 'user@example.com'}</p>
                   </div>
                   <div className="p-3 space-y-1">
-                    <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs uppercase tracking-widest font-black text-slate-400 hover:text-[#FFD700] hover:bg-[#FFD700]/5 transition-colors">
+                    <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs uppercase tracking-widest font-black text-slate-200 hover:text-[#FFD700] hover:bg-[#FFD700]/5 transition-colors">
                       <Shield className="w-4 h-4" /> Dashboard
                     </Link>
-                    <Link to="/dashboard/courses" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs uppercase tracking-widest font-black text-slate-400 hover:text-[#FFD700] hover:bg-[#FFD700]/5 transition-colors">
+                    <Link to="/dashboard/courses" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs uppercase tracking-widest font-black text-slate-200 hover:text-[#FFD700] hover:bg-[#FFD700]/5 transition-colors">
                       <BookOpen className="w-4 h-4" /> My Learning
                     </Link>
-                    <Link to="/dashboard/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs uppercase tracking-widest font-black text-slate-400 hover:text-[#FFD700] hover:bg-[#FFD700]/5 transition-colors">
+                    <Link to="/dashboard/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs uppercase tracking-widest font-black text-slate-200 hover:text-[#FFD700] hover:bg-[#FFD700]/5 transition-colors">
                       <Settings className="w-4 h-4" /> Settings
                     </Link>
                   </div>
@@ -216,23 +216,23 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full bg-[#0B0E14]/95 backdrop-blur-2xl border-b border-white/10 shadow-2xl max-h-[calc(100vh-80px)] overflow-y-auto">
           <div className="p-6 flex flex-col space-y-2">
-            <NavLink to="/" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-400 hover:text-white hover:bg-[#11151F]'}`}>Home</NavLink>
-            <NavLink to="/courses" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-400 hover:text-white hover:bg-[#11151F]'}`}>Courses</NavLink>
+            <NavLink to="/" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-200 hover:text-white hover:bg-[#11151F]'}`}>Home</NavLink>
+            <NavLink to="/courses" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-200 hover:text-white hover:bg-[#11151F]'}`}>Courses</NavLink>
             
             {/* Mobile Categories Accordion Simplified */}
             <div className="px-5 py-4 bg-[#11151F]/50 rounded-2xl border border-white/5 my-2">
               <span className="text-[10px] font-black uppercase tracking-widest text-[#008A32] mb-3 block">Foundation</span>
               <div className="flex flex-col gap-2 pl-2 border-l border-[#008A32]/20 mb-5">
-                 {foundationCategories.map(cat => <Link key={cat.name} to={cat.path} className="text-xs uppercase tracking-widest text-slate-400 py-1.5 hover:text-white">{cat.name}</Link>)}
+                 {foundationCategories.map(cat => <Link key={cat.name} to={cat.path} className="text-xs uppercase tracking-widest text-slate-200 py-1.5 hover:text-white">{cat.name}</Link>)}
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-[#FFD700] mb-3 block">Advanced</span>
               <div className="flex flex-col gap-2 pl-2 border-l border-[#FFD700]/20">
-                 {advancedCategories.map(cat => <Link key={cat.name} to={cat.path} className="text-xs uppercase tracking-widest text-slate-400 py-1.5 hover:text-white">{cat.name}</Link>)}
+                 {advancedCategories.map(cat => <Link key={cat.name} to={cat.path} className="text-xs uppercase tracking-widest text-slate-200 py-1.5 hover:text-white">{cat.name}</Link>)}
               </div>
             </div>
 
-            <NavLink to="/about" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-400 hover:text-white hover:bg-[#11151F]'}`}>About</NavLink>
-            <NavLink to="/contact" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-400 hover:text-white hover:bg-[#11151F]'}`}>Contact</NavLink>
+            <NavLink to="/about" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-200 hover:text-white hover:bg-[#11151F]'}`}>About</NavLink>
+            <NavLink to="/contact" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-200 hover:text-white hover:bg-[#11151F]'}`}>Contact</NavLink>
             
             <div className="mt-6 pt-6 border-t border-white/10">
               {isAuthenticated ? (
@@ -244,7 +244,7 @@ export default function Navbar() {
                       <p className="text-[10px] font-black uppercase tracking-widest text-[#008A32] mt-1">{user?.email}</p>
                     </div>
                   </div>
-                  <Link to="/dashboard" className="px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black text-slate-400 hover:text-white hover:bg-[#11151F]">View Dashboard</Link>
+                  <Link to="/dashboard" className="px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black text-slate-200 hover:text-white hover:bg-[#11151F]">View Dashboard</Link>
                   <button onClick={handleLogout} className="w-full text-left px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black text-red-500 hover:bg-red-500/10">Log Out Extranet</button>
                 </div>
               ) : (

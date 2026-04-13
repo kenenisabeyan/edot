@@ -90,15 +90,15 @@ export default function QuizViewer() {
           <h2 className="text-3xl font-display font-black text-white mb-2 relative z-10 drop-shadow-md">
             {passed ? 'Congratulations!' : 'Keep Practicing!'}
           </h2>
-          <p className="text-slate-400 mb-8 font-medium relative z-10">You scored <span className={`font-black tracking-wider ${passed ? 'text-[#008A32]' : 'text-[#E30A17]'}`}>{score}%</span> on the {quiz.title}.</p>
+          <p className="text-slate-200 mb-8 font-medium relative z-10">You scored <span className={`font-black tracking-wider ${passed ? 'text-[#008A32]' : 'text-[#E30A17]'}`}>{score}%</span> on the {quiz.title}.</p>
           
           <div className="space-y-4 relative z-10">
-            <div className="flex justify-between items-center p-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
-              <span className="font-bold text-slate-400 uppercase tracking-widest text-xs">Passing Score</span>
+            <div className="flex justify-between items-center p-5 bg-[#11151F]/5 backdrop-blur-md rounded-2xl border border-white/10">
+              <span className="font-bold text-slate-200 uppercase tracking-widest text-xs">Passing Score</span>
               <span className="font-black text-white">70%</span>
             </div>
-            <div className="flex justify-between items-center p-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 mb-8">
-              <span className="font-bold text-slate-400 uppercase tracking-widest text-xs">Your Score</span>
+            <div className="flex justify-between items-center p-5 bg-[#11151F]/5 backdrop-blur-md rounded-2xl border border-white/10 mb-8">
+              <span className="font-bold text-slate-200 uppercase tracking-widest text-xs">Your Score</span>
               <span className={`font-black text-xl shadow-sm ${passed ? 'text-[#008A32]' : 'text-[#E30A17]'}`}>{score}%</span>
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function QuizViewer() {
           <div className="flex flex-col sm:flex-row gap-4 mt-8 relative z-10">
             <button 
               onClick={handleRetake}
-              className="flex-1 px-6 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 hover:border-[#FFD700]/50 transition-colors flex items-center justify-center gap-2 uppercase tracking-widest text-sm"
+              className="flex-1 px-6 py-4 bg-[#11151F]/5 border border-white/10 text-white font-bold rounded-xl hover:bg-[#11151F]/10 hover:border-[#FFD700]/50 transition-colors flex items-center justify-center gap-2 uppercase tracking-widest text-sm"
             >
               <RefreshCcw className="w-4 h-4" /> Retake
             </button>
@@ -140,7 +140,7 @@ export default function QuizViewer() {
       <div className="w-full max-w-3xl mb-8 flex justify-between items-center relative z-10">
         <button 
           onClick={() => navigate('/dashboard')}
-          className="text-slate-400 hover:text-white font-bold uppercase tracking-widest text-xs flex items-center gap-2 transition-colors border border-white/10 bg-white/5 px-4 py-2 rounded-lg"
+          className="text-slate-200 hover:text-white font-bold uppercase tracking-widest text-xs flex items-center gap-2 transition-colors border border-white/10 bg-[#11151F]/5 px-4 py-2 rounded-lg"
         >
           <ArrowLeft className="w-4 h-4" /> Exit
         </button>
@@ -153,11 +153,11 @@ export default function QuizViewer() {
         
         {/* Progress Bar */}
         <div className="p-6 md:px-12 border-b border-white/5 bg-[#11151F]">
-          <div className="flex justify-between text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">
+          <div className="flex justify-between text-xs font-bold text-slate-200 mb-4 uppercase tracking-widest">
             <span>Question {currentQuestion + 1} of {quiz.questions.length}</span>
             <span className="text-[#FFD700]">{Math.round(progress)}% Complete</span>
           </div>
-          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+          <div className="h-1.5 bg-[#11151F]/5 rounded-full overflow-hidden border border-white/5">
             <div 
               className="h-full bg-gradient-to-r from-[#FFD700] to-[#EAB308] shadow-[0_0_10px_rgba(255,215,0,0.5)] transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
@@ -183,7 +183,7 @@ export default function QuizViewer() {
                   className={`w-full text-left flex items-center p-5 rounded-xl border-2 transition-all ${
                     isSelected 
                       ? 'border-[#FFD700] bg-[#FFD700]/10 shadow-[0_0_15px_rgba(255,215,0,0.15)]' 
-                      : 'border-white/5 hover:border-white/20 hover:bg-white/5'
+                      : 'border-white/5 hover:border-white/20 hover:bg-[#11151F]/5'
                   }`}
                 >
                   <div className={`w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center shrink-0 transition-colors ${
@@ -205,7 +205,7 @@ export default function QuizViewer() {
           <button
             onClick={handlePrev}
             disabled={currentQuestion === 0}
-            className="px-6 py-3.5 font-bold uppercase tracking-widest text-xs text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/10 rounded-xl"
+            className="px-6 py-3.5 font-bold uppercase tracking-widest text-xs text-slate-200 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors border border-transparent hover:border-white/10 rounded-xl"
           >
             Previous
           </button>
@@ -214,7 +214,7 @@ export default function QuizViewer() {
             <button
               onClick={handleNext}
               disabled={!isAnswered}
-              className="px-8 py-3.5 bg-white/10 text-white font-bold uppercase tracking-widest text-xs rounded-xl hover:bg-white/20 transition-all shadow-sm flex items-center gap-2 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="px-8 py-3.5 bg-[#11151F]/10 text-white font-bold uppercase tracking-widest text-xs rounded-xl hover:bg-[#11151F]/20 transition-all shadow-sm flex items-center gap-2 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Next <ArrowRight className="w-4 h-4" />
             </button>

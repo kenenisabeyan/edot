@@ -1,14 +1,21 @@
-const express = require('express');
+import express from 'express';
+import { protect, authorize } from '../middleware/auth.js';
+import { prisma } from '../lib/prisma.js';
+
 const router = express.Router();
-const Notice = require('../models/Notice');
-const { protect, authorize } = require('../middleware/auth');
 
 // @route   GET /api/notices
 router.get('/', protect, async (req, res) => {
     try {
-        const notices = await Notice.find({
-            $or: [{ audience: 'all' }, { audience: req.user.role }]
-        }).sort({ date: -1 });
+        const notices = await prisma.notice.findMany({
+            where: {
+                OR: [
+                    { audience: 'all' },
+                    { audience: req.user.role }
+                ]
+            },
+            orderBy: { date: 'desc' }
+        });
         
         res.status(200).json({ success: true, count: notices.length, data: notices });
     } catch (error) {
@@ -19,12 +26,22 @@ router.get('/', protect, async (req, res) => {
 // @route   POST /api/notices
 router.post('/', protect, authorize('admin', 'instructor'), async (req, res) => {
     try {
-        req.body.author = req.user.id;
-        const notice = await Notice.create(req.body);
+        const { title, content, audience } = req.body;
+        const authorId = req.user.id;
+
+        const notice = await prisma.notice.create({
+            data: {
+                title,
+                content,
+                audience: audience || 'all',
+                authorId
+            }
+        });
+        
         res.status(201).json({ success: true, data: notice });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 });
 
-module.exports = router;
+export default router;

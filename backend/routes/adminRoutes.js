@@ -1,35 +1,37 @@
-const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
-const Course = require('../models/Course');
-const { protect, authorize } = require('../middleware/auth');
+import express from 'express';
+import { prisma } from '../lib/prisma.js';
+import { protect, authorize } from '../middleware/auth.js';
+import { hashPassword } from '../lib/modelHelpers.js';
 
-// Apply auth middleware to all routes in this file
+const router = express.Router();
+
 router.use(protect);
 router.use(authorize('admin'));
 
 // @route   GET /api/admin/users
-// @desc    Get all users
 router.get('/users', async (req, res) => {
     try {
-        const users = await User.find()
-            .select('-password')
-            .populate('enrolledCourses.course', 'title status')
-            .populate('children', 'name email status enrolledCourses')
-            .populate('assignedStudents', 'name email status enrolledCourses')
-            .sort({ createdAt: -1 })
-            .lean();
+        const users = await prisma.user.findMany({
+            include: {
+                enrollments: { include: { course: { select: { title: true, status: true } } } },
+                children: { select: { name: true, email: true, status: true } },
+                assignedStudents: { select: { name: true, email: true, status: true, enrollments: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
         
-        // Find courses to map to instructors natively
-        const allCourses = await Course.find().select('title instructor status isPublished').lean();
+        const allCourses = await prisma.course.findMany({
+            select: { id: true, title: true, instructorId: true, status: true, isPublished: true }
+        });
         
         const enhancedUsers = users.map(user => {
+            const result = { ...user };
+            delete result.password;
+            result.enrolledCourses = user.enrollments || [];
             if (user.role === 'instructor') {
-                user.taughtCourses = allCourses.filter(c => 
-                    c.instructor && c.instructor.toString() === user._id.toString()
-                );
+                result.taughtCourses = allCourses.filter(c => c.instructorId === user.id);
             }
-            return user;
+            return result;
         });
 
         res.status(200).json({ success: true, count: enhancedUsers.length, data: enhancedUsers });
@@ -39,34 +41,36 @@ router.get('/users', async (req, res) => {
 });
 
 // @route   POST /api/admin/users
-// @desc    Create a new user manually
-// @access  Private/Admin
 router.post('/users', async (req, res) => {
     try {
         const { name, email, password, role, batch, section, department, specialization, phone } = req.body;
         
-        const userExists = await User.findOne({ email });
+        const userExists = await prisma.user.findUnique({ where: { email } });
         if (userExists) {
             return res.status(400).json({ success: false, message: 'User with this email already exists' });
         }
 
-        const user = await User.create({
-            name,
-            email,
-            password, // Hook automatically salts in the mongoose pre-save logic.
-            role: role || 'student',
-            batch,
-            section,
-            department,
-            specialization,
-            phone
+        const hashedPassword = await hashPassword(password);
+
+        const user = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword,
+                role: role || 'student',
+                batch,
+                section,
+                department,
+                specialization,
+                phone
+            }
         });
 
-        // Safe return (no passport/jwt overriding)
         res.status(201).json({
             success: true,
             data: {
-                _id: user._id,
+                id: user.id,
+                id: user.id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
@@ -83,19 +87,23 @@ router.post('/users', async (req, res) => {
 });
 
 // @route   GET /api/admin/users/:id
-// @desc    Get detailed user by ID (with parent/child mapping)
 router.get('/users/:id', async (req, res) => {
     try {
-        const user = await User.findById(req.params.id)
-            .select('-password')
-            .populate('children', 'name email status')
-            .populate('assignedStudents', 'name email status')
-            .lean();
+        const user = await prisma.user.findUnique({
+            where: { id: req.params.id },
+            include: {
+                children: { select: { id: true, name: true, email: true, status: true } },
+                assignedStudents: { select: { id: true, name: true, email: true, status: true } }
+            }
+        });
 
         if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        delete user.password;
 
-        // parent link by reverse lookup
-        const parents = await User.find({ children: user._id }).select('name email status').lean();
+        const parents = await prisma.user.findMany({
+            where: { children: { some: { id: user.id } } },
+            select: { id: true, name: true, email: true, status: true }
+        });
 
         res.status(200).json({ success: true, data: { ...user, parents } });
     } catch (error) {
@@ -104,71 +112,85 @@ router.get('/users/:id', async (req, res) => {
 });
 
 // @route   PUT /api/admin/users/:id/link-child
-// @desc    Link an existing student to a parent user account
 router.put('/users/:id/link-child', async (req, res) => {
     try {
-        const parent = await User.findById(req.params.id);
-        const child = await User.findById(req.body.childId);
+        const parent = await prisma.user.findUnique({ where: { id: req.params.id } });
+        const child = await prisma.user.findUnique({ where: { id: req.body.childId } });
+        
         if (!parent || parent.role !== 'parent') return res.status(400).json({ success: false, message: 'Parent not found' });
         if (!child || child.role !== 'student') return res.status(400).json({ success: false, message: 'Child student not found' });
 
-        if (!parent.children.some((c) => c.toString() === child._id.toString())) {
-            parent.children.push(child._id);
-            await parent.save();
-        }
+        const updatedParent = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { children: { connect: { id: child.id } } },
+            include: { children: true }
+        });
 
-        return res.status(200).json({ success: true, data: parent });
+        return res.status(200).json({ success: true, data: updatedParent });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 });
 
 // @route   PUT /api/admin/users/:id/unlink-child
-// @desc    Unlink a child student from a parent user account
 router.put('/users/:id/unlink-child', async (req, res) => {
     try {
-        const parent = await User.findById(req.params.id);
+        const parent = await prisma.user.findUnique({ where: { id: req.params.id } });
         const { childId } = req.body;
+        
         if (!parent || parent.role !== 'parent') return res.status(400).json({ success: false, message: 'Parent not found' });
 
-        parent.children = parent.children.filter((c) => c.toString() !== childId);
-        await parent.save();
+        const updatedParent = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { children: { disconnect: { id: childId } } },
+            include: { children: true }
+        });
 
-        res.status(200).json({ success: true, data: parent });
+        res.status(200).json({ success: true, data: updatedParent });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 });
 
 // @route   POST /api/admin/enrollments/manual
-// @desc    Admin manual enrollment: create active enrollment and user enrolledCourses entry
 router.post('/enrollments/manual', async (req, res) => {
     try {
         const { studentId, courseId, status = 'active' } = req.body;
-        const student = await User.findById(studentId);
-        const course = await Course.findById(courseId);
+        const student = await prisma.user.findUnique({ where: { id: studentId } });
+        const course = await prisma.course.findUnique({ where: { id: courseId } });
+        
         if (!student || student.role !== 'student') return res.status(400).json({ success: false, message: 'Student not found' });
         if (!course) return res.status(400).json({ success: false, message: 'Course not found' });
 
-        let enrollment = await Enrollment.findOne({ student: student._id, course: course._id });
+        let enrollment = await prisma.enrollment.findFirst({ where: { studentId, courseId } });
         if (!enrollment) {
-            enrollment = await Enrollment.create({ student: student._id, course: course._id, status, requestedAt: Date.now() });
+            enrollment = await prisma.enrollment.create({
+                data: { studentId, courseId, status }
+            });
         } else {
-            enrollment.status = status;
-            await enrollment.save();
+            enrollment = await prisma.enrollment.update({
+                where: { id: enrollment.id },
+                data: { status }
+            });
         }
 
-        let userEnrollment = student.enrolledCourses.find((en) => en.course.toString() === course._id.toString());
-        if (!userEnrollment) {
-            student.enrolledCourses.push({ course: course._id, status, progress: 0, completedLessons: [] });
+        let userProgress = await prisma.userCourseProgress.findFirst({ where: { userId: studentId, courseId } });
+        if (!userProgress) {
+            await prisma.userCourseProgress.create({
+                data: { userId: studentId, courseId, status, progress: 0, completedLessons: [] }
+            });
         } else {
-            userEnrollment.status = status;
+            await prisma.userCourseProgress.update({
+                where: { id: userProgress.id },
+                data: { status }
+            });
         }
-        await student.save();
 
         if (status === 'active') {
-            course.totalStudents = (course.totalStudents || 0) + 1;
-            await course.save();
+            await prisma.course.update({
+                where: { id: courseId },
+                data: { totalStudents: { increment: 1 } }
+            });
         }
 
         res.status(200).json({ success: true, data: enrollment });
@@ -178,25 +200,20 @@ router.post('/enrollments/manual', async (req, res) => {
 });
 
 // @route   DELETE /api/admin/enrollments/:id
-// @desc    Remove an enrollment and sync user enrolledCourses
 router.delete('/enrollments/:id', async (req, res) => {
     try {
-        const en = await Enrollment.findById(req.params.id);
+        const en = await prisma.enrollment.findUnique({ where: { id: req.params.id } });
         if (!en) return res.status(404).json({ success: false, message: 'Enrollment not found' });
 
-        const student = await User.findById(en.student);
-        const course = await Course.findById(en.course);
+        await prisma.enrollment.delete({ where: { id: req.params.id } });
+        
+        await prisma.userCourseProgress.deleteMany({
+            where: { userId: en.studentId, courseId: en.courseId }
+        });
 
-        if (student) {
-            student.enrolledCourses = student.enrolledCourses.filter((c) => c.course.toString() !== course._id.toString());
-            await student.save();
-        }
-
-        await en.deleteOne();
-
+        const course = await prisma.course.findUnique({ where: { id: en.courseId } });
         if (course && course.totalStudents > 0) {
-            course.totalStudents = course.totalStudents - 1;
-            await course.save();
+            await prisma.course.update({ where: { id: en.courseId }, data: { totalStudents: { decrement: 1 } } });
         }
 
         res.status(200).json({ success: true, message: 'Enrollment removed' });
@@ -206,26 +223,20 @@ router.delete('/enrollments/:id', async (req, res) => {
 });
 
 // @route   DELETE /api/admin/enrollments
-// @desc    Remove an enrollment by studentId & courseId
 router.delete('/enrollments', async (req, res) => {
     try {
         const { studentId, courseId } = req.body;
-        const en = await Enrollment.findOne({ student: studentId, course: courseId });
+        const en = await prisma.enrollment.findFirst({ where: { studentId, courseId } });
         if (!en) return res.status(404).json({ success: false, message: 'Enrollment not found' });
 
-        const student = await User.findById(studentId);
-        const course = await Course.findById(courseId);
+        await prisma.enrollment.delete({ where: { id: en.id } });
+        await prisma.userCourseProgress.deleteMany({
+            where: { userId: studentId, courseId }
+        });
 
-        if (student) {
-            student.enrolledCourses = student.enrolledCourses.filter((c) => c.course.toString() !== courseId);
-            await student.save();
-        }
-
-        await en.deleteOne();
-
+        const course = await prisma.course.findUnique({ where: { id: courseId } });
         if (course && course.totalStudents > 0) {
-            course.totalStudents = course.totalStudents - 1;
-            await course.save();
+            await prisma.course.update({ where: { id: courseId }, data: { totalStudents: { decrement: 1 } } });
         }
 
         res.status(200).json({ success: true, message: 'Enrollment removed' });
@@ -235,13 +246,15 @@ router.delete('/enrollments', async (req, res) => {
 });
 
 // @route   GET /api/admin/instructors
-// @desc    Get all instructors
 router.get('/instructors', async (req, res) => {
     try {
-        const instructors = await User.find({ role: 'instructor' })
-            .select('-password')
-            .populate('assignedStudents', 'name email status')
-            .sort({ createdAt: -1 });
+        const instructors = await prisma.user.findMany({
+            where: { role: 'instructor' },
+            include: { assignedStudents: { select: { id: true, name: true, email: true, status: true } } },
+            orderBy: { createdAt: 'desc' }
+        });
+        
+        instructors.forEach(i => delete i.password);
         res.status(200).json({ success: true, count: instructors.length, data: instructors });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -249,11 +262,13 @@ router.get('/instructors', async (req, res) => {
 });
 
 // @route   PUT /api/admin/instructor/:id/approve
-// @desc    Approve an instructor
 router.put('/instructor/:id/approve', async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
-        if (!user) return res.status(404).json({ success: false, message: 'Instructor not found' });
+        const user = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { status: 'approved' }
+        });
+        delete user.password;
         res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -261,11 +276,13 @@ router.put('/instructor/:id/approve', async (req, res) => {
 });
 
 // @route   PUT /api/admin/instructor/:id/reject
-// @desc    Reject an instructor
 router.put('/instructor/:id/reject', async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
-        if (!user) return res.status(404).json({ success: false, message: 'Instructor not found' });
+        const user = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { status: 'rejected' }
+        });
+        delete user.password;
         res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -273,13 +290,15 @@ router.put('/instructor/:id/reject', async (req, res) => {
 });
 
 // @route   GET /api/admin/students
-// @desc    Get all students
 router.get('/students', async (req, res) => {
     try {
-        const students = await User.find({ role: 'student' })
-            .select('-password')
-            .populate('assignedInstructor', 'name email')
-            .sort({ createdAt: -1 });
+        const students = await prisma.user.findMany({
+            where: { role: 'student' },
+            include: { assignedInstructor: { select: { id: true, name: true, email: true } } },
+            orderBy: { createdAt: 'desc' }
+        });
+        
+        students.forEach(s => delete s.password);
         res.status(200).json({ success: true, count: students.length, data: students });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -287,11 +306,13 @@ router.get('/students', async (req, res) => {
 });
 
 // @route   PUT /api/admin/student/:id/approve
-// @desc    Approve a student
 router.put('/student/:id/approve', async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
-        if (!user) return res.status(404).json({ success: false, message: 'Student not found' });
+        const user = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { status: 'approved' }
+        });
+        delete user.password;
         res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -299,11 +320,13 @@ router.put('/student/:id/approve', async (req, res) => {
 });
 
 // @route   PUT /api/admin/student/:id/reject
-// @desc    Reject a student
 router.put('/student/:id/reject', async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
-        if (!user) return res.status(404).json({ success: false, message: 'Student not found' });
+        const user = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { status: 'rejected' }
+        });
+        delete user.password;
         res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -311,51 +334,35 @@ router.put('/student/:id/reject', async (req, res) => {
 });
 
 // @route   PUT /api/admin/student/:id/assign
-// @desc    Assign student to an instructor bi-directionally
 router.put('/student/:id/assign', async (req, res) => {
     try {
         const { instructorId } = req.body;
-        const student = await User.findById(req.params.id);
-        const instructor = await User.findById(instructorId);
+        const student = await prisma.user.findUnique({ where: { id: req.params.id } });
+        const instructor = await prisma.user.findUnique({ where: { id: instructorId } });
 
         if (!student || !instructor || student.role !== 'student' || instructor.role !== 'instructor') {
             return res.status(400).json({ success: false, message: 'Invalid assignment targets' });
         }
 
-        // Clean previous relationship if reassigning
-        if (student.assignedInstructor) {
-           const oldInst = await User.findById(student.assignedInstructor);
-           if (oldInst) {
-             oldInst.assignedStudents.pull(student._id);
-             await oldInst.save();
-           }
-        }
+        const updatedStudent = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { assignedInstructorId: instructorId }
+        });
 
-        // Apply new Assignment
-        student.assignedInstructor = instructor._id;
-        if (!instructor.assignedStudents.includes(student._id)) {
-            instructor.assignedStudents.push(student._id);
-        }
-
-        await student.save();
-        await instructor.save();
-
-        res.status(200).json({ success: true, message: 'Student assigned safely', data: student });
+        res.status(200).json({ success: true, message: 'Student assigned safely', data: updatedStudent });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 });
 
 // @route   PUT /api/admin/users/:id/role
-// @desc    Update user role
 router.put('/users/:id/role', async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-        user.role = req.body.role;
-        await user.save();
+        const user = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { role: req.body.role }
+        });
+        delete user.password;
         res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -363,39 +370,39 @@ router.put('/users/:id/role', async (req, res) => {
 });
 
 // @route   PUT /api/admin/users/:id
-// @desc    Update user profile fields (name, email, role, password)
 router.put('/users/:id', async (req, res) => {
     try {
         const { name, email, role, password, status } = req.body;
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        const updateData = {};
+        
+        if (name) updateData.name = name;
+        if (email) updateData.email = email;
+        if (role) updateData.role = role;
+        if (status && ['pending', 'approved', 'rejected', 'blocked'].includes(status)) updateData.status = status;
+        if (password && password.length >= 6) updateData.password = await hashPassword(password);
 
-        if (name) user.name = name;
-        if (email) user.email = email;
-        if (role) user.role = role;
-        if (status && ['pending', 'approved', 'rejected', 'blocked'].includes(status)) user.status = status;
-        if (password && password.length >= 6) user.password = password;
-
-        await user.save();
-        const safeUser = await User.findById(req.params.id).select('-password');
-        res.status(200).json({ success: true, data: safeUser });
+        const user = await prisma.user.update({
+            where: { id: req.params.id },
+            data: updateData
+        });
+        
+        delete user.password;
+        res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 });
 
 // @route   POST /api/admin/users/:id/reset-password
-// @desc    Reset a user password to a temporary value
 router.post('/users/:id/reset-password', async (req, res) => {
     try {
         const { newPassword } = req.body;
         if (!newPassword) return res.status(400).json({ success: false, message: 'New password required' });
 
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-
-        user.password = newPassword;
-        await user.save();
+        await prisma.user.update({
+            where: { id: req.params.id },
+            data: { password: await hashPassword(newPassword) }
+        });
 
         res.status(200).json({ success: true, message: 'Password reset successfully' });
     } catch (error) {
@@ -404,22 +411,18 @@ router.post('/users/:id/reset-password', async (req, res) => {
 });
 
 // @route   PUT /api/admin/users/:id/status
-// @desc    Update user status (approve/reject/blocked)
 router.put('/users/:id/status', async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-        
-        // Ensure valid status
         const { status } = req.body;
         if (!['pending', 'approved', 'rejected', 'blocked'].includes(status)) {
             return res.status(400).json({ success: false, message: 'Invalid status' });
         }
         
-        user.status = status;
-        await user.save();
+        const user = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { status }
+        });
+        delete user.password;
         res.status(200).json({ success: true, data: user });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -427,26 +430,24 @@ router.put('/users/:id/status', async (req, res) => {
 });
 
 // @route   PUT /api/admin/users/:id/reset-progress
-// @desc    Reset student progress and completion on all enrolled courses
 router.put('/users/:id/reset-progress', async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        await prisma.userCourseProgress.updateMany({
+            where: { userId: req.params.id },
+            data: {
+                progress: 0,
+                completedLessons: [],
+                watchedVideos: [],
+                passedQuizzes: [],
+                passedFinalExam: false
+            }
+        });
 
-        if (!user.enrolledCourses || user.enrolledCourses.length === 0) {
-            return res.status(200).json({ success: true, data: user, message: 'No enrolled courses to reset' });
-        }
-
-        user.enrolledCourses = user.enrolledCourses.map((ec) => ({
-            ...ec.toObject ? ec.toObject() : ec,
-            progress: 0,
-            completedLessons: [],
-            watchedVideos: [],
-            passedQuizzes: [],
-            passedFinalExam: false
-        }));
-
-        await user.save();
+        const user = await prisma.user.findUnique({
+            where: { id: req.params.id },
+            include: { enrollments: true }
+        });
+        
         res.status(200).json({ success: true, data: user, message: 'Student progress reset successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -454,35 +455,9 @@ router.put('/users/:id/reset-progress', async (req, res) => {
 });
 
 // @route   DELETE /api/admin/users/:id
-// @desc    Delete a user
 router.delete('/users/:id', async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-
-        // If this is a student, remove them from all parents' children lists
-        if (user.role === 'student') {
-            await User.updateMany(
-                { role: 'parent', children: user._id },
-                { $pull: { children: user._id } }
-            );
-            await User.updateMany(
-                { role: 'instructor', assignedStudents: user._id },
-                { $pull: { assignedStudents: user._id } }
-            );
-        }
-
-        // If this is a parent, optionally clear children's parent link
-        if (user.role === 'parent' && user.children && user.children.length) {
-            await User.updateMany(
-                { _id: { $in: user.children } },
-                { $unset: { assignedInstructor: '' } }
-            );
-        }
-
-        await user.deleteOne();
+        await prisma.user.delete({ where: { id: req.params.id } });
         res.status(200).json({ success: true, message: 'User removed completely' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -490,10 +465,9 @@ router.delete('/users/:id', async (req, res) => {
 });
 
 // @route   GET /api/admin/courses
-// @desc    Get all courses (bypass publish/approved filters constraints)
 router.get('/courses', async (req, res) => {
     try {
-        const courses = await Course.find().populate('instructor', 'name email');
+        const courses = await prisma.course.findMany({ include: { instructor: { select: { name: true, email: true } } } });
         res.status(200).json({ success: true, count: courses.length, data: courses });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -501,10 +475,12 @@ router.get('/courses', async (req, res) => {
 });
 
 // @route   GET /api/admin/courses/pending
-// @desc    Get all pending courses
 router.get('/courses/pending', async (req, res) => {
     try {
-        const courses = await Course.find({ status: 'pending' }).populate('instructor', 'name email');
+        const courses = await prisma.course.findMany({
+            where: { status: 'pending' },
+            include: { instructor: { select: { name: true, email: true } } }
+        });
         res.status(200).json({ success: true, count: courses.length, data: courses });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -512,22 +488,15 @@ router.get('/courses/pending', async (req, res) => {
 });
 
 // @route   PUT /api/admin/courses/:id/status
-// @desc    Approve or reject a course
 router.put('/courses/:id/status', async (req, res) => {
     try {
-        const course = await Course.findById(req.params.id);
-        if (!course) {
-            return res.status(404).json({ success: false, message: 'Course not found' });
-        }
-        
-        course.status = req.body.status;
-        if (req.body.status === 'approved') {
-            course.isPublished = true;
-        } else {
-            course.isPublished = false;
-        }
-
-        await course.save();
+        const course = await prisma.course.update({
+            where: { id: req.params.id },
+            data: {
+                status: req.body.status,
+                isPublished: req.body.status === 'approved'
+            }
+        });
         res.status(200).json({ success: true, data: course });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -535,20 +504,55 @@ router.put('/courses/:id/status', async (req, res) => {
 });
 
 // @route   GET /api/admin/enrollments/pending
-// @desc    Get all student enrollment requests pending approval
 router.get('/enrollments/pending', async (req, res) => {
     try {
-        const pendingEnrollments = await Enrollment.find({ status: 'pending' })
-            .populate('student', 'name email status')
-            .populate('course', 'title instructor');
+        const pendingEnrollments = await prisma.enrollment.findMany({
+            where: { status: 'pending' },
+            include: {
+                student: { select: { id: true, name: true, email: true, status: true } },
+                course: { select: { id: true, title: true, instructorId: true } }
+            }
+        });
 
         const payload = pendingEnrollments.map((en) => ({
-            _id: en._id,
-            studentId: en.student._id,
-            studentName: en.student.name,
-            studentEmail: en.student.email,
-            courseId: en.course._id,
-            courseTitle: en.course.title,
+            id: en.id,
+            id: en.id,
+            studentId: en.student?.id,
+            studentName: en.student?.name,
+            studentEmail: en.student?.email,
+            courseId: en.course?.id,
+            courseTitle: en.course?.title,
+            requestedAt: en.requestedAt,
+            status: en.status
+        }));
+
+        res.status(200).json({ success: true, count: payload.length, data: payload });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   GET /api/admin/enrollments/active
+router.get('/enrollments/active', async (req, res) => {
+    try {
+        const activeEnrollments = await prisma.enrollment.findMany({
+            where: { status: 'active' },
+            include: {
+                student: { select: { id: true, name: true, email: true, status: true, batch: true } },
+                course: { select: { id: true, title: true, instructorId: true } }
+            },
+            orderBy: { requestedAt: 'desc' },
+            take: 50 // Limit to recent 50 for performance, or add pagination
+        });
+
+        const payload = activeEnrollments.map((en) => ({
+            id: en.id,
+            studentId: en.student?.id,
+            studentName: en.student?.name,
+            studentEmail: en.student?.email,
+            studentBatch: en.student?.batch,
+            courseId: en.course?.id,
+            courseTitle: en.course?.title,
             requestedAt: en.requestedAt,
             status: en.status
         }));
@@ -560,7 +564,6 @@ router.get('/enrollments/pending', async (req, res) => {
 });
 
 // @route   PUT /api/admin/enrollments/:id/status
-// @desc    Approve or reject a student course enrollment request
 router.put('/enrollments/:id/status', async (req, res) => {
     try {
         const { status, reason } = req.body;
@@ -568,36 +571,38 @@ router.put('/enrollments/:id/status', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid status option' });
         }
 
-        const enrollment = await Enrollment.findById(req.params.id).populate('student course');
-        if (!enrollment) {
-            return res.status(404).json({ success: false, message: 'Enrollment request not found' });
-        }
+        const enrollment = await prisma.enrollment.update({
+            where: { id: req.params.id },
+            data: { status, reason: reason || '' },
+            include: { course: true }
+        });
 
-        enrollment.status = status;
-        enrollment.reason = reason || '';
-        await enrollment.save();
+        const userProgress = await prisma.userCourseProgress.findFirst({
+            where: { userId: enrollment.studentId, courseId: enrollment.courseId }
+        });
 
-        const user = await User.findById(enrollment.student._id);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'Student not found' });
-        }
-
-        let userEnrollment = user.enrolledCourses.find((ec) => ec.course.toString() === enrollment.course._id.toString());
-        if (!userEnrollment) {
-            userEnrollment = { course: enrollment.course._id, status: enrollment.status, progress: 0, completedLessons: [] };
-            user.enrolledCourses.push(userEnrollment);
+        if (userProgress) {
+            await prisma.userCourseProgress.update({
+                where: { id: userProgress.id },
+                data: { status }
+            });
         } else {
-            userEnrollment.status = enrollment.status;
+            await prisma.userCourseProgress.create({
+                data: {
+                    userId: enrollment.studentId,
+                    courseId: enrollment.courseId,
+                    status,
+                    progress: 0,
+                    completedLessons: []
+                }
+            });
         }
-
-        await user.save();
 
         if (status === 'active') {
-            const course = await Course.findById(enrollment.course._id);
-            if (course) {
-                course.totalStudents = (course.totalStudents || 0) + 1;
-                await course.save();
-            }
+            await prisma.course.update({
+                where: { id: enrollment.courseId },
+                data: { totalStudents: { increment: 1 } }
+            });
         }
 
         res.status(200).json({ success: true, data: enrollment });
@@ -607,13 +612,11 @@ router.put('/enrollments/:id/status', async (req, res) => {
 });
 
 // @route   GET /api/admin/analytics/detailed
-// @desc    Get precise detailed admin analytics for charts
 router.get('/analytics/detailed', async (req, res) => {
     try {
-        const users = await User.find().select('role createdAt');
-        const courses = await Course.find().select('title price totalStudents createdAt isPublished instructor');
+        const users = await prisma.user.findMany({ select: { role: true, createdAt: true } });
+        const courses = await prisma.course.findMany({ select: { title: true, price: true, totalStudents: true, createdAt: true, isPublished: true, instructorId: true } });
 
-        // Revenue over last 6 months (Real calculation only, no mock)
         const revenueData = [];
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const d = new Date();
@@ -630,7 +633,6 @@ router.get('/analytics/detailed', async (req, res) => {
             revenueData.push({ name: monthNames[m.getMonth()], revenue: monthRev });
         }
 
-        // Engagement Data (Students vs Teachers over time)
         const engagementData = [];
         for (let i = 3; i >= 0; i--) {
             let start = new Date();
@@ -640,7 +642,6 @@ router.get('/analytics/detailed', async (req, res) => {
             engagementData.push({ name: `Week ${4-i}`, students: sCount, teachers: tCount });
         }
 
-        // Course completion data (Status Overview)
         let total = courses.length;
         let published = courses.filter(c => c.isPublished).length;
         const courseCompletionData = [
@@ -656,7 +657,7 @@ router.get('/analytics/detailed', async (req, res) => {
                 courseCompletionData,
                 totalRevenue: revenueData.reduce((acc, curr) => acc + curr.revenue, 0),
                 totalActiveLearners: users.filter(u => u.role === 'student').length,
-                totalCourseCompletions: 0 // True implementation requires mapping through enrolledCourses passing logic
+                totalCourseCompletions: 0 
             }
         });
 
@@ -666,19 +667,17 @@ router.get('/analytics/detailed', async (req, res) => {
 });
 
 // @route   GET /api/admin/dashboard
-// @desc    Get admin dashboard statistics
 router.get('/dashboard', async (req, res) => {
     try {
-        const totalUsers = await User.countDocuments({ status: 'approved' });
-        const totalStudents = await User.countDocuments({ role: 'student', status: 'approved' });
-        const totalInstructors = await User.countDocuments({ role: 'instructor', status: 'approved' });
+        const totalUsers = await prisma.user.count({ where: { status: 'approved' } });
+        const totalStudents = await prisma.user.count({ where: { role: 'student', status: 'approved' } });
+        const totalInstructors = await prisma.user.count({ where: { role: 'instructor', status: 'approved' } });
         
-        const courses = await Course.find();
+        const courses = await prisma.course.findMany();
         const totalCourses = courses.length;
         const pendingCourses = courses.filter(c => c.status === 'pending').length;
-        const pendingUsers = await User.countDocuments({ status: 'pending' });
+        const pendingUsers = await prisma.user.count({ where: { status: 'pending' } });
         
-        // Real revenue strictly mapped
         let totalRevenue = 0;
         courses.forEach(course => {
             if (course.isPublished && course.price && course.totalStudents) {
@@ -686,18 +685,19 @@ router.get('/dashboard', async (req, res) => {
             }
         });
 
-        // Get Real Top 3 Courses for Admin Performance Dashboard
         const topCourses = courses.filter(c => c.isPublished).sort((a,b) => b.totalStudents - a.totalStudents).slice(0, 3);
-        const courseIds = topCourses.map(c => c._id);
+        const courseIds = topCourses.map(c => c.id);
         
-        const ProgressLog = require('../models/ProgressLog');
         const fiveDaysAgo = new Date();
         fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
         
-        const rawLogs = await ProgressLog.find({ 
-           course_id: { $in: courseIds }, 
-           updatedAt: { $gte: fiveDaysAgo } 
-        }).populate('course_id', 'title');
+        const rawLogs = await prisma.progressLog.findMany({
+            where: {
+                courseId: { in: courseIds },
+                updatedAt: { gte: fiveDaysAgo }
+            },
+            include: { course: { select: { title: true } } }
+        });
 
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         const studentPerformanceData = [4, 3, 2, 1, 0].map(diff => {
@@ -716,27 +716,27 @@ router.get('/dashboard', async (req, res) => {
              const logDate = new Date(log.updatedAt).toISOString().split('T')[0];
              const targetDay = studentPerformanceData.find(d => d.dateStr === logDate);
              if (targetDay) {
-                  const cid = log.course_id._id.toString();
-                  if (topCourses[0] && cid === topCourses[0]._id.toString()) targetDay.value1 += 1;
-                  else if (topCourses[1] && cid === topCourses[1]._id.toString()) targetDay.value2 += 1;
-                  else if (topCourses[2] && cid === topCourses[2]._id.toString()) targetDay.value3 += 1;
+                  const cid = log.courseId;
+                  if (topCourses[0] && cid === topCourses[0].id) targetDay.value1 += 1;
+                  else if (topCourses[1] && cid === topCourses[1].id) targetDay.value2 += 1;
+                  else if (topCourses[2] && cid === topCourses[2].id) targetDay.value3 += 1;
              }
         });
 
         const cleanStudentPerformance = studentPerformanceData.map(({name, value1, value2, value3}) => ({name, value1, value2, value3}));
 
-        const recentUsers = await User.find().sort({ createdAt: -1 }).limit(5); // get all users, not just approved
+        const recentUsers = await prisma.user.findMany({ orderBy: { createdAt: 'desc' }, take: 5 });
         const recentActivity = [];
         recentUsers.forEach(u => recentActivity.push({ 
-             id: u._id, 
+             id: u.id, 
              title: u.status === 'pending' ? `New ${u.role} registered (Pending)` : `New ${u.role} joined`, 
              itemTitle: u.name, 
              type: u.status === 'pending' ? 'user_pending' : 'user_joined', 
              studentName: u.name, 
              date: u.createdAt 
         }));
-        const recentCoursesObj = await Course.find({ isPublished: true }).sort({ createdAt: -1 }).limit(3);
-        recentCoursesObj.forEach(c => recentActivity.push({ id: c._id, title: 'Course published', itemTitle: c.title, type: 'course_completed', studentName: 'System', date: c.createdAt }));
+        const recentCoursesObj = await prisma.course.findMany({ where: { isPublished: true }, orderBy: { createdAt: 'desc' }, take: 3 });
+        recentCoursesObj.forEach(c => recentActivity.push({ id: c.id, title: 'Course published', itemTitle: c.title, type: 'course_completed', studentName: 'System', date: c.createdAt }));
         recentActivity.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         res.status(200).json({
@@ -759,4 +759,4 @@ router.get('/dashboard', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

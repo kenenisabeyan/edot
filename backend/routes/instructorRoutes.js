@@ -1,11 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { prisma } from '../lib/prisma.js';
+import { logActivity } from '../controllers/activityController.js';
+import { protect, authorize } from '../middleware/auth.js';
+
 const router = express.Router();
-const Course = require('../models/Course');
-const Lesson = require('../models/Lesson');
-const User = require('../models/User');
-const ProgressLog = require('../models/ProgressLog');
-const { logActivity } = require('../controllers/activityController');
-const { protect, authorize } = require('../middleware/auth');
 
 // Apply auth middleware to all routes in this file
 router.use(protect);
@@ -15,9 +13,12 @@ router.use(authorize('instructor', 'admin'));
 // @desc    Get courses created by instructor
 router.get('/courses', async (req, res) => {
     try {
-        const courses = await Course.find({ instructor: req.user.id })
-                                    .populate('lessons')
-                                    .sort({ createdAt: -1 });
+        const userId = req.user.id;
+        const courses = await prisma.course.findMany({
+            where: { instructorId: userId },
+            include: { lessons: true },
+            orderBy: { createdAt: 'desc' }
+        });
         res.status(200).json({ success: true, count: courses.length, data: courses });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -28,16 +29,36 @@ router.get('/courses', async (req, res) => {
 // @desc    Get all students assigned directly to this instructor
 router.get('/students', async (req, res) => {
     try {
-        const students = await User.find({
-            role: 'student',
-            assignedInstructor: req.user.id
-        })
-        .select('-password')
-        .populate('enrolledCourses.course', 'title status')
-        .sort({ createdAt: -1 })
-        .lean();
+        const userId = req.user.id;
+        const students = await prisma.user.findMany({
+            where: {
+                role: 'student',
+                assignedInstructorId: userId
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                avatar: true,
+                status: true,
+                createdAt: true,
+                enrollments: {
+                    select: {
+                        course: { select: { title: true, status: true } }
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
 
-        res.status(200).json({ success: true, count: students.length, data: students });
+        const formattedStudents = students.map(student => {
+            return {
+                ...student,
+                enrolledCourses: student.enrollments
+            };
+        });
+
+        res.status(200).json({ success: true, count: formattedStudents.length, data: formattedStudents });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error retrieving assigned students', error: error.message });
     }
@@ -47,20 +68,37 @@ router.get('/students', async (req, res) => {
 // @desc    Create a new course
 router.post('/courses', async (req, res) => {
     try {
-        // Automatically assign the logged-in user as the instructor
-        req.body.instructor = req.user.id;
+        const userId = req.user.id;
+        const validFields = {
+            title: req.body.title,
+            description: req.body.description,
+            mainCategory: req.body.category || req.body.mainCategory || 'General',
+            subCategory: req.body.subCategory || '',
+            level: req.body.level || 'Beginner',
+            duration: Number(req.body.duration) || 1,
+            thumbnail: req.body.thumbnail || 'default-course.jpg',
+            price: Number(req.body.price) || 0,
+            requirements: req.body.requirements || [],
+            whatYouWillLearn: req.body.whatYouWillLearn || [],
+            tags: req.body.tags || [],
+            isExamRequired: Boolean(req.body.isExamRequired),
+            finalExam: req.body.finalExam || []
+        };
+        
+        validFields.instructorId = userId;
+        validFields.slug = (validFields.title || 'course').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
         
         if (req.user.role === 'admin') {
-            req.body.status = 'approved';
-            req.body.isPublished = true;
+            validFields.status = 'approved';
+            validFields.isPublished = true;
         } else {
-            req.body.status = 'draft'; // newly created courses start as draft
-            req.body.isPublished = false;
+            validFields.status = 'draft';
+            validFields.isPublished = false;
         }
 
-        const course = await Course.create(req.body);
+        const course = await prisma.course.create({ data: validFields });
         
-        await logActivity(req.user.id, `Created a new course: ${course.title}`, 'course', course.title, course._id);
+        await logActivity(userId, `Created a new course: ${course.title}`, 'course', course.title, course.id);
 
         res.status(201).json({ success: true, data: course });
     } catch (error) {
@@ -72,30 +110,42 @@ router.post('/courses', async (req, res) => {
 // @desc    Update a course
 router.put('/courses/:id', async (req, res) => {
     try {
-        let course = await Course.findById(req.params.id);
+        const userId = req.user.id;
+        let course = await prisma.course.findUnique({ where: { id: req.params.id } });
 
         if (!course) {
             return res.status(404).json({ success: false, message: 'Course not found' });
         }
 
-        // Make sure user is course instructor
-        if (course.instructor.toString() !== req.user.id && req.user.role !== 'admin') {
+        if (course.instructorId !== userId && req.user.role !== 'admin') {
             return res.status(401).json({ success: false, message: 'Not authorized to update this course' });
         }
 
-        // If an approved course is edited, it must go back through the approval process
-        // UNLESS the editor is an admin.
+        const validUpdateFields = {};
+        if (req.body.title !== undefined) validUpdateFields.title = req.body.title;
+        if (req.body.description !== undefined) validUpdateFields.description = req.body.description;
+        if (req.body.category !== undefined) validUpdateFields.mainCategory = req.body.category;
+        if (req.body.level !== undefined) validUpdateFields.level = req.body.level;
+        if (req.body.duration !== undefined) validUpdateFields.duration = Number(req.body.duration);
+        if (req.body.thumbnail !== undefined) validUpdateFields.thumbnail = req.body.thumbnail;
+        if (req.body.price !== undefined) validUpdateFields.price = Number(req.body.price);
+        if (req.body.requirements !== undefined) validUpdateFields.requirements = req.body.requirements;
+        if (req.body.whatYouWillLearn !== undefined) validUpdateFields.whatYouWillLearn = req.body.whatYouWillLearn;
+        if (req.body.tags !== undefined) validUpdateFields.tags = req.body.tags;
+        if (req.body.isExamRequired !== undefined) validUpdateFields.isExamRequired = Boolean(req.body.isExamRequired);
+        if (req.body.finalExam !== undefined) validUpdateFields.finalExam = req.body.finalExam;
+
         if (course.status === 'approved' && req.user.role !== 'admin') {
-            req.body.status = 'draft';
-            req.body.isPublished = false;
+            validUpdateFields.status = 'draft';
+            validUpdateFields.isPublished = false;
         }
 
-        course = await Course.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
+        course = await prisma.course.update({
+            where: { id: req.params.id },
+            data: validUpdateFields
         });
         
-        await logActivity(req.user.id, `Updated course: ${course.title}`, 'course', course.title, course._id);
+        await logActivity(userId, `Updated course: ${course.title}`, 'course', course.title, course.id);
 
         res.status(200).json({ success: true, data: course });
     } catch (error) {
@@ -107,33 +157,43 @@ router.put('/courses/:id', async (req, res) => {
 // @desc    Add a lesson to a course
 router.post('/courses/:courseId/lessons', async (req, res) => {
     try {
-        const course = await Course.findById(req.params.courseId);
+        const userId = req.user.id;
+        const course = await prisma.course.findUnique({ 
+            where: { id: req.params.courseId },
+            include: { lessons: true }
+        });
 
         if (!course) {
             return res.status(404).json({ success: false, message: 'Course not found' });
         }
 
-        // Make sure user is course instructor
-        if (course.instructor.toString() !== req.user.id && req.user.role !== 'admin') {
+        if (course.instructorId !== userId && req.user.role !== 'admin') {
             return res.status(401).json({ success: false, message: 'Not authorized to add a lesson to this course' });
         }
 
-        req.body.courseId = req.params.courseId;
-        
-        // Auto-assign order if not provided
-        if (!req.body.order) {
-            req.body.order = course.lessons.length + 1;
-        }
+        const lessonData = {
+            title: req.body.title,
+            description: req.body.description,
+            videoUrl: req.body.videoUrl,
+            duration: Number(req.body.duration),
+            courseId: req.params.courseId,
+            order: req.body.order || (course.lessons.length + 1),
+            readingMaterials: req.body.readingMaterials || '',
+            quiz: req.body.quiz || [],
+            phase: req.body.phase || ''
+        };
 
-        const lesson = await Lesson.create(req.body);
-
-        // Add lesson reference to course
-        course.lessons.push(lesson._id);
-        await course.save();
+        // Explicitly ensuring phase mapping is fully initialized via nodemon reload.
+        const lesson = await prisma.lesson.create({ data: lessonData });
 
         res.status(201).json({ success: true, data: lesson });
     } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+        let errMsg = error.message;
+        if (errMsg.includes('invocation:')) {
+            // Strip the huge object dump to reveal the root validation error at the bottom.
+            errMsg = errMsg.split('}').pop().trim() || errMsg;
+        }
+        res.status(400).json({ success: false, message: errMsg });
     }
 });
 
@@ -141,24 +201,27 @@ router.post('/courses/:courseId/lessons', async (req, res) => {
 // @desc    Submit a course for admin approval
 router.put('/courses/:id/submit', async (req, res) => {
     try {
-        const course = await Course.findById(req.params.id);
+        const userId = req.user.id;
+        let course = await prisma.course.findUnique({ where: { id: req.params.id } });
 
         if (!course) {
             return res.status(404).json({ success: false, message: 'Course not found' });
         }
 
-        // Make sure user is course instructor
-        if (course.instructor.toString() !== req.user.id && req.user.role !== 'admin') {
+        if (course.instructorId !== userId && req.user.role !== 'admin') {
             return res.status(401).json({ success: false, message: 'Not authorized to publish this course' });
         }
 
+        let updateData = { status: 'pending' };
         if (req.user.role === 'admin') {
-            course.status = 'approved';
-            course.isPublished = true;
-        } else {
-            course.status = 'pending';
+            updateData.status = 'approved';
+            updateData.isPublished = true;
         }
-        await course.save();
+
+        course = await prisma.course.update({
+            where: { id: req.params.id },
+            data: updateData
+        });
 
         res.status(200).json({ success: true, data: course });
     } catch (error) {
@@ -170,11 +233,16 @@ router.put('/courses/:id/submit', async (req, res) => {
 // @desc    Get precise detailed instructor analytics for charts
 router.get('/analytics/detailed', async (req, res) => {
     try {
-        const courses = await Course.find({ instructor: req.user.id });
-        const courseIds = courses.map(c => c._id);
-        const users = await User.find({ role: 'student', 'enrolledCourses.course': { $in: courseIds } }).select('createdAt');
+        const userId = req.user.id;
+        const courses = await prisma.course.findMany({ where: { instructorId: userId } });
+        const courseIds = courses.map(c => c.id);
+        
+        const enrollments = await prisma.enrollment.findMany({
+            where: { courseId: { in: courseIds } },
+            include: { student: { select: { createdAt: true } } }
+        });
+        const users = enrollments.map(e => e.student).filter(Boolean);
 
-        // Revenue over last 6 months (True calculation only)
         const revenueData = [];
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const d = new Date();
@@ -191,7 +259,6 @@ router.get('/analytics/detailed', async (req, res) => {
             revenueData.push({ name: monthNames[m.getMonth()], revenue: monthRev });
         }
 
-        // Engagement Data (Students enrolled in instructor courses over time)
         const engagementData = [];
         for (let i = 3; i >= 0; i--) {
             let start = new Date();
@@ -200,7 +267,6 @@ router.get('/analytics/detailed', async (req, res) => {
             engagementData.push({ name: `Week ${4-i}`, students: sCount, teachers: 1 });
         }
 
-        // Course completion data (Status Overview context)
         let total = courses.length;
         let published = courses.filter(c => c.isPublished).length;
         const courseCompletionData = [
@@ -216,7 +282,7 @@ router.get('/analytics/detailed', async (req, res) => {
                 courseCompletionData,
                 totalRevenue: revenueData.reduce((acc, curr) => acc + curr.revenue, 0),
                 totalActiveLearners: users.length,
-                totalCourseCompletions: 0 // Will require real mapping logic natively
+                totalCourseCompletions: 0 
             }
         });
 
@@ -229,37 +295,40 @@ router.get('/analytics/detailed', async (req, res) => {
 // @desc    Get instructor dashboard statistics
 router.get('/dashboard', async (req, res) => {
     try {
-        const courses = await Course.find({ instructor: req.user.id });
+        const userId = req.user.id;
+        const courses = await prisma.course.findMany({
+            where: { instructorId: userId },
+            include: { lessons: true }
+        });
+        
         const totalCourses = courses.length;
         const activeCourses = courses.filter(c => c.isPublished).length;
         
-        // Count total students enrolled across all their courses
         let totalStudents = 0;
         courses.forEach(course => {
-            totalStudents += (course.totalStudents || 0); // Assuming totalStudents is updated on enrollment
+            totalStudents += (course.totalStudents || 0); 
         });
 
-        // Add a mock for teaching activity or lesson count
         let totalLessons = 0;
         courses.forEach(course => {
             totalLessons += course.lessons.length;
         });
 
-        // Fetch real student performance via ProgressLog (last 5 days)
-        const courseIds = courses.map(c => c._id);
+        const courseIds = courses.map(c => c.id);
         const fiveDaysAgo = new Date();
         fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
         
-        const rawLogs = await ProgressLog.find({ 
-           course_id: { $in: courseIds }, 
-           updatedAt: { $gte: fiveDaysAgo } 
-        }).populate('course_id', 'title');
+        const rawLogs = await prisma.progressLog.findMany({
+            where: {
+                courseId: { in: courseIds },
+                updatedAt: { gte: fiveDaysAgo }
+            },
+            include: { course: { select: { title: true } } }
+        });
 
-        // Group by Day (Mon, Tue, Wed...) and count activities per top 3 courses
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const topCourses = courses.slice(0, 3).map(c => ({ id: c._id.toString(), title: c.title }));
+        const topCourses = courses.slice(0, 3).map(c => ({ id: c.id, title: c.title }));
         
-        // Initialize exactly what the UI needs
         const studentPerformanceData = [4, 3, 2, 1, 0].map(diff => {
             const d = new Date();
             d.setDate(d.getDate() - diff);
@@ -276,15 +345,13 @@ router.get('/dashboard', async (req, res) => {
              const logDate = new Date(log.updatedAt).toISOString().split('T')[0];
              const targetDay = studentPerformanceData.find(d => d.dateStr === logDate);
              if (targetDay) {
-                  // Determine which course line this affects, map to value1/2/3
-                  const cid = log.course_id._id.toString();
-                  if (topCourses[0] && cid === topCourses[0].id) targetDay.value1 += 1; // 1 to 1 real relation
+                  const cid = log.courseId;
+                  if (topCourses[0] && cid === topCourses[0].id) targetDay.value1 += 1;
                   else if (topCourses[1] && cid === topCourses[1].id) targetDay.value2 += 1;
                   else if (topCourses[2] && cid === topCourses[2].id) targetDay.value3 += 1;
              }
         });
 
-        // Strip dateStr before sending
         const cleanStudentPerformance = studentPerformanceData.map(({name, value1, value2, value3}) => ({name, value1, value2, value3}));
 
         res.status(200).json({
@@ -303,4 +370,4 @@ router.get('/dashboard', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

@@ -36,13 +36,18 @@ export default function CourseDetails() {
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
-        const { data } = await api.get(`/courses/public/${id}`);
+        const { data } = await api.get(`/courses/${id}`);
         setCourse(data.course);
 
         if (user) {
-          const userEnrollment = user.enrolledCourses?.find(e => e.course === id || e.course?._id === id);
-          if (userEnrollment) setEnrollmentStatus(userEnrollment.status);
-          else setEnrollmentStatus('none');
+          try {
+             // Dynamically fetch the real-time status
+             const { data: statusData } = await api.get(`/student/courses/${id}/status`);
+             setEnrollmentStatus(statusData.status);
+          } catch(err) {
+             console.error("Failed to fetch course status", err);
+             setEnrollmentStatus('none');
+          }
         } else {
           setEnrollmentStatus('none');
         }
@@ -98,7 +103,7 @@ export default function CourseDetails() {
       <div className="fixed inset-0 pointer-events-none z-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(0,138,50,0.30), transparent 35%), radial-gradient(circle at 80% 15%, rgba(255,215,0,0.20), transparent 40%), radial-gradient(circle at 50% 75%, rgba(227,10,23,0.10), transparent 45%), linear-gradient(180deg, rgba(11,14,20,1), rgba(11,14,20,0.95), rgba(11,14,20,1))', backgroundBlendMode: 'screen, screen, screen, normal' }} />
       
       {/* Dynamic Hero Banner */}
-      <div className="bg-[#11151F]/60 backdrop-blur-2xl text-white pt-16 pb-24 border-b border-white/10 relative z-10">
+      <div className="bg-[#11151F]/60 backdrop-blur-2xl text-white pt-32 pb-24 border-b border-white/10 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <Link to="/courses" className="inline-flex items-center gap-2 text-sm font-bold text-[#FFC107] hover:text-white transition-colors mb-8 uppercase tracking-widest">
@@ -112,7 +117,7 @@ export default function CourseDetails() {
                    {course.subCategory && (
                      <>
                         <ChevronRight className="w-4 h-4 text-white/50" />
-                        <span className="text-white px-2 py-1 bg-white/10 rounded-md border border-white/20">{course.subCategory}</span>
+                        <span className="text-white px-2 py-1 bg-[#11151F]/10 rounded-md border border-white/20">{course.subCategory}</span>
                      </>
                    )}
                 </div>
@@ -120,7 +125,7 @@ export default function CourseDetails() {
                 <p className="text-gray-300 text-lg font-medium leading-relaxed max-w-3xl mb-8">
                    {course.description}
                 </p>
-                <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-gray-400 uppercase tracking-widest">
+                <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-slate-200 uppercase tracking-widest">
                    <div className="flex items-center gap-2">
                      <Users className="w-5 h-5 text-[#FFC107]" />
                      Instructor: <span className="text-white ml-1">{course.instructor?.name || 'EDOT Expert'}</span>
@@ -161,7 +166,7 @@ export default function CourseDetails() {
                       key={tab}
                       onClick={() => setActiveTab(tab)}
                       className={`flex-1 py-3 px-6 font-black uppercase tracking-widest text-[10px] transition-all rounded-xl whitespace-nowrap ${
-                        activeTab === tab ? 'bg-[#FFD700] text-[#0B0E14] shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                        activeTab === tab ? 'bg-[#FFD700] text-[#0B0E14] shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'text-slate-200 hover:bg-[#11151F]/5 hover:text-white'
                       }`}
                     >
                       {tab}
@@ -206,35 +211,68 @@ export default function CourseDetails() {
                 <div className="bg-[#11151F]/60 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-xl animate-in fade-in duration-300">
                   <div className="flex items-center justify-between mb-8">
                      <h2 className="text-2xl font-black text-white uppercase tracking-widest flex items-center gap-3"><BookOpen className="w-6 h-6 text-[#FFD700]"/> Syllabus</h2>
-                     <div className="text-[10px] font-black uppercase tracking-widest bg-white/10 px-3 py-1.5 rounded-lg text-white border border-white/20">
+                     <div className="text-[10px] font-black uppercase tracking-widest bg-[#11151F]/10 px-3 py-1.5 rounded-lg text-white border border-white/20">
                        {course.lessons?.length || 0} Modules
                      </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-8">
                     {course.lessons && course.lessons.length > 0 ? (
-                      course.lessons.map((lesson, idx) => (
-                        <div key={lesson._id} className="group border border-white/10 hover:border-[#FFD700]/50 rounded-xl p-5 transition-all flex items-center justify-between cursor-default bg-[#0B0E14]/50 hover:bg-[#11151F] text-white hover:shadow-[0_0_20px_rgba(255,215,0,0.05)]">
-                           <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-xl bg-white/5 text-[#FFD700] flex items-center justify-center font-black shrink-0 relative overflow-hidden transition-colors border border-white/10 group-hover:bg-[#FFD700] group-hover:text-[#0B0E14]">
-                                 {idx + 1}
-                              </div>
-                              <div>
-                                 <h4 className="font-bold text-base leading-tight">{lesson.title}</h4>
-                                 <div className="flex items-center gap-3 mt-1.5 text-xs font-bold text-gray-500 uppercase tracking-widest">
-                                   <span className="flex items-center gap-1"><PlayCircle className="w-3.5 h-3.5" /> Video</span>
-                                   {lesson.readingMaterials && <span className="flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> Docs</span>}
-                                   {lesson.quiz?.length > 0 && <span className="flex items-center gap-1"><BadgeAlert className="w-3.5 h-3.5" /> Assessment</span>}
-                                 </div>
-                              </div>
-                           </div>
-                           <div className="text-gray-400">
-                              {isEnrolled ? <Unlock className="w-5 h-5 text-green-500" /> : <Lock className="w-5 h-5" />}
-                           </div>
-                        </div>
-                      ))
+                      (() => {
+                        const phases = [...new Set(course.lessons.map(l => l.phase || 'General Content'))];
+                        return phases.map((phase, pIdx) => {
+                          const phaseLessons = course.lessons.filter(l => (l.phase || 'General Content') === phase);
+                          return (
+                            <div key={pIdx} className="space-y-4">
+                              <h3 className="text-xl font-bold text-[#FFD700] border-b border-white/10 pb-2 mb-4">{phase}</h3>
+                              {phaseLessons.map((lesson, idx) => (
+                                <div key={lesson.id} className="w-full bg-[#11151F] border border-white/10 rounded-2xl p-6 shadow-md hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all hover:bg-[#151a26] flex flex-col md:flex-row gap-6 items-start md:items-center group relative overflow-hidden">
+                                   
+                                   {/* Left decorative color bar */}
+                                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#008A32] group-hover:bg-[#FFD700] transition-colors"></div>
+
+                                   <div className="flex items-start md:items-center gap-6 w-full">
+                                       {/* Icon / Emblem */}
+                                       <div className="shrink-0 w-20 h-20 rounded-2xl bg-[#0B0E14] border border-white/5 flex flex-col items-center justify-center p-2 shadow-inner group-hover:border-[#FFD700]/30 transition-colors">
+                                          <span className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Module</span>
+                                          <span className="text-2xl font-black text-[#FFD700] leading-none">{course.lessons.findIndex(l => l.id === lesson.id) + 1}</span>
+                                       </div>
+                                       
+                                       {/* Text Content */}
+                                       <div className="flex-1 min-w-0">
+                                          <h4 className="font-bold text-xl sm:text-2xl text-white leading-tight mb-2 group-hover:text-[#FFD700] transition-colors tracking-tight">{lesson.title}</h4>
+                                          <p className="text-slate-200 text-sm line-clamp-2 leading-relaxed mb-3">
+                                             {lesson.description || `Focuses on learning the basics of ${lesson.title}, including core competencies, advanced application, and problem-solving skills.`}
+                                          </p>
+
+                                          <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs font-bold text-slate-300 uppercase tracking-widest">
+                                            <span className="flex items-center gap-1 bg-[#11151F]/5 px-2 py-1 rounded-md border border-white/5"><PlayCircle className="w-3 h-3 text-[#008A32]" /> {lesson.duration}m Video</span>
+                                            {lesson.readingMaterials && <span className="flex items-center gap-1 bg-[#11151F]/5 px-2 py-1 rounded-md border border-white/5"><FileText className="w-3 h-3 text-[#FFD700]" /> Docs</span>}
+                                            {lesson.quiz?.length > 0 && <span className="flex items-center gap-1 bg-[#11151F]/5 px-2 py-1 rounded-md border border-white/5"><BadgeAlert className="w-3 h-3 text-red-400" /> Assessment</span>}
+                                          </div>
+                                       </div>
+
+                                       {/* Lock Status */}
+                                       <div className="shrink-0 mr-4 text-slate-200 hidden md:block">
+                                          {isEnrolled ? (
+                                             <div className="w-10 h-10 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center border border-green-500/20">
+                                                <Unlock className="w-4 h-4" />
+                                             </div>
+                                          ) : (
+                                             <div className="w-10 h-10 rounded-full bg-slate-800/50 text-slate-300 flex items-center justify-center border border-white/5">
+                                                <Lock className="w-4 h-4" />
+                                             </div>
+                                          )}
+                                       </div>
+                                   </div>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        });
+                      })()
                     ) : (
-                      <p className="text-gray-400 text-center py-10 font-bold uppercase tracking-widest border-2 border-dashed border-gray-200">System modules currently under construction.</p>
+                      <p className="text-slate-200 text-center py-10 font-bold tracking-widest border-2 border-dashed border-gray-200">System modules currently under construction.</p>
                     )}
                   </div>
                 </div>
@@ -263,7 +301,7 @@ export default function CourseDetails() {
                  <div className="absolute top-[-50px] right-[-50px] w-32 h-32 bg-[#008A32]/10 rounded-full blur-[40px] pointer-events-none"></div>
                  
                  <div className="text-center mb-6 border-b border-white/10 pb-6 relative z-10">
-                    <h3 className="text-slate-400 font-black uppercase tracking-widest text-[10px] mb-2">Program Value</h3>
+                    <h3 className="text-slate-200 font-black uppercase tracking-widest text-[10px] mb-2">Program Value</h3>
                     <div className="text-4xl font-black text-[#FFD700]">
                       ETB {course.price || 'Free'}
                     </div>
@@ -271,15 +309,15 @@ export default function CourseDetails() {
 
                  <div className="space-y-4 mb-8 relative z-10">
                     <div className="flex justify-between items-center text-[11px] font-black border-b border-white/5 pb-3">
-                       <span className="text-slate-400 uppercase tracking-widest flex items-center gap-2"><Clock className="w-4 h-4 text-[#008A32]"/> Duration</span>
+                       <span className="text-slate-200 uppercase tracking-widest flex items-center gap-2"><Clock className="w-4 h-4 text-[#008A32]"/> Duration</span>
                        <span className="text-white">{totalDuration} Mins Runtime</span>
                     </div>
                     <div className="flex justify-between items-center text-[11px] font-black border-b border-white/5 pb-3">
-                       <span className="text-slate-400 uppercase tracking-widest flex items-center gap-2"><BookOpen className="w-4 h-4 text-[#008A32]"/> Syllabus Length</span>
+                       <span className="text-slate-200 uppercase tracking-widest flex items-center gap-2"><BookOpen className="w-4 h-4 text-[#008A32]"/> Syllabus Length</span>
                        <span className="text-white">{course.lessons?.length || 0} Modules</span>
                     </div>
                     <div className="flex justify-between items-center text-[11px] font-black border-b border-white/5 pb-3">
-                       <span className="text-slate-400 uppercase tracking-widest flex items-center gap-2"><MapPin className="w-4 h-4 text-[#008A32]"/> Location</span>
+                       <span className="text-slate-200 uppercase tracking-widest flex items-center gap-2"><MapPin className="w-4 h-4 text-[#008A32]"/> Location</span>
                        <span className="text-white">Global Digital</span>
                     </div>
                  </div>
@@ -287,18 +325,18 @@ export default function CourseDetails() {
                  {/* Action Button Logic */}
                  {enrollmentStatus === 'active' ? (
                    <Link 
-                     to={`/lesson/${course.lessons[0]?._id}?courseId=${course._id}`}
-                     className="w-full relative z-10 block text-center bg-white/5 border border-white/10 text-[#FFD700] hover:bg-[#FFD700] hover:text-[#0B0E14] font-black uppercase tracking-widest py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(255,215,0,0.1)] text-xs"
+                     to={`/lesson/${course.lessons[0]?.id}?courseId=${course.id}`}
+                     className="w-full relative z-10 block text-center bg-[#11151F]/5 border border-white/10 text-[#FFD700] hover:bg-[#FFD700] hover:text-[#0B0E14] font-black uppercase tracking-widest py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(255,215,0,0.1)] text-xs"
                    >
-                     Access Material
+                     Start Learning
                    </Link>
                  ) : enrollmentStatus === 'pending' ? (
-                   <div className="w-full relative z-10 text-center bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]/50 font-black uppercase tracking-widest py-4 rounded-xl opacity-90 cursor-wait text-xs">
-                     Authorizing...
+                   <div className="w-full relative z-10 flex items-center justify-center gap-2 bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]/50 font-black uppercase tracking-widest py-4 rounded-xl opacity-90 cursor-wait text-xs">
+                     <Clock className="w-4 h-4" /> Pending Approval
                    </div>
                  ) : enrollmentStatus === 'rejected' ? (
-                   <div className="w-full relative z-10 text-center bg-rose-500/10 text-rose-500 border border-rose-500/30 font-black uppercase tracking-widest py-4 rounded-xl cursor-not-allowed text-xs">
-                     Clearance Denied
+                   <div className="w-full relative z-10 flex items-center justify-center gap-2 bg-rose-500/100/10 text-rose-500 border border-rose-500/30 font-black uppercase tracking-widest py-4 rounded-xl cursor-not-allowed text-xs">
+                     <XSquare className="w-4 h-4" /> Access Denied
                    </div>
                  ) : (
                    <button 
@@ -306,12 +344,12 @@ export default function CourseDetails() {
                      disabled={enrolling}
                      className="w-full relative z-10 bg-gradient-to-r from-[#008A32] to-[#00A13B] text-white font-black uppercase tracking-widest py-4 rounded-xl hover:shadow-[0_0_20px_rgba(0,138,50,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:-translate-y-0.5 flex items-center justify-center gap-2 text-xs"
                    >
-                     {enrolling ? 'Processing...' : 'Secure Placement'} <ArrowRight className="w-4 h-4"/>
+                     {enrolling ? 'Processing...' : 'Enroll Now'} <ArrowRight className="w-4 h-4"/>
                    </button>
                  )}
 
                  <div className="mt-6 text-center relative z-10">
-                   <p className="text-[9px] uppercase font-black text-slate-500 tracking-widest">Guaranteed Encrypted Processing</p>
+                   <p className="text-[9px] uppercase font-black text-slate-300 tracking-widest">Guaranteed Encrypted Processing</p>
                  </div>
               </div>
            </div>

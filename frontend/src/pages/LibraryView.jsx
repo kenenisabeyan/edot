@@ -136,7 +136,7 @@ export default function LibraryView() {
     try {
       const newStatus = currentStatus === 'approved' ? 'pending' : 'approved';
       await api.put(`/admin/courses/${courseId}/status`, { status: newStatus });
-      setCourses(courses.map(c => c._id === courseId ? { ...c, status: newStatus } : c));
+      setCourses(courses.map(c => c.id === courseId ? { ...c, status: newStatus } : c));
     } catch (err) {
       console.error('Failed to change course status', err);
     }
@@ -170,7 +170,7 @@ export default function LibraryView() {
       return true;
     }
     if (user?.role === 'instructor') {
-      return r.uploadedBy === user?._id || r.status === 'approved';
+      return r.uploadedBy === user?.id || r.status === 'approved';
     }
     return true;
   });
@@ -213,7 +213,7 @@ export default function LibraryView() {
 
   const handleSubmitForReview = async (resource) => {
     const patchedResources = resources.map((r) => 
-      r._id === resource._id ? { ...r, status: 'pending', adminComments: '' } : r
+      r.id === resource.id ? { ...r, status: 'pending', adminComments: '' } : r
     );
     setResources(patchedResources);
     if (user?.role === 'instructor') {
@@ -225,7 +225,7 @@ export default function LibraryView() {
   const approveEnrollment = async (requestId) => {
     try {
       await api.patch(`/enrollments/${requestId}/approve`);
-      setEnrollmentRequests(enrollmentRequests.filter((r) => r._id !== requestId));
+      setEnrollmentRequests(enrollmentRequests.filter((r) => r.id !== requestId));
       setGlobalTasks((prev) => prev.filter((t) => t.title !== 'Review pending uploads'));
     } catch (err) {
       console.error(err);
@@ -235,14 +235,14 @@ export default function LibraryView() {
   const rejectEnrollment = async (requestId) => {
     try {
       await api.patch(`/enrollments/${requestId}/reject`);
-      setEnrollmentRequests(enrollmentRequests.filter((r) => r._id !== requestId));
+      setEnrollmentRequests(enrollmentRequests.filter((r) => r.id !== requestId));
     } catch (err) {
       console.error(err);
     }
   };
 
   const applyDefaultCourseTemplate = (courseId) => {
-    setCourses((current) => current.map((c) => c._id === courseId ? {
+    setCourses((current) => current.map((c) => c.id === courseId ? {
       ...c,
       curriculum: c.curriculum || [
         { title: 'Introduction', content: 'Course introduction and overview.' },
@@ -253,7 +253,7 @@ export default function LibraryView() {
   };
 
   const toggleDownloadPermission = (resourceId) => {
-    setResources((current) => current.map((item) => item._id === resourceId ? {
+    setResources((current) => current.map((item) => item.id === resourceId ? {
       ...item,
       download_permission: !item.download_permission
     } : item));
@@ -270,7 +270,7 @@ export default function LibraryView() {
   const handleReviewSubmit = () => {
     if (!reviewTarget) return;
     const updatedResources = resources.map((r) => {
-      if (r._id === reviewTarget._id) {
+      if (r.id === reviewTarget.id) {
         return {
           ...r,
           status: reviewDecision === 'approved' ? 'approved' : 'rejected',
@@ -299,7 +299,7 @@ export default function LibraryView() {
   if (isBlocked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0B0E14]/90 backdrop-blur-2xl p-4">
-        <div className="max-w-lg w-full border border-[#FFD700] bg-white/10 backdrop-blur-xl p-8 rounded-3xl shadow-2xl">
+        <div className="max-w-lg w-full border border-[#FFD700] bg-[#11151F]/10 backdrop-blur-xl p-8 rounded-3xl shadow-2xl">
           <h2 className="text-2xl font-bold text-[#FFD700] mb-3">Account Suspended</h2>
           <p className="text-sm text-slate-100 mb-4">Your account has been temporarily blocked by the administration. Access to Library, Wiki, and Video Player content is disabled.</p>
           <p className="text-xs text-slate-300">If this is a mistake, contact support or your account administrator for reactivation.</p>
@@ -326,13 +326,13 @@ export default function LibraryView() {
         <div className="flex flex-col items-end gap-2 w-full md:w-auto relative z-10">
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative flex-1 md:w-72">
-              <Search className="w-5 h-5 absolute left-4 top-3.5 text-slate-400 group-focus-within:text-[#FFD700] transition-colors" />
+              <Search className="w-5 h-5 absolute left-4 top-3.5 text-slate-200 group-focus-within:text-[#FFD700] transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search resources..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-white/10 bg-[#0B0E14]/80 backdrop-blur-md text-white rounded-xl outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 transition-all font-semibold placeholder:text-slate-500 shadow-inner"
+                className="w-full pl-11 pr-4 py-3 border border-white/10 bg-[#0B0E14]/80 backdrop-blur-md text-white rounded-xl outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 transition-all font-semibold placeholder:text-slate-300 shadow-inner"
               />
             </div>
             {canUpload && !showUploadForm && (
@@ -367,12 +367,12 @@ export default function LibraryView() {
               {enrollmentRequests.length === 0 ? (
                 <p className="text-slate-300 text-sm">No pending enrollments.</p>
               ) : enrollmentRequests.map((req) => (
-                <div key={req._id} className="mb-2 p-2 bg-white/5 rounded-lg">
+                <div key={req.id} className="mb-2 p-2 bg-[#11151F]/5 rounded-lg">
                   <p className="text-sm text-white font-semibold">{req.courseTitle}</p>
-                  <p className="text-xs text-slate-400">Student: {req.studentName}</p>
+                  <p className="text-xs text-slate-200">Student: {req.studentName}</p>
                   <div className="mt-2 flex gap-2">
-                    <button onClick={() => approveEnrollment(req._id)} className="px-2 py-1 text-xs rounded-lg bg-[#008A32] text-white">Approve</button>
-                    <button onClick={() => rejectEnrollment(req._id)} className="px-2 py-1 text-xs rounded-lg bg-[#E30A17] text-white">Reject</button>
+                    <button onClick={() => approveEnrollment(req.id)} className="px-2 py-1 text-xs rounded-lg bg-[#008A32] text-white">Approve</button>
+                    <button onClick={() => rejectEnrollment(req.id)} className="px-2 py-1 text-xs rounded-lg bg-[#E30A17] text-white">Reject</button>
                   </div>
                 </div>
               ))}
@@ -383,7 +383,7 @@ export default function LibraryView() {
               {courses.length === 0 ? (
                 <p className="text-slate-300 text-sm">No courses found.</p>
               ) : courses.map((course) => (
-                <div key={course._id} className="mb-2 p-2 bg-white/5 rounded-lg border border-white/5">
+                <div key={course.id} className="mb-2 p-2 bg-[#11151F]/5 rounded-lg border border-white/5">
                   <p className="text-sm text-white font-semibold flex items-center justify-between">
                     {course.title}
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${course.status === 'approved' ? 'bg-[#008A32]/20 text-[#008A32]' : 'bg-[#FFD700]/20 text-[#FFD700]'}`}>
@@ -392,14 +392,14 @@ export default function LibraryView() {
                   </p>
                   <div className="mt-3 flex gap-2">
                     <button 
-                      onClick={() => toggleCourseApproval(course._id, course.status)} 
+                      onClick={() => toggleCourseApproval(course.id, course.status)} 
                       className={`px-3 py-1.5 text-xs font-bold rounded-lg border hover:-translate-y-0.5 transition-transform ${course.status === 'approved' ? 'bg-[#E30A17]/10 border-[#E30A17]/30 text-[#E30A17]' : 'bg-[#008A32]/10 border-[#008A32]/30 text-[#008A32]'}`}
                     >
                       {course.status === 'approved' ? 'Revoke Approval' : 'Approve Course'}
                     </button>
                     <button 
-                      onClick={() => navigate(`/dashboard/builder/${course._id}`)} 
-                      className="px-3 py-1.5 text-xs font-bold rounded-lg bg-white/5 border border-white/10 text-white hover:border-[#FFD700]/50 hover:text-[#FFD700] transition-colors"
+                      onClick={() => navigate(`/dashboard/builder/${course.id}`)} 
+                      className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#11151F]/5 border border-white/10 text-white hover:border-[#FFD700]/50 hover:text-[#FFD700] transition-colors"
                     >
                       Edit Curriculum
                     </button>
@@ -412,9 +412,9 @@ export default function LibraryView() {
           <div className="mt-3">
             <h4 className="text-white font-semibold mb-2">Global Download Permissions</h4>
             {resources.slice(0, 3).map((res) => (
-              <div key={res._id} className="mb-2 flex items-center justify-between bg-white/5 p-2 rounded-lg">
+              <div key={res.id} className="mb-2 flex items-center justify-between bg-[#11151F]/5 p-2 rounded-lg">
                 <span className="text-sm text-white">{res.title}</span>
-                <button onClick={() => toggleDownloadPermission(res._id)} className={`px-2 py-1 text-xs rounded-lg ${res.download_permission ? 'bg-[#008A32] text-white' : 'bg-[#E30A17] text-white'}`}>
+                <button onClick={() => toggleDownloadPermission(res.id)} className={`px-2 py-1 text-xs rounded-lg ${res.download_permission ? 'bg-[#008A32] text-white' : 'bg-[#E30A17] text-white'}`}>
                   {res.download_permission ? 'Allowed' : 'Blocked'}
                 </button>
               </div>
@@ -424,12 +424,12 @@ export default function LibraryView() {
       )}
 
       {/* Three-Container Navigation */}
-      <div className="flex items-center overflow-x-auto scrollbar-hide gap-3 bg-white/5 border border-white/10 rounded-2xl p-2 w-max shadow-sm backdrop-blur-md">
+      <div className="flex items-center overflow-x-auto scrollbar-hide gap-3 bg-[#11151F]/5 border border-white/10 rounded-2xl p-2 w-max shadow-sm backdrop-blur-md">
         {['download', 'secure', 'wiki'].map((key) => (
           <button
             key={key}
             onClick={() => setActiveContainer(key)}
-            className={`px-6 py-2.5 rounded-xl font-bold transition-all duration-300 shrink-0 ${activeContainer === key ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
+            className={`px-6 py-2.5 rounded-xl font-bold transition-all duration-300 shrink-0 ${activeContainer === key ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'text-slate-300 hover:bg-[#11151F]/10 hover:text-white'}`}
           >
             {key === 'download' ? 'Download Vault' : key === 'secure' ? 'Secure Viewer' : 'EDOT Wiki'}
           </button>
@@ -438,16 +438,16 @@ export default function LibraryView() {
 
       {/* Upload Form Engine */}
       {showUploadForm && (
-        <div className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl p-6 shadow-sm relative overflow-hidden">
+        <div className="rounded-3xl border border-white/5 bg-[#11151F]/5 backdrop-blur-xl p-6 shadow-sm relative overflow-hidden">
           <div className="flex justify-between items-center mb-6">
              <h2 className="text-xl font-bold text-white flex items-center gap-2">
                  <FileText className="w-5 h-5 text-[#E30A17]" /> Upload New Resource
              </h2>
-             <button onClick={() => setShowUploadForm(false)} className="text-slate-400 hover:text-white font-medium text-sm">Cancel</button>
+             <button onClick={() => setShowUploadForm(false)} className="text-slate-200 hover:text-white font-medium text-sm">Cancel</button>
           </div>
           
           {uploadError && (
-             <div className="mb-4 bg-rose-50 text-rose-600 p-3 rounded-xl flex items-center gap-2 text-sm font-semibold border border-rose-200">
+             <div className="mb-4 bg-rose-500/10 text-rose-600 p-3 rounded-xl flex items-center gap-2 text-sm font-semibold border border-rose-200">
                 <AlertCircle className="w-5 h-5" /> {uploadError}
              </div>
           )}
@@ -455,7 +455,7 @@ export default function LibraryView() {
           <form onSubmit={handleUploadSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-1 md:col-span-1">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Document Title</label>
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">Document Title</label>
                     <input 
                       type="text" required placeholder="Advanced Mathematics Vol 2"
                       value={uploadData.title} onChange={(e) => setUploadData({ ...uploadData, title: e.target.value })}
@@ -463,7 +463,7 @@ export default function LibraryView() {
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Author / Publisher</label>
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">Author / Publisher</label>
                     <input 
                       type="text" required placeholder="John Doe"
                       value={uploadData.author} onChange={(e) => setUploadData({ ...uploadData, author: e.target.value })}
@@ -471,7 +471,7 @@ export default function LibraryView() {
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Category</label>
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">Category</label>
                     <CustomDropdown 
                       value={uploadData.category}
                       onChange={(val) => setUploadData({ ...uploadData, category: val })}
@@ -489,8 +489,8 @@ export default function LibraryView() {
             </div>
 
             <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">File Attachment</label>
-                <div className="relative border-2 border-dashed border-white/10 rounded-2xl p-6 bg-[#0B0E14]/50 hover:bg-white/5 transition-colors group cursor-pointer">
+                <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">File Attachment</label>
+                <div className="relative border-2 border-dashed border-white/10 rounded-2xl p-6 bg-[#0B0E14]/50 hover:bg-[#11151F]/5 transition-colors group cursor-pointer">
                     <input 
                       type="file" 
                       required
@@ -499,7 +499,7 @@ export default function LibraryView() {
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                     />
                     <div className="flex flex-col items-center justify-center text-center space-y-2">
-                       <div className="w-12 h-12 rounded-full bg-white/5 text-[#E30A17] flex items-center justify-center group-hover:scale-110 transition-transform">
+                       <div className="w-12 h-12 rounded-full bg-[#11151F]/5 text-[#E30A17] flex items-center justify-center group-hover:scale-110 transition-transform">
                           <Download className="w-6 h-6" />
                        </div>
                        <div>
@@ -508,7 +508,7 @@ export default function LibraryView() {
                          ) : (
                             <p className="font-semibold text-slate-300">Drag & Drop your file here, or click to browse</p>
                          )}
-                         <p className="text-xs text-slate-400 mt-1">Supports PDF, DOCX, PPTX (Max 10MB)</p>
+                         <p className="text-xs text-slate-200 mt-1">Supports PDF, DOCX, PPTX (Max 10MB)</p>
                        </div>
                     </div>
                 </div>
@@ -531,18 +531,18 @@ export default function LibraryView() {
       {activeContainer === 'download' && (
         <>
           {filteredResources.length === 0 && !showUploadForm ? (
-            <div className="p-12 text-center rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-sm flex flex-col items-center justify-center">
-              <div className="w-20 h-20 bg-white/5 text-slate-400 border border-white/10 rounded-full flex items-center justify-center mb-4">
+            <div className="p-12 text-center rounded-3xl border border-white/5 bg-[#11151F]/5 backdrop-blur-xl shadow-sm flex flex-col items-center justify-center">
+              <div className="w-20 h-20 bg-[#11151F]/5 text-slate-200 border border-white/10 rounded-full flex items-center justify-center mb-4">
                 <BookOpen className="w-10 h-10" />
               </div>
               <h3 className="text-xl font-bold text-white mb-2">No downloadable resources found</h3>
-              <p className="text-slate-400 max-w-sm mb-6">No downloads available for your role or access level currently.</p>
+              <p className="text-slate-200 max-w-sm mb-6">No downloads available for your role or access level currently.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <AnimatePresence>
               {filteredResources.map((resource) => {
-                const isOwner = resource.uploadedBy === user?._id || user?.role === 'admin';
+                const isOwner = resource.uploadedBy === user?.id || user?.role === 'admin';
                 const canDownload = user?.role !== 'student' || resource.permission === 'granted';
                 return (
                   <motion.div 
@@ -552,14 +552,14 @@ export default function LibraryView() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     whileHover={{ y: -4 }}
                     transition={{ duration: 0.2 }}
-                    key={resource._id} 
+                    key={resource.id} 
                     className="rounded-3xl border border-white/10 bg-[#0B0E14]/90 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col group hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all relative"
                   >
                     {isOwner && (
                       <button
-                        onClick={() => handleDelete(resource._id)}
+                        onClick={() => handleDelete(resource.id)}
                         title="Delete Resource"
-                        className="absolute top-3 right-3 bg-white/10 hover:bg-[#E30A17]/20 text-[#E30A17] border border-transparent hover:border-[#E30A17]/30 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm backdrop-blur"
+                        className="absolute top-3 right-3 bg-[#11151F]/10 hover:bg-[#E30A17]/20 text-[#E30A17] border border-transparent hover:border-[#E30A17]/30 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all z-10 shadow-sm backdrop-blur"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -580,7 +580,7 @@ export default function LibraryView() {
                           </span>
                         </div>
                         <h3 className="font-bold text-xl text-white line-clamp-2 leading-snug mb-1.5 group-hover:text-[#FFD700] transition-colors" title={resource.title}>{resource.title}</h3>
-                        <p className="text-slate-400 text-sm font-medium mb-5 line-clamp-1 border-b border-white/10 pb-4">By <span className="text-white">{resource.author}</span></p>
+                        <p className="text-slate-200 text-sm font-medium mb-5 line-clamp-1 border-b border-white/10 pb-4">By <span className="text-white">{resource.author}</span></p>
                       </div>
 
                       <div className="space-y-3">
@@ -594,9 +594,9 @@ export default function LibraryView() {
                             <Download className="w-4 h-4 inline-block mr-2" /> Download Document
                           </a>
                         ) : (
-                          <button className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 font-bold hover:bg-white/10 transition-colors">Request Access</button>
+                          <button className="w-full py-2.5 rounded-xl bg-[#11151F]/5 border border-white/10 text-slate-300 font-bold hover:bg-[#11151F]/10 transition-colors">Request Access</button>
                         )}
-                        {user?.role === 'instructor' && resource.uploadedBy === user?._id && resource.status === 'draft' && (
+                        {user?.role === 'instructor' && resource.uploadedBy === user?.id && resource.status === 'draft' && (
                           <button onClick={() => handleSubmitForReview(resource)} className="w-full py-2.5 rounded-xl bg-[#008A32]/20 text-[#008A32] border border-[#008A32]/30 font-bold hover:bg-[#008A32]/30 transition-all">Submit for Review</button>
                         )}
                         {user?.role === 'admin' && resource.status === 'pending' && (
@@ -615,24 +615,24 @@ export default function LibraryView() {
 
       {activeContainer === 'secure' && (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4">
-          <div className="rounded-3xl border border-white/10 p-4 bg-white/5">
+          <div className="rounded-3xl border border-white/10 p-4 bg-[#11151F]/5">
             <h2 className="text-lg font-bold text-white mb-3">Secure Viewer Resources</h2>
             {filteredResources.length === 0 ? (
-              <p className="text-slate-400">No secure documents for your account.</p>
+              <p className="text-slate-200">No secure documents for your account.</p>
             ) : (
               <div className="space-y-2">
                 {filteredResources.map((resource) => (
                   <button
-                    key={resource._id}
+                    key={resource.id}
                     onClick={() => selectSecureResource(resource)}
-                    className={`w-full text-left px-3 py-2 rounded-lg ${secureResource?._id === resource._id ? 'bg-cyan-500 text-white' : 'bg-white/10 text-slate-100 hover:bg-white/20'}`}>
+                    className={`w-full text-left px-3 py-2 rounded-lg ${secureResource?.id === resource.id ? 'bg-cyan-500 text-white' : 'bg-[#11151F]/10 text-slate-100 hover:bg-[#11151F]/20'}`}>
                     {resource.title}
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <div className="rounded-3xl border border-white/10 p-4 bg-white/5" onContextMenu={(e) => user?.role === 'student' && e.preventDefault()}>
+          <div className="rounded-3xl border border-white/10 p-4 bg-[#11151F]/5" onContextMenu={(e) => user?.role === 'student' && e.preventDefault()}>
             <h2 className="text-lg font-bold text-white mb-3">Secure Document Reader</h2>
             {secureResource ? (
               <iframe
@@ -642,16 +642,16 @@ export default function LibraryView() {
                 sandbox="allow-same-origin allow-scripts"
               />
             ) : (
-              <p className="text-slate-400">Select a resource from the list to preview in the secure reader.</p>
+              <p className="text-slate-200">Select a resource from the list to preview in the secure reader.</p>
             )}
-            <p className="text-xs text-slate-500 mt-2">Right-click is blocked in this viewer for students.</p>
+            <p className="text-xs text-slate-300 mt-2">Right-click is blocked in this viewer for students.</p>
           </div>
         </div>
       )}
 
       {activeContainer === 'wiki' && (
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-4">
-          <aside className="rounded-3xl border border-white/10 p-4 bg-white/5">
+          <aside className="rounded-3xl border border-white/10 p-4 bg-[#11151F]/5">
             <h2 className="text-white font-bold mb-3">EDOT Wiki Navigation</h2>
             <ul className="text-slate-200 space-y-2 text-sm">
               <li><a className="hover:text-cyan-300" href="#overview">Overview</a></li>
@@ -660,7 +660,7 @@ export default function LibraryView() {
               <li><a className="hover:text-cyan-300" href="#submission">Submission Rules</a></li>
             </ul>
           </aside>
-          <section className="rounded-3xl border border-white/10 p-4 bg-white/5 space-y-4 text-slate-200">
+          <section className="rounded-3xl border border-white/10 p-4 bg-[#11151F]/5 space-y-4 text-slate-200">
             <article id="overview"><h3 className="text-lg font-semibold text-white">Overview</h3><p>The EDOT Library is a multi-container resource hub: </p></article>
             <article id="workflows"><h3 className="text-lg font-semibold text-white">Workflows</h3><p>Instructors create and submit content, Admin reviews, Students consume with access gating.</p></article>
             <article id="roles"><h3 className="text-lg font-semibold text-white">Role Permissions</h3><p>Admin: full CRUD, Instructor: own CRUD + submit; Student: read/download if permitted; Parent: summary-only.</p></article>
@@ -671,12 +671,12 @@ export default function LibraryView() {
 
       {/* Pending Queue for Admin only */}
       {user?.role === 'admin' && (
-        <div className="rounded-3xl border border-white/10 p-4 bg-white/5 mt-4">
+        <div className="rounded-3xl border border-white/10 p-4 bg-[#11151F]/5 mt-4">
           <h3 className="text-white font-bold mb-3">Pending Approval Queue</h3>
           {pendingQueue.length === 0 ? (
-            <p className="text-slate-400">No items are pending approval.</p>
+            <p className="text-slate-200">No items are pending approval.</p>
           ) : pendingQueue.map((item) => (
-            <div key={item._id} className="mb-2 p-3 border border-white/10 rounded-xl bg-[#0B0E14]/80">
+            <div key={item.id} className="mb-2 p-3 border border-white/10 rounded-xl bg-[#0B0E14]/80">
               <div className="flex justify-between items-center">
                 <p className="text-white font-semibold">{item.title}</p>
                 <button onClick={() => openReviewModal(item)} className="px-2 py-1 text-xs rounded-lg bg-[#E30A17] text-white">Review</button>
@@ -699,11 +699,11 @@ export default function LibraryView() {
               placeholder="Leave feedback or request corrections..."
             />
             <div className="flex gap-2 mb-4">
-              <button onClick={() => setReviewDecision('approved')} className={`px-3 py-2 rounded-lg text-sm ${reviewDecision === 'approved' ? 'bg-[#008A32] text-white' : 'bg-white/10 text-white'}`}>Approve</button>
-              <button onClick={() => setReviewDecision('rejected')} className={`px-3 py-2 rounded-lg text-sm ${reviewDecision === 'rejected' ? 'bg-[#E30A17] text-white' : 'bg-white/10 text-white'}`}>Reject</button>
+              <button onClick={() => setReviewDecision('approved')} className={`px-3 py-2 rounded-lg text-sm ${reviewDecision === 'approved' ? 'bg-[#008A32] text-white' : 'bg-[#11151F]/10 text-white'}`}>Approve</button>
+              <button onClick={() => setReviewDecision('rejected')} className={`px-3 py-2 rounded-lg text-sm ${reviewDecision === 'rejected' ? 'bg-[#E30A17] text-white' : 'bg-[#11151F]/10 text-white'}`}>Reject</button>
             </div>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setReviewModalOpen(false)} className="px-4 py-2 rounded-lg bg-white/10 text-white">Cancel</button>
+              <button onClick={() => setReviewModalOpen(false)} className="px-4 py-2 rounded-lg bg-[#11151F]/10 text-white">Cancel</button>
               <button onClick={handleReviewSubmit} className="px-4 py-2 rounded-lg bg-cyan-500 text-white">Submit</button>
             </div>
           </div>

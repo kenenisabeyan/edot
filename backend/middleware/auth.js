@@ -1,16 +1,14 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken';
+import { prisma } from '../lib/prisma.js';
 
 // Protect routes - verify token
-exports.protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
     let token;
 
     // Check for token in headers
-
     if (req.cookies && req.cookies.token) {
         token = req.cookies.token;
-    }
-    else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
     }
 
@@ -27,14 +25,19 @@ exports.protect = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         // Get user from token
-        req.user = await User.findById(decoded.id).select('-password');
+        const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
-        if (!req.user) {
+        if (!user) {
             return res.status(401).json({
                 success: false,
                 message: 'User not found'
             });
         }
+
+        // Avoid passing password
+        delete user.password;
+        
+        req.user = user;
 
         // Flag blocked accounts for frontend/route checks
         req.user.isBlocked = req.user.status === 'blocked';
@@ -48,7 +51,7 @@ exports.protect = async (req, res, next) => {
 };
 
 // Grant access to specific roles
-exports.authorize = (...roles) => {
+export const authorize = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
             return res.status(403).json({
@@ -61,7 +64,7 @@ exports.authorize = (...roles) => {
 };
 
 // Guard blocked users from learning content endpoints
-exports.checkNotBlocked = async (req, res, next) => {
+export const checkNotBlocked = async (req, res, next) => {
     if (req.user && req.user.status === 'blocked') {
         return res.status(403).json({ success: false, message: 'Access denied: account suspended' });
     }
@@ -69,8 +72,7 @@ exports.checkNotBlocked = async (req, res, next) => {
 };
 
 // Guard student video/library access by active enrollment status
-exports.guardActiveEnrollment = async (req, res, next) => {
-    const Enrollment = require('../models/Enrollment');
+export const guardActiveEnrollment = async (req, res, next) => {
     const courseId = req.params.courseId || req.body.courseId || req.query.courseId;
 
     if (!courseId) {
@@ -85,7 +87,9 @@ exports.guardActiveEnrollment = async (req, res, next) => {
         return res.status(403).json({ success: false, message: 'Only students can access this content' });
     }
 
-    const enrollment = await Enrollment.findOne({ student: req.user._id, course: courseId });
+    const enrollment = await prisma.enrollment.findFirst({
+        where: { studentId: req.user.id, courseId }
+    });
 
     if (!enrollment || enrollment.status !== 'active') {
         return res.status(403).json({ success: false, message: 'Access denied: course not fully approved or enrollment inactive' });

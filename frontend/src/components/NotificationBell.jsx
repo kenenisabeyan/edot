@@ -86,7 +86,7 @@ export default function NotificationBell() {
             id: 'stu_course',
             title: 'Welcome to EDOT Platform',
             message: 'Explore our digital library and enroll in new courses today.',
-            icon: <Bell className="w-5 h-5 text-slate-500" />,
+            icon: <Bell className="w-5 h-5 text-slate-300" />,
             link: '/dashboard/courses',
             time: '1 day ago',
             unread: false
@@ -121,7 +121,7 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-slate-300 hover:text-white hover:border-[#FFD700]/30 hover:shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all relative focus:outline-none backdrop-blur-md"
+        className="w-10 h-10 rounded-full border border-white/10 bg-[#11151F]/5 flex items-center justify-center text-slate-300 hover:text-white hover:border-[#FFD700]/30 hover:shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all relative focus:outline-none backdrop-blur-md"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -147,11 +147,11 @@ export default function NotificationBell() {
           
           <div className="max-h-[70vh] overflow-y-auto scrollbar-hide bg-black/20">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-slate-500 flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mb-4">
-                  <Bell className="w-8 h-8 text-slate-600" />
+              <div className="p-8 text-center text-slate-300 flex flex-col items-center">
+                <div className="w-16 h-16 rounded-full bg-[#11151F]/5 border border-white/5 flex items-center justify-center mb-4">
+                  <Bell className="w-8 h-8 text-slate-300" />
                 </div>
-                <p className="font-semibold text-slate-400">No new notifications</p>
+                <p className="font-semibold text-slate-200">No new notifications</p>
               </div>
             ) : (
               <div className="flex flex-col">
@@ -159,16 +159,16 @@ export default function NotificationBell() {
                   <button 
                     key={notif.id}
                     onClick={() => handleNotificationClick(notif.link)}
-                    className={`p-4 border-b border-white/5 text-left transition-colors flex gap-4 group ${notif.unread ? 'bg-white/5 hover:bg-white/10' : 'hover:bg-white/5'}`}
+                    className={`p-4 border-b border-white/5 text-left transition-colors flex gap-4 group ${notif.unread ? 'bg-[#11151F]/5 hover:bg-[#11151F]/10' : 'hover:bg-[#11151F]/5'}`}
                   >
-                    <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center border transition-colors ${notif.unread ? 'bg-[#FFD700]/10 border-[#FFD700]/30 shadow-[0_0_15px_rgba(255,215,0,0.1)]' : 'bg-white/5 border-white/10 group-hover:border-white/20'}`}>
+                    <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center border transition-colors ${notif.unread ? 'bg-[#FFD700]/10 border-[#FFD700]/30 shadow-[0_0_15px_rgba(255,215,0,0.1)]' : 'bg-[#11151F]/5 border-white/10 group-hover:border-white/20'}`}>
                       {notif.icon}
                     </div>
                     <div>
                       <h4 className={`text-sm ${notif.unread ? 'font-bold text-white group-hover:text-[#FFD700]' : 'font-semibold text-slate-300'} transition-colors`}>
                         {notif.title}
                       </h4>
-                      <p className="text-sm text-slate-400 mt-1 line-clamp-2 leading-snug">{notif.message}</p>
+                      <p className="text-sm text-slate-200 mt-1 line-clamp-2 leading-snug">{notif.message}</p>
                       <p className="text-xs text-[#008A32] mt-2 font-bold uppercase tracking-wider">{notif.time}</p>
                     </div>
                     {notif.unread && (
@@ -180,10 +180,10 @@ export default function NotificationBell() {
             )}
           </div>
           
-          <div className="p-3 border-t border-white/10 bg-[#0B0E14] text-center hover:bg-white/5 transition-colors">
+          <div className="p-3 border-t border-white/10 bg-[#0B0E14] text-center hover:bg-[#11151F]/5 transition-colors">
             <button 
               onClick={() => { setIsOpen(false); navigate('/dashboard/notice'); }}
-              className="text-sm font-bold text-slate-400 hover:text-white transition-colors w-full"
+              className="text-sm font-bold text-slate-200 hover:text-white transition-colors w-full"
             >
               View all notifications
             </button>

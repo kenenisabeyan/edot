@@ -1,33 +1,32 @@
-const express = require('express');
+import express from 'express';
+import { prisma } from '../lib/prisma.js';
+import { protect, authorize } from '../middleware/auth.js';
+
 const router = express.Router();
-const { protect, authorize } = require('../middleware/auth');
-const Section = require('../models/Section');
-const Course = require('../models/Course');
-const User = require('../models/User');
 
 // @route   POST /api/sections
 // @desc    Create a new section
 // @access  Private (Admin/Instructor)
 router.post('/', protect, authorize('admin', 'instructor'), async (req, res) => {
     try {
-        const { name, course, instructor, schedule } = req.body;
+        const { name, courseId, instructorId, scheduleDays, scheduleTime } = req.body;
         
-        const courseExists = await Course.findById(course);
+        const courseExists = await prisma.course.findUnique({ where: { id: courseId } });
         if (!courseExists) return res.status(404).json({ success: false, message: 'Course not found' });
 
-        const section = await Section.create({
-            name,
-            course,
-            instructor: instructor || req.user.id,
-            schedule
+        const section = await prisma.section.create({
+            data: {
+                name,
+                courseId,
+                instructorId: instructorId || req.user.id,
+                scheduleDays: scheduleDays || [],
+                scheduleTime
+            }
         });
 
         res.status(201).json({ success: true, data: section });
     } catch (error) {
         console.error('Create Section Error:', error);
-        if (error.code === 11000) {
-            return res.status(400).json({ success: false, message: 'Section name already exists for this course' });
-        }
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
@@ -38,12 +37,16 @@ router.post('/', protect, authorize('admin', 'instructor'), async (req, res) => 
 router.get('/', protect, async (req, res) => {
     try {
         const query = {};
-        if (req.query.courseId) query.course = req.query.courseId;
+        if (req.query.courseId) query.courseId = req.query.courseId;
 
-        const sections = await Section.find(query)
-            .populate('course', 'title')
-            .populate('instructor', 'name email avatar')
-            .populate('students', 'name email avatar');
+        const sections = await prisma.section.findMany({
+            where: query,
+            include: {
+                course: { select: { title: true } },
+                instructor: { select: { name: true, email: true, avatar: true } },
+                students: { select: { name: true, email: true, avatar: true } }
+            }
+        });
 
         res.json({ success: true, count: sections.length, data: sections });
     } catch (error) {
@@ -57,10 +60,14 @@ router.get('/', protect, async (req, res) => {
 // @access  Private
 router.get('/:id', protect, async (req, res) => {
     try {
-        const section = await Section.findById(req.params.id)
-            .populate('course', 'title')
-            .populate('instructor', 'name email avatar')
-            .populate('students', 'name email avatar');
+        const section = await prisma.section.findUnique({
+            where: { id: req.params.id },
+            include: {
+                course: { select: { title: true } },
+                instructor: { select: { name: true, email: true, avatar: true } },
+                students: { select: { name: true, email: true, avatar: true } }
+            }
+        });
 
         if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
 
@@ -76,14 +83,27 @@ router.get('/:id', protect, async (req, res) => {
 // @access  Private (Admin/Instructor)
 router.put('/:id', protect, authorize('admin', 'instructor'), async (req, res) => {
     try {
-        let section = await Section.findById(req.params.id);
+        const userId = req.user.id;
+        let section = await prisma.section.findUnique({ where: { id: req.params.id } });
         if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
 
-        if (req.user.role !== 'admin' && section.instructor?.toString() !== req.user.id) {
+        if (req.user.role !== 'admin' && section.instructorId !== userId) {
             return res.status(403).json({ success: false, message: 'Not authorized to update this section' });
         }
 
-        section = await Section.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        const { name, courseId, instructorId, scheduleDays, scheduleTime } = req.body;
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (courseId !== undefined) updateData.courseId = courseId;
+        if (instructorId !== undefined) updateData.instructorId = instructorId;
+        if (scheduleDays !== undefined) updateData.scheduleDays = scheduleDays;
+        if (scheduleTime !== undefined) updateData.scheduleTime = scheduleTime;
+
+        section = await prisma.section.update({
+            where: { id: req.params.id },
+            data: updateData
+        });
+        
         res.json({ success: true, data: section });
     } catch (error) {
         console.error('Update Section Error:', error);
@@ -96,14 +116,15 @@ router.put('/:id', protect, authorize('admin', 'instructor'), async (req, res) =
 // @access  Private (Admin/Instructor)
 router.delete('/:id', protect, authorize('admin', 'instructor'), async (req, res) => {
     try {
-        const section = await Section.findById(req.params.id);
+        const userId = req.user.id;
+        const section = await prisma.section.findUnique({ where: { id: req.params.id } });
         if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
 
-        if (req.user.role !== 'admin' && section.instructor?.toString() !== req.user.id) {
+        if (req.user.role !== 'admin' && section.instructorId !== userId) {
             return res.status(403).json({ success: false, message: 'Not authorized to delete this section' });
         }
 
-        await Section.findByIdAndDelete(req.params.id);
+        await prisma.section.delete({ where: { id: req.params.id } });
         res.json({ success: true, data: {} });
     } catch (error) {
         console.error('Delete Section Error:', error);
@@ -117,28 +138,36 @@ router.delete('/:id', protect, authorize('admin', 'instructor'), async (req, res
 router.post('/:id/add-student', protect, authorize('admin', 'instructor'), async (req, res) => {
     try {
         const { studentId } = req.body;
+        const userId = req.user.id;
+        
         if (!studentId) return res.status(400).json({ success: false, message: 'Please provide studentId' });
 
-        const section = await Section.findById(req.params.id);
+        const section = await prisma.section.findUnique({ 
+            where: { id: req.params.id },
+            include: { students: true }
+        });
         if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
 
-        if (req.user.role !== 'admin' && section.instructor?.toString() !== req.user.id) {
+        if (req.user.role !== 'admin' && section.instructorId !== userId) {
             return res.status(403).json({ success: false, message: 'Not authorized to modify this section' });
         }
 
-        const student = await User.findById(studentId);
+        const student = await prisma.user.findUnique({ where: { id: studentId } });
         if (!student || student.role !== 'student') {
             return res.status(400).json({ success: false, message: 'Valid student user is required' });
         }
 
-        if (section.students.includes(studentId)) {
+        if (section.students.some(s => s.id === studentId)) {
             return res.status(400).json({ success: false, message: 'Student is already in this section' });
         }
 
-        section.students.push(studentId);
-        await section.save();
+        const updatedSection = await prisma.section.update({
+            where: { id: req.params.id },
+            data: { students: { connect: { id: studentId } } },
+            include: { students: true }
+        });
 
-        res.json({ success: true, message: 'Student added successfully', data: section });
+        res.json({ success: true, message: 'Student added successfully', data: updatedSection });
     } catch (error) {
         console.error('Add Student Error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -153,22 +182,24 @@ router.post('/:id/assign-instructor', protect, authorize('admin'), async (req, r
         const { instructorId } = req.body;
         if (!instructorId) return res.status(400).json({ success: false, message: 'Please provide instructorId' });
 
-        const section = await Section.findById(req.params.id);
+        const section = await prisma.section.findUnique({ where: { id: req.params.id } });
         if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
 
-        const instructor = await User.findById(instructorId);
+        const instructor = await prisma.user.findUnique({ where: { id: instructorId } });
         if (!instructor || instructor.role !== 'instructor') {
             return res.status(400).json({ success: false, message: 'Valid instructor user is required' });
         }
 
-        section.instructor = instructorId;
-        await section.save();
+        const updatedSection = await prisma.section.update({
+            where: { id: req.params.id },
+            data: { instructorId }
+        });
 
-        res.json({ success: true, message: 'Instructor assigned successfully', data: section });
+        res.json({ success: true, message: 'Instructor assigned successfully', data: updatedSection });
     } catch (error) {
         console.error('Assign Instructor Error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 
-module.exports = router;
+export default router;

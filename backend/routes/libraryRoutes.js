@@ -1,14 +1,17 @@
-const express = require('express');
+import express from 'express';
+import { prisma } from '../lib/prisma.js';
+import { protect, authorize, guardActiveEnrollment, checkNotBlocked } from '../middleware/auth.js';
+
 const router = express.Router();
-const Library = require('../models/Library');
-const { protect, authorize, guardActiveEnrollment, checkNotBlocked } = require('../middleware/auth');
 
 // @route   GET /api/library
 // @desc    Get all library resources
 // @access  Private
 router.get('/', protect, checkNotBlocked, async (req, res) => {
     try {
-        const resources = await Library.find().sort({ createdAt: -1 });
+        const resources = await prisma.library.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
         res.status(200).json({ success: true, count: resources.length, data: resources });
     } catch (err) {
         console.error(err);
@@ -25,12 +28,14 @@ router.post('/', protect, authorize('admin', 'instructor'), async (req, res) => 
         if (!title || !author || !fileUrl) {
             return res.status(400).json({ success: false, message: 'Please provide all required fields' });
         }
-        const resource = await Library.create({
-            title,
-            author,
-            category: category || 'General',
-            fileUrl,
-            uploadedBy: req.user.id
+        const resource = await prisma.library.create({
+            data: {
+                title,
+                author,
+                category: category || 'General',
+                fileUrl,
+                uploadedById: req.user.id
+            }
         });
         res.status(201).json({ success: true, data: resource });
     } catch (err) {
@@ -43,7 +48,10 @@ router.post('/', protect, authorize('admin', 'instructor'), async (req, res) => 
 // @desc    Get all library resources for a specific course (student active enrollment required)
 router.get('/course/:courseId', protect, checkNotBlocked, authorize('student'), guardActiveEnrollment, async (req, res) => {
     try {
-        const resources = await Library.find({ course: req.params.courseId }).sort({ createdAt: -1 });
+        const resources = await prisma.library.findMany({
+            where: { courseId: req.params.courseId },
+            orderBy: { createdAt: 'desc' }
+        });
         res.status(200).json({ success: true, count: resources.length, data: resources });
     } catch (err) {
         console.error(err);
@@ -56,15 +64,16 @@ router.get('/course/:courseId', protect, checkNotBlocked, authorize('student'), 
 // @access  Private (Admin & Instructor only)
 router.delete('/:id', protect, authorize('admin', 'instructor'), async (req, res) => {
     try {
-        const resource = await Library.findById(req.params.id);
+        const resource = await prisma.library.findUnique({ where: { id: req.params.id } });
         if (!resource) return res.status(404).json({ success: false, message: 'Resource not found' });
         
         // Ensure only uploader or admin can delete
-        if(resource.uploadedBy.toString() !== req.user.id && req.user.role !== 'admin') {
+        const userId = req.user.id;
+        if(resource.uploadedById !== userId && req.user.role !== 'admin') {
             return res.status(401).json({ success: false, message: 'Not authorized to delete this resource' });
         }
 
-        await resource.deleteOne();
+        await prisma.library.delete({ where: { id: req.params.id } });
         res.status(200).json({ success: true, data: {} });
     } catch (err) {
         console.error(err);
@@ -72,4 +81,4 @@ router.delete('/:id', protect, authorize('admin', 'instructor'), async (req, res
     }
 });
 
-module.exports = router;
+export default router;

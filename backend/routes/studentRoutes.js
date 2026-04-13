@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { protect, authorize, checkNotBlocked } from '../middleware/auth.js';
+import { prisma } from '../lib/prisma.js';
+import { logActivity } from '../controllers/activityController.js';
+
 const router = express.Router();
-const { protect, authorize, checkNotBlocked } = require('../middleware/auth');
-const Course = require('../models/Course');
-const User = require('../models/User');
-const { logActivity } = require('../controllers/activityController');
 
 // Apply protect middleware to all student routes
 router.use(protect);
@@ -14,18 +14,118 @@ router.use(authorize('student', 'instructor', 'admin')); // Anyone who can enrol
 // @desc    Get all enrolled courses for the logged-in user
 router.get('/enrollments', async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).populate({
-            path: 'enrolledCourses.course',
-            populate: { path: 'instructor', select: 'name avatar' }
+        const userId = req.user.id;
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                userCourseProgress: {
+                    include: {
+                        course: {
+                            include: { instructor: { select: { name: true, avatar: true } } }
+                        }
+                    }
+                }
+            }
         });
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const enrolledCourses = (user.userCourseProgress || []).filter(e => e.status === 'active');
 
         res.status(200).json({
             success: true,
-            count: user.enrolledCourses.length,
-            data: user.enrolledCourses
+            count: enrolledCourses.length,
+            data: enrolledCourses
         });
     } catch (error) {
         console.error('Fetch enrollments error:', error);
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   GET /api/student/courses/:courseId/status
+// @desc    Get real-time enrollment status for a specific course
+router.get('/courses/:courseId/status', async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const studentId = req.user.id;
+        
+        const enrollment = await prisma.enrollment.findUnique({
+            where: { studentId_courseId: { studentId, courseId } }
+        });
+
+        const progress = await prisma.userCourseProgress.findFirst({
+            where: { userId: studentId, courseId }
+        });
+
+        if (!enrollment && !progress) {
+            return res.status(200).json({ success: true, status: 'none', progress: null });
+        }
+
+        const currentStatus = enrollment ? enrollment.status : (progress?.status || 'active');
+
+        res.status(200).json({ 
+            success: true, 
+            status: currentStatus,
+            progress: progress || null
+        });
+    } catch (error) {
+        console.error('Fetch enrollment status error:', error);
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
+});
+
+// @route   POST /api/student/courses/:courseId/enroll
+// @desc    Request enrollment in a course
+router.post('/courses/:courseId/enroll', async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const studentId = req.user.id;
+
+        const course = await prisma.course.findUnique({ where: { id: courseId } });
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Course not found' });
+        }
+
+        // Check if already in progress or already requested
+        const existingProgress = await prisma.userCourseProgress.findFirst({
+            where: { userId: studentId, courseId }
+        });
+
+        if (existingProgress) {
+            return res.status(400).json({ success: false, message: 'You are already enrolled in this course.' });
+        }
+
+        const existingEnrollment = await prisma.enrollment.findUnique({
+            where: {
+                studentId_courseId: { studentId, courseId }
+            }
+        });
+
+        if (existingEnrollment) {
+             return res.status(400).json({ success: false, message: 'You already have a pending enrollment request for this course.' });
+        }
+
+        // Create pending enrollment request
+        const enrollment = await prisma.enrollment.create({
+            data: {
+                studentId,
+                courseId,
+                status: 'pending'
+            }
+        });
+
+        await logActivity(studentId, `Requested enrollment for ${course.title}`, 'learning', course.title, courseId);
+
+        res.status(201).json({
+            success: true,
+            message: 'Enrollment requested successfully. Waiting for admin approval.',
+            enrollment
+        });
+    } catch (error) {
+        console.error('Enrollment error:', error);
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 });
@@ -35,44 +135,54 @@ router.get('/enrollments', async (req, res) => {
 router.post('/courses/:courseId/lessons/:lessonId/complete', async (req, res) => {
     try {
         const { courseId, lessonId } = req.params;
-        const user = await User.findById(req.user.id);
-        const course = await Course.findById(courseId);
+        const userId = req.user.id;
+        
+        const course = await prisma.course.findUnique({ where: { id: courseId } });
 
         if (!course) {
             return res.status(404).json({ success: false, message: 'Course not found' });
         }
 
-        // Find the enrollment
-        const enrollment = user.enrolledCourses.find(
-            (e) => e.course.toString() === courseId
-        );
+        const enrollment = await prisma.userCourseProgress.findFirst({
+            where: { userId, courseId }
+        });
 
         if (!enrollment) {
             return res.status(400).json({ success: false, message: 'Not enrolled in this course' });
         }
 
+        // Process completedLessons JSON array
+        let completedLessons = enrollment.completedLessons ? 
+            (Array.isArray(enrollment.completedLessons) ? enrollment.completedLessons : [enrollment.completedLessons]) : [];
+
         // Check if lesson is already marked complete
-        if (!enrollment.completedLessons.includes(lessonId)) {
-            enrollment.completedLessons.push(lessonId);
+        if (!completedLessons.includes(lessonId)) {
+            completedLessons.push(lessonId);
             
             // Calculate new progress
-            const totalLessons = course.lessons.length;
-            const completedLessons = enrollment.completedLessons.length;
+            const lessons = course.lessons ? 
+                (Array.isArray(course.lessons) ? course.lessons : [course.lessons]) : [];
+            const totalLessons = lessons.length;
             
+            let progress = enrollment.progress || 0;
             if (totalLessons > 0) {
-                enrollment.progress = Math.round((completedLessons / totalLessons) * 100);
+                progress = Math.round((completedLessons.length / totalLessons) * 100);
             } else {
-                enrollment.progress = 100;
+                progress = 100;
             }
 
-            await user.save();
-            await logActivity(req.user.id, `Completed a lesson in ${course.title}`, 'learning', course.title, course._id);
+            await prisma.userCourseProgress.update({
+                where: { id: enrollment.id },
+                data: { completedLessons, progress }
+            });
+
+            await logActivity(userId, `Completed a lesson in ${course.title}`, 'learning', course.title, course.id);
         }
 
         res.status(200).json({
             success: true,
             progress: enrollment.progress,
-            completedLessons: enrollment.completedLessons
+            completedLessons
         });
     } catch (error) {
         console.error('Mark lesson complete error:', error);
@@ -85,21 +195,25 @@ router.post('/courses/:courseId/lessons/:lessonId/complete', async (req, res) =>
 router.post('/courses/:courseId/exam/complete', async (req, res) => {
     try {
         const { courseId } = req.params;
-        const user = await User.findById(req.user.id);
+        const userId = req.user.id;
         
-        const enrollment = user.enrolledCourses.find(
-            (e) => e.course.toString() === courseId
-        );
+        const enrollment = await prisma.userCourseProgress.findFirst({
+            where: { userId, courseId }
+        });
 
         if (!enrollment) {
             return res.status(400).json({ success: false, message: 'Not enrolled in this course' });
         }
 
-        enrollment.passedFinalExam = true;
-        await user.save();
+        await prisma.userCourseProgress.update({
+            where: { id: enrollment.id },
+            data: { passedFinalExam: true }
+        });
         
-        const course = await Course.findById(courseId);
-        await logActivity(req.user.id, `Passed final exam for ${course.title}`, 'learning', course.title, course._id);
+        const course = await prisma.course.findUnique({ where: { id: courseId } });
+        if (course) {
+           await logActivity(userId, `Passed final exam for ${course.title}`, 'learning', course.title, course.id);
+        }
 
         res.status(200).json({ success: true, passedFinalExam: true });
     } catch (error) {
@@ -112,7 +226,12 @@ router.post('/courses/:courseId/exam/complete', async (req, res) => {
 // @desc    Get detailed analytics for student (currently minimal fallback)
 router.get('/analytics/detailed', async (req, res) => {
     try {
-        const student = await User.findById(req.user.id).select('enrolledCourses');
+        const userId = req.user.id;
+        const student = await prisma.user.findUnique({ 
+            where: { id: userId },
+            include: { userCourseProgress: true }
+        });
+
         // Provide baseline mock/empty analytics structure
         res.status(200).json({
             success: true,
@@ -120,7 +239,7 @@ router.get('/analytics/detailed', async (req, res) => {
                 revenueData: [],
                 engagementData: [],
                 courseCompletionData: [
-                   { name: 'Enrolled', value: student?.enrolledCourses?.length || 1, color: '#10b981' }
+                   { name: 'Enrolled', value: student?.userCourseProgress?.length || 1, color: '#10b981' }
                 ],
                 totalRevenue: 0,
                 totalActiveLearners: 1,
@@ -136,11 +255,21 @@ router.get('/analytics/detailed', async (req, res) => {
 // @desc    Get student dashboard statistics
 router.get('/dashboard', async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).populate({
-            path: 'enrolledCourses.course'
+        const userId = req.user.id;
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                userCourseProgress: {
+                    include: { course: true }
+                }
+            }
         });
 
-        const enrollments = user.enrolledCourses || [];
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const enrollments = user.userCourseProgress || [];
         const totalEnrolled = enrollments.length;
         
         let totalProgress = 0;
@@ -149,8 +278,13 @@ router.get('/dashboard', async (req, res) => {
         
         enrollments.forEach(enrollment => {
             totalProgress += (enrollment.progress || 0);
-            completedLessons += (enrollment.completedLessons ? enrollment.completedLessons.length : 0);
-            if (enrollment.progress === 100) {
+
+            let lessonsJson = enrollment.completedLessons ? 
+                (Array.isArray(enrollment.completedLessons) ? enrollment.completedLessons : [enrollment.completedLessons]) : [];
+            
+            completedLessons += lessonsJson.length;
+            
+            if (enrollment.progress === 100 || enrollment.passedFinalExam) {
                 completedCourses++;
             }
         });
@@ -165,8 +299,8 @@ router.get('/dashboard', async (req, res) => {
                 completedLessons,
                 completedCourses,
                 recentEnrollments: enrollments.slice(-3).map(e => ({
-                    courseId: e.course._id,
-                    courseTitle: e.course.title,
+                    courseId: e.course?.id,
+                    courseTitle: e.course?.title,
                     progress: e.progress
                 }))
             }
@@ -176,4 +310,4 @@ router.get('/dashboard', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

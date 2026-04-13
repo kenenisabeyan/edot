@@ -42,6 +42,7 @@ import AnalyticsReport from './pages/AnalyticsReport';
 import SettingsView from './pages/SettingsView';
 import UsersManagement from './pages/UsersManagement';
 import SectionManagement from './pages/SectionManagement';
+import SupportDashboard from './pages/SupportDashboard';
 import { Outlet } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -61,13 +62,25 @@ function MainLayout() {
 export default function App() {
   return (
     <Routes>
+      {/* Immersive Pages (No Nav/Footer) */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/lesson/:id" element={
+          <ErrorBoundary>
+            <Lesson />
+          </ErrorBoundary>
+        } />
+        <Route path="/quiz/:id" element={
+          <ErrorBoundary>
+            <QuizViewer />
+          </ErrorBoundary>
+        } />
+      </Route>
+
       {/* Public / Landing Pages with Navbar & Footer */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/courses" element={<Courses />} />
         <Route path="/course/:id" element={<CourseDetails />} />
-        <Route path="/lesson/:id" element={<Lesson />} />
-        <Route path="/quiz/:id" element={<QuizViewer />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
@@ -95,25 +108,46 @@ export default function App() {
       }>
         <Route element={<EDOTLayout />}>
           <Route index element={<EDOTDashboard />} />
-          <Route path="users" element={<UsersManagement />} />
-          <Route path="teachers" element={<TeachersList />} />
+          
+          {/* Admin Only Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="users" element={<UsersManagement />} />
+            <Route path="teachers" element={<TeachersList />} />
+            <Route path="approvals" element={<AdminCourseApprovals />} />
+            <Route path="revenue" element={<Revenue />} />
+            <Route path="analytics" element={<AnalyticsReport />} />
+            <Route path="finance/fees" element={<FinanceFees />} />
+            <Route path="finance/expenses" element={<div className="p-8 text-slate-300 font-medium">Expenses page under construction...</div>} />
+          </Route>
+
+          {/* Admin & Instructor Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['admin', 'instructor']} />}>
+            <Route path="classes" element={<InstructorClasses />} />
+            <Route path="my-courses" element={<InstructorManageCourses />} />
+            <Route path="builder" element={<InstructorCourseBuilder />} />
+            <Route path="builder/:id" element={<InstructorCourseBuilder />} />
+            <Route path="teaching" element={<TeachingActivity />} />
+          </Route>
+
+          {/* Admin, Instructor, Student (Shared with internal logic vs strict role blocks) */}
           <Route path="students" element={<StudentsList />} />
-          <Route path="child" element={<ParentLearners />} />
-          <Route path="progress" element={<ParentLearners />} />
-          <Route path="courses" element={<StudentCourses />} />
-          <Route path="classes" element={<InstructorClasses />} />
-          <Route path="sections" element={<SectionManagement />} />
-          <Route path="my-courses" element={<InstructorManageCourses />} />
-          <Route path="builder" element={<InstructorCourseBuilder />} />
-          <Route path="builder/:id" element={<InstructorCourseBuilder />} />
-          <Route path="approvals" element={<AdminCourseApprovals />} />
           <Route path="attendance" element={<AttendanceManagement />} />
-          <Route path="revenue" element={<Revenue />} />
           <Route path="performance" element={<Performance />} />
-          <Route path="teaching" element={<TeachingActivity />} />
-          <Route path="analytics" element={<AnalyticsReport />} />
-          <Route path="finance/fees" element={<FinanceFees />} />
-          <Route path="finance/expenses" element={<div className="p-8 text-slate-500 font-medium">Expenses page under construction...</div>} />
+          <Route path="sections" element={<SectionManagement />} />
+          
+          {/* Parent Only Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['parent']} />}>
+            <Route path="child" element={<ParentLearners />} />
+            <Route path="progress" element={<ParentLearners />} />
+          </Route>
+
+          {/* Student Only Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+            <Route path="courses" element={<StudentCourses />} />
+          </Route>
+
+          {/* General Dashboard Routes available to anyone logged in */}
+          <Route path="support" element={<SupportDashboard />} />
           <Route path="notice" element={<NoticeView />} />
           <Route path="calendar" element={<CalendarView />} />
           <Route path="schedule" element={<CalendarView />} />

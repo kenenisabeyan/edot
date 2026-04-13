@@ -44,7 +44,7 @@ export default function Login() {
       <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-center px-16 lg:px-24 z-10 border-r border-white/5 bg-[#11151F]/40 backdrop-blur-md">
         <div className="absolute top-12 left-12">
            <Link to="/" className="inline-flex items-center gap-2 bg-[#11151F] border border-white/10 px-4 py-2 rounded-xl hover:border-[#FFD700]/30 transition-all group backdrop-blur">
-              <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-[#FFD700] transition-colors" />
+              <ChevronLeft className="w-5 h-5 text-slate-200 group-hover:text-[#FFD700] transition-colors" />
               <span className="text-slate-300 font-black tracking-widest text-[10px] uppercase group-hover:text-white transition-colors">Return to Hub</span>
            </Link>
         </div>
@@ -56,7 +56,7 @@ export default function Login() {
         <h1 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mb-8">
           Welcome <br/> <span className="text-white">Back.</span>
         </h1>
-        <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-lg mb-12">
+        <p className="text-lg text-slate-200 font-medium leading-relaxed max-w-lg mb-12">
           Continue your learning journey. Securely authenticate your credentials to access the EDOT platform.
         </p>
 
@@ -65,7 +65,7 @@ export default function Login() {
              <Lock className="w-6 h-6 text-[#FFD700]" />
              <div>
                <p className="text-white font-black text-sm tracking-tight text-left">E2E Encrypted</p>
-               <p className="text-slate-500 text-[10px] uppercase tracking-widest font-black">Secure Access</p>
+               <p className="text-slate-300 text-[10px] uppercase tracking-widest font-black">Secure Access</p>
              </div>
           </div>
         </div>
@@ -88,11 +88,11 @@ export default function Login() {
 
              <div className="mb-10 text-center relative z-10">
                <h3 className="text-2xl font-black text-white tracking-tight mb-2">Sign In</h3>
-               <p className="text-slate-400 text-sm font-medium">Please enter your account details.</p>
+               <p className="text-slate-200 text-sm font-medium">Please enter your account details.</p>
              </div>
 
              {error && (
-               <div className="mb-8 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start gap-3 text-rose-500 shadow-sm animate-in fade-in slide-in-from-top-2 relative z-10">
+               <div className="mb-8 p-4 bg-rose-500/100/10 border border-rose-500/20 rounded-xl flex items-start gap-3 text-rose-500 shadow-sm animate-in fade-in slide-in-from-top-2 relative z-10">
                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                  <p className="text-sm font-bold tracking-wide">{error}</p>
                </div>
@@ -110,14 +110,14 @@ export default function Login() {
 
              <div className="relative mb-8 text-center flex items-center z-10">
                <div className="flex-1 border-t border-white/10"></div>
-               <span className="px-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-500">Or use email</span>
+               <span className="px-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-300">Or use email</span>
                <div className="flex-1 border-t border-white/10"></div>
              </div>
 
              <form onSubmit={handleSubmit} noValidate className="space-y-6 relative z-10">
                
                <div>
-                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-2">Email Address</label>
+                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-200 mb-3 ml-2">Email Address</label>
                  <input 
                    type="email" 
                    value={email}
@@ -130,7 +130,7 @@ export default function Login() {
 
                <div>
                  <div className="flex justify-between items-end mb-3 ml-2 mr-2">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400">Password</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-200">Password</label>
                     <Link to="#" className="text-[10px] font-black text-[#FFD700] hover:text-[#e5c100] uppercase tracking-widest transition-colors mb-0.5">Forgot?</Link>
                  </div>
                  <div className="relative">
@@ -145,7 +145,7 @@ export default function Login() {
                     <button 
                       type="button" 
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors focus:outline-none"
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-white transition-colors focus:outline-none"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -167,7 +167,7 @@ export default function Login() {
              </form>
 
              <div className="mt-10 text-center relative z-10 border-t border-white/5 pt-6">
-                <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">
+                <p className="text-[10px] uppercase font-black tracking-widest text-slate-200">
                   Don't have an account? <Link to="/register" className="text-[#008A32] hover:text-[#005e22] ml-2 transition-colors">Create one</Link>
                 </p>
              </div>

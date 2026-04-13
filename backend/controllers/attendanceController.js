@@ -1,29 +1,58 @@
-const Attendance = require('../models/Attendance');
-const CourseReport = require('../models/CourseReport');
-const Course = require('../models/Course');
-const Section = require('../models/Section');
-const User = require('../models/User');
+import { prisma } from '../lib/prisma.js';
+import { normalizeAttendanceDate } from '../lib/modelHelpers.js'; // If using the helper I made
 
 // @desc    Get attendance for a specific section
 // @route   GET /api/attendance/section/:sectionId
 // @access  Private (Admin/Instructor)
-exports.getCourseAttendance = async (req, res) => {
+export const getCourseAttendance = async (req, res) => {
   try {
     const { sectionId } = req.params;
     
     // Find section and validate requestor
-    const section = await Section.findById(sectionId);
+    const section = await prisma.section.findUnique({ where: { id: sectionId } });
     if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
     
-    if (req.user.role !== 'admin' && section.instructor?.toString() !== req.user.id) {
+    const userId = req.user.id;
+    if (req.user.role !== 'admin' && section.instructorId !== userId) {
       return res.status(403).json({ success: false, message: 'Not authorized to view this sections attendance' });
     }
 
-    const attendanceRecords = await Attendance.find({ section: sectionId })
-      .populate('records.user', 'name email avatar role')
-      .sort({ date: -1 });
+    const attendanceRecords = await prisma.attendance.findMany({
+      where: { section: section.name, courseId: section.courseId },
+      orderBy: { date: 'desc' }
+    });
 
-    res.status(200).json({ success: true, count: attendanceRecords.length, data: attendanceRecords });
+    // Previously we populated 'records.user'. Since records is Json in Prisma, 
+    // we would ideally need a secondary query to fetch user data for the json array.
+    // However, since records typically contains { user, role, status }, we'll enrich it.
+    
+    // Manually enriching records with simple user data to match legacy populate payload
+    const allUserIds = new Set();
+    attendanceRecords.forEach(att => {
+        const recs = att.records ? (Array.isArray(att.records) ? att.records : [att.records]) : [];
+        recs.forEach(r => { if (r.user) allUserIds.add(r.user); });
+    });
+    
+    const users = await prisma.user.findMany({
+        where: { id: { in: Array.from(allUserIds) } },
+        select: { id: true, name: true, email: true, avatar: true, role: true }
+    });
+    
+    const userMap = {};
+    users.forEach(u => { userMap[u.id] = u; });
+
+    const enrichedAttendance = attendanceRecords.map(att => {
+        const attObj = { ...att };
+        const recs = attObj.records ? (Array.isArray(attObj.records) ? attObj.records : [attObj.records]) : [];
+        
+        attObj.records = recs.map(r => ({
+            ...r,
+            user: userMap[r.user] || r.user 
+        }));
+        return attObj;
+    });
+
+    res.status(200).json({ success: true, count: enrichedAttendance.length, data: enrichedAttendance });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -32,7 +61,7 @@ exports.getCourseAttendance = async (req, res) => {
 // @desc    Fetch attendance for a specific course, section, and date
 // @route   GET /api/attendance?courseId=...&section=...&date=...
 // @access  Private
-exports.getAttendanceByQuery = async (req, res) => {
+export const getAttendanceByQuery = async (req, res) => {
   try {
     const { courseId, section, date } = req.query;
     
@@ -43,15 +72,32 @@ exports.getAttendanceByQuery = async (req, res) => {
     const queryDate = new Date(date);
     const startOfDay = new Date(Date.UTC(queryDate.getUTCFullYear(), queryDate.getUTCMonth(), queryDate.getUTCDate()));
 
-    const attendance = await Attendance.findOne({
-      course: courseId,
-      section,
-      date: startOfDay
-    }).populate('records.user', 'name email avatar role');
+    const attendance = await prisma.attendance.findUnique({
+      where: {
+          courseId_section_date: {
+             courseId,
+             section,
+             date: startOfDay
+          }
+      }
+    });
 
     if (!attendance) {
       return res.status(200).json({ success: true, data: null });
     }
+
+    // Manual population of JSON user objects (matching legacy behaviour)
+    const recs = attendance.records ? (Array.isArray(attendance.records) ? attendance.records : [attendance.records]) : [];
+    const userIds = recs.map(r => r.user).filter(Boolean);
+    
+    const users = await prisma.user.findMany({
+        where: { id: { in: userIds } },
+        select: { id: true, name: true, email: true, avatar: true, role: true }
+    });
+    const userMap = {};
+    users.forEach(u => { userMap[u.id] = u; });
+
+    attendance.records = recs.map(r => ({ ...r, user: userMap[r.user] || r.user }));
 
     res.status(200).json({ success: true, data: attendance });
   } catch (error) {
@@ -62,7 +108,7 @@ exports.getAttendanceByQuery = async (req, res) => {
 // @desc    Submit or update daily class attendance
 // @route   POST /api/attendance
 // @access  Private
-exports.submitAttendance = async (req, res) => {
+export const submitAttendance = async (req, res) => {
   try {
     const { courseId, section, date, records } = req.body;
     
@@ -70,7 +116,7 @@ exports.submitAttendance = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide courseId, section, date, and records' });
     }
 
-    const courseObj = await Course.findById(courseId);
+    const courseObj = await prisma.course.findUnique({ where: { id: courseId } });
     if (!courseObj) return res.status(404).json({ success: false, message: 'Course not found' });
 
     // Format records array to exactly match requirement [ { user, role, status } ]
@@ -84,25 +130,24 @@ exports.submitAttendance = async (req, res) => {
     const queryDate = new Date(date);
     const startOfDay = new Date(Date.UTC(queryDate.getUTCFullYear(), queryDate.getUTCMonth(), queryDate.getUTCDate()));
 
-    let attendance = await Attendance.findOne({
-      course: courseId,
-      section,
-      date: startOfDay
+    const attendance = await prisma.attendance.upsert({
+      where: {
+          courseId_section_date: {
+             courseId,
+             section,
+             date: startOfDay
+          }
+      },
+      update: {
+          records: formattedRecords
+      },
+      create: {
+          courseId,
+          section,
+          date: startOfDay,
+          records: formattedRecords
+      }
     });
-
-    if (attendance) {
-      // Update existing instead of duplicate
-      attendance.records = formattedRecords;
-      await attendance.save();
-    } else {
-      // Create new presence registry
-      attendance = await Attendance.create({
-        course: courseId,
-        section,
-        date: startOfDay,
-        records: formattedRecords
-      });
-    }
 
     res.status(200).json({ success: true, data: attendance });
   } catch (error) {
@@ -113,7 +158,7 @@ exports.submitAttendance = async (req, res) => {
 // @desc    Fetch all users enrolled in that course and section
 // @route   GET /api/attendance/users?courseId=...&section=...
 // @access  Private
-exports.getEnrolledUsers = async (req, res) => {
+export const getEnrolledUsers = async (req, res) => {
   try {
     const { courseId, section } = req.query;
 
@@ -121,9 +166,15 @@ exports.getEnrolledUsers = async (req, res) => {
       return res.status(400).json({ success: false, message: 'courseId and section are required parameters' });
     }
 
-    const sectionDoc = await Section.findOne({ course: courseId, name: section })
-      .populate('instructor', 'name email avatar role')
-      .populate('students', 'name email avatar role');
+    const sectionDocs = await prisma.section.findMany({
+        where: { courseId, name: section },
+        include: {
+            instructor: { select: { id: true, name: true, email: true, avatar: true, role: true } },
+            students: { select: { id: true, name: true, email: true, avatar: true, role: true } }
+        }
+    });
+    
+    const sectionDoc = sectionDocs.length > 0 ? sectionDocs[0] : null;
 
     if (!sectionDoc) {
       return res.status(404).json({ success: false, message: 'Section not found for this course' });
@@ -134,7 +185,7 @@ exports.getEnrolledUsers = async (req, res) => {
 
     if (sectionDoc.instructor) {
       instructors.push({
-        userId: sectionDoc.instructor._id,
+        userId: sectionDoc.instructor.id,
         name: sectionDoc.instructor.name,
         role: 'instructor'
       });
@@ -143,7 +194,7 @@ exports.getEnrolledUsers = async (req, res) => {
     if (sectionDoc.students && sectionDoc.students.length > 0) {
       sectionDoc.students.forEach(student => {
         students.push({
-          userId: student._id,
+          userId: student.id,
           name: student.name,
           role: 'student'
         });
@@ -162,31 +213,34 @@ exports.getEnrolledUsers = async (req, res) => {
 // @desc    Get dashboard aggregate attendance
 // @route   GET /api/attendance/aggregate
 // @access  Private (Admin/Instructor)
-exports.getDashboardAggregate = async (req, res) => {
+export const getDashboardAggregate = async (req, res) => {
   try {
-    let matchCondition = {};
+    const userId = req.user.id;
+    let whereCondition = {};
+    
+    // In original logic, it tried to match { instructor: req.user._id } on Attendance, 
+    // but instructor isn't a direct field. In Prisma, we join across course.
     if (req.user.role === 'instructor') {
-       matchCondition = { instructor: req.user._id };
+       whereCondition = { course: { instructorId: userId } };
     } // admin sees all
 
-    const data = await Attendance.aggregate([
-      { $match: matchCondition },
-      { $unwind: '$records' },
-      {
-        $group: {
-          _id: '$records.status',
-          count: { $sum: 1 }
-        }
-      }
-    ]);
+    const attendances = await prisma.attendance.findMany({
+        where: whereCondition,
+        select: { records: true }
+    });
 
     let present = 0;
     let absent = 0;
 
-    data.forEach(item => {
-      if (item._id === 'Present') present = item.count;
-      else if (item._id === 'Absent') absent = item.count;
-      else if (item._id === 'Late') present += item.count; // Late counts as present for base metric usually
+    attendances.forEach(att => {
+        const recs = att.records ? (Array.isArray(att.records) ? att.records : [att.records]) : [];
+        recs.forEach(r => {
+            if (!r || !r.status) return;
+            const s = r.status.toLowerCase();
+            if (s === 'present') present++;
+            else if (s === 'absent') absent++;
+            else if (s === 'late') present++; // Late counts as present for base metric usually
+        });
     });
 
     const total = present + absent;
@@ -216,35 +270,62 @@ exports.getDashboardAggregate = async (req, res) => {
 // @desc    Submit final semester report
 // @route   POST /api/attendance/report
 // @access  Private (Instructor)
-exports.submitFinalReport = async (req, res) => {
+export const submitFinalReport = async (req, res) => {
   try {
     const { courseId, term, studentRecords } = req.body;
+    const userId = req.user.id;
     
-    const courseObj = await Course.findById(courseId);
+    const courseObj = await prisma.course.findUnique({ where: { id: courseId } });
     if (!courseObj) return res.status(404).json({ success: false, message: 'Course not found' });
 
-    if (req.user.role !== 'admin' && courseObj.instructor.toString() !== req.user.id) {
+    if (req.user.role !== 'admin' && courseObj.instructorId !== userId) {
       return res.status(403).json({ success: false, message: 'Not authorized to submit report for this course' });
     }
 
-    let report = await CourseReport.findOne({
-      course: courseId,
-      instructor: req.user.role === 'admin' ? courseObj.instructor : req.user.id,
-      term: term || 'Final Term'
+    const instructorIdToUse = req.user.role === 'admin' ? courseObj.instructorId : userId;
+    const reportTerm = term || 'Fall Term';
+    
+    // Process student records for prisma creation
+    const recordsPayload = {
+      create: studentRecords.map(r => ({
+        studentId: r.student || r.studentId, // Support frontend payload variations
+        attendancePercentage: r.attendancePercentage || 0,
+        finalGrade: r.finalGrade || 'Pending',
+        remarks: r.remarks || ''
+      }))
+    };
+
+    const existingReport = await prisma.courseReport.findFirst({
+        where: {
+            courseId,
+            instructorId: instructorIdToUse,
+            term: reportTerm
+        }
     });
 
-    if (report) {
-      report.studentRecords = studentRecords;
-      report.status = 'submitted';
-      await report.save();
+    let report;
+    if (existingReport) {
+        // Delete old relation records, then update report with new records
+        await prisma.courseReportRecord.deleteMany({ where: { courseReportId: existingReport.id } });
+        report = await prisma.courseReport.update({
+            where: { id: existingReport.id },
+            data: {
+                status: 'submitted',
+                records: recordsPayload
+            },
+            include: { records: true }
+        });
     } else {
-      report = await CourseReport.create({
-        course: courseId,
-        instructor: req.user.role === 'admin' ? courseObj.instructor : req.user.id,
-        term: term || 'Final Term',
-        studentRecords,
-        status: 'submitted'
-      });
+        report = await prisma.courseReport.create({
+            data: {
+                courseId,
+                instructorId: instructorIdToUse,
+                term: reportTerm,
+                status: 'submitted',
+                records: recordsPayload
+            },
+            include: { records: true }
+        });
     }
 
     res.status(201).json({ success: true, data: report });
@@ -256,20 +337,36 @@ exports.submitFinalReport = async (req, res) => {
 // @desc    Get all submitted course reports
 // @route   GET /api/attendance/reports
 // @access  Private (Admin/Instructor)
-exports.getFinalReports = async (req, res) => {
+export const getFinalReports = async (req, res) => {
   try {
-    let matchCondition = {};
+    const userId = req.user.id;
+    let whereCondition = {};
     if (req.user.role === 'instructor') {
-       matchCondition = { instructor: req.user._id };
+       whereCondition = { instructorId: userId };
     }
     
-    const reports = await CourseReport.find(matchCondition)
-      .populate('course', 'title category')
-      .populate('instructor', 'name email')
-      .populate('studentRecords.student', 'name email')
-      .sort({ createdAt: -1 });
-      
-    res.status(200).json({ success: true, count: reports.length, data: reports });
+    const reports = await prisma.courseReport.findMany({
+      where: whereCondition,
+      include: {
+        course: { select: { title: true, mainCategory: true } },
+        instructor: { select: { name: true, email: true } },
+        records: {
+            include: { student: { select: { name: true, email: true } } }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    // Legacy frontend expects `studentRecords` array directly. Let's map for backward compatibility.
+    const mappedReports = reports.map(rep => ({
+        ...rep,
+        studentRecords: rep.records.map(rec => ({
+            ...rec,
+            student: rec.student
+        }))
+    }));
+
+    res.status(200).json({ success: true, count: mappedReports.length, data: mappedReports });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

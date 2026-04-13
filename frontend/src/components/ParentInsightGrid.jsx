@@ -36,7 +36,7 @@ export default function ParentInsightGrid({ studentId }) {
 
   if (loading || !insights) {
     return <div className="animate-pulse space-y-6">
-       <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-3xl"></div>
+       <div className="h-64 bg-[#11151F]/5 backdrop-blur-xl dark:bg-slate-800 rounded-3xl"></div>
     </div>;
   }
 
@@ -46,11 +46,11 @@ export default function ParentInsightGrid({ studentId }) {
       {/* Activity Timeline Stepper */}
       <Card hover={false} className="lg:col-span-1 border-white/10 dark:bg-[#0F172A] shadow-xl">
         <CardHeader>
-           <h3 className="font-display font-extrabold text-lg text-slate-800 dark:text-white">Activity Timeline</h3>
-           <p className="text-xs text-slate-500 mt-1">Milestones for {insights.studentName}</p>
+           <h3 className="font-display font-extrabold text-lg text-slate-100 dark:text-white">Activity Timeline</h3>
+           <p className="text-xs text-slate-300 mt-1">Milestones for {insights.studentName}</p>
         </CardHeader>
         <CardContent className="pt-0 relative">
-           <div className="absolute left-9 top-0 bottom-6 w-0.5 bg-slate-100 dark:bg-slate-800 z-0"></div>
+           <div className="absolute left-9 top-0 bottom-6 w-0.5 bg-[#11151F]/5 backdrop-blur-xl dark:bg-slate-800 z-0"></div>
            <div className="space-y-6 relative z-10">
              {insights.timeline.map((item, i) => (
                 <motion.div 
@@ -60,13 +60,13 @@ export default function ParentInsightGrid({ studentId }) {
                   key={item.id} 
                   className="flex items-start gap-4"
                 >
-                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 border-white dark:border-[#0F172A] shadow-sm ${item.status === 'Completed' ? 'bg-[#10B981] text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'}`}>
+                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 border-white dark:border-[#0F172A] shadow-sm ${item.status === 'Completed' ? 'bg-[#10B981] text-white' : 'bg-[#11151F]/10 dark:bg-slate-700 text-slate-200'}`}>
                      {item.status === 'Completed' ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                    </div>
                    <div className="flex-1 pt-1">
-                     <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{item.courseName}</p>
-                     <p className="text-xs text-slate-500 font-medium">{item.status} &bull; {item.progress}%</p>
-                     <p className="text-[10px] text-slate-400 mt-1">{new Date(item.date).toLocaleDateString()}</p>
+                     <p className="text-sm font-bold text-slate-100 dark:text-slate-200">{item.courseName}</p>
+                     <p className="text-xs text-slate-300 font-medium">{item.status} &bull; {item.progress}%</p>
+                     <p className="text-[10px] text-slate-200 mt-1">{new Date(item.date).toLocaleDateString()}</p>
                    </div>
                 </motion.div>
              ))}
@@ -79,14 +79,14 @@ export default function ParentInsightGrid({ studentId }) {
         {/* Support Connector */}
         <Card hover={false} className="border-white/10 dark:bg-[#0F172A] shadow-xl bg-gradient-to-br from-indigo-50/50 to-white dark:from-[#6366F1]/5 dark:to-[#0F172A]">
           <CardHeader>
-             <h3 className="font-display font-extrabold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+             <h3 className="font-display font-extrabold text-lg text-slate-100 dark:text-white flex items-center gap-2">
                 <Send className="w-5 h-5 text-[#6366F1]" /> Request Advice
              </h3>
-             <p className="text-xs text-slate-500 mt-1">Directly message instructors securely.</p>
+             <p className="text-xs text-slate-300 mt-1">Directly message instructors securely.</p>
           </CardHeader>
           <CardContent className="pt-0">
              <textarea 
-               className="w-full bg-white dark:bg-[#0F172A]/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-none transition-all shadow-inner resize-none h-24 text-slate-700 dark:text-slate-300"
+               className="w-full bg-[#11151F] dark:bg-[#0F172A]/50 border border-white/10 dark:border-slate-800 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-[#6366F1] focus:border-transparent outline-none transition-all shadow-inner resize-none h-24 text-slate-200 dark:text-slate-300"
                placeholder={`Hello, I'd like an update regarding ${insights.studentName}'s recent performance in...`}
              ></textarea>
              <div className="flex justify-end mt-4">
@@ -101,24 +101,24 @@ export default function ParentInsightGrid({ studentId }) {
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#10B981]/10 rounded-full blur-2xl group-hover:bg-[#10B981]/20 transition-colors"></div>
             <CardHeader className="flex flex-row justify-between items-start">
                <div>
-                 <h3 className="font-display font-extrabold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                 <h3 className="font-display font-extrabold text-lg text-slate-100 dark:text-white flex items-center gap-2">
                     <FileText className="w-5 h-5 text-[#10B981]" /> Mini-Invoice
                  </h3>
-                 <p className="text-xs text-slate-500 mt-1">Ref #${Math.random().toString(36).substring(7).toUpperCase()}</p>
+                 <p className="text-xs text-slate-300 mt-1">Ref #${Math.random().toString(36).substring(7).toUpperCase()}</p>
                </div>
-               <span className="bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+               <span className="bg-amber-100 dark:bg-amber-500/100/20 text-amber-700 dark:text-amber-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                  {invoice.status}
                </span>
             </CardHeader>
             <CardContent className="pt-0 relative z-10 flex flex-col sm:flex-row items-end justify-between gap-6">
                <div className="flex-1 w-full">
-                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-3 mb-3">
+                 <p className="text-sm font-medium text-slate-300 dark:text-slate-200 border-b border-white/5 dark:border-slate-800 pb-3 mb-3">
                    {invoice.description}
                  </p>
                  <div className="flex justify-between items-baseline">
-                    <span className="text-slate-500 text-xs">Due: {new Date(invoice.dueDate).toLocaleDateString()}</span>
-                    <h2 className="text-4xl font-display font-extrabold tracking-tight text-slate-800 dark:text-white">
-                      ${invoice.pendingFees}<span className="text-base text-slate-400 font-medium">.{invoice.currency}</span>
+                    <span className="text-slate-300 text-xs">Due: {new Date(invoice.dueDate).toLocaleDateString()}</span>
+                    <h2 className="text-4xl font-display font-extrabold tracking-tight text-slate-100 dark:text-white">
+                      ${invoice.pendingFees}<span className="text-base text-slate-200 font-medium">.{invoice.currency}</span>
                     </h2>
                  </div>
                </div>

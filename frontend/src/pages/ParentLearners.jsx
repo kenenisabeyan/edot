@@ -21,7 +21,7 @@ export default function ParentLearners() {
       // Initialize active tabs to 'overview'
       const initialTabs = {};
       (data.data || []).forEach(l => {
-        initialTabs[l._id] = 'overview';
+        initialTabs[l.id] = 'overview';
       });
       setActiveTab(initialTabs);
     } catch (err) {
@@ -94,7 +94,7 @@ export default function ParentLearners() {
           <Users className="w-12 h-12" />
         </div>
         <h2 className="text-3xl font-display font-black text-white mb-3 tracking-tight relative z-10">No Learners Linked</h2>
-        <p className="text-slate-400 text-lg max-w-md mx-auto leading-relaxed mb-8 relative z-10 font-medium">
+        <p className="text-slate-200 text-lg max-w-md mx-auto leading-relaxed mb-8 relative z-10 font-medium">
           Your account is not currently linked to any student profiles. Please enter your child's email address below to connect.
         </p>
         
@@ -158,18 +158,18 @@ export default function ParentLearners() {
 
       <div className="grid grid-cols-1 gap-10">
         {learners.map((learner) => {
-          const tab = activeTab[learner._id] || 'overview';
+          const tab = activeTab[learner.id] || 'overview';
           const totalEnrollments = learner.enrolledCourses?.length || 0;
           const completedCourses = learner.enrolledCourses?.filter(c => c.passedFinalExam).length || 0;
           
           return (
-            <motion.div variants={itemVariants} key={learner._id} className="bg-[#0B0E14]/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col xl:flex-row hover:border-white/20 transition-all duration-300 relative group">
+            <motion.div variants={itemVariants} key={learner.id} className="bg-[#0B0E14]/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col xl:flex-row hover:border-white/20 transition-all duration-300 relative group">
               <div className="absolute top-0 left-0 w-32 h-32 bg-[#FFD700]/5 rounded-br-full pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
 
               {/* Sidebar Profile Panel */}
               <div className="xl:w-[340px] bg-[#11151F]/80 backdrop-blur-md p-8 border-b xl:border-b-0 xl:border-r border-white/5 flex flex-col relative shrink-0">
                 <div className="flex flex-col items-center text-center relative z-10 mb-8 mt-4">
-                  <motion.div whileHover={{ scale: 1.05 }} className="w-28 h-28 rounded-full bg-white/5 border-2 border-white/10 shadow-2xl mb-5 overflow-hidden ring-4 ring-black/40">
+                  <motion.div whileHover={{ scale: 1.05 }} className="w-28 h-28 rounded-full bg-[#11151F]/5 border-2 border-white/10 shadow-2xl mb-5 overflow-hidden ring-4 ring-black/40">
                     <img 
                       src={`http://localhost:5000/uploads/avatars/${learner.avatar || 'default-avatar.png'}`} 
                       alt={learner.name}
@@ -187,23 +187,26 @@ export default function ParentLearners() {
                 {/* Navigation Tabs */}
                 <div className="flex flex-col gap-3 mt-auto relative z-10">
                    <button 
-                     onClick={() => setTab(learner._id, 'overview')}
-                     className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${tab === 'overview' ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_20px_rgba(255,215,0,0.3)]' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/10'}`}
+                     onClick={() => setTab(learner.id, 'overview')}
+                     className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${tab === 'overview' ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_20px_rgba(255,215,0,0.3)]' : 'bg-[#11151F]/5 text-slate-200 hover:text-white border border-white/10 hover:bg-[#11151F]/10'}`}
                    >
                      <BarChart2 className="w-4 h-4" /> Overview
                    </button>
                    <button 
-                     onClick={() => setTab(learner._id, 'courses')}
-                     className={`flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${tab === 'courses' ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_20px_rgba(255,215,0,0.3)]' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/10'}`}
+                     onClick={() => setTab(learner.id, 'courses')}
+                     className={`flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${tab === 'courses' ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_20px_rgba(255,215,0,0.3)]' : 'bg-[#11151F]/5 text-slate-200 hover:text-white border border-white/10 hover:bg-[#11151F]/10'}`}
                    >
                      <div className="flex items-center gap-3"><BookOpen className="w-4 h-4" /> Enrolled</div>
-                     <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${tab === 'courses' ? 'bg-[#0f172a]/20 text-[#0f172a]' : 'bg-white/10 text-white'}`}>{totalEnrollments}</span>
+                     <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${tab === 'courses' ? 'bg-[#0f172a]/20 text-[#0f172a]' : 'bg-[#11151F]/10 text-white'}`}>{totalEnrollments}</span>
                    </button>
                    <button 
-                     onClick={() => setTab(learner._id, 'activity')}
-                     className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${tab === 'activity' ? 'bg-[#FFD700] text-[#0f172a] shadow-[0_0_20px_rgba(255,215,0,0.3)]' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/10'}`}
+                     onClick={() => setTab(learner.id, 'activity')}
+                     className={`flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all relative overflow-hidden group ${tab === 'activity' ? 'bg-[#E30A17]/10 text-white border border-[#E30A17]/50 shadow-[0_0_20px_rgba(227,10,23,0.2)]' : 'bg-[#11151F]/5 text-slate-200 hover:text-white border border-rose-500/10 hover:border-rose-500/30'}`}
                    >
-                     <Activity className="w-4 h-4" /> Activity Log
+                     {/* Pulsing indicator specifically for Insights */}
+                     <div className={`absolute left-0 top-0 bottom-0 w-1 ${tab === 'activity' ? 'bg-[#E30A17] shadow-[0_0_10px_#E30A17]' : 'bg-transparent group-hover:bg-[#E30A17]/50'}`}></div>
+                     <Activity className={`w-4 h-4 ${tab === 'activity' ? 'text-[#E30A17]' : ''}`} /> 
+                     Actionable Insights
                    </button>
                 </div>
               </div>
@@ -217,7 +220,7 @@ export default function ParentLearners() {
                       <motion.div key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="space-y-8 h-full flex flex-col">
                         <div>
                           <h3 className="text-2xl font-display font-black text-white mb-2">Academic Overview</h3>
-                          <p className="text-slate-400 font-medium text-sm">Quick glance at current trajectory and totals.</p>
+                          <p className="text-slate-200 font-medium text-sm">Quick glance at current trajectory and totals.</p>
                         </div>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -228,7 +231,7 @@ export default function ParentLearners() {
                                 <p className="text-[#FFD700] font-black uppercase tracking-widest text-[10px] mb-3 relative z-10 bg-[#FFD700]/10 inline-block px-3 py-1 rounded-md border border-[#FFD700]/20">Total Enrolled</p>
                                 <div className="flex items-baseline gap-2 relative z-10">
                                    <span className="text-6xl font-display font-black text-white drop-shadow-md">{totalEnrollments}</span>
-                                   <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">courses</span>
+                                   <span className="text-slate-200 font-bold uppercase tracking-widest text-xs">courses</span>
                                 </div>
                             </div>
                             <div className="bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-[#008A32]/20 rounded-3xl p-8 relative overflow-hidden group hover:border-[#008A32]/50 transition-colors shadow-xl">
@@ -238,16 +241,16 @@ export default function ParentLearners() {
                                 <p className="text-[#008A32] font-black uppercase tracking-widest text-[10px] mb-3 relative z-10 bg-[#008A32]/10 inline-block px-3 py-1 rounded-md border border-[#008A32]/20">Certifications</p>
                                 <div className="flex items-baseline gap-2 relative z-10">
                                    <span className="text-6xl font-display font-black text-white drop-shadow-md">{completedCourses}</span>
-                                   <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">completed</span>
+                                   <span className="text-slate-200 font-bold uppercase tracking-widest text-xs">completed</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex-1 bg-white/5 rounded-3xl border border-white/10 p-8 flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                        <div className="flex-1 bg-[#11151F]/5 rounded-3xl border border-white/10 p-8 flex flex-col justify-center items-center text-center relative overflow-hidden group">
                            <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-                           <CalendarDays className="w-12 h-12 text-slate-500 mb-4 group-hover:scale-110 transition-transform" />
+                           <CalendarDays className="w-12 h-12 text-slate-300 mb-4 group-hover:scale-110 transition-transform" />
                            <h4 className="font-bold text-white text-lg mb-2">Detailed Analytics Locked</h4>
-                           <p className="text-slate-400 max-w-sm text-sm">Deeper timeline analytics and predictive grading are available in the expanded premium parent tier coming soon.</p>
+                           <p className="text-slate-200 max-w-sm text-sm">Deeper timeline analytics and predictive grading are available in the expanded premium parent tier coming soon.</p>
                         </div>
                       </motion.div>
                     )}
@@ -267,7 +270,7 @@ export default function ParentLearners() {
                                 key={idx} 
                                 className="group bg-[#11151F] border border-white/10 p-6 rounded-3xl hover:border-[#FFD700]/30 hover:shadow-[0_10px_30px_rgba(255,215,0,0.05)] transition-all duration-300 relative overflow-hidden"
                               >
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-full pointer-events-none group-hover:bg-[#FFD700]/10 transition-colors"></div>
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-[#11151F]/5 rounded-bl-full pointer-events-none group-hover:bg-[#FFD700]/10 transition-colors"></div>
                                 <div className="flex items-start gap-5 mb-6 relative z-10">
                                   <div className="w-16 h-16 rounded-2xl bg-black overflow-hidden shrink-0 shadow-lg relative group-hover:ring-2 ring-[#FFD700] ring-offset-2 ring-offset-[#11151F] transition-all">
                                     <img 
@@ -294,11 +297,11 @@ export default function ParentLearners() {
 
                                 <div className="relative z-10">
                                   <div className="flex justify-between items-end mb-3">
-                                     <span className={`text-[10px] font-black uppercase tracking-widest ${enrollment.progress === 100 ? 'text-[#008A32]' : 'text-slate-400'}`}>
+                                     <span className={`text-[10px] font-black uppercase tracking-widest ${enrollment.progress === 100 ? 'text-[#008A32]' : 'text-slate-200'}`}>
                                        {enrollment.progress === 100 ? 'Certified' : 'Progress Status'}
                                      </span>
                                      <span className="text-2xl font-display font-black text-white tabular-nums tracking-tight">
-                                        {enrollment.progress || 0}<span className="text-sm text-slate-500 ml-1">%</span>
+                                        {enrollment.progress || 0}<span className="text-sm text-slate-300 ml-1">%</span>
                                      </span>
                                   </div>
                                   <div className="h-1.5 w-full bg-black rounded-full overflow-hidden shadow-inner border border-white/5">
@@ -314,51 +317,108 @@ export default function ParentLearners() {
                             ))}
                           </div>
                         ) : (
-                          <div className="h-64 flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/20 bg-white/5">
-                             <BookOpen className="w-12 h-12 text-slate-500 mb-4" />
-                             <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No courses enrolled yet.</p>
+                          <div className="h-64 flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/20 bg-[#11151F]/5">
+                             <BookOpen className="w-12 h-12 text-slate-300 mb-4" />
+                             <p className="text-slate-200 font-bold uppercase tracking-widest text-xs">No courses enrolled yet.</p>
                           </div>
                         )}
                       </motion.div>
                     )}
 
-                    {/* TAB: ACTIVITY */}
+                    {/* TAB: AI INSIGHTS & INTERVENTIONS */}
                     {tab === 'activity' && (
-                      <motion.div key="activity" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="space-y-6">
-                        <div className="flex justify-between items-center mb-8">
-                          <h3 className="text-2xl font-display font-black text-white">Recent Activity</h3>
+                      <motion.div key="activity" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.3 }} className="space-y-6">
+                        <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
+                          <div>
+                             <h3 className="text-3xl font-display font-black text-white flex items-center gap-3">
+                                <span className="text-[#E30A17] hover:drop-shadow-[0_0_10px_rgba(227,10,23,0.8)] transition-all cursor-default">🧠</span> Psychological & Attendance Intel
+                             </h3>
+                             <p className="text-slate-200 font-medium text-sm mt-1">Real-time behavior analysis and recommended interventions.</p>
+                          </div>
                         </div>
-                        <div className="relative pl-6 border-l border-white/20 space-y-10 py-2">
-                           {/* Mocking activity timeline based on enrollments and progress */}
-                           {learner.enrolledCourses?.length > 0 ? learner.enrolledCourses.map((enrollment, idx) => (
-                              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} key={idx} className="relative">
-                                 <div className={`absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full ring-4 ring-[#11151F] ${enrollment.progress === 100 ? 'bg-[#008A32] shadow-[0_0_10px_rgba(0,138,50,0.6)]' : 'bg-[#FFD700] shadow-[0_0_10px_rgba(255,215,0,0.6)]'}`}></div>
-                                 <div className="bg-[#11151F] p-6 rounded-2xl border border-white/10 shadow-lg ml-6 hover:border-white/20 transition-colors">
-                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
-                                       <h4 className="font-bold text-white text-lg leading-tight">
-                                         {enrollment.progress === 100 ? 'Completed a Course' : 'Started a Course'}
-                                       </h4>
-                                       <span className="text-[10px] font-black text-slate-400 bg-white/5 border border-white/10 px-2.5 py-1 rounded-md uppercase tracking-widest whitespace-nowrap">
-                                          {new Date(enrollment.enrolledAt).toLocaleDateString()}
-                                       </span>
-                                    </div>
-                                    <p className="text-slate-400 text-sm leading-relaxed">
-                                      {learner.name.split(' ')[0]} {enrollment.progress === 100 ? 'successfully finished and earned a certificate for' : 'began their journey in'} <strong className="text-[#FFD700]">{enrollment.course?.title}</strong>.
-                                    </p>
-                                 </div>
-                              </motion.div>
-                           )) : (
-                              <p className="text-slate-500 italic ml-6 font-medium">No recent activity found.</p>
+                        
+                        <div className="grid grid-cols-1 gap-6">
+                           {learner.activities?.length > 0 ? learner.activities.map((insight, idx) => {
+                             
+                             let colorTheme = 'border-slate-500/20 bg-slate-500/5 text-slate-200';
+                             let ringColor = 'ring-slate-500/20';
+                             let iconColor = 'text-slate-200';
+                             
+                             if (insight.insightFlag === 'Critical') {
+                                colorTheme = 'border-[#E30A17]/30 bg-[#E30A17]/5 text-white shadow-[0_0_30px_rgba(227,10,23,0.05)] hover:shadow-[0_0_40px_rgba(227,10,23,0.15)]';
+                                ringColor = 'ring-[#E30A17]/30 border-[#E30A17]';
+                                iconColor = 'text-[#E30A17]';
+                             } else if (insight.insightFlag === 'Warning') {
+                                colorTheme = 'border-[#FFD700]/30 bg-[#FFD700]/5 text-white hover:border-[#FFD700]/50 hover:shadow-[0_0_30px_rgba(255,215,0,0.1)]';
+                                ringColor = 'ring-[#FFD700]/30 border-[#FFD700]';
+                                iconColor = 'text-[#FFD700]';
+                             } else if (insight.insightFlag === 'Positive') {
+                                colorTheme = 'border-[#008A32]/30 bg-[#008A32]/5 text-white hover:border-[#008A32]/50';
+                                ringColor = 'ring-[#008A32]/30 border-[#008A32]';
+                                iconColor = 'text-[#008A32]';
+                             }
+
+                             return (
+                               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.15, type: 'spring', stiffness: 300 }} key={idx} className={`relative p-6 rounded-3xl border ${colorTheme} transition-all duration-300 group`}>
+                                  
+                                  {/* Pulsing indicator if critical */}
+                                  {insight.insightFlag === 'Critical' && (
+                                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#E30A17]/10 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
+                                  )}
+
+                                  <div className="flex flex-col md:flex-row gap-6 relative z-10">
+                                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 border-2 bg-black/40 ring-4 ${ringColor}`}>
+                                       {insight.insightFlag === 'Critical' ? <Activity className={`w-8 h-8 ${iconColor}`} /> : 
+                                        insight.insightFlag === 'Warning' ? <Clock className={`w-8 h-8 ${iconColor}`} /> : 
+                                        <Award className={`w-8 h-8 ${iconColor}`} />}
+                                     </div>
+                                     
+                                     <div className="flex-1">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                                           <h4 className="font-bold text-xl leading-tight">
+                                             {insight.action}
+                                           </h4>
+                                           <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg border ${insight.insightFlag === 'Critical' ? 'bg-[#E30A17] text-white border-[#E30A17]' : insight.insightFlag === 'Warning' ? 'bg-[#FFD700] text-black border-[#FFD700]' : 'bg-[#008A32] text-white border-[#008A32]'}`}>
+                                              {insight.insightFlag} 
+                                           </span>
+                                        </div>
+                                        
+                                        <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                                          {insight.details}
+                                        </p>
+                                        
+                                        {insight.metadata?.recommendation && (
+                                           <div className={`mt-2 p-4 rounded-xl text-xs font-bold ${insight.insightFlag === 'Critical' ? 'bg-[#E30A17]/10 text-white' : 'bg-black/30 border border-white/5 text-slate-300'}`}>
+                                              <span className="opacity-50 uppercase tracking-widest mr-2">Recommendation:</span>
+                                              {insight.metadata.recommendation}
+                                           </div>
+                                        )}
+                                     </div>
+                                     
+                                     {/* Call to action */}
+                                     {insight.insightFlag === 'Critical' && (
+                                        <div className="flex items-center justify-center md:items-start shrink-0">
+                                           <button className="bg-[#E30A17] hover:bg-red-600 shadow-[0_0_15px_rgba(227,10,23,0.4)] text-white font-black text-xs uppercase tracking-widest px-6 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 whitespace-nowrap">
+                                              Take Action
+                                           </button>
+                                        </div>
+                                     )}
+                                     {insight.insightFlag === 'Warning' && (
+                                        <div className="flex items-center justify-center md:items-start shrink-0">
+                                           <button className="bg-[#11151F] border border-[#FFD700] text-[#FFD700] hover:bg-[#FFD700] hover:text-black font-black text-xs uppercase tracking-widest px-6 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 whitespace-nowrap">
+                                              Message Instructor
+                                           </button>
+                                        </div>
+                                     )}
+                                  </div>
+                               </motion.div>
+                             );
+                           }) : (
+                               <div className="p-12 text-center bg-[#11151F]/5 border border-white/5 rounded-3xl">
+                                  <Activity className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                                  <p className="text-slate-200 font-bold uppercase tracking-widest text-xs">No insights generated yet.</p>
+                               </div>
                            )}
-                           
-                           {/* Mock generic login activity */}
-                           <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="relative">
-                                 <div className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-600 ring-4 ring-[#11151F]"></div>
-                                 <div className="bg-white/5 p-5 rounded-2xl border border-white/5 ml-6 opacity-70">
-                                    <h4 className="font-bold text-slate-300 text-base mb-1">Account Created</h4>
-                                    <p className="text-slate-500 text-sm">Learner profile was initialized.</p>
-                                 </div>
-                           </motion.div>
                         </div>
                       </motion.div>
                     )}

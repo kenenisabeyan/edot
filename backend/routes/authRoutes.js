@@ -1,11 +1,12 @@
-const express = require('express');
+import express from 'express';
+import { body, validationResult } from 'express-validator';
+import { prisma } from '../lib/prisma.js';
+import { hashPassword, comparePassword } from '../lib/modelHelpers.js';
+import generateToken from '../utils/generateToken.js';
+import { logActivity } from '../controllers/activityController.js';
+import { protect } from '../middleware/auth.js';
+
 const router = express.Router();
-const { body, validationResult } = require('express-validator');
-const bcrypt = require('bcryptjs');
-const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
-const { logActivity } = require('../controllers/activityController');
-const { protect } = require('../middleware/auth');
 
 // @route   POST /api/auth/register
 // @desc    Register user
@@ -23,29 +24,31 @@ router.post('/register', [
   const { name, email, password, role } = req.body;
 
   // PREVENT ROLE ESCALATION & AUTO-PENDING LOGIC ERROR
-  const allowedRoles = ['student', 'instructor'];
+  const allowedRoles = ['student', 'instructor', 'parent', 'sponsor'];
   const finalRole = allowedRoles.includes(role) ? role : 'student';
   const initialStatus = finalRole === 'instructor' ? 'pending' : 'approved';
 
   try {
-    let user = await User.findOne({ email });
+    let user = await prisma.user.findUnique({ where: { email } });
 
     if (user) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    user = new User({
-      name,
-      email,
-      password,
-      role: finalRole,
-      status: initialStatus
+    const hashedPassword = await hashPassword(password);
+
+    user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: finalRole,
+        status: initialStatus
+      }
     });
 
-    await user.save();
-
     await logActivity(
-      user._id, 
+      user.id, 
       'Registered a new account', 
       'auth', 
       'Initial account creation', 
@@ -56,7 +59,7 @@ router.post('/register', [
     );
 
     res.status(201).json({
-      _id: user._id,
+      id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
@@ -85,13 +88,22 @@ router.post('/login', [
 
   const { email, password } = req.body;
 
-
   try {
-    const user = await User.findOne({ email }).select('+password');
-
+    console.log(`[Login Attempt] Email: ${email}`);
+    // Use findFirst with insensitive mode because PostgreSQL is case-sensitive!
+    // Often when using PostgreSQL, casing issues cause "Invalid credentials" requiring insensitive matching.
+    const user = await prisma.user.findFirst({ 
+      where: { 
+        email: { 
+          equals: String(email).trim(), 
+          mode: 'insensitive' 
+        } 
+      } 
+    });
 
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      console.log(`[Login Failed] User not found for email: ${email}`);
+      return res.status(401).json({ message: 'Invalid credentials. User not found.' });
     }
 
     if (user.status === 'pending') {
@@ -106,16 +118,19 @@ router.post('/login', [
       return res.status(403).json({ message: 'Account has been blocked. Contact support.' });
     }
 
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await comparePassword(password, user.password);
+    console.log(`[Login Attempt] Password match result: ${isMatch}`);
 
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      console.log(`[Login Failed] Incorrect password for email: ${email}`);
+      return res.status(401).json({ message: 'Invalid credentials. Incorrect password.' });
     }
 
-    const token = generateToken(user._id);
+    // Because generateToken needs to be ported too, but assuming it was already set
+    const token = generateToken(user.id);
 
     await logActivity(
-      user._id, 
+      user.id, 
       'Logged in to EDOT Platform', 
       'auth', 
       'Session authenticated securely', 
@@ -126,14 +141,14 @@ router.post('/login', [
     );
 
     res.cookie('token', token, {
-        httpOnly: true,  // Prevents JavaScript from reading the cookie (Security)
-        secure: process.env.NODE_ENV === 'production',   // Set to true in production (HTTPS)
-        sameSite: 'lax', // Helps prevent CSRF attacks
-        maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days in milliseconds
+        httpOnly: true,  
+        secure: process.env.NODE_ENV === 'production',   
+        sameSite: 'lax', 
+        maxAge: 7 * 24 * 60 * 60 * 1000  
     });
 
     res.json({
-      _id: user._id,
+      id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
@@ -150,9 +165,22 @@ router.post('/login', [
 // @access  Private
 router.get('/me', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id)
-      .select('-password')
-      .populate('enrolledCourses.course');
+    const userId = req.user.id;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        userCourseProgress: {
+          include: { course: true }
+        }
+      }
+    });
+    
+    if (user) {
+      // Don't send password hash back
+      delete user.password;
+      // Keep enrolledCourses mapped for backwards compatibility with frontend.
+      user.enrolledCourses = user.userCourseProgress || [];
+    }
     
     res.json({ user });
   } catch (err) {
@@ -172,4 +200,4 @@ router.post('/logout', (req, res) => {
   res.status(200).json({ success: true, message: 'User logged out successfully' });
 });
 
-module.exports = router;
+export default router;

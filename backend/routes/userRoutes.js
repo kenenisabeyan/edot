@@ -1,23 +1,25 @@
-const express = require('express');
+import express from 'express';
+import { protect } from '../middleware/auth.js';
+import { prisma } from '../lib/prisma.js';
+
 const router = express.Router();
-const { protect } = require('../middleware/auth');
-const User = require('../models/User');
-const Message = require('../models/Message');
-const Course = require('../models/Course');
-const Certificate = require('../models/Certificate');
 
 // @route   GET /api/users/public/recent
 // @desc    Get recent users for public display
 // @access  Public
 router.get('/public/recent', async (req, res) => {
     try {
-        const users = await User.find({ status: 'approved' })
-            .sort({ createdAt: -1 })
-            .limit(3)
-            .select('name avatar');
+        const users = await prisma.user.findMany({
+            where: { status: 'approved' },
+            orderBy: { createdAt: 'desc' },
+            take: 3,
+            select: { name: true, avatar: true }
+        });
         
         // Also get total count approximately for the UI badge
-        const totalCount = await User.countDocuments({ status: 'approved' });
+        const totalCount = await prisma.user.count({
+            where: { status: 'approved' }
+        });
 
         res.json({
             success: true,
@@ -38,15 +40,22 @@ router.get('/public/recent', async (req, res) => {
 // @access  Private
 router.get('/profile', protect, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id)
-            .select('-password')
-            .populate({
-                path: 'enrolledCourses.course',
-                populate: {
-                    path: 'instructor',
-                    select: 'name'
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            include: {
+                enrollments: {
+                    include: {
+                        course: {
+                            include: { instructor: { select: { name: true } } }
+                        }
+                    }
                 }
-            });
+            }
+        });
+        
+        if (user) {
+            delete user.password;
+        }
 
         res.json({
             success: true,
@@ -71,41 +80,43 @@ router.put('/profile', protect, async (req, res) => {
             gender, dateOfBirth, address, emergencyContact, department, specialization, occupation 
         } = req.body;
 
-        const user = await User.findById(req.user.id);
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (bio !== undefined) updateData.bio = bio;
+        if (avatar !== undefined) updateData.avatar = avatar;
+        if (coverPhoto !== undefined) updateData.coverPhoto = coverPhoto;
+        if (phone !== undefined) updateData.phone = phone;
+        if (gender !== undefined) updateData.gender = gender;
+        if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
+        if (address !== undefined) updateData.address = address;
+        if (emergencyContact !== undefined) updateData.emergencyContact = emergencyContact;
+        if (department !== undefined) updateData.department = department;
+        if (specialization !== undefined) updateData.specialization = specialization;
+        if (occupation !== undefined) updateData.occupation = occupation;
 
-        if (name !== undefined) user.name = name;
-        if (bio !== undefined) user.bio = bio;
-        if (avatar !== undefined) user.avatar = avatar;
-        if (coverPhoto !== undefined) user.coverPhoto = coverPhoto;
-        if (phone !== undefined) user.phone = phone;
-        if (gender !== undefined) user.gender = gender;
-        if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
-        if (address !== undefined) user.address = address;
-        if (emergencyContact !== undefined) user.emergencyContact = emergencyContact;
-        if (department !== undefined) user.department = department;
-        if (specialization !== undefined) user.specialization = specialization;
-        if (occupation !== undefined) user.occupation = occupation;
-
-        await user.save();
+        const updatedUser = await prisma.user.update({
+            where: { id: req.user.id },
+            data: updateData
+        });
 
         res.json({
             success: true,
             user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                bio: user.bio,
-                avatar: user.avatar,
-                coverPhoto: user.coverPhoto,
-                phone: user.phone,
-                gender: user.gender,
-                dateOfBirth: user.dateOfBirth,
-                address: user.address,
-                emergencyContact: user.emergencyContact,
-                department: user.department,
-                specialization: user.specialization,
-                occupation: user.occupation
+                id: updatedUser.id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                bio: updatedUser.bio,
+                avatar: updatedUser.avatar,
+                coverPhoto: updatedUser.coverPhoto,
+                phone: updatedUser.phone,
+                gender: updatedUser.gender,
+                dateOfBirth: updatedUser.dateOfBirth,
+                address: updatedUser.address,
+                emergencyContact: updatedUser.emergencyContact,
+                department: updatedUser.department,
+                specialization: updatedUser.specialization,
+                occupation: updatedUser.occupation
             }
         });
     } catch (error) {
@@ -122,23 +133,25 @@ router.put('/profile', protect, async (req, res) => {
 // @access  Private
 router.get('/mycourses', protect, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id)
-            .populate({
-                path: 'enrolledCourses.course',
-                populate: [
-                    {
-                        path: 'instructor',
-                        select: 'name'
-                    },
-                    {
-                        path: 'lessons'
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            include: {
+                enrollments: {
+                    include: {
+                        course: {
+                            include: {
+                                instructor: { select: { name: true } },
+                                lessons: true
+                            }
+                        }
                     }
-                ]
-            });
+                }
+            }
+        });
 
         res.json({
             success: true,
-            enrolledCourses: user.enrolledCourses
+            enrolledCourses: user?.enrollments || []
         });
     } catch (error) {
         console.error('Get my courses error:', error);
@@ -158,7 +171,9 @@ router.get('/dashboard-metrics', protect, async (req, res) => {
         const role = req.user.role;
 
         // Count unread messages (all roles)
-        const unreadMessages = await Message.countDocuments({ receiverId: userId, isRead: false });
+        const unreadMessages = await prisma.message.count({
+            where: { receiverId: userId, isRead: false }
+        });
         
         // Count role-specific metrics
         let pendingCourses = 0;
@@ -168,13 +183,13 @@ router.get('/dashboard-metrics', protect, async (req, res) => {
         let pendingUsers = 0;
 
         if (role === 'admin') {
-            pendingApprovals = await Course.countDocuments({ status: 'pending' });
-            pendingEnrollments = await User.countDocuments({ 'enrolledCourses.status': 'pending' });
-            pendingUsers = await User.countDocuments({ status: 'pending' });
+            pendingApprovals = await prisma.course.count({ where: { status: 'pending' } });
+            pendingEnrollments = await prisma.enrollment.count({ where: { status: 'pending' } });
+            pendingUsers = await prisma.user.count({ where: { status: 'pending' } });
         } else if (role === 'instructor') {
-            pendingCourses = await Course.countDocuments({ instructor: userId, status: 'pending' });
-        } else if (role === 'student' || role === 'parent') { // just in case parent has certificates too later
-            newCertificates = await Certificate.countDocuments({ user_id: userId, isSeen: false });
+            pendingCourses = await prisma.course.count({ where: { instructorId: userId, status: 'pending' } });
+        } else if (role === 'student' || role === 'parent') {
+            newCertificates = await prisma.certificate.count({ where: { userId, isSeen: false } });
         }
 
         res.json({
@@ -199,16 +214,17 @@ router.get('/dashboard-metrics', protect, async (req, res) => {
 // @access  Private
 router.put('/mark-certificates-seen', protect, async (req, res) => {
     try {
-        await Certificate.updateMany(
-            { user_id: req.user.id, isSeen: false },
-            { $set: { isSeen: true } }
-        );
+        await prisma.certificate.updateMany({
+            where: { userId: req.user.id, isSeen: false },
+            data: { isSeen: true }
+        });
         res.json({ success: true, message: 'Certificates marked as seen' });
     } catch (error) {
         console.error('Mark certs error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
+
 // @route   POST /api/users/connect
 // @desc    Connect a parent and a student
 // @access  Private
@@ -219,12 +235,15 @@ router.post('/connect', protect, async (req, res) => {
             return res.status(400).json({ success: false, message: 'Email is required' });
         }
 
-        const targetUser = await User.findOne({ email: email.toLowerCase() });
+        const targetUser = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
         if (!targetUser) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        const currentUser = await User.findById(req.user.id);
+        const currentUser = await prisma.user.findUnique({ 
+            where: { id: req.user.id },
+            include: { children: true }
+        });
         
         let parent, student;
 
@@ -241,17 +260,30 @@ router.post('/connect', protect, async (req, res) => {
             });
         }
 
-        // Check if already connected
-        if (parent.children && parent.children.includes(student._id)) {
-            return res.status(400).json({ success: false, message: 'Already connected to this user.' });
+        // Connect them
+        if (currentUser.role === 'parent') {
+            // parent connects target student
+            if (parent.children.some(child => child.id === student.id)) {
+                return res.status(400).json({ success: false, message: 'Already connected to this user.' });
+            }
+            await prisma.user.update({
+                where: { id: parent.id },
+                data: { children: { connect: { id: student.id } } }
+            });
+        } else {
+            // student connects target parent
+            const targetParent = await prisma.user.findUnique({
+                where: { id: targetUser.id },
+                include: { children: true }
+            });
+            if (targetParent.children.some(child => child.id === student.id)) {
+                return res.status(400).json({ success: false, message: 'Already connected to this user.' });
+            }
+            await prisma.user.update({
+                where: { id: targetParent.id },
+                data: { children: { connect: { id: student.id } } }
+            });
         }
-
-        // Connect them (add student ID to parent's children array)
-        if (!parent.children) {
-            parent.children = [];
-        }
-        parent.children.push(student._id);
-        await parent.save();
 
         res.json({ success: true, message: 'Successfully connected!' });
     } catch (error) {
@@ -260,4 +292,4 @@ router.post('/connect', protect, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

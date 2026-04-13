@@ -122,7 +122,7 @@ export default function SettingsView() {
       <div className="flex items-start gap-4 pr-6">
         <div>
           <h4 className="font-bold text-white text-sm tracking-wide group-hover:text-[#FFD700] transition-colors">{label}</h4>
-          <p className="text-xs text-slate-400 leading-relaxed mt-1">{description}</p>
+          <p className="text-xs text-slate-200 leading-relaxed mt-1">{description}</p>
         </div>
       </div>
       <button 
@@ -130,7 +130,7 @@ export default function SettingsView() {
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors shrink-0 outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0B0E14] focus:ring-[#FFD700] ${checked ? 'bg-[#008A32]' : 'bg-slate-700'}`}
       >
-        <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+        <span className={`inline-block h-5 w-5 transform rounded-full bg-[#11151F] shadow-md transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
       </button>
     </div>
   );
@@ -140,7 +140,7 @@ export default function SettingsView() {
       <div className="flex justify-between items-start mb-4">
         <div>
           <h4 className="font-bold text-white text-sm tracking-wide">{label}</h4>
-          <p className="text-xs text-slate-400 mt-1">{description}</p>
+          <p className="text-xs text-slate-200 mt-1">{description}</p>
         </div>
         <span className="font-black text-lg text-[#008A32] bg-[#008A32]/10 border border-[#008A32]/30 px-3 py-1 rounded-lg shrink-0 shadow-inner">{value}{unit}</span>
       </div>
@@ -150,7 +150,7 @@ export default function SettingsView() {
           onChange={(e) => onChange(Number(e.target.value))}
           className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#FFD700]"
         />
-        <div className="flex justify-between text-[10px] uppercase font-black text-slate-500 mt-3 tracking-widest">
+        <div className="flex justify-between text-[10px] uppercase font-black text-slate-300 mt-3 tracking-widest">
           <span>{min}{unit}</span>
           <span>{max}{unit}</span>
         </div>
@@ -163,14 +163,14 @@ export default function SettingsView() {
       <label className="block text-xs font-black uppercase tracking-widest text-[#FFD700] mb-2 flex items-center gap-2">
         {Icon && <Icon className="w-4 h-4" />} {label}
       </label>
-      {description && <p className="text-xs text-slate-400 mb-4">{description}</p>}
+      {description && <p className="text-xs text-slate-200 mb-4">{description}</p>}
       <div className="relative">
         <input 
           type={type} 
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full p-3.5 bg-[#0B0E14] border border-white/10 text-white rounded-xl font-medium text-sm outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-transparent placeholder:text-slate-600 transition-all shadow-inner"
+          className="w-full p-3.5 bg-[#0B0E14] border border-white/10 text-white rounded-xl font-medium text-sm outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-transparent placeholder:text-slate-300 transition-all shadow-inner"
         />
       </div>
     </div>
@@ -215,7 +215,7 @@ export default function SettingsView() {
           <h2 className="text-3xl font-display font-black text-white tracking-widest uppercase flex items-center gap-3">
              <Sliders className="w-8 h-8 text-[#FFD700]" /> Configuration Hub
           </h2>
-          <p className="text-slate-400 font-medium text-sm mt-2">Manage preferences, security protocols, and platform mechanics.</p>
+          <p className="text-slate-200 font-medium text-sm mt-2">Manage preferences, security protocols, and platform mechanics.</p>
         </div>
         <div className="flex items-center gap-4 w-full md:w-auto">
           {successMsg && (
@@ -246,7 +246,7 @@ export default function SettingsView() {
                 className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-left font-bold text-sm tracking-wide transition-all whitespace-nowrap outline-none ${
                   activeTab === tab.id 
                   ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 shadow-inner' 
-                  : 'text-slate-400 hover:bg-white/5 hover:text-white border border-transparent focus:ring-2 focus:ring-[#FFD700]/50'
+                  : 'text-slate-200 hover:bg-[#11151F]/5 hover:text-white border border-transparent focus:ring-2 focus:ring-[#FFD700]/50'
                 }`}
               >
                 <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'opacity-100' : 'opacity-70'}`} /> {tab.label}
@@ -267,7 +267,7 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-white uppercase tracking-widest">General Profile Mechanics</h3>
-                  <p className="text-xs text-slate-400 mt-1">Configure baseline structural data and display protocols.</p>
+                  <p className="text-xs text-slate-200 mt-1">Configure baseline structural data and display protocols.</p>
                 </div>
                 <div className="grid md:grid-cols-2 gap-6">
                   <InputField label="Public Display Name" value={profileData.name} onChange={(v) => setProfileData(p => ({...p, name: v}))} placeholder="Full Name" type="text" />
@@ -295,7 +295,7 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-white uppercase tracking-widest">Notification Matrix</h3>
-                  <p className="text-xs text-slate-400 mt-1">Design your interrupt frequency and communication channels.</p>
+                  <p className="text-xs text-slate-200 mt-1">Design your interrupt frequency and communication channels.</p>
                 </div>
                 <div className="grid gap-4">
                   <ToggleSwitch label="System Announcements" description="Critical platform updates and scheduled maintenance downtimes." checked={commonConfig.notifySystem ?? true} onChange={(v) => handleCommonChange('notifySystem', v)} />
@@ -310,21 +310,21 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-white uppercase tracking-widest">Security & Authentication</h3>
-                  <p className="text-xs text-slate-400 mt-1">Audit logs, 2FA protocols, and access management.</p>
+                  <p className="text-xs text-slate-200 mt-1">Audit logs, 2FA protocols, and access management.</p>
                 </div>
                 <div className="p-6 bg-[#11151F] rounded-2xl border border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
                   <div>
                     <h4 className="font-bold text-white text-sm tracking-wide flex items-center gap-2"><Fingerprint className="w-4 h-4 text-[#FFD700]"/> Biometric / Two-Factor Protocol</h4>
-                    <p className="text-xs text-slate-400 mt-1">Currently utilizing standard credential validation. We recommend enabling 2FA.</p>
+                    <p className="text-xs text-slate-200 mt-1">Currently utilizing standard credential validation. We recommend enabling 2FA.</p>
                   </div>
-                  <button type="button" className="px-5 py-2.5 bg-white/5 border border-white/10 text-white font-bold uppercase tracking-widest text-[10px] rounded-lg hover:bg-white/10 transition-all shrink-0">Enable 2FA</button>
+                  <button type="button" className="px-5 py-2.5 bg-[#11151F]/5 border border-white/10 text-white font-bold uppercase tracking-widest text-[10px] rounded-lg hover:bg-[#11151F]/10 transition-all shrink-0">Enable 2FA</button>
                 </div>
                 <div className="p-6 bg-[#11151F] rounded-2xl border border-white/5 flex flex-col justify-center gap-4 shadow-sm">
                   <div>
                     <h4 className="font-bold text-rose-500 text-sm tracking-wide">Device Sessions</h4>
-                    <p className="text-xs text-slate-400 mt-1">1 active session on Windows NT 10.0; Win64.</p>
+                    <p className="text-xs text-slate-200 mt-1">1 active session on Windows NT 10.0; Win64.</p>
                   </div>
-                  <button type="button" className="w-max px-5 py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-500 font-bold uppercase tracking-widest text-[10px] rounded-lg hover:bg-rose-500/20 transition-all">Terminate All Other Sessions</button>
+                  <button type="button" className="w-max px-5 py-2.5 bg-rose-500/100/10 border border-rose-500/30 text-rose-500 font-bold uppercase tracking-widest text-[10px] rounded-lg hover:bg-rose-500/100/20 transition-all">Terminate All Other Sessions</button>
                 </div>
               </>
             )}
@@ -334,7 +334,7 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-[#FFD700] uppercase tracking-widest">Pedagogy Logic</h3>
-                  <p className="text-xs text-slate-400 mt-1">Configure instructional defaults and visibility parameters.</p>
+                  <p className="text-xs text-slate-200 mt-1">Configure instructional defaults and visibility parameters.</p>
                 </div>
                 <div className="space-y-6">
                   <InputField 
@@ -346,7 +346,7 @@ export default function SettingsView() {
                     <label className="block text-xs font-black uppercase tracking-widest text-[#FFD700] mb-2 flex items-center gap-2">
                        <BookOpen className="w-4 h-4" /> Catalog Autonomy
                     </label>
-                    <p className="text-xs text-slate-400 mb-4">Default visibility protocol for unapproved drafted courses.</p>
+                    <p className="text-xs text-slate-200 mb-4">Default visibility protocol for unapproved drafted courses.</p>
                     <CustomDropdown
                       value={roleConfig.courseVisibility || 'public'}
                       onChange={(val) => handleChange('courseVisibility', val)}
@@ -366,7 +366,7 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-[#FFD700] uppercase tracking-widest">Automation & AI</h3>
-                  <p className="text-xs text-slate-400 mt-1">Algorithmic generation toggles.</p>
+                  <p className="text-xs text-slate-200 mt-1">Algorithmic generation toggles.</p>
                 </div>
                 <div className="grid gap-4">
                   <ToggleSwitch 
@@ -388,11 +388,11 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-[#FFD700] uppercase tracking-widest">Platform DNA</h3>
-                  <p className="text-xs text-slate-400 mt-1">Global branding and root configurations.</p>
+                  <p className="text-xs text-slate-200 mt-1">Global branding and root configurations.</p>
                 </div>
                 <div className="p-8 bg-[#11151F] rounded-2xl border border-white/5 flex flex-col justify-center mb-6 shadow-sm">
                   <label className="block text-xs font-black uppercase tracking-widest text-[#FFD700] mb-4 flex items-center gap-2"><Palette className="w-4 h-4"/> Global Hex Code</label>
-                  <p className="text-xs text-slate-400 mb-6 font-medium">This cascades the color injection across the SCSS variables.</p>
+                  <p className="text-xs text-slate-200 mb-6 font-medium">This cascades the color injection across the SCSS variables.</p>
                   <div className="flex gap-4 items-center bg-[#0B0E14] p-3 rounded-xl border border-white/10 w-max shadow-inner">
                     <input 
                       type="color" 
@@ -416,7 +416,7 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-[#FFD700] uppercase tracking-widest">Ledger & Intelligence</h3>
-                  <p className="text-xs text-slate-400 mt-1">Financial logic and automated interventions.</p>
+                  <p className="text-xs text-slate-200 mt-1">Financial logic and automated interventions.</p>
                 </div>
                 <div className="grid gap-6">
                   <NumberSlider 
@@ -441,7 +441,7 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-[#FFD700] uppercase tracking-widest">Transparency Matrix</h3>
-                  <p className="text-xs text-slate-400 mt-1">Control your data visibility to guardians and peers.</p>
+                  <p className="text-xs text-slate-200 mt-1">Control your data visibility to guardians and peers.</p>
                 </div>
                 <div className="grid gap-4">
                   <ToggleSwitch 
@@ -468,18 +468,18 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-[#FFD700] uppercase tracking-widest">Family Supporter Link</h3>
-                  <p className="text-xs text-slate-400 mt-1">Connect your account securely via email validation.</p>
+                  <p className="text-xs text-slate-200 mt-1">Connect your account securely via email validation.</p>
                 </div>
                 <div className="p-8 bg-[#11151F] rounded-2xl border border-white/5 border-l-4 border-l-[#008A32] shadow-sm">
                   <h4 className="text-sm font-bold text-white mb-2">Guardian Email Address</h4>
-                  <p className="text-xs text-slate-400 mb-6 font-medium max-w-lg leading-relaxed">Link your account with a parent's registered email to securely share progress dynamically. Both parties must be registered.</p>
+                  <p className="text-xs text-slate-200 mb-6 font-medium max-w-lg leading-relaxed">Link your account with a parent's registered email to securely share progress dynamically. Both parties must be registered.</p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <input 
                       type="email" 
                       value={connectEmail}
                       onChange={(e) => setConnectEmail(e.target.value)}
                       placeholder="parent@example.com"
-                      className="flex-1 p-3.5 bg-[#0B0E14] border border-white/10 text-white rounded-xl font-semibold outline-none focus:ring-2 focus:ring-[#008A32] focus:border-transparent placeholder:text-slate-600 shadow-inner"
+                      className="flex-1 p-3.5 bg-[#0B0E14] border border-white/10 text-white rounded-xl font-semibold outline-none focus:ring-2 focus:ring-[#008A32] focus:border-transparent placeholder:text-slate-300 shadow-inner"
                     />
                     <button 
                       type="button"
@@ -500,7 +500,7 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-[#FFD700] uppercase tracking-widest">Subscriptions & Billing</h3>
-                  <p className="text-xs text-slate-400 mt-1">Manage payment sources for dependent enrollments.</p>
+                  <p className="text-xs text-slate-200 mt-1">Manage payment sources for dependent enrollments.</p>
                 </div>
                 <div className="p-6 bg-[#11151F] rounded-2xl border border-white/5 shadow-sm">
                   <label className="block text-xs font-black uppercase tracking-widest text-[#FFD700] mb-4 flex items-center gap-2"><CreditCard className="w-4 h-4"/> Default Payment Protocol</label>
@@ -523,7 +523,7 @@ export default function SettingsView() {
               <>
                 <div className="border-b border-white/10 pb-4 mb-6">
                   <h3 className="text-lg font-black text-[#FFD700] uppercase tracking-widest">Support Thresholds</h3>
-                  <p className="text-xs text-slate-400 mt-1">Algorithmic danger alerts based on real student data.</p>
+                  <p className="text-xs text-slate-200 mt-1">Algorithmic danger alerts based on real student data.</p>
                 </div>
                 <div className="grid lg:grid-cols-2 gap-6">
                   <NumberSlider 

@@ -1,32 +1,35 @@
-const Activity = require('../models/Activity');
-const Achievement = require('../models/Achievement');
+import { prisma } from '../lib/prisma.js';
 
 // Utility to log activity internally
-const logActivity = async (userId, action, type = 'system', details = null, relatedId = null, visibility = 'public', insightFlag = null, metadata = null) => {
+export const logActivity = async (userId, action, type = 'system', details = null, relatedId = null, visibility = 'public', insightFlag = null, metadata = null) => {
   try {
     if (!userId) return; // Need user to log against
-    const activity = new Activity({
-      user: userId,
+    const data = {
+      userId,
       action,
       type,
-      details,
-      relatedId,
       visibility,
-      insightFlag,
-      metadata
-    });
-    await activity.save();
+    };
+    if (details) data.details = details;
+    if (relatedId) data.relatedId = relatedId;
+    if (insightFlag) data.insightFlag = insightFlag;
+    if (metadata) data.metadata = metadata;
+    
+    await prisma.activity.create({ data });
   } catch (error) {
     console.error('Error logging activity:', error);
   }
 };
 
 // GET /api/activity
-const getMyActivities = async (req, res) => {
+export const getMyActivities = async (req, res) => {
   try {
-    const activities = await Activity.find({ user: req.user._id })
-      .sort({ createdAt: -1 })
-      .limit(50);
+    const userId = req.user.id;
+    const activities = await prisma.activity.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    });
     res.status(200).json({ success: true, data: activities });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error fetching personal activities', error: error.message });
@@ -34,12 +37,15 @@ const getMyActivities = async (req, res) => {
 };
 
 // GET /api/activity/all - Admin only
-const getAllActivities = async (req, res) => {
+export const getAllActivities = async (req, res) => {
   try {
-    const activities = await Activity.find()
-      .populate('user', 'name role email')
-      .sort({ createdAt: -1 })
-      .limit(100);
+    const activities = await prisma.activity.findMany({
+      include: {
+        user: { select: { name: true, role: true, email: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100
+    });
     res.status(200).json({ success: true, data: activities });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error fetching all activities', error: error.message });
@@ -47,21 +53,39 @@ const getAllActivities = async (req, res) => {
 };
 
 // GET /api/activity/insights - For Parents
-const getInsightsForParent = async (req, res) => {
+export const getInsightsForParent = async (req, res) => {
   try {
-    // Assuming parent has a list of children ObjectIds in req.user.children
-    const childrenIds = req.user.children || [];
+    // Fetch parent's children to get their IDs
+    const parent = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      include: { children: { select: { id: true } } }
+    });
     
+    const childrenIds = parent?.children?.map(c => c.id) || [];
+
     // In MVP, we fetch insights for their children. If children array is empty, handle gracefully.
-    const insights = await Activity.find({
-      user: { $in: childrenIds },
-      visibility: 'insight'
-    })
-    // Selective projection: Hide raw details and metadata
-    .select('-details -metadata')
-    .populate('user', 'name role avatar')
-    .sort({ createdAt: -1 })
-    .limit(20);
+    const insights = await prisma.activity.findMany({
+      where: {
+        userId: { in: childrenIds },
+        visibility: 'insight'
+      },
+      select: {
+        id: true,
+        userId: true,
+        action: true,
+        type: true,
+        relatedId: true,
+        visibility: true,
+        insightFlag: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+          select: { name: true, role: true, avatar: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20
+    });
 
     res.status(200).json({ success: true, data: insights });
   } catch (error) {
@@ -70,68 +94,83 @@ const getInsightsForParent = async (req, res) => {
 };
 
 // PUT /api/activity/:id/flag - For Instructors to flag/elevate actions
-const flagActivity = async (req, res) => {
+export const flagActivity = async (req, res) => {
   try {
     const { id } = req.params;
     const { insightFlag } = req.body; // 'achievement' or 'concern'
 
-    const activity = await Activity.findById(id);
+    const activity = await prisma.activity.findUnique({ where: { id } });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
-    // Toggle logic: if already an insight with same flag, maybe untouch it?
-    // We will just overwrite it here.
-    activity.visibility = 'insight';
-    activity.insightFlag = insightFlag;
-    await activity.save();
+    const updatedActivity = await prisma.activity.update({
+      where: { id },
+      data: {
+        visibility: 'insight',
+        insightFlag
+      }
+    });
 
     // Gamification Hook: Reward learning points for 'achievement' insights
     if (insightFlag === 'achievement') {
-      let ach = await Achievement.findOne({ user: activity.user });
-      if (!ach) ach = new Achievement({ user: activity.user });
-      ach.learningPoints += 50; // Mint 50 points
+      let ach = await prisma.achievement.findUnique({ where: { userId: activity.userId } });
       
-      ach.badges.push({
+      const newBadge = {
         title: 'Instructor Acknowledgment',
         description: activity.action,
         iconType: 'star'
-      });
-      await ach.save();
+      };
+
+      if (!ach) {
+        ach = await prisma.achievement.create({
+          data: {
+            userId: activity.userId,
+            learningPoints: 50,
+            badges: [newBadge]
+          }
+        });
+      } else {
+        const badgesArray = ach.badges ? (Array.isArray(ach.badges) ? ach.badges : [ach.badges]) : [];
+        badgesArray.push(newBadge);
+        ach = await prisma.achievement.update({
+          where: { id: ach.id },
+          data: {
+            learningPoints: (ach.learningPoints || 0) + 50,
+            badges: badgesArray
+          }
+        });
+      }
     }
 
-    res.status(200).json({ success: true, data: activity, message: 'Activity promoted to an insight successfully.' });
+    res.status(200).json({ success: true, data: updatedActivity, message: 'Activity promoted to an insight successfully.' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error flagging activity', error: error.message });
   }
 };
 
 // POST /api/activity - Create manual activity (like Student private micro-goals)
-const createActivity = async (req, res) => {
+export const createActivity = async (req, res) => {
   try {
     const { action, type, details, relatedId, visibility, insightFlag, metadata } = req.body;
-    const activity = new Activity({
-      user: req.user._id,
+    const userId = req.user.id;
+    
+    const data = {
+      userId,
       action,
-      type,
-      details,
-      relatedId,
-      visibility: visibility || 'private', // default to private if manual Post
-      insightFlag,
-      metadata
-    });
-    await activity.save();
+      type: type || 'system',
+      visibility: visibility || 'private',
+    };
+    if (details) data.details = details;
+    if (relatedId) data.relatedId = relatedId;
+    if (insightFlag) data.insightFlag = insightFlag;
+    if (metadata) data.metadata = metadata;
+    
+    const activity = await prisma.activity.create({ data });
+    
     res.status(201).json({ success: true, data: activity });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error creating activity', error: error.message });
   }
 };
 
-module.exports = {
-  logActivity,
-  getMyActivities,
-  getAllActivities,
-  getInsightsForParent,
-  flagActivity,
-  createActivity
-};

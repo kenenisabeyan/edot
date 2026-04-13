@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
+import express from 'express';
+import { getParentDashboardStats, getParentLearners, getParentStudentInsights, getParentStudentInvoice } from '../controllers/parentController.js';
+import { protect, authorize } from '../middleware/auth.js';
 
-const { getParentDashboardStats, getParentLearners, getParentStudentInsights, getParentStudentInvoice } = require('../controllers/parentController');
-const { protect, authorize } = require('../middleware/auth');
+const router = express.Router();
 
 router.use(protect);
 router.use(authorize('parent'));
@@ -28,4 +28,4 @@ router.get('/analytics/detailed', (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;

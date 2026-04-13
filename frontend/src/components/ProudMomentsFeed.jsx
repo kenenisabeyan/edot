@@ -26,12 +26,12 @@ export default function ProudMomentsFeed() {
 
   if (achievements.length === 0 || achievements.every(ach => ach.badges.length === 0)) {
     return (
-      <div className="bg-transparent/50 rounded-2xl border border-slate-100 p-8 text-center flex flex-col items-center">
-         <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-3">
+      <div className="bg-transparent/50 rounded-2xl border border-white/5 p-8 text-center flex flex-col items-center">
+         <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mb-3">
            <Award className="w-6 h-6 text-amber-300" />
          </div>
-         <p className="text-slate-500 font-medium">No proud moments yet.</p>
-         <p className="text-sm text-slate-400 mt-1">When instructors award badges, they'll shine here.</p>
+         <p className="text-slate-300 font-medium">No proud moments yet.</p>
+         <p className="text-sm text-slate-200 mt-1">When instructors award badges, they'll shine here.</p>
       </div>
     );
   }
@@ -53,8 +53,8 @@ export default function ProudMomentsFeed() {
                     <Award className="w-5 h-5"/>
                   </div>
                   <div>
-                    <h5 className="font-bold text-slate-800">{badge.title}</h5>
-                    <p className="text-sm text-slate-600 mt-0.5">{badge.description}</p>
+                    <h5 className="font-bold text-slate-100">{badge.title}</h5>
+                    <p className="text-sm text-slate-300 mt-0.5">{badge.description}</p>
                     <p className="text-xs text-amber-600 mt-2 font-medium bg-amber-100/50 inline-block px-2 py-0.5 rounded-md">{new Date(badge.earnedAt).toLocaleDateString()}</p>
                   </div>
                 </div>

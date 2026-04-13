@@ -22,7 +22,7 @@ export function Card({ children, className = '', hover = false, ...props }) {
 
 export function CardHeader({ children, className = '' }) {
   return (
-    <div className={`px-6 py-5 border-b border-slate-100/50 dark:border-slate-800/50 ${className}`}>
+    <div className={`px-6 py-5 border-b border-white/5/50 dark:border-slate-800/50 ${className}`}>
       {children}
     </div>
   );

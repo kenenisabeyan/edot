@@ -107,10 +107,10 @@ export default function CustomDropdown({
         }}
         className="w-full flex items-center justify-between px-4 py-2.5 bg-black/40 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/30 transition-all shadow-sm hover:border-white/20"
       >
-        <span className={`truncate ${!value || value === '' ? 'text-slate-400' : 'text-white font-medium'}`}>
+        <span className={`truncate ${!value || value === '' ? 'text-slate-200' : 'text-white font-medium'}`}>
           {getSelectedLabel()}
         </span>
-        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-slate-200 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {typeof document !== 'undefined' && createPortal(
@@ -134,13 +134,13 @@ export default function CustomDropdown({
             {searchable && (
               <div className="p-2 border-b border-white/5 shrink-0 bg-black/20">
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-3.5 h-3.5 text-slate-300 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search..."
-                    className="w-full pl-9 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#FFD700]/50"
+                    className="w-full pl-9 pr-3 py-1.5 bg-[#11151F]/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#FFD700]/50"
                   />
                 </div>
               </div>
@@ -148,12 +148,12 @@ export default function CustomDropdown({
             
             <div className="overflow-y-auto custom-scrollbar p-1 flex-1">
               {filteredOptions.length === 0 ? (
-                <div className="p-3 text-center text-xs text-slate-500 italic">No options found</div>
+                <div className="p-3 text-center text-xs text-slate-300 italic">No options found</div>
               ) : isGrouped ? (
                 filteredOptions.map((group, gIdx) => (
                   <div key={gIdx} className="mb-1 last:mb-0">
                     {group.category && (
-                      <div className="px-3 py-1.5 text-[10px] uppercase font-black tracking-widest text-slate-500 bg-white/5 sticky top-0 z-10 backdrop-blur-md">
+                      <div className="px-3 py-1.5 text-[10px] uppercase font-black tracking-widest text-slate-300 bg-[#11151F]/5 sticky top-0 z-10 backdrop-blur-md">
                         {group.category}
                       </div>
                     )}
@@ -171,7 +171,7 @@ export default function CustomDropdown({
                             className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-all text-left ${
                               selected 
                               ? 'bg-[#FFD700]/10 text-[#FFD700] font-bold shadow-[0_0_10px_rgba(255,215,0,0.1)]' 
-                              : 'text-slate-300 hover:bg-white/10 hover:text-white font-medium'
+                              : 'text-slate-300 hover:bg-[#11151F]/10 hover:text-white font-medium'
                             }`}
                           >
                             <span className="truncate flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function CustomDropdown({
                       className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-all text-left ${
                         selected 
                         ? 'bg-[#FFD700]/10 text-[#FFD700] font-bold shadow-[0_0_10px_rgba(255,215,0,0.1)]' 
-                        : 'text-slate-300 hover:bg-white/10 hover:text-white font-medium'
+                        : 'text-slate-300 hover:bg-[#11151F]/10 hover:text-white font-medium'
                       }`}
                     >
                       <span className="truncate flex items-center gap-2 w-full">

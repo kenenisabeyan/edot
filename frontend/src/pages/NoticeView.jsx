@@ -70,7 +70,7 @@ export default function NoticeView() {
           <h1 className="text-3xl font-display font-black text-white tracking-widest uppercase flex items-center gap-3">
              <Radio className="w-8 h-8 text-[#FFD700]" /> Global Notices
           </h1>
-          <p className="text-slate-400 font-medium text-sm mt-2">Official announcements and platform-wide updates.</p>
+          <p className="text-slate-200 font-medium text-sm mt-2">Official announcements and platform-wide updates.</p>
         </div>
         
         <div className="flex items-center gap-4 w-full md:w-auto">
@@ -99,7 +99,7 @@ export default function NoticeView() {
              <h2 className="text-lg font-black text-white flex items-center gap-2 uppercase tracking-widest">
                  <ShieldAlert className="w-5 h-5 text-[#E30A17]" /> Draft New Notice
              </h2>
-             <button onClick={() => setShowCreateForm(false)} className="text-slate-400 hover:text-white font-black uppercase tracking-widest text-[10px] bg-white/5 px-4 py-2 rounded-lg border border-white/10 transition-colors">Cancel</button>
+             <button onClick={() => setShowCreateForm(false)} className="text-slate-200 hover:text-white font-black uppercase tracking-widest text-[10px] bg-[#11151F]/5 px-4 py-2 rounded-lg border border-white/10 transition-colors">Cancel</button>
           </div>
           
           {errorMsg && (
@@ -119,7 +119,7 @@ export default function NoticeView() {
                         placeholder="e.g. End of Semester Examinations Update"
                         value={newNotice.title}
                         onChange={(e) => setNewNotice({ ...newNotice, title: e.target.value })}
-                        className="w-full px-4 py-3.5 bg-transparent text-white font-medium text-sm outline-none placeholder:text-slate-600"
+                        className="w-full px-4 py-3.5 bg-transparent text-white font-medium text-sm outline-none placeholder:text-slate-300"
                       />
                     </div>
                 </div>
@@ -131,6 +131,7 @@ export default function NoticeView() {
                       options={[
                         { label: 'Global (All Nodes)', value: 'all' },
                         { label: 'Students Only', value: 'student' },
+                        { label: 'Parents Only', value: 'parent' },
                         { label: 'Instructors Only', value: 'instructor' },
                         { label: 'Alpha Clearance (Admins)', value: 'admin' }
                       ]}
@@ -147,7 +148,7 @@ export default function NoticeView() {
                   rows={5}
                   value={newNotice.content}
                   onChange={(e) => setNewNotice({ ...newNotice, content: e.target.value })}
-                  className="w-full p-4 bg-[#11151F] border border-white/10 text-white rounded-xl outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium resize-none placeholder:text-slate-600 shadow-inner transition-all text-sm"
+                  className="w-full p-4 bg-[#11151F] border border-white/10 text-white rounded-xl outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 font-medium resize-none placeholder:text-slate-300 shadow-inner transition-all text-sm"
                 ></textarea>
             </div>
 
@@ -173,12 +174,12 @@ export default function NoticeView() {
              <BellRing className="w-10 h-10" />
            </div>
            <h3 className="text-xl font-bold text-white mb-2 tracking-wide">You're caught up!</h3>
-           <p className="text-slate-400 max-w-sm mb-6 text-sm font-medium">There are no official announcements at this time.</p>
+           <p className="text-slate-200 max-w-sm mb-6 text-sm font-medium">There are no official announcements at this time.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
           {notices.map((notice) => (
-            <div key={notice._id} className="rounded-3xl border border-white/10 bg-[#0B0E14]/80 backdrop-blur-xl shadow-2xl overflow-hidden p-6 md:p-8 hover:shadow-[0_0_30px_rgba(255,215,0,0.1)] hover:border-[#FFD700]/30 transition-all duration-300 relative group flex flex-col md:flex-row gap-6">
+            <div key={notice.id} className="rounded-3xl border border-white/10 bg-[#0B0E14]/80 backdrop-blur-xl shadow-2xl overflow-hidden p-6 md:p-8 hover:shadow-[0_0_30px_rgba(255,215,0,0.1)] hover:border-[#FFD700]/30 transition-all duration-300 relative group flex flex-col md:flex-row gap-6">
                 
                 <div className="absolute top-0 left-0 w-1 h-full bg-[#FFD700] opacity-50 group-hover:opacity-100 transition-opacity"></div>
                 
@@ -193,12 +194,12 @@ export default function NoticeView() {
                       <span className={`text-[9px] uppercase tracking-widest font-black px-3 py-1.5 rounded-lg border shadow-sm ${
                           notice.audience === 'all' ? 'bg-[#FFD700]/10 border-[#FFD700]/20 text-[#FFD700]' :
                           notice.audience === 'student' ? 'bg-[#008A32]/10 border-[#008A32]/20 text-[#008A32]' :
-                          notice.audience === 'instructor' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+                          notice.audience === 'instructor' ? 'bg-blue-500/100/10 border-blue-500/20 text-blue-400' :
                           'bg-[#E30A17]/10 border-[#E30A17]/20 text-[#E30A17]'
                       }`}>
                         {notice.audience === 'all' ? 'Global Alpha' : notice.audience}
                       </span>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-[#11151F] px-3 py-1.5 rounded-lg border border-white/5 flex items-center gap-1.5 shadow-inner">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 bg-[#11151F] px-3 py-1.5 rounded-lg border border-white/5 flex items-center gap-1.5 shadow-inner">
                         <Clock className="w-3 h-3" /> {new Date(notice.date || notice.createdAt).toLocaleDateString()}
                       </span>
                     </div>

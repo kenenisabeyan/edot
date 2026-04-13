@@ -1,5 +1,5 @@
-const express = require('express');
-const { 
+import express from 'express';
+import { 
   getCourseAttendance,
   submitAttendance,
   getDashboardAggregate,
@@ -7,8 +7,8 @@ const {
   getFinalReports,
   getAttendanceByQuery,
   getEnrolledUsers
-} = require('../controllers/attendanceController');
-const { protect, authorize } = require('../middleware/auth');
+} from '../controllers/attendanceController.js';
+import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -34,4 +34,4 @@ router.route('/')
 router.route('/section/:sectionId')
   .get(getCourseAttendance);
 
-module.exports = router;
+export default router;

@@ -61,7 +61,7 @@ export default function CalendarView() {
           <h1 className="text-3xl font-display font-black text-white tracking-widest uppercase flex items-center gap-3">
              <CalendarIcon className="w-8 h-8 text-[#FFD700]" /> Calendar
           </h1>
-          <p className="text-slate-400 font-medium text-sm mt-2">Manage events, live sessions, and schedules.</p>
+          <p className="text-slate-200 font-medium text-sm mt-2">Manage events, live sessions, and schedules.</p>
         </div>
         {(user?.role === 'admin' || user?.role === 'instructor') && (
           <button 
@@ -83,15 +83,15 @@ export default function CalendarView() {
                 {monthNames[currentDate.getMonth()]} <span className="text-[#FFD700]">{currentDate.getFullYear()}</span>
              </h2>
              <div className="hidden md:flex items-center bg-[#0B0E14] rounded-xl border border-white/10 overflow-hidden shadow-inner flex-shrink-0">
-               <button onClick={handlePrevMonth} className="p-2.5 text-slate-500 hover:bg-white/5 hover:text-[#FFD700] border-r border-white/10 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
-               <button onClick={handleToday} className="px-5 py-2.5 text-[10px] font-black tracking-widest uppercase text-slate-400 hover:bg-white/5 hover:text-[#FFD700] transition-colors">Jump to Today</button>
-               <button onClick={handleNextMonth} className="p-2.5 text-slate-500 hover:bg-white/5 hover:text-[#FFD700] border-l border-white/10 transition-colors"><ChevronRight className="w-5 h-5" /></button>
+               <button onClick={handlePrevMonth} className="p-2.5 text-slate-300 hover:bg-[#11151F]/5 hover:text-[#FFD700] border-r border-white/10 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+               <button onClick={handleToday} className="px-5 py-2.5 text-[10px] font-black tracking-widest uppercase text-slate-200 hover:bg-[#11151F]/5 hover:text-[#FFD700] transition-colors">Jump to Today</button>
+               <button onClick={handleNextMonth} className="p-2.5 text-slate-300 hover:bg-[#11151F]/5 hover:text-[#FFD700] border-l border-white/10 transition-colors"><ChevronRight className="w-5 h-5" /></button>
              </div>
            </div>
            
            <div className="flex gap-2 bg-[#0B0E14] p-1.5 rounded-xl border border-white/10 shadow-inner">
               <button className="px-5 py-2 text-[10px] uppercase tracking-widest font-black bg-[#FFD700] text-[#0B0E14] rounded-lg shadow-sm">Month</button>
-              <button className="px-5 py-2 text-[10px] uppercase tracking-widest font-bold text-slate-500 hover:text-white rounded-lg transition-colors">Week</button>
+              <button className="px-5 py-2 text-[10px] uppercase tracking-widest font-bold text-slate-300 hover:text-white rounded-lg transition-colors">Week</button>
            </div>
          </div>
 
@@ -99,7 +99,7 @@ export default function CalendarView() {
          <div className="flex-1 p-6 relative">
             <div className="grid grid-cols-7 gap-4 mb-4">
                {daysOfWeek.map(day => (
-                 <div key={day} className="text-center font-black text-slate-500/70 uppercase tracking-widest text-[10px]">
+                 <div key={day} className="text-center font-black text-slate-300/70 uppercase tracking-widest text-[10px]">
                    {day}
                  </div>
                ))}
@@ -140,7 +140,7 @@ export default function CalendarView() {
                          <div className="space-y-2 overflow-y-auto max-h-[80px] custom-scrollbar pr-1">
                            {dayEvents.map((evt, i) => (
                              <div key={i} className={`flex items-start gap-1.5 p-2 rounded-lg border backdrop-blur-md shadow-sm ${
-                                evt.color || 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                evt.color || 'bg-blue-500/100/10 text-blue-400 border-blue-500/20'
                              }`}>
                                <Activity className="w-3 h-3 shrink-0 mt-0.5" />
                                <div className="flex-1 min-w-0">
@@ -154,7 +154,7 @@ export default function CalendarView() {
                          {(user?.role === 'admin' || user?.role === 'instructor') && (
                            <button 
                              onClick={() => setShowModal(true)} 
-                             className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-[#0B0E14] border border-white/10 text-slate-400 items-center justify-center opacity-0 group-hover:opacity-100 transition-all hidden md:flex hover:bg-[#008A32]/20 hover:text-[#008A32] hover:border-[#008A32]/30 shadow-inner"
+                             className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-[#0B0E14] border border-white/10 text-slate-200 items-center justify-center opacity-0 group-hover:opacity-100 transition-all hidden md:flex hover:bg-[#008A32]/20 hover:text-[#008A32] hover:border-[#008A32]/30 shadow-inner"
                            >
                              <Plus className="w-4 h-4" />
                            </button>

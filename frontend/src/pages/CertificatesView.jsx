@@ -111,16 +111,16 @@ export default function CertificatesView() {
 
       {completedCourses.length === 0 ? (
         <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-12 text-center rounded-3xl border border-white/10 shadow-2xl flex flex-col items-center justify-center">
-           <div className="w-20 h-20 bg-white/5 border border-white/10 text-slate-500 rounded-full flex items-center justify-center mb-4 shadow-sm">
+           <div className="w-20 h-20 bg-[#11151F]/5 border border-white/10 text-slate-300 rounded-full flex items-center justify-center mb-4 shadow-sm">
              <Award className="w-10 h-10" />
            </div>
            <h3 className="text-xl font-bold text-white mb-2">No certificates yet</h3>
-           <p className="text-slate-400 max-w-sm mb-6">Complete a course 100% and pass the final exam (if required) to earn your first certificate.</p>
+           <p className="text-slate-200 max-w-sm mb-6">Complete a course 100% and pass the final exam (if required) to earn your first certificate.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {completedCourses.map((enrolled) => (
-            <div key={enrolled.course?._id} className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden group hover:border-[#FFD700]/30 transition-colors">
+            <div key={enrolled.course?.id} className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden group hover:border-[#FFD700]/30 transition-colors">
               <div className="aspect-[4/3] bg-gradient-to-br from-[#008A32]/5 to-[#0B0E14] border-b border-white/10 p-8 flex flex-col items-center justify-center relative">
                 <Award className="w-16 h-16 text-[#FFD700] mb-4 drop-shadow-sm" />
                 <h3 className="font-bold text-center text-white line-clamp-2">{enrolled.course?.title}</h3>
@@ -133,8 +133,8 @@ export default function CertificatesView() {
                   </button>
                 </div>
               </div>
-              <div className="p-4 flex justify-between items-center bg-white/5">
-                <div className="text-xs uppercase tracking-widest font-black text-slate-500">Issued to</div>
+              <div className="p-4 flex justify-between items-center bg-[#11151F]/5">
+                <div className="text-xs uppercase tracking-widest font-black text-slate-300">Issued to</div>
                 <div className="text-sm font-bold text-[#FFD700] truncate ml-4">{user?.name}</div>
               </div>
             </div>

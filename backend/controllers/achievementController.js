@@ -1,11 +1,11 @@
-const Achievement = require('../models/Achievement');
-const User = require('../models/User');
+import { prisma } from '../lib/prisma.js';
 
-const getMyAchievements = async (req, res) => {
+export const getMyAchievements = async (req, res) => {
   try {
-    let achievement = await Achievement.findOne({ user: req.user._id });
+    const userId = req.user.id;
+    let achievement = await prisma.achievement.findUnique({ where: { userId } });
     if (!achievement) {
-      achievement = await Achievement.create({ user: req.user._id });
+      achievement = await prisma.achievement.create({ data: { userId } });
     }
     res.status(200).json({ success: true, data: achievement });
   } catch (err) {
@@ -13,21 +13,31 @@ const getMyAchievements = async (req, res) => {
   }
 };
 
-const getChildAchievements = async (req, res) => {
+export const getChildAchievements = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('children');
+    const userId = req.user.id;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { children: true }
+    });
+
     if (!user || user.role !== 'parent') {
       return res.status(403).json({ success: false, message: 'Access denied' });
     }
 
-    const childIds = user.children.map(child => child._id);
-    const achievements = await Achievement.find({ user: { $in: childIds } }).populate('user', 'name');
+    const childIds = user.children.map(child => child.id);
+    const achievements = await prisma.achievement.findMany({
+      where: { userId: { in: childIds } },
+      include: { user: { select: { name: true } } }
+    });
 
     // Filter out private badges to respect Transparency Center rules
     const filteredAchievements = achievements.map(ach => {
-      const doc = ach.toObject();
-      doc.badges = doc.badges.filter(b => b.visibility === 'public');
-      return doc;
+      const badges = ach.badges ? (Array.isArray(ach.badges) ? ach.badges : [ach.badges]) : [];
+      return {
+        ...ach,
+        badges: badges.filter(b => b.visibility === 'public')
+      };
     });
 
     res.status(200).json({ success: true, data: filteredAchievements });
@@ -36,4 +46,4 @@ const getChildAchievements = async (req, res) => {
   }
 };
 
-module.exports = { getMyAchievements, getChildAchievements };
+

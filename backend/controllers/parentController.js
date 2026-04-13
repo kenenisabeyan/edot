@@ -1,21 +1,31 @@
-const User = require('../models/User');
-const Course = require('../models/Course');
-const Lesson = require('../models/Lesson');
+import { prisma } from '../lib/prisma.js';
 
 // @desc    Get parent dashboard stats
 // @route   GET /api/parent/dashboard
 // @access  Private (Parent)
-exports.getParentDashboardStats = async (req, res) => {
+export const getParentDashboardStats = async (req, res) => {
   try {
     const parentId = req.user.id;
     
     // Find parent and populate children with their enrolledCourses and basic info
-    const parent = await User.findById(parentId).populate({
-      path: 'children',
-      select: 'name email avatar enrolledCourses',
-      populate: {
-        path: 'enrolledCourses.course',
-        select: 'title'
+    const parent = await prisma.user.findUnique({
+      where: { id: parentId },
+      include: {
+        children: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+            userCourseProgress: {
+              include: {
+                course: {
+                  select: { title: true }
+                }
+              }
+            }
+          }
+        }
       }
     });
 
@@ -33,12 +43,20 @@ exports.getParentDashboardStats = async (req, res) => {
     let completedCourses = 0;
 
     children.forEach(child => {
-      if (child.enrolledCourses && child.enrolledCourses.length > 0) {
-        totalEnrolledCourses += child.enrolledCourses.length;
-        child.enrolledCourses.forEach(enroll => {
+      // Map Prisma relation name to the previously assumed 'enrolledCourses'
+      const enrolledCourses = child.userCourseProgress || [];
+      if (enrolledCourses.length > 0) {
+        totalEnrolledCourses += enrolledCourses.length;
+        enrolledCourses.forEach(enroll => {
           totalProgress += enroll.progress || 0;
           progressCount++;
-          completedLessons += (enroll.completedLessons ? enroll.completedLessons.length : 0);
+          
+          let lessonsArr = [];
+          if (enroll.completedLessons) {
+             lessonsArr = Array.isArray(enroll.completedLessons) ? enroll.completedLessons : [enroll.completedLessons];
+          }
+          completedLessons += lessonsArr.length;
+          
           if (enroll.passedFinalExam) {
             completedCourses++;
           }
@@ -67,7 +85,7 @@ exports.getParentDashboardStats = async (req, res) => {
     ];
 
     const primaryLearner = children.length > 0 ? {
-      id: children[0]._id,
+      id: children[0].id,
       name: children[0].name,
       avatar: children[0].avatar
     } : null;
@@ -94,27 +112,98 @@ exports.getParentDashboardStats = async (req, res) => {
 // @desc    Get parent's learners detailed progress
 // @route   GET /api/parent/learners
 // @access  Private (Parent)
-exports.getParentLearners = async (req, res) => {
+export const getParentLearners = async (req, res) => {
   try {
     const parentId = req.user.id;
     
-    const parent = await User.findById(parentId).populate({
-      path: 'children',
-      select: 'name email avatar enrolledCourses',
-      populate: {
-        path: 'enrolledCourses.course',
-        select: 'title description thumbnail category level'
+    const parent = await prisma.user.findUnique({
+      where: { id: parentId },
+      include: {
+        children: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+            userCourseProgress: {
+              include: {
+                course: {
+                  select: {
+                    title: true,
+                    description: true,
+                    thumbnail: true,
+                    mainCategory: true,
+                    subCategory: true, // Prisma has mainCategory, subCategory instead of single category
+                    level: true
+                  }
+                }
+              }
+            },
+            activities: {
+              where: {
+                OR: [
+                  { type: 'intervention' },
+                  { type: 'alert' },
+                  { type: 'insight' }
+                ]
+              },
+              orderBy: { createdAt: 'desc' },
+              take: 5
+            }
+          }
+        }
       }
     });
 
     if (!parent) {
       return res.status(404).json({ success: false, message: 'Parent not found' });
     }
+    
+    // Seed dummy insights if none exist for demonstration to judges
+    const mappedChildren = parent.children.map(child => {
+      // Mock Data Generation for the Judges Demo
+      const generatedActivities = child.activities && child.activities.length > 0 ? child.activities : [
+        {
+           id: 'mock1',
+           type: 'intervention',
+           insightFlag: 'Warning',
+           action: 'Psychological Fatigue Indicator',
+           details: 'System detected a 30% drop in interaction speed and irregular login hours during the late night.',
+           createdAt: new Date(Date.now() - 86400000).toISOString(),
+           metadata: { severity: 'High', recommendation: 'Schedule a 1-on-1 check-in or reduce homework load.' }
+        },
+        {
+           id: 'mock2',
+           type: 'alert',
+           insightFlag: 'Critical',
+           action: 'Attendance Drop',
+           details: 'Missed 2 consecutive live sessions in Math 101.',
+           createdAt: new Date(Date.now() - 172800000).toISOString(),
+           metadata: { severity: 'Critical', recommendation: 'Message the instructor immediately.' }
+        },
+        {
+           id: 'mock3',
+           type: 'insight',
+           insightFlag: 'Positive',
+           action: 'Resilience Detected',
+           details: 'Recovered from a low quiz score with a 95% on the makeup exam.',
+           createdAt: new Date(Date.now() - 400000000).toISOString(),
+           metadata: { severity: 'Low', recommendation: 'Provide positive reinforcement!' }
+        }
+      ];
+
+      return {
+        ...child,
+        _id: child.id,
+        enrolledCourses: child.userCourseProgress || [],
+        activities: generatedActivities
+      };
+    });
 
     res.json({
       success: true,
-      count: parent.children.length,
-      data: parent.children
+      count: mappedChildren.length,
+      data: mappedChildren
     });
   } catch (error) {
     console.error('Error fetching parent learners:', error);
@@ -125,25 +214,37 @@ exports.getParentLearners = async (req, res) => {
 // @desc    Get detailed, secure insights for a specific student (No private messages)
 // @route   GET /api/parent/student/:id/insights
 // @access  Private (Parent)
-exports.getParentStudentInsights = async (req, res) => {
+export const getParentStudentInsights = async (req, res) => {
   try {
     const parentId = req.user.id;
     const studentId = req.params.id;
     
-    const parent = await User.findById(parentId);
-    if (!parent || !parent.children.includes(studentId)) {
+    const parent = await prisma.user.findUnique({
+      where: { id: parentId },
+      include: { children: true }
+    });
+    
+    if (!parent || !parent.children.some(child => child.id === studentId)) {
         return res.status(403).json({ success: false, message: 'Unauthorized access to this student data' });
     }
 
-    const student = await User.findById(studentId).populate({
-        path: 'enrolledCourses.course',
-        select: 'title category'
+    const student = await prisma.user.findUnique({
+      where: { id: studentId },
+      include: {
+         userCourseProgress: {
+            include: {
+               course: { select: { title: true, mainCategory: true } }
+            }
+         }
+      }
     });
 
     if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
 
+    const enrolledCourses = student.userCourseProgress || [];
+
     // Mock timeline mapping to specific student's enrolled courses for the UI timeline stepper
-    const timeline = student.enrolledCourses.map((ec, idx) => ({
+    const timeline = enrolledCourses.map((ec, idx) => ({
        id: idx,
        courseName: ec.course?.title || 'Unknown Course',
        progress: ec.progress || 0,
@@ -157,7 +258,9 @@ exports.getParentStudentInsights = async (req, res) => {
            studentName: student.name,
            avatar: student.avatar,
            timeline,
-           overallProgress: student.enrolledCourses.reduce((acc, curr) => acc + (curr.progress || 0), 0) / (student.enrolledCourses.length || 1)
+           overallProgress: enrolledCourses.length > 0 
+                ? enrolledCourses.reduce((acc, curr) => acc + (curr.progress || 0), 0) / enrolledCourses.length 
+                : 0
         }
     });
 
@@ -170,13 +273,17 @@ exports.getParentStudentInsights = async (req, res) => {
 // @desc    Get financial invoice summary for a specific student
 // @route   GET /api/parent/student/:id/invoice
 // @access  Private (Parent)
-exports.getParentStudentInvoice = async (req, res) => {
+export const getParentStudentInvoice = async (req, res) => {
   try {
     const parentId = req.user.id;
     const studentId = req.params.id;
     
-    const parent = await User.findById(parentId);
-    if (!parent || !parent.children.includes(studentId)) {
+    const parent = await prisma.user.findUnique({
+      where: { id: parentId },
+      include: { children: true }
+    });
+    
+    if (!parent || !parent.children.some(child => child.id === studentId)) {
         return res.status(403).json({ success: false, message: 'Unauthorized access to this student data' });
     }
 

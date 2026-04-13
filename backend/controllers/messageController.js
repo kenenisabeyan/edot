@@ -1,23 +1,35 @@
-const mongoose = require('mongoose');
-const Message = require('../models/Message');
-const User = require('../models/User');
+import { prisma } from '../lib/prisma.js';
 
 // @desc    Send a message
 // @route   POST /api/messages
 // @access  Private
-exports.sendMessage = async (req, res) => {
+export const sendMessage = async (req, res) => {
     try {
-        const { receiverId, content } = req.body;
+        const { receiverId, content, attachmentUrl, attachmentType } = req.body;
         const senderId = req.user.id;
 
-        if (!receiverId || !content) {
-            return res.status(400).json({ success: false, message: 'Receiver and content are required' });
+        // If it's just a file upload, content could be empty, so we must allow one or the other
+        if (!receiverId || (!content && !attachmentUrl)) {
+            return res.status(400).json({ success: false, message: 'Receiver and content/attachment are required' });
         }
 
-        const message = await Message.create({
-            senderId,
-            receiverId,
-            content
+        // Check if receiver has blocked sender
+        const receiverSettings = await prisma.userSetting.findUnique({
+            where: { userId: receiverId }
+        });
+        
+        if (receiverSettings?.blockedUsers?.includes(senderId)) {
+            return res.status(403).json({ success: false, message: 'You have been blocked by this user.' });
+        }
+
+        const message = await prisma.message.create({
+            data: {
+                senderId,
+                receiverId,
+                content: content || "",
+                attachmentUrl,
+                attachmentType
+            }
         });
 
         res.status(201).json({
@@ -33,23 +45,32 @@ exports.sendMessage = async (req, res) => {
 // @desc    Get conversation between current user and specified user
 // @route   GET /api/messages/conversation/:userId
 // @access  Private
-exports.getConversation = async (req, res) => {
+export const getConversation = async (req, res) => {
     try {
         const { userId } = req.params;
         const currentUserId = req.user.id;
 
-        const messages = await Message.find({
-            $or: [
-                { senderId: currentUserId, receiverId: userId },
-                { senderId: userId, receiverId: currentUserId }
-            ]
-        }).sort({ createdAt: 1 });
+        const messages = await prisma.message.findMany({
+            where: {
+                OR: [
+                    { senderId: currentUserId, receiverId: userId },
+                    { senderId: userId, receiverId: currentUserId }
+                ]
+            },
+            orderBy: { createdAt: 'asc' }
+        });
 
         // Mark messages as read if receiver is current user
-        await Message.updateMany(
-            { senderId: userId, receiverId: currentUserId, isRead: false },
-            { $set: { isRead: true } }
-        );
+        await prisma.message.updateMany({
+            where: {
+                senderId: userId,
+                receiverId: currentUserId,
+                isRead: false
+            },
+            data: {
+                isRead: true
+            }
+        });
 
         res.status(200).json({
             success: true,
@@ -64,32 +85,48 @@ exports.getConversation = async (req, res) => {
 // @desc    Get all unique contacts (users) the current user can message or has messaged
 // @route   GET /api/messages/contacts
 // @access  Private
-exports.getContacts = async (req, res) => {
+export const getContacts = async (req, res) => {
     try {
         const currentUserId = req.user.id;
         
         // For simplicity in MVP: return all users except current user. 
-        // In production, we would filter by shared courses or recent messages.
-        const contacts = await User.find({ _id: { $ne: currentUserId } })
-            .select('role title name avatar') // name, role, etc (depending on user model schema)
-            .sort({ name: 1 })
-            .limit(100);
+        const contacts = await prisma.user.findMany({
+            where: { id: { not: currentUserId } },
+            select: { id: true, role: true, name: true, avatar: true },
+            orderBy: { name: 'asc' },
+            take: 100
+        });
 
-        // Fetch unread messages for the current user
-        const unreadCounts = await Message.aggregate([
-            { $match: { receiverId: new mongoose.Types.ObjectId(currentUserId), isRead: false } },
-            { $group: { _id: "$senderId", count: { $sum: 1 } } }
-        ]);
+        // Fetch unread messages grouped by sender
+        const unreadCounts = await prisma.message.groupBy({
+            by: ['senderId'],
+            where: {
+                receiverId: currentUserId,
+                isRead: false
+            },
+            _count: {
+                _all: true
+            }
+        });
 
         const unreadMap = {};
         unreadCounts.forEach(item => {
-            unreadMap[item._id.toString()] = item.count;
+            unreadMap[item.senderId] = item._count._all;
         });
 
-        const contactsWithUnread = contacts.map(contact => {
-            const contactObj = contact.toObject();
-            contactObj.unreadCount = unreadMap[contact._id.toString()] || 0;
-            return contactObj;
+        // Get current user's blocked users to filter out from contacts
+        const userSettings = await prisma.userSetting.findUnique({
+            where: { userId: currentUserId }
+        });
+        const blockedUsers = userSettings?.blockedUsers || [];
+
+        const contactsWithUnread = contacts
+          .filter(contact => !blockedUsers.includes(contact.id))
+          .map(contact => {
+            return {
+                ...contact,
+                unreadCount: unreadMap[contact.id] || 0
+            };
         });
 
         contactsWithUnread.sort((a, b) => {
@@ -105,6 +142,88 @@ exports.getContacts = async (req, res) => {
         });
     } catch (err) {
         console.error('Get contacts error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+// @desc    Create a new message group or channel
+// @route   POST /api/messages/groups
+// @access  Private
+export const createGroup = async (req, res) => {
+    try {
+        const { name, description, isChannel, memberIds } = req.body;
+        const adminId = req.user.id;
+
+        if (!name) {
+            return res.status(400).json({ success: false, message: 'Group name is required' });
+        }
+
+        const validMemberIds = Array.isArray(memberIds) ? memberIds : [];
+
+        const group = await prisma.messageGroup.create({
+            data: {
+                name,
+                description: description || '',
+                isChannel: isChannel || false,
+                adminId,
+                members: {
+                    connect: [...validMemberIds.map(id => ({ id })), { id: adminId }]
+                }
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            data: group
+        });
+    } catch (err) {
+        console.error('Create group error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+// @desc    Toggle block status of a user
+// @route   POST /api/messages/block/:userId
+// @access  Private
+export const toggleBlockUser = async (req, res) => {
+    try {
+        const { userId: targetUserId } = req.params;
+        const currentUserId = req.user.id;
+
+        // Ensure user settings exist
+        let settings = await prisma.userSetting.findUnique({
+            where: { userId: currentUserId }
+        });
+
+        if (!settings) {
+            settings = await prisma.userSetting.create({
+                data: { userId: currentUserId }
+            });
+        }
+
+        let updatedBlocked = [...settings.blockedUsers];
+        const isBlocked = updatedBlocked.includes(targetUserId);
+
+        if (isBlocked) {
+            // Unblock
+            updatedBlocked = updatedBlocked.filter(id => id !== targetUserId);
+        } else {
+            // Block
+            updatedBlocked.push(targetUserId);
+        }
+
+        const updatedSettings = await prisma.userSetting.update({
+            where: { userId: currentUserId },
+            data: { blockedUsers: updatedBlocked }
+        });
+
+        res.status(200).json({
+            success: true,
+            isBlocked: !isBlocked,
+            message: !isBlocked ? 'User blocked successfully.' : 'User unblocked successfully.'
+        });
+    } catch (err) {
+        console.error('Toggle block error:', err);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };

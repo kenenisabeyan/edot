@@ -69,7 +69,7 @@ export default function AttendanceManagement() {
     const fetchDetails = async () => {
       setLoading(true);
       try {
-        const targetSection = sections.find(s => s._id === selectedSection);
+        const targetSection = sections.find(s => s.id === selectedSection);
         if (!targetSection) {
             setLoading(false);
             return;
@@ -95,7 +95,7 @@ export default function AttendanceManagement() {
         if (existingDoc && existingDoc.records && existingDoc.records.length > 0) {
             // Document already exists for this day! Pull existing states
             initialRecords = existingDoc.records.map(r => ({
-               userId: r.user?._id || r.user,
+               userId: r.user?.id || r.user,
                name: r.user?.name || 'Unknown',
                role: r.role,
                status: r.status // 'present', 'absent', 'late'
@@ -133,7 +133,7 @@ export default function AttendanceManagement() {
     setMessage('');
     
     try {
-      const targetSection = sections.find(s => s._id === selectedSection);
+      const targetSection = sections.find(s => s.id === selectedSection);
       
       await api.post('/attendance', {
          courseId: selectedCourse,
@@ -155,7 +155,7 @@ export default function AttendanceManagement() {
 
   const renderUserCards = (usersArray, listRole) => {
      if (!usersArray || usersArray.length === 0) {
-         return <div className="text-slate-500 py-4 px-2 italic text-sm">No {listRole}s found for this course section.</div>
+         return <div className="text-slate-300 py-4 px-2 italic text-sm">No {listRole}s found for this course section.</div>
      }
      
      return (
@@ -165,26 +165,26 @@ export default function AttendanceManagement() {
               const currentStatus = currentRecord ? currentRecord.status : 'present';
 
               return (
-                 <div key={userItem.userId} className={`flex flex-col bg-white/5 border border-white/5 p-4 rounded-3xl backdrop-blur-md transition-all duration-300 shadow-md ${
+                 <div key={userItem.userId} className={`flex flex-col bg-[#11151F]/5 border border-white/5 p-4 rounded-3xl backdrop-blur-md transition-all duration-300 shadow-md ${
                     currentStatus === 'present' ? 'border-b-4 border-b-[#008A32]' : 
                     currentStatus === 'late' ? 'border-b-4 border-b-[#FFD700]' : 
                     'border-b-4 border-b-[#E30A17]'
                  }`}>
                     <div className="flex items-center gap-3 mb-4">
                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-sm
-                          ${listRole === 'Instructor' ? 'bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]/30' : 'bg-white/10 text-white border border-white/20'}
+                          ${listRole === 'Instructor' ? 'bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]/30' : 'bg-[#11151F]/10 text-white border border-white/20'}
                        `}>
                           {userItem.name.charAt(0).toUpperCase()}
                        </div>
                        <div>
                           <p className="text-white font-bold tracking-wide truncate pr-2">{userItem.name}</p>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{userItem.role}</p>
+                          <p className="text-[10px] text-slate-200 font-bold uppercase tracking-widest">{userItem.role}</p>
                        </div>
                     </div>
                     
                     <div className="flex bg-black/40 rounded-xl p-1 gap-1 w-full mt-auto border border-white/5">
                         <label className={`flex-1 flex justify-center items-center gap-1.5 py-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                           currentStatus === 'present' ? 'bg-[#008A32]/20 text-[#008A32] shadow-[0_0_10px_rgba(0,138,50,0.3)]' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'
+                           currentStatus === 'present' ? 'bg-[#008A32]/20 text-[#008A32] shadow-[0_0_10px_rgba(0,138,50,0.3)]' : 'text-slate-300 hover:bg-[#11151F]/5 hover:text-slate-300'
                         }`}>
                            <input 
                               type="radio" 
@@ -199,7 +199,7 @@ export default function AttendanceManagement() {
                         </label>
 
                         <label className={`flex-1 flex justify-center items-center gap-1.5 py-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                           currentStatus === 'late' ? 'bg-[#FFD700]/20 text-[#FFD700] shadow-[0_0_10px_rgba(255,215,0,0.3)]' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'
+                           currentStatus === 'late' ? 'bg-[#FFD700]/20 text-[#FFD700] shadow-[0_0_10px_rgba(255,215,0,0.3)]' : 'text-slate-300 hover:bg-[#11151F]/5 hover:text-slate-300'
                         }`}>
                            <input 
                               type="radio" 
@@ -214,7 +214,7 @@ export default function AttendanceManagement() {
                         </label>
 
                         <label className={`flex-1 flex justify-center items-center gap-1.5 py-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                           currentStatus === 'absent' ? 'bg-[#E30A17]/20 text-[#E30A17] shadow-[0_0_10px_rgba(227,10,23,0.3)]' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'
+                           currentStatus === 'absent' ? 'bg-[#E30A17]/20 text-[#E30A17] shadow-[0_0_10px_rgba(227,10,23,0.3)]' : 'text-slate-300 hover:bg-[#11151F]/5 hover:text-slate-300'
                         }`}>
                            <input 
                               type="radio" 
@@ -243,7 +243,7 @@ export default function AttendanceManagement() {
              <UserCheck className="w-8 h-8 text-[#FFD700]"/>
              Roster Status
           </h1>
-          <p className="text-slate-400 text-sm mt-2 font-medium">Dynamically register course attendance for students & instructos</p>
+          <p className="text-slate-200 text-sm mt-2 font-medium">Dynamically register course attendance for students & instructos</p>
         </div>
         
         {message && (
@@ -257,13 +257,13 @@ export default function AttendanceManagement() {
          <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFD700]/5 blur-[120px] rounded-full pointer-events-none"></div>
          
          <div className="w-full md:w-[40%]">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Target Course</label>
+            <label className="block text-xs font-bold text-slate-200 uppercase tracking-widest mb-3">Target Course</label>
             <CustomDropdown
                value={selectedCourse}
                onChange={setSelectedCourse}
                options={courses.map(c => ({ 
                  label: c.title, 
-                 value: c._id,
+                 value: c.id,
                  render: (
                     <div className="flex items-center gap-3 w-full py-1">
                        <span className="font-bold text-white text-sm">{c.title}</span>
@@ -276,13 +276,13 @@ export default function AttendanceManagement() {
          </div>
          
          <div className="w-full md:w-[30%]">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Designated Section</label>
+            <label className="block text-xs font-bold text-slate-200 uppercase tracking-widest mb-3">Designated Section</label>
             <CustomDropdown
                value={selectedSection}
                onChange={setSelectedSection}
                options={sections.map(s => ({
                  label: s.name,
-                 value: s._id,
+                 value: s.id,
                  render: (
                     <div className="py-1">
                        <span className="font-bold text-white text-sm">{s.name}</span>
@@ -296,7 +296,7 @@ export default function AttendanceManagement() {
          </div>
 
          <div className="w-full md:w-[30%]">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Roll Call Date</label>
+            <label className="block text-xs font-bold text-slate-200 uppercase tracking-widest mb-3">Roll Call Date</label>
             <div className="relative">
               <input 
                  type="date" 
@@ -311,9 +311,9 @@ export default function AttendanceManagement() {
 
       {!selectedCourse || !selectedSection ? (
          <div className="flex-1 flex flex-col items-center justify-center opacity-40 py-24">
-            <UserCheck className="w-20 h-20 text-slate-600 mb-6" />
+            <UserCheck className="w-20 h-20 text-slate-300 mb-6" />
             <h3 className="text-2xl font-bold font-display text-white">Awaiting Scope</h3>
-            <p className="text-slate-400 mt-2">Connect a course and section to load the user roster</p>
+            <p className="text-slate-200 mt-2">Connect a course and section to load the user roster</p>
          </div>
       ) : loading ? (
          <div className="flex-1 flex justify-center items-center py-20">
@@ -321,9 +321,9 @@ export default function AttendanceManagement() {
          </div>
       ) : attendanceRecords.length === 0 ? (
          <div className="flex-1 flex flex-col items-center justify-center opacity-40 py-24">
-            <UserCheck className="w-20 h-20 text-slate-600 mb-6" />
+            <UserCheck className="w-20 h-20 text-slate-300 mb-6" />
             <h3 className="text-2xl font-bold font-display text-white">Empty Roster</h3>
-            <p className="text-slate-400 mt-2">There are currently no users enrolled in this section.</p>
+            <p className="text-slate-200 mt-2">There are currently no users enrolled in this section.</p>
          </div>
       ) : (
          <div className="space-y-12 animate-in slide-in-from-bottom-6 duration-700 pb-12">
@@ -333,7 +333,7 @@ export default function AttendanceManagement() {
                <h2 className="text-xl font-display font-black text-white mb-6 uppercase tracking-widest flex items-center gap-3">
                   <ShieldAlert className="w-5 h-5 text-[#FFD700]" />
                   Instructors Roster
-                  <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full ml-auto">{instructorsList.length}</span>
+                  <span className="text-xs bg-[#11151F]/20 text-white px-2 py-0.5 rounded-full ml-auto">{instructorsList.length}</span>
                </h2>
                {renderUserCards(instructorsList, 'Instructor')}
             </div>
@@ -343,7 +343,7 @@ export default function AttendanceManagement() {
                <h2 className="text-xl font-display font-black text-white mb-6 uppercase tracking-widest flex items-center gap-3">
                   <GraduationCap className="w-5 h-5 text-[#FFD700]" />
                   Students Roster
-                  <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full ml-auto">{studentsList.length}</span>
+                  <span className="text-xs bg-[#11151F]/20 text-white px-2 py-0.5 rounded-full ml-auto">{studentsList.length}</span>
                </h2>
                {renderUserCards(studentsList, 'Student')}
             </div>

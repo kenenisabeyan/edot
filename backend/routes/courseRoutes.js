@@ -1,11 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { protect, authorize } from '../middleware/auth.js';
+import { prisma } from '../lib/prisma.js';
+import { logActivity } from '../controllers/activityController.js';
+
 const router = express.Router();
-const { protect, authorize } = require('../middleware/auth');
-const Course = require('../models/Course');
-const Lesson = require('../models/Lesson');
-const User = require('../models/User');
-const Enrollment = require('../models/Enrollment');
-const { logActivity } = require('../controllers/activityController');
 
 // @route   GET /api/courses
 // @desc    Get all courses with filtering and pagination
@@ -29,25 +27,30 @@ router.get('/', async (req, res) => {
         if (subCategory) query.subCategory = subCategory;
         if (level) query.level = level;
         if (search) {
-            query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } }
+            query.OR = [
+                { title: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } }
             ];
         }
 
-        // Pagination
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
-        // Execute query
-        const courses = await Course.find(query)
-            .populate('instructor', 'name email')
-            .populate('lessons')
-            .sort(sort)
-            .limit(parseInt(limit))
-            .skip(skip);
+        let orderBy = {};
+        if (sort === '-createdAt') orderBy = { createdAt: 'desc' };
+        else if (sort === 'createdAt') orderBy = { createdAt: 'asc' };
+        
+        const courses = await prisma.course.findMany({
+            where: query,
+            include: {
+                instructor: { select: { name: true, email: true } },
+                lessons: true
+            },
+            orderBy: Object.keys(orderBy).length ? orderBy : undefined,
+            take: parseInt(limit),
+            skip: skip
+        });
 
-        // Get total count
-        const total = await Course.countDocuments(query);
+        const total = await prisma.course.count({ where: query });
 
         res.json({
             success: true,
@@ -71,8 +74,10 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/categorized', async (req, res) => {
     try {
-        const courses = await Course.find({ isPublished: true, status: 'approved' })
-            .populate('instructor', 'name email');
+        const courses = await prisma.course.findMany({
+            where: { isPublished: true, status: 'approved' },
+            include: { instructor: { select: { name: true, email: true } } }
+        });
 
         const grouped = {};
         courses.forEach(c => {
@@ -104,7 +109,7 @@ router.get('/categorized', async (req, res) => {
 
             return {
                 mainCategory: g.mainCategory,
-                courses: g.courses, // Can be used directly if frontend needs them
+                courses: g.courses, 
                 totalStudents: g.totalStudents,
                 durationRange: durationRange,
                 subCategories: Array.from(g.subCategories)
@@ -129,12 +134,13 @@ router.get('/categorized', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
     try {
-        const course = await Course.findById(req.params.id)
-            .populate('instructor', 'name email bio avatar')
-            .populate({
-                path: 'lessons',
-                options: { sort: { order: 1 } }
-            });
+        const course = await prisma.course.findUnique({
+            where: { id: req.params.id },
+            include: {
+                instructor: { select: { name: true, email: true, bio: true, avatar: true } },
+                lessons: { orderBy: { order: 'asc' } }
+            }
+        });
 
         if (!course) {
             return res.status(404).json({
@@ -149,12 +155,6 @@ router.get('/:id', async (req, res) => {
         });
     } catch (error) {
         console.error('Get course error:', error);
-        if (error.kind === 'ObjectId') {
-            return res.status(404).json({
-                success: false,
-                message: 'Course not found'
-            });
-        }
         res.status(500).json({
             success: false,
             message: 'Server error'
@@ -167,19 +167,40 @@ router.get('/:id', async (req, res) => {
 // @access  Private/Instructor or Admin
 router.post('/', protect, authorize('instructor', 'admin'), async (req, res) => {
     try {
-        // Add instructor to request body
-        req.body.instructor = req.user.id;
-
+        const userId = req.user.id;
+        
+        const validFields = {
+            title: req.body.title,
+            description: req.body.description,
+            mainCategory: req.body.category || req.body.mainCategory || 'General',
+            subCategory: req.body.subCategory || '',
+            level: req.body.level || 'Beginner',
+            duration: Number(req.body.duration) || 1,
+            thumbnail: req.body.thumbnail || 'default-course.jpg',
+            price: Number(req.body.price) || 0,
+            requirements: req.body.requirements || [],
+            whatYouWillLearn: req.body.whatYouWillLearn || [],
+            tags: req.body.tags || [],
+            isExamRequired: Boolean(req.body.isExamRequired),
+            finalExam: req.body.finalExam || []
+        };
+        
+        validFields.instructorId = userId;
+        validFields.slug = (validFields.title || 'course').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+        
         if (req.user.role === 'admin') {
-            req.body.status = 'approved';
-            req.body.isPublished = true;
+            validFields.status = 'approved';
+            validFields.isPublished = true;
         } else {
-            req.body.status = 'pending'; // Instructor submitted for review
+            validFields.status = 'pending';
+            validFields.isPublished = false;
         }
 
-        const course = await Course.create(req.body);
+        const course = await prisma.course.create({
+            data: validFields
+        });
 
-        await logActivity(req.user.id, `Created a new course: ${course.title}`, 'course', course.title, course._id);
+        await logActivity(userId, `Created a new course: ${course.title}`, 'course', course.title, course.id);
 
         res.status(201).json({
             success: true,
@@ -199,7 +220,8 @@ router.post('/', protect, authorize('instructor', 'admin'), async (req, res) => 
 // @access  Private/Instructor or Admin
 router.put('/:id', protect, authorize('instructor', 'admin'), async (req, res) => {
     try {
-        let course = await Course.findById(req.params.id);
+        const userId = req.user.id;
+        let course = await prisma.course.findUnique({ where: { id: req.params.id } });
 
         if (!course) {
             return res.status(404).json({
@@ -208,19 +230,31 @@ router.put('/:id', protect, authorize('instructor', 'admin'), async (req, res) =
             });
         }
 
-        // Check if user is course instructor or admin
-        if (course.instructor.toString() !== req.user.id && req.user.role !== 'admin') {
+        if (course.instructorId !== userId && req.user.role !== 'admin') {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to update this course'
             });
         }
+        
+        const validUpdateFields = {};
+        if (req.body.title !== undefined) validUpdateFields.title = req.body.title;
+        if (req.body.description !== undefined) validUpdateFields.description = req.body.description;
+        if (req.body.category !== undefined) validUpdateFields.mainCategory = req.body.category;
+        if (req.body.level !== undefined) validUpdateFields.level = req.body.level;
+        if (req.body.duration !== undefined) validUpdateFields.duration = Number(req.body.duration);
+        if (req.body.thumbnail !== undefined) validUpdateFields.thumbnail = req.body.thumbnail;
+        if (req.body.price !== undefined) validUpdateFields.price = Number(req.body.price);
+        if (req.body.requirements !== undefined) validUpdateFields.requirements = req.body.requirements;
+        if (req.body.whatYouWillLearn !== undefined) validUpdateFields.whatYouWillLearn = req.body.whatYouWillLearn;
+        if (req.body.tags !== undefined) validUpdateFields.tags = req.body.tags;
+        if (req.body.isExamRequired !== undefined) validUpdateFields.isExamRequired = Boolean(req.body.isExamRequired);
+        if (req.body.finalExam !== undefined) validUpdateFields.finalExam = req.body.finalExam;
 
-        course = await Course.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
-        );
+        course = await prisma.course.update({
+            where: { id: req.params.id },
+            data: validUpdateFields
+        });
 
         res.json({
             success: true,
@@ -240,19 +274,20 @@ router.put('/:id', protect, authorize('instructor', 'admin'), async (req, res) =
 // @access  Private/Instructor or Admin
 router.delete('/:id', protect, authorize('instructor', 'admin'), async (req, res) => {
     try {
-        const course = await Course.findById(req.params.id);
+        const userId = req.user.id;
+        const course = await prisma.course.findUnique({ where: { id: req.params.id } });
 
         if (!course) {
             return res.status(404).json({ success: false, message: 'Course not found' });
         }
 
-        if (course.instructor.toString() !== req.user.id && req.user.role !== 'admin') {
+        if (course.instructorId !== userId && req.user.role !== 'admin') {
             return res.status(403).json({ success: false, message: 'Not authorized to delete this course' });
         }
 
-        await Course.findByIdAndDelete(req.params.id);
+        await prisma.course.delete({ where: { id: req.params.id } });
         
-        await logActivity(req.user.id, `Deleted a course: ${course.title}`, 'course', course.title);
+        await logActivity(userId, `Deleted a course: ${course.title}`, 'course', course.title);
 
         res.json({ success: true, data: {} });
     } catch (error) {
@@ -266,15 +301,17 @@ router.delete('/:id', protect, authorize('instructor', 'admin'), async (req, res
 // @access  Private/Student
 router.post('/:id/enroll', protect, authorize('student'), async (req, res) => {
     try {
-        const course = await Course.findById(req.params.id);
+        const userId = req.user.id;
+        const course = await prisma.course.findUnique({ where: { id: req.params.id } });
 
         if (!course || course.status !== 'approved' || !course.isPublished) {
             return res.status(404).json({ success: false, message: 'Course not available for enrollment' });
         }
 
-        const user = await User.findById(req.user.id);
-
-        const existing = await Enrollment.findOne({ student: user._id, course: course._id });
+        const existing = await prisma.enrollment.findFirst({
+            where: { studentId: userId, courseId: course.id }
+        });
+        
         if (existing) {
             if (existing.status === 'active') {
                 return res.status(400).json({ success: false, message: 'Already active in this course' });
@@ -283,33 +320,44 @@ router.post('/:id/enroll', protect, authorize('student'), async (req, res) => {
                 return res.status(400).json({ success: false, message: 'Enrollment request is already pending approval' });
             }
             if (existing.status === 'rejected') {
-                existing.status = 'pending';
-                existing.reason = '';
-                existing.requestedAt = Date.now();
-                await existing.save();
+                await prisma.enrollment.update({
+                    where: { id: existing.id },
+                    data: { status: 'pending', reason: '', requestedAt: new Date() }
+                });
             }
         } else {
-            await Enrollment.create({
-                student: user._id,
-                course: course._id,
-                status: 'pending'
+            await prisma.enrollment.create({
+                data: {
+                    studentId: userId,
+                    courseId: course.id,
+                    status: 'pending'
+                }
             });
         }
 
-        const userEnrollment = user.enrolledCourses.find((en) => en.course.toString() === course._id.toString());
-        if (userEnrollment) {
-            userEnrollment.status = 'pending';
+        // Now synchronised progress representation:
+        const progressExisting = await prisma.userCourseProgress.findFirst({
+            where: { userId, courseId: course.id }
+        });
+        
+        if (progressExisting) {
+            await prisma.userCourseProgress.update({
+                where: { id: progressExisting.id },
+                data: { status: 'pending' }
+            });
         } else {
-            user.enrolledCourses.push({
-                course: course._id,
-                status: 'pending',
-                progress: 0,
-                completedLessons: []
+            await prisma.userCourseProgress.create({
+                data: {
+                    userId,
+                    courseId: course.id,
+                    status: 'pending',
+                    progress: 0,
+                    completedLessons: []
+                }
             });
         }
-        await user.save();
 
-        await logActivity(req.user.id, `Requested enrollment in course: ${course.title}`, 'enrollment', course.title, course._id);
+        await logActivity(userId, `Requested enrollment in course: ${course.title}`, 'enrollment', course.title, course.id);
 
         res.json({ success: true, message: 'Enrollment request sent, awaiting admin approval' });
     } catch (error) {
@@ -323,7 +371,11 @@ router.post('/:id/enroll', protect, authorize('student'), async (req, res) => {
 // @access  Private/Instructor or Admin
 router.get('/:id/students', protect, authorize('instructor', 'admin'), async (req, res) => {
     try {
-        const enrollments = await Enrollment.find({ course: req.params.id, status: 'active' }).populate('student', 'name email avatar');
+        const enrollments = await prisma.enrollment.findMany({
+            where: { courseId: req.params.id, status: 'active' },
+            include: { student: { select: { id: true, name: true, email: true, avatar: true } } }
+        });
+        
         const students = enrollments.map(e => e.student).filter(Boolean);
         res.json({ success: true, count: students.length, data: students });
     } catch (error) {
@@ -332,4 +384,4 @@ router.get('/:id/students', protect, authorize('instructor', 'admin'), async (re
     }
 });
 
-module.exports = router;
+export default router;

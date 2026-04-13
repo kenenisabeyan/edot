@@ -13,11 +13,11 @@ export function Button({
   void motion;
   const variants = {
     primary: 'bg-gradient-primary text-white shadow-lg shadow-indigo-500/25 focus:ring-indigo-500',
-    secondary: 'bg-slate-800 text-white shadow-md hover:bg-slate-700 dark:bg-white dark:text-slate-900 border border-slate-700',
-    outline: 'bg-white/50 backdrop-blur-sm border-indigo-200 text-indigo-600 hover:bg-indigo-50 border focus:ring-indigo-500',
-    success: 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 hover:bg-emerald-600 focus:ring-emerald-500',
-    danger: 'bg-rose-500 text-white shadow-lg shadow-rose-500/25 hover:bg-rose-600 focus:ring-rose-500',
-    ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-300',
+    secondary: 'bg-slate-800 text-white shadow-md hover:bg-slate-700 dark:bg-[#11151F] dark:text-white border border-slate-700',
+    outline: 'bg-[#11151F]/50 backdrop-blur-sm border-indigo-200 text-indigo-600 hover:bg-indigo-500/10 border focus:ring-indigo-500',
+    success: 'bg-emerald-500/100 text-white shadow-lg shadow-emerald-500/25 hover:bg-emerald-600 focus:ring-emerald-500',
+    danger: 'bg-rose-500/100 text-white shadow-lg shadow-rose-500/25 hover:bg-rose-600 focus:ring-rose-500',
+    ghost: 'bg-transparent text-slate-300 hover:bg-[#11151F]/5 backdrop-blur-xl dark:hover:bg-slate-800 dark:text-slate-300',
   };
   
   const sizes = {

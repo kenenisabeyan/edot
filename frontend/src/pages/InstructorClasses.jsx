@@ -40,11 +40,11 @@ export default function InstructorClasses() {
 
       {courses.length === 0 ? (
           <div className="bg-[#0B0E14]/50 backdrop-blur-xl p-12 text-center rounded-3xl border-2 border-dashed border-white/10 shadow-sm flex flex-col items-center justify-center">
-            <div className="w-20 h-20 bg-white/5 text-slate-500 rounded-full flex items-center justify-center mb-4">
+            <div className="w-20 h-20 bg-[#11151F]/5 text-slate-300 rounded-full flex items-center justify-center mb-4">
               <Search className="w-10 h-10" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">No classes yet</h3>
-            <p className="text-slate-400 max-w-sm mb-6">Create your first course to start teaching.</p>
+            <p className="text-slate-200 max-w-sm mb-6">Create your first course to start teaching.</p>
             <Link to="/dashboard/builder" className="px-8 py-3.5 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-black uppercase tracking-widest text-xs rounded-xl hover:-translate-y-0.5 transition-transform shadow-[0_0_20px_rgba(255,215,0,0.3)]">
               Create Course
             </Link>
@@ -53,7 +53,7 @@ export default function InstructorClasses() {
           <div className="grid grid-cols-1 gap-6">
             {courses.map((course) => (
               <div 
-                key={course._id} 
+                key={course.id} 
                 className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col md:flex-row p-6 items-start md:items-center gap-6 hover:border-[#FFD700]/30 transition-all relative group"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700] opacity-5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform"></div>
@@ -68,21 +68,21 @@ export default function InstructorClasses() {
                   <div className="flex items-center gap-4 mb-4 text-[10px] font-black uppercase tracking-widest">
                     <span className={`px-3 py-1.5 rounded-sm border ${
                         course.status === 'approved' ? 'bg-[#008A32]/20 text-[#008A32] border-[#008A32]/30' :
-                        course.status === 'pending' ? 'bg-amber-500/20 text-amber-500 border-amber-500/30' :
+                        course.status === 'pending' ? 'bg-amber-500/100/20 text-amber-500 border-amber-500/30' :
                         course.status === 'rejected' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-                        'bg-white/5 text-slate-400 border-white/10'
+                        'bg-[#11151F]/5 text-slate-200 border-white/10'
                     }`}>
                         {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
                     </span>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-slate-400">{course.totalStudents || 0} Students</span>
+                    <span className="text-slate-300">•</span>
+                    <span className="text-slate-200">{course.totalStudents || 0} Students</span>
                   </div>
                 </div>
                 
                 <div className="w-full md:w-auto md:pl-6 md:border-l md:border-white/10 shrink-0 pt-4 md:pt-0 relative z-10">
                   <Link 
-                    to={`/dashboard/builder/${course._id}`} 
-                    className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 bg-white/5 text-[#FFD700] font-black uppercase tracking-widest text-[10px] rounded-xl border border-white/10 hover:bg-[#FFD700] hover:text-[#0B0E14] hover:border-[#FFD700] transition-colors shadow-sm drop-shadow-md"
+                    to={`/dashboard/builder/${course.id}`} 
+                    className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 bg-[#11151F]/5 text-[#FFD700] font-black uppercase tracking-widest text-[10px] rounded-xl border border-white/10 hover:bg-[#FFD700] hover:text-[#0B0E14] hover:border-[#FFD700] transition-colors shadow-sm drop-shadow-md"
                   >
                     Edit Course
                   </Link>

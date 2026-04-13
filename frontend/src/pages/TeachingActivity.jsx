@@ -40,7 +40,7 @@ export default function TeachingActivity() {
 
         // Calculate forum replies or messages sent from activity feed
         const activities = historyRes.data?.data || [];
-        const messagesCount = activities.filter(a => a.type === 'communication' && (a.user?._id || a.user) === user.id).length;
+        const messagesCount = activities.filter(a => a.type === 'communication' && (a.user?.id || a.user) === user.id).length;
 
         // Approximate hours taught based on courses and time (e.g. 2 hrs per active course) + historic records
         // If they have 5 courses, that's roughly 10 hours a week statically mapped to real activity triggers
@@ -127,8 +127,8 @@ export default function TeachingActivity() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-             <div className="flex flex-col items-center justify-center p-4 py-8 text-center border-2 border-dashed border-white/10 bg-white/5 rounded-2xl w-full h-full shadow-inner">
-                  <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No teaching velocity data logged</p>
+             <div className="flex flex-col items-center justify-center p-4 py-8 text-center border-2 border-dashed border-white/10 bg-[#11151F]/5 rounded-2xl w-full h-full shadow-inner">
+                  <p className="text-slate-200 font-bold uppercase tracking-widest text-xs">No teaching velocity data logged</p>
              </div>
           )}
         </div>

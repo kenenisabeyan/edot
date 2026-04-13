@@ -1,9 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { prisma } from '../lib/prisma.js';
+import { protect } from '../middleware/auth.js';
+
 const router = express.Router();
-const User = require('../models/User');
-const Course = require('../models/Course');
-const Notice = require('../models/Notice');
-const { protect } = require('../middleware/auth'); // Verify access control
 
 /**
  * @route GET /api/search/global?q=...
@@ -17,11 +16,16 @@ router.get('/global', protect, async (req, res) => {
       return res.status(200).json({ success: true, data: [] });
     }
 
-    const searchRegex = new RegExp(q, 'i');
+    const searchKeyword = q.trim();
     const results = [];
 
     // 1. Fetch Users (Limit 15 total) and Categorize
-    const users = await User.find({ name: searchRegex }).select('name role email avatar _id').limit(15);
+    const users = await prisma.user.findMany({
+        where: { name: { contains: searchKeyword, mode: 'insensitive' } },
+        select: { name: true, role: true, email: true, avatar: true, id: true },
+        take: 15
+    });
+    
     users.forEach(u => {
       const type = u.role === 'admin' ? 'System' :
                    u.role === 'instructor' ? 'Instructor' :
@@ -31,31 +35,41 @@ router.get('/global', protect, async (req, res) => {
         type: type,
         title: u.name,
         subtitle: u.email,
-        id: u._id,
+        id: u.id,
         path: '/dashboard/users' // They can click users to go to the global user mgmt list!
       });
     });
 
     // 2. Fetch Courses (Limit 10 total)
-    const courses = await Course.find({ title: searchRegex }).select('title description _id').limit(10);
+    const courses = await prisma.course.findMany({
+        where: { title: { contains: searchKeyword, mode: 'insensitive' } },
+        select: { title: true, description: true, id: true },
+        take: 10
+    });
+    
     courses.forEach(c => {
       results.push({
         type: 'Course',
         title: c.title,
         subtitle: c.description ? c.description.substring(0, 40) + '...' : '',
-        id: c._id,
+        id: c.id,
         path: '/dashboard/courses'
       });
     });
 
     // 3. Fetch Notices (Limit 5 total)
-    const notices = await Notice.find({ title: searchRegex }).select('title _id').limit(5);
+    const notices = await prisma.notice.findMany({
+        where: { title: { contains: searchKeyword, mode: 'insensitive' } },
+        select: { title: true, id: true },
+        take: 5
+    });
+    
     notices.forEach(n => {
       results.push({
         type: 'Notice',
         title: n.title,
         subtitle: 'Platform Announcement',
-        id: n._id,
+        id: n.id,
         path: '/dashboard/notice'
       });
     });
@@ -67,4 +81,4 @@ router.get('/global', protect, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

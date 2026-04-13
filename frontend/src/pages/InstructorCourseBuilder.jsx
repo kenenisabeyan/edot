@@ -38,10 +38,13 @@ export default function InstructorCourseBuilder() {
     finalExam: []
   });
 
-  // Step 3 Data (Lessons)
+  // Step 3 Data (Lessons & Phases)
   const [lessons, setLessons] = useState([]);
-  const [lessonForm, setLessonForm] = useState({ title: '', description: '', videoUrl: '', duration: 10, readingMaterials: '', quiz: [] });
-  const [showLessonForm, setShowLessonForm] = useState(false);
+  const [phases, setPhases] = useState([]); // List of string phase names
+  const [lessonForm, setLessonForm] = useState({ title: '', description: '', videoUrl: '', duration: 10, readingMaterials: '', quiz: [], phase: '' });
+  const [showLessonFormForPhase, setShowLessonFormForPhase] = useState(null); // Phase name to show form for
+  const [newPhaseName, setNewPhaseName] = useState('');
+  const [showPhaseInput, setShowPhaseInput] = useState(false);
 
   const fetchCourseDetails = useCallback(async () => {
     setLoading(true);
@@ -62,7 +65,14 @@ export default function InstructorCourseBuilder() {
           isExamRequired: data.course.isExamRequired || false,
           finalExam: data.course.finalExam || []
         });
-        setLessons(data.course.lessons || []);
+        const courseLessons = data.course.lessons || [];
+        setLessons(courseLessons);
+        
+        // Extract unique phases
+        const uniquePhases = [...new Set(courseLessons.map(l => l.phase).filter(Boolean))];
+        if (uniquePhases.length > 0) {
+          setPhases(uniquePhases);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch course details', err);
@@ -105,8 +115,8 @@ export default function InstructorCourseBuilder() {
 
       if (!courseId) {
         const { data } = await api.post('/instructor/courses', cleanedData);
-        setCourseId(data.data._id);
-        navigate(`/dashboard/builder/${data.data._id}`, { replace: true });
+        setCourseId(data.data.id);
+        navigate(`/dashboard/builder/${data.data.id}`, { replace: true });
       } else {
         await api.put(`/instructor/courses/${courseId}`, cleanedData);
       }
@@ -140,16 +150,27 @@ export default function InstructorCourseBuilder() {
     
     setSaving(true);
     try {
-      const { data } = await api.post(`/instructor/courses/${courseId}/lessons`, lessonForm);
+      const { data } = await api.post(`/instructor/courses/${courseId}/lessons`, {
+        ...lessonForm,
+        phase: showLessonFormForPhase
+      });
       setLessons([...lessons, data.data]);
-      setLessonForm({ title: '', description: '', videoUrl: '', duration: 10, readingMaterials: '', quiz: [] });
-      setShowLessonForm(false);
+      setLessonForm({ title: '', description: '', videoUrl: '', duration: 10, readingMaterials: '', quiz: [], phase: '' });
+      setShowLessonFormForPhase(null);
     } catch (err) {
       console.error('Failed to add lesson', err);
       alert(err.response?.data?.message || 'Failed to add lesson');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAddPhase = () => {
+    if (newPhaseName.trim() && !phases.includes(newPhaseName.trim())) {
+      setPhases([...phases, newPhaseName.trim()]);
+    }
+    setNewPhaseName('');
+    setShowPhaseInput(false);
   };
 
   const handleSubmitForReview = async () => {
@@ -221,12 +242,12 @@ export default function InstructorCourseBuilder() {
   return (
     <div className="min-h-screen bg-[#0B0E14] flex flex-col text-white">
       {/* Top Navbar specifically for the builder */}
-      <header className="border-b border-white/5 bg-white/5 backdrop-blur-xl sticky top-0 z-30 shadow-sm">
+      <header className="border-b border-white/5 bg-[#11151F]/5 backdrop-blur-xl sticky top-0 z-30 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => navigate('/dashboard/my-courses')}
-              className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 font-medium text-sm border-r border-white/10 pr-4"
+              className="text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 font-medium text-sm border-r border-white/10 pr-4"
             >
               <ArrowLeft className="w-4 h-4" /> Exit
             </button>
@@ -235,13 +256,13 @@ export default function InstructorCourseBuilder() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-slate-400 hidden sm:inline-block">
+            <span className="text-xs font-medium text-slate-200 hidden sm:inline-block">
               {saving ? 'Saving...' : 'Draft saved'}
             </span>
             <button 
               onClick={saveCourseData}
               disabled={saving}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/5 text-white font-semibold rounded-lg hover:bg-white/10 border border-white/10 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FFD700]/50 text-sm disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#11151F]/5 text-white font-semibold rounded-lg hover:bg-[#11151F]/10 border border-white/10 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FFD700]/50 text-sm disabled:opacity-50"
             >
               <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Draft'}
             </button>
@@ -256,7 +277,7 @@ export default function InstructorCourseBuilder() {
           {/* Progress Steps */}
           <div className="mb-10">
             <div className="flex items-center justify-between relative">
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-white/10 rounded-full -z-10"></div>
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-[#11151F]/10 rounded-full -z-10"></div>
               <div 
                 className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-gradient-to-r from-[#FFD700] to-[#E30A17] rounded-full -z-10 transition-all duration-500"
                 style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
@@ -271,11 +292,11 @@ export default function InstructorCourseBuilder() {
                   <div key={idx} className="flex flex-col items-center">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${
                       isActive ? 'bg-[#0B0E14] text-[#FFD700] border-2 border-[#FFD700]' :
-                      isCompleted ? 'bg-[#008A32] text-white border-2 border-[#008A32]' : 'bg-[#0B0E14] text-slate-500 border border-white/20'
+                      isCompleted ? 'bg-[#008A32] text-white border-2 border-[#008A32]' : 'bg-[#0B0E14] text-slate-300 border border-white/20'
                     }`}>
                       {isCompleted ? <CheckCircle2 className="w-5 h-5" /> : step.icon}
                     </div>
-                    <span className={`mt-2 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-[#FFD700]' : isCompleted ? 'text-[#008A32]' : 'text-slate-500'}`}>
+                    <span className={`mt-2 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-[#FFD700]' : isCompleted ? 'text-[#008A32]' : 'text-slate-300'}`}>
                       {step.title}
                     </span>
                   </div>
@@ -301,7 +322,7 @@ export default function InstructorCourseBuilder() {
                       value={formData.title} 
                       onChange={e => setFormData({...formData, title: e.target.value})} 
                       required 
-                      className="w-full px-4 py-3 bg-[#0B0E14] text-white rounded-xl border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all placeholder:text-slate-600 font-semibold" 
+                      className="w-full px-4 py-3 bg-[#0B0E14] text-white rounded-xl border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all placeholder:text-slate-300 font-semibold" 
                       placeholder="E.g., Complete Modern JavaScript Bootcamp" 
                     />
                   </div>
@@ -312,7 +333,7 @@ export default function InstructorCourseBuilder() {
                       value={formData.description} 
                       onChange={e => setFormData({...formData, description: e.target.value})} 
                       required 
-                      className="w-full px-4 py-3 bg-[#0B0E14] text-white rounded-xl border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all resize-y placeholder:text-slate-600 font-medium" 
+                      className="w-full px-4 py-3 bg-[#0B0E14] text-white rounded-xl border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all resize-y placeholder:text-slate-300 font-medium" 
                       rows="4" 
                       placeholder="What will students learn in this course? Detail the curriculum and learning outcomes."
                     ></textarea>
@@ -368,7 +389,7 @@ export default function InstructorCourseBuilder() {
                       type="url" 
                       value={formData.thumbnail} 
                       onChange={e => setFormData({...formData, thumbnail: e.target.value})} 
-                      className="w-full px-4 py-3 bg-[#0B0E14] text-white rounded-xl border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all placeholder:text-slate-600 font-medium" 
+                      className="w-full px-4 py-3 bg-[#0B0E14] text-white rounded-xl border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all placeholder:text-slate-300 font-medium" 
                       placeholder="https://example.com/beautiful-course-cover.jpg" 
                     />
                     {formData.thumbnail && (
@@ -388,12 +409,12 @@ export default function InstructorCourseBuilder() {
                             type="text" 
                             value={item}
                             onChange={(e) => handleArrayChange('whatYouWillLearn', index, e.target.value)}
-                            className="flex-1 px-4 py-2.5 bg-[#0B0E14] text-white rounded-lg border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all text-sm placeholder:text-slate-600"
+                            className="flex-1 px-4 py-2.5 bg-[#0B0E14] text-white rounded-lg border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all text-sm placeholder:text-slate-300"
                             placeholder={`Learning outcome ${index + 1}`}
                           />
                           <button 
                             onClick={() => removeArrayItem('whatYouWillLearn', index)}
-                            className="p-2.5 text-slate-500 hover:text-[#E30A17] hover:bg-[#E30A17]/10 rounded-lg transition-colors border border-transparent hover:border-[#E30A17]/20"
+                            className="p-2.5 text-slate-300 hover:text-[#E30A17] hover:bg-[#E30A17]/10 rounded-lg transition-colors border border-transparent hover:border-[#E30A17]/20"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -416,12 +437,12 @@ export default function InstructorCourseBuilder() {
                             type="text" 
                             value={item}
                             onChange={(e) => handleArrayChange('requirements', index, e.target.value)}
-                            className="flex-1 px-4 py-2.5 bg-[#0B0E14] text-white rounded-lg border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all text-sm placeholder:text-slate-600"
+                            className="flex-1 px-4 py-2.5 bg-[#0B0E14] text-white rounded-lg border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none transition-all text-sm placeholder:text-slate-300"
                             placeholder={`Requirement ${index + 1}`}
                           />
                           <button 
                             onClick={() => removeArrayItem('requirements', index)}
-                            className="p-2.5 text-slate-500 hover:text-[#E30A17] hover:bg-[#E30A17]/10 rounded-lg transition-colors border border-transparent hover:border-[#E30A17]/20"
+                            className="p-2.5 text-slate-300 hover:text-[#E30A17] hover:bg-[#E30A17]/10 rounded-lg transition-colors border border-transparent hover:border-[#E30A17]/20"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -443,44 +464,105 @@ export default function InstructorCourseBuilder() {
               {currentStep === 3 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-6">
                   <h2 className="text-2xl font-display font-bold text-white mb-2">Curriculum Builder</h2>
-                  <p className="text-slate-400 mb-6">Organize your course content into engaging video lessons.</p>
+                  <p className="text-slate-200 mb-6">Organize your course content into phases and video lessons.</p>
                   
-                  {lessons.length > 0 ? (
-                    <div className="space-y-3 mb-8">
-                      {lessons.map((lesson, idx) => (
-                        <div key={lesson._id || idx} className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center gap-4 group hover:border-white/20 transition-colors">
-                          <div className="w-10 h-10 rounded-full bg-[#FFD700]/10 text-[#FFD700] flex items-center justify-center shrink-0 font-bold border border-[#FFD700]/20">
-                            {idx + 1}
+                  {phases.length > 0 ? (
+                    <div className="space-y-6 mb-8">
+                      {phases.map((phase, pIdx) => {
+                        const phaseLessons = lessons.filter(l => l.phase === phase);
+                        return (
+                          <div key={pIdx} className="bg-[#11151F]/30 border border-[#FFD700]/20 rounded-2xl overflow-hidden shadow-sm">
+                            <div className="bg-[#11151F]/80 p-4 border-b border-[#FFD700]/20 flex items-center justify-between">
+                              <h3 className="font-bold text-[#FFD700] text-lg flex items-center gap-2">
+                                <LayoutList className="w-5 h-5" /> {phase}
+                              </h3>
+                              <span className="text-xs text-slate-400 font-medium bg-[#0B0E14] px-3 py-1 rounded-full border border-white/10">
+                                {phaseLessons.length} {phaseLessons.length === 1 ? 'Lesson' : 'Lessons'}
+                              </span>
+                            </div>
+                            
+                            <div className="p-4 space-y-3 bg-[#0B0E14]/40">
+                              {phaseLessons.length > 0 ? (
+                                phaseLessons.map((lesson, idx) => (
+                                  <div key={lesson.id || idx} className="bg-[#11151F]/50 border border-white/5 hover:border-white/20 p-4 rounded-xl flex items-center gap-4 transition-colors">
+                                    <div className="w-8 h-8 rounded-full bg-[#008A32]/10 text-[#008A32] flex items-center justify-center shrink-0 font-bold border border-[#008A32]/20 text-sm">
+                                      {idx + 1}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-bold text-white truncate text-sm">{lesson.title}</h4>
+                                    </div>
+                                    <div className="text-xs text-slate-300 flex items-center gap-1.5 font-medium shrink-0 bg-[#0B0E14] px-2.5 py-1.5 rounded-lg border border-white/5">
+                                      <PlayCircle className="w-3.5 h-3.5 text-[#FFD700]" /> {lesson.duration}m
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="text-slate-400 text-sm text-center py-4 border border-dashed border-white/10 rounded-xl bg-[#0B0E14]/50">No lessons in this phase yet.</p>
+                              )}
+                              
+                              {showLessonFormForPhase !== phase && (
+                                <button 
+                                  onClick={() => setShowLessonFormForPhase(phase)}
+                                  className="w-full py-3 mt-2 bg-[#11151F]/40 border border-dashed border-[#FFD700]/30 rounded-xl text-[#FFD700] text-sm font-bold hover:bg-[#FFD700]/10 transition-colors flex items-center justify-center gap-1.5"
+                                >
+                                  <PlusCircle className="w-4 h-4" /> Add Lesson to {phase}
+                                </button>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-white truncate">{lesson.title}</h4>
-                            <p className="text-sm text-slate-400 flex items-center gap-2 mt-1">
-                              <PlayCircle className="w-3.5 h-3.5" /> {lesson.duration} mins
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
-                    <div className="bg-white/5 border border-dashed border-white/20 rounded-2xl p-10 text-center mb-6">
+                    <div className="bg-[#11151F]/5 border border-dashed border-white/20 rounded-2xl p-10 text-center mb-6">
                       <LayoutList className="w-12 h-12 text-[#FFD700] mx-auto mb-3 opacity-50" />
-                      <h3 className="text-lg font-bold text-white mb-1">No lessons yet</h3>
-                      <p className="text-slate-400 mb-4 text-sm max-w-sm mx-auto">Start building your curriculum by adding your first video lesson module.</p>
+                      <h3 className="text-lg font-bold text-white mb-1">No curriculum phases yet</h3>
+                      <p className="text-slate-200 mb-6 text-sm max-w-sm mx-auto">Start building your curriculum by adding your first phase (e.g., "Phase 1: Foundations").</p>
                     </div>
                   )}
 
-                  {!showLessonForm ? (
+                  {!showPhaseInput ? (
                     <button 
-                      onClick={() => setShowLessonForm(true)}
-                      className="w-full py-4 bg-white/5 border border-dashed border-[#FFD700]/50 rounded-xl text-[#FFD700] font-bold hover:bg-[#FFD700]/10 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                      onClick={() => setShowPhaseInput(true)}
+                      className="w-full py-4 bg-[#0B0E14] border border-dashed border-[#008A32]/50 rounded-xl text-[#008A32] font-bold hover:bg-[#008A32]/10 transition-colors flex items-center justify-center gap-2 shadow-sm"
                     >
-                      <PlusCircle className="w-5 h-5" /> Add New Lesson
+                      <PlusCircle className="w-5 h-5" /> Add New Phase
                     </button>
                   ) : (
-                    <div className="bg-white/5 rounded-2xl p-6 border border-white/10 animate-in zoom-in-95 duration-200">
-                      <h3 className="font-bold text-[#FFD700] mb-4 flex items-center gap-2">
-                        <PlayCircle className="w-5 h-5" /> New Lesson Module
-                      </h3>
+                    <div className="bg-[#11151F]/10 rounded-2xl p-5 border border-[#008A32]/30 flex items-center gap-3">
+                      <input 
+                        type="text" 
+                        autoFocus
+                        value={newPhaseName}
+                        onChange={e => setNewPhaseName(e.target.value)}
+                        onKeyDown={(e) => { if(e.key === 'Enter') handleAddPhase(); }}
+                        placeholder='e.g., Phase 1: Foundations (The "Must-Haves")'
+                        className="flex-1 px-4 py-2.5 bg-[#0B0E14] text-white rounded-lg border border-white/10 focus:ring-1 focus:ring-[#008A32] focus:border-[#008A32] outline-none"
+                      />
+                      <button 
+                        onClick={handleAddPhase}
+                        disabled={!newPhaseName.trim()}
+                        className="py-2.5 px-6 bg-[#008A32] text-white font-bold rounded-lg hover:shadow-lg disabled:opacity-50"
+                      >
+                        Add
+                      </button>
+                      <button 
+                        onClick={() => setShowPhaseInput(false)}
+                        className="py-2.5 px-4 bg-transparent text-slate-300 font-bold hover:text-white"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+
+                  {showLessonFormForPhase && (
+                    <div className="bg-[#11151F]/90 backdrop-blur-xl rounded-2xl p-6 md:p-8 border-2 border-[#FFD700]/50 animate-in slide-in-from-bottom-4 duration-300 mt-8 shadow-2xl fixed inset-0 z-50 overflow-y-auto m-4 sm:m-10 sm:h-[calc(100vh-80px)] sm:relative sm:inset-auto sm:z-auto sm:m-0 sm:h-auto sm:overflow-visible">
+                      <div className="flex justify-between items-center mb-6">
+                        <h3 className="font-bold text-[#FFD700] text-xl flex items-center gap-2">
+                          <PlayCircle className="w-6 h-6" /> New Lesson for <span className="text-white bg-white/10 px-3 py-1 rounded-lg text-sm">{showLessonFormForPhase}</span>
+                        </h3>
+                        <button onClick={() => setShowLessonFormForPhase(null)} className="text-slate-400 hover:text-white sm:hidden text-lg">×</button>
+                      </div>
                       <form onSubmit={handleAddLesson} className="space-y-4">
                         <div>
                           <label className="block text-sm font-bold text-slate-300 mb-1.5">Lesson Title <span className="text-[#E30A17]">*</span></label>
@@ -514,7 +596,7 @@ export default function InstructorCourseBuilder() {
                                 placeholder="Paste URL or upload file"
                                 className="flex-1 px-4 py-2.5 bg-[#0B0E14] text-white rounded-lg border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none min-w-0"
                               />
-                              <label className="cursor-pointer bg-white/10 hover:bg-white/20 text-[#FFD700] border border-white/10 px-4 py-2.5 rounded-lg font-bold transition-colors flex items-center shrink-0">
+                              <label className="cursor-pointer bg-[#11151F]/10 hover:bg-[#11151F]/20 text-[#FFD700] border border-white/10 px-4 py-2.5 rounded-lg font-bold transition-colors flex items-center shrink-0">
                                 {saving ? '...' : 'Upload'}
                                 <input 
                                   type="file" 
@@ -555,7 +637,7 @@ export default function InstructorCourseBuilder() {
                           <textarea 
                             value={lessonForm.readingMaterials}
                             onChange={e => setLessonForm({...lessonForm, readingMaterials: e.target.value})}
-                            className="w-full px-4 py-2.5 bg-[#0B0E14] text-white rounded-lg border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none min-h-[100px] placeholder:text-slate-600"
+                            className="w-full px-4 py-2.5 bg-[#0B0E14] text-white rounded-lg border border-white/10 focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] outline-none min-h-[100px] placeholder:text-slate-300"
                             placeholder="Add markdown notes, links, or text for students to read. Uploading a document inserts its link here."
                           ></textarea>
                         </div>
@@ -568,18 +650,18 @@ export default function InstructorCourseBuilder() {
                           />
                         </div>
 
-                        <div className="flex gap-3 pt-6">
+                        <div className="flex gap-3 pt-6 sm:mt-0 mt-8">
                           <button 
                             type="button" 
-                            onClick={() => setShowLessonForm(false)}
-                            className="flex-1 py-2.5 px-4 bg-white/5 text-slate-300 font-bold rounded-lg border border-white/10 hover:bg-white/10 hover:text-white transition-colors"
+                            onClick={() => setShowLessonFormForPhase(null)}
+                            className="flex-1 py-3 px-4 bg-[#0B0E14] text-slate-300 font-bold rounded-lg border border-white/10 hover:bg-[#11151F]/50 hover:text-white transition-colors"
                           >
                             Cancel
                           </button>
                           <button 
                             type="submit" 
                             disabled={saving}
-                            className="flex-1 py-2.5 px-4 bg-gradient-to-r from-[#008A32] to-[#006622] text-white font-bold rounded-lg hover:shadow-lg hover:shadow-[#008A32]/20 border border-[#008A32] transition-colors disabled:opacity-50"
+                            className="flex-1 py-3 px-4 bg-gradient-to-r from-[#008A32] to-[#006622] text-white font-bold rounded-lg hover:shadow-lg hover:shadow-[#008A32]/20 border border-[#008A32] transition-colors disabled:opacity-50"
                           >
                             Save Lesson
                           </button>
@@ -594,9 +676,9 @@ export default function InstructorCourseBuilder() {
               {currentStep === 4 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-6">
                   <h2 className="text-2xl font-display font-bold text-white mb-2">Pricing & Publishing</h2>
-                  <p className="text-slate-400 mb-8">Set your course value and {isAdmin ? 'publish it immediately' : 'submit it for administrative review'}.</p>
+                  <p className="text-slate-200 mb-8">Set your course value and {isAdmin ? 'publish it immediately' : 'submit it for administrative review'}.</p>
                   
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 mb-8 backdrop-blur-md">
+                  <div className="bg-[#11151F]/5 border border-white/10 rounded-2xl p-6 md:p-8 mb-8 backdrop-blur-md">
                     <div className="flex flex-col sm:flex-row items-center gap-6">
                       <div className="w-20 h-20 bg-[#008A32]/10 rounded-full flex gap-1 items-center justify-center text-[#008A32] shadow-sm shrink-0 border-4 border-[#008A32]/20">
                         <DollarSign className="w-10 h-10" />
@@ -616,16 +698,16 @@ export default function InstructorCourseBuilder() {
                             className="w-full pl-10 pr-4 py-4 text-2xl font-bold bg-[#0B0E14] text-white rounded-xl border-2 border-[#008A32]/30 focus:ring-1 focus:ring-[#008A32] focus:border-[#008A32] outline-none transition-all shadow-inner"
                           />
                         </div>
-                        <p className="mt-3 text-sm text-slate-400">Set to 0 to make this course free for all students.</p>
+                        <p className="mt-3 text-sm text-slate-200">Set to 0 to make this course free for all students.</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 backdrop-blur-md">
+                  <div className="bg-[#11151F]/5 border border-white/10 rounded-2xl p-6 mb-8 backdrop-blur-md">
                     <h3 className="font-bold text-white mb-2 flex items-center gap-2">
                        <CheckCircle2 className="w-5 h-5 text-[#FFD700]" /> Final Course Certification Exam
                     </h3>
-                    <p className="text-sm text-slate-400 mb-4">You can require a final exam for students to earn their certificate.</p>
+                    <p className="text-sm text-slate-200 mb-4">You can require a final exam for students to earn their certificate.</p>
                     <label className="flex items-center gap-3 mb-6 cursor-pointer">
                       <input 
                         type="checkbox" 
@@ -647,7 +729,7 @@ export default function InstructorCourseBuilder() {
                     )}
                   </div>
 
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
+                  <div className="bg-[#11151F]/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
                     <h3 className="font-bold text-white mb-2 flex items-center gap-2">
                        <CheckCircle2 className="w-5 h-5 text-[#008A32]" /> Pre-flight Checklist
                     </h3>
@@ -664,11 +746,11 @@ export default function InstructorCourseBuilder() {
             </div>
             
             {/* Form Footer / Navigation */}
-            <div className="bg-white/5 backdrop-blur-xl border-t border-white/10 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="bg-[#11151F]/5 backdrop-blur-xl border-t border-white/10 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
               <button 
                 onClick={prevStep}
                 disabled={currentStep === 1 || saving}
-                className="w-full sm:w-auto px-6 py-2.5 bg-[#0B0E14] text-slate-300 font-bold rounded-xl border border-white/20 hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-6 py-2.5 bg-[#0B0E14] text-slate-300 font-bold rounded-xl border border-white/20 hover:bg-[#11151F]/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous Step
               </button>

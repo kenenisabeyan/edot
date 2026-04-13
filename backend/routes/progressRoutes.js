@@ -1,10 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { protect, guardActiveEnrollment, checkNotBlocked } from '../middleware/auth.js';
+import { prisma } from '../lib/prisma.js';
+
 const router = express.Router();
-const mongoose = require('mongoose');
-const ProgressLog = require('../models/ProgressLog');
-const Course = require('../models/Course');
-const Certificate = require('../models/Certificate');
-const { protect, guardActiveEnrollment, checkNotBlocked } = require('../middleware/auth');
 
 // @route   POST /api/progress/ping
 // @desc    Heartbeat ping to track video watch time in 30s blocks
@@ -19,12 +17,14 @@ router.post('/ping', protect, checkNotBlocked, guardActiveEnrollment, async (req
         }
 
         // 1. Fetch the Course to find the target lesson duration
-        const course = await Course.findById(courseId);
+        const course = await prisma.course.findUnique({ where: { id: courseId } });
         if (!course) {
             return res.status(404).json({ success: false, message: 'Course not found' });
         }
-
-        const lesson = course.lessons.find(l => l.lesson_id.toString() === lessonId);
+        
+        const lessons = course.lessons ? (Array.isArray(course.lessons) ? course.lessons : [course.lessons]) : [];
+        const lesson = lessons.find(l => l.lesson_id === lessonId);
+        
         if (!lesson) {
             return res.status(404).json({ success: false, message: 'Lesson not found in this course' });
         }
@@ -36,39 +36,55 @@ router.post('/ping', protect, checkNotBlocked, guardActiveEnrollment, async (req
         const segmentIndex = Math.floor(currentSecond / 30) * 30;
 
         // 2. Find or create the ProgressLog for this specific lesson
-        let log = await ProgressLog.findOne({ user_id: userId, lesson_id: lessonId });
+        let log = await prisma.progressLog.findFirst({ 
+            where: { userId, lessonId }
+        });
         
+        let video_segments = [];
+        let is_video_complete = false;
+
         if (!log) {
-            log = new ProgressLog({
-                user_id: userId,
-                course_id: courseId,
-                lesson_id: lessonId,
-                video_segments: [segmentIndex],
-                is_video_complete: false
-            });
+            video_segments = [segmentIndex];
         } else {
+            video_segments = log.videoSegments ? (Array.isArray(log.videoSegments) ? log.videoSegments : [log.videoSegments]) : [];
             // Only add the segment if they haven't already watched this 30s chunk
-            if (!log.video_segments.includes(segmentIndex)) {
-                log.video_segments.push(segmentIndex);
+            if (!video_segments.includes(segmentIndex)) {
+                video_segments.push(segmentIndex);
             }
+            is_video_complete = log.isVideoComplete;
         }
 
         // 3. Strict Verification: Determine if total unique segments watched meets the required duration
         // (Assuming 30s per segment)
-        const totalSecondsWatched = log.video_segments.length * 30;
+        const totalSecondsWatched = video_segments.length * 30;
         
         // We give an 85% leniency buffer in case of network drops or UI fast-forwards
         if (totalSecondsWatched >= (requiredDurationSeconds * 0.85)) {
-            log.is_video_complete = true;
+            is_video_complete = true;
         }
 
-        await log.save();
+        if (log) {
+            log = await prisma.progressLog.update({
+                where: { id: log.id },
+                data: { videoSegments: video_segments, isVideoComplete: is_video_complete }
+            });
+        } else {
+            log = await prisma.progressLog.create({
+                data: {
+                    userId,
+                    courseId,
+                    lessonId,
+                    videoSegments: video_segments,
+                    isVideoComplete: is_video_complete
+                }
+            });
+        }
 
         res.status(200).json({
             success: true,
             message: 'Heartbeat logged',
             data: {
-                isComplete: log.is_video_complete,
+                isComplete: log.isVideoComplete,
                 watchedSeconds: totalSecondsWatched,
                 requiredSeconds: requiredDurationSeconds
             }
@@ -87,32 +103,35 @@ router.post('/certificate', protect, checkNotBlocked, guardActiveEnrollment, asy
         const { courseId } = req.body;
         const userId = req.user.id;
 
-        const course = await Course.findById(courseId);
+        const course = await prisma.course.findUnique({ where: { id: courseId } });
         if (!course) {
             return res.status(404).json({ success: false, message: 'Course not found' });
         }
+        
+        const lessons = course.lessons ? (Array.isArray(course.lessons) ? course.lessons : [course.lessons]) : [];
 
         // 1. Fetch ALL progress logs for this user + course
-        const userLogs = await ProgressLog.find({ user_id: userId, course_id: courseId });
+        const userLogs = await prisma.progressLog.findMany({ 
+            where: { userId, courseId }
+        });
 
         // 2. Strict Gateway Validation
         // Iterate through every required lesson in the course
         const missingLessons = [];
         
-        for (const lesson of course.lessons) {
-            const lessonLog = userLogs.find(log => log.lesson_id.toString() === lesson.lesson_id.toString());
+        for (const lesson of lessons) {
+            const lessonLog = userLogs.find(log => log.lessonId === lesson.lesson_id);
             
             if (!lessonLog) {
                 missingLessons.push({ lesson: lesson.title, reason: 'Not started' });
                 continue;
             }
 
-            if (!lessonLog.is_video_complete) {
+            if (!lessonLog.isVideoComplete) {
                 missingLessons.push({ lesson: lesson.title, reason: 'Video time requirement not met' });
             }
 
-            // If the schema mandated exams, we would check lessonLog.exam_scores here
-            // Note: Extended exam logic can be injected here based on isExamRequired
+            // Extended exam logic would go here
         }
 
         if (missingLessons.length > 0) {
@@ -124,17 +143,31 @@ router.post('/certificate', protect, checkNotBlocked, guardActiveEnrollment, asy
         }
 
         // 3. Validation passed! Ensure certificate doesn't already exist to prevent duplicates
-        let certificate = await Certificate.findOne({ user_id: userId, course_id: courseId });
+        let certificate = await prisma.certificate.findFirst({ 
+            where: { userId, courseId } 
+        });
         
         if (!certificate) {
             // Create Official Certificate Record
-            certificate = await Certificate.create({
-                certificate_id: `EDOT-${userId.toString().slice(-4)}-${courseId.toString().slice(-4)}-${Date.now().toString().slice(-4)}`,
-                user_id: userId,
-                course_id: courseId,
-                issue_date: new Date(),
-                verified_hash: 'placeholder_blockchain_hash_or_jwt' // Future-proofing
+            certificate = await prisma.certificate.create({
+                data: {
+                    certificateId: `EDOT-${userId.toString().slice(-4)}-${courseId.toString().slice(-4)}-${Date.now().toString().slice(-4)}`,
+                    userId,
+                    courseId,
+                    issueDate: new Date(),
+                    verifiedHash: 'placeholder_blockchain_hash_or_jwt' // Future-proofing
+                }
             });
+            
+            // Note: Map to backward-compatible responses so frontend functions aren't broken initially
+            certificate = {
+                ...certificate,
+                certificate_id: certificate.certificateId,
+                user_id: certificate.userId,
+                course_id: certificate.courseId,
+                verified_hash: certificate.verifiedHash,
+                issue_date: certificate.issueDate
+            };
         }
 
         res.status(200).json({
@@ -149,4 +182,4 @@ router.post('/certificate', protect, checkNotBlocked, guardActiveEnrollment, asy
     }
 });
 
-module.exports = router;
+export default router;

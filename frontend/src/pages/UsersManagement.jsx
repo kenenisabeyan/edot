@@ -111,7 +111,7 @@ export default function UsersManagement() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-white/10 border-t-indigo-600 rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -138,16 +138,16 @@ export default function UsersManagement() {
         </div>
       </div>
 
-      <div className="rounded-2xl p-6 border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
+      <div className="rounded-2xl p-6 border border-white/5 bg-[#11151F]/5 backdrop-blur-xl shadow-lg overflow-hidden">
         <div className="pb-4 border-b border-white/5 flex flex-wrap justify-between items-center gap-3">
           <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-200 absolute left-3 top-1/2 -translate-y-1/2" />
             <input 
               type="text"
               placeholder="Search users..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#FFD700] transition-shadow text-white placeholder-slate-400"
+              className="w-full pl-9 pr-4 py-2 bg-[#11151F]/5 border border-white/10 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#FFD700] transition-shadow text-white placeholder-slate-400"
             />
           </div>
           <button
@@ -211,7 +211,7 @@ export default function UsersManagement() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-                <tr className="bg-white/5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <tr className="bg-[#11151F]/5 text-xs font-bold text-slate-200 uppercase tracking-wider">
                   <th className="px-6 py-4">Name</th>
                   <th className="px-6 py-4">Email</th>
                   <th className="px-6 py-4">Status</th>
@@ -227,30 +227,30 @@ export default function UsersManagement() {
                   </tr>
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="p-8 text-center text-slate-400 font-medium">No users found.</td>
+                    <td colSpan="5" className="p-8 text-center text-slate-200 font-medium">No users found.</td>
                   </tr>
                 ) : filteredUsers.map((u) => (
-                  <tr key={u._id} className="hover:bg-white/5 transition-colors">
+                  <tr key={u.id} className="hover:bg-[#11151F]/5 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <UserAvatar user={u} className="w-8 h-8 text-xs" />
                         <span className="font-semibold text-white">{u.name || 'Unknown'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-400">{u.email}</td>
+                    <td className="px-6 py-4 text-slate-200">{u.email}</td>
                     
                     {/* Status Control */}
                     <td className="px-6 py-4">
                       {u.status === 'pending' ? (
                         <div className="flex gap-2 relative z-10 w-max">
-                            <button onClick={() => updateUserStatus(u._id, 'approved')} className="text-xs font-bold bg-[#008A32]/10 text-[#008A32] hover:bg-[#008A32]/20 px-3 py-1.5 rounded-lg border border-[#008A32]/20 transition-colors shadow-sm">Approve</button>
-                            <button onClick={() => updateUserStatus(u._id, 'rejected')} className="text-xs font-bold bg-[#E30A17]/10 text-[#E30A17] hover:bg-[#E30A17]/20 px-3 py-1.5 rounded-lg border border-[#E30A17]/20 transition-colors shadow-sm">Reject</button>
+                            <button onClick={() => updateUserStatus(u.id, 'approved')} className="text-xs font-bold bg-[#008A32]/10 text-[#008A32] hover:bg-[#008A32]/20 px-3 py-1.5 rounded-lg border border-[#008A32]/20 transition-colors shadow-sm">Approve</button>
+                            <button onClick={() => updateUserStatus(u.id, 'rejected')} className="text-xs font-bold bg-[#E30A17]/10 text-[#E30A17] hover:bg-[#E30A17]/20 px-3 py-1.5 rounded-lg border border-[#E30A17]/20 transition-colors shadow-sm">Reject</button>
                         </div>
                       ) : (
                         <span className={`inline-flex w-max items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
                           u.status === 'approved' ? 'bg-[#008A32]/10 text-[#008A32] border-[#008A32]/20' : 
                           u.status === 'rejected' ? 'bg-[#E30A17]/10 text-[#E30A17] border-[#E30A17]/20' : 
-                          'bg-white/5 text-slate-300 border-white/10'
+                          'bg-[#11151F]/5 text-slate-300 border-white/10'
                         }`}>
                           {u.status === 'approved' ? <CheckCircle2 className="w-3.5 h-3.5" /> : u.status === 'rejected' ? <XCircle className="w-3.5 h-3.5" /> : null}
                           {u.status}
@@ -260,14 +260,14 @@ export default function UsersManagement() {
                   
                   {/* Role Control */}
                   <td className="px-6 py-4">
-                      {u._id === user?._id ? (
+                      {u.id === user?.id ? (
                         <div className="opacity-50 cursor-not-allowed">
                            <CustomDropdown value={u.role} onChange={() => {}} options={[{ label: u.role, value: u.role }]} />
                         </div>
                       ) : (
                         <CustomDropdown
                           value={u.role}
-                          onChange={(val) => updateRole(u._id, val)}
+                          onChange={(val) => updateRole(u.id, val)}
                           options={[
                             { label: 'Student', value: 'student' },
                             { label: 'Parent', value: 'parent' },
@@ -283,11 +283,11 @@ export default function UsersManagement() {
                   <td className="px-6 py-4">
                     {u.role === 'student' ? (
                       <CustomDropdown
-                        value={u.assignedInstructor?._id || u.assignedInstructor || ''}
-                        onChange={(val) => assignInstructor(u._id, val)}
+                        value={u.assignedInstructor?.id || u.assignedInstructor || ''}
+                        onChange={(val) => assignInstructor(u.id, val)}
                         options={usersList.filter(uList => uList.role === 'instructor').map(inst => ({ 
                           label: inst.name, 
-                          value: inst._id,
+                          value: inst.id,
                           render: (
                             <div className="flex items-center gap-3 w-full py-0.5">
                               <div className="w-8 h-8 rounded-full bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold text-xs shrink-0 border border-[#008A32]/30 shadow-sm uppercase">
@@ -295,7 +295,7 @@ export default function UsersManagement() {
                               </div>
                               <div className="flex flex-col text-left flex-1 min-w-0">
                                 <span className="font-bold text-white text-xs truncate">{inst.name}</span>
-                                <span className="text-[10px] text-slate-400 truncate mt-0.5">{inst.email}</span>
+                                <span className="text-[10px] text-slate-200 truncate mt-0.5">{inst.email}</span>
                               </div>
                             </div>
                           )
@@ -305,14 +305,14 @@ export default function UsersManagement() {
                         className="w-44"
                       />
                     ) : (
-                      <span className="text-slate-500 text-sm italic">N/A</span>
+                      <span className="text-slate-300 text-sm italic">N/A</span>
                     )}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-2">
-                      <button onClick={() => resetUserPassword(u._id)} className="text-xs px-2.5 py-1 rounded-lg bg-yellow-500/15 text-yellow-300 hover:bg-yellow-500/25 border border-yellow-500/20">Reset PW</button>
-                      <button onClick={() => deleteUser(u._id)} className="text-xs px-2.5 py-1 rounded-lg bg-red-500/15 text-red-300 hover:bg-red-500/25 border border-red-500/20">Delete</button>
-                      <button onClick={() => showUserDetails(u)} className="text-xs px-2.5 py-1 rounded-lg bg-slate-500/15 text-slate-300 hover:bg-slate-500/25 border border-slate-500/20">Details</button>
+                      <button onClick={() => resetUserPassword(u.id)} className="text-xs px-2.5 py-1 rounded-lg bg-yellow-500/15 text-yellow-300 hover:bg-yellow-500/25 border border-yellow-500/20">Reset PW</button>
+                      <button onClick={() => deleteUser(u.id)} className="text-xs px-2.5 py-1 rounded-lg bg-red-500/15 text-red-300 hover:bg-red-500/25 border border-red-500/20">Delete</button>
+                      <button onClick={() => showUserDetails(u)} className="text-xs px-2.5 py-1 rounded-lg bg-[#11151F]/40 backdrop-blur-xl0/15 text-slate-300 hover:bg-[#11151F]/40 backdrop-blur-xl0/25 border border-slate-500/20">Details</button>
                     </div>
                   </td>
                 </tr>
@@ -323,7 +323,7 @@ export default function UsersManagement() {
 
         <UserIntelligenceModal 
           isOpen={!!selectedUser} 
-          userId={selectedUser?._id} 
+          userId={selectedUser?.id} 
           onClose={() => setSelectedUser(null)} 
           onRefreshUsers={fetchUsers} 
           globalUsersList={usersList} 

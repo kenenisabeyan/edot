@@ -150,7 +150,7 @@ export default function CommandK() {
                 {isSearching ? <Loader2 className="w-5 h-5 text-[#FFD700] animate-spin" /> : (
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="px-2.5 py-1 text-[10px] font-black text-slate-400 bg-white/5 rounded-lg border border-white/10 hover:text-white uppercase tracking-wider transition-colors"
+                  className="px-2.5 py-1 text-[10px] font-black text-slate-200 bg-[#11151F]/5 rounded-lg border border-white/10 hover:text-white uppercase tracking-wider transition-colors"
                 >
                   ESC
                 </button>
@@ -160,8 +160,8 @@ export default function CommandK() {
               {/* Categorised Results List */}
               <div className="max-h-[60vh] overflow-y-auto custom-scrollbar p-3">
                 {results.length === 0 && !isSearching ? (
-                  <div className="px-4 py-16 text-center text-sm text-slate-500 flex flex-col items-center">
-                    <Search className="w-10 h-10 text-slate-700 mb-3" />
+                  <div className="px-4 py-16 text-center text-sm text-slate-300 flex flex-col items-center">
+                    <Search className="w-10 h-10 text-slate-200 mb-3" />
                     <p>No platform entries found for <span className="font-bold text-[#FFD700]">"{query}"</span></p>
                   </div>
                 ) : (
@@ -169,7 +169,7 @@ export default function CommandK() {
                     {Object.entries(grouped).map(([category, items]) => (
                       <div key={category}>
                         <div className="px-3 pb-2 pt-1 flex items-center gap-2">
-                           <h3 className="text-[10px] uppercase font-black tracking-widest text-slate-500">{category}</h3>
+                           <h3 className="text-[10px] uppercase font-black tracking-widest text-slate-300">{category}</h3>
                            <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
                         </div>
                         <ul className="space-y-1">
@@ -191,15 +191,15 @@ export default function CommandK() {
                                   className={`flex w-full items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 ${
                                     isSelected 
                                       ? 'bg-[#FFD700]/10 border border-[#FFD700]/20 text-white shadow-[0_0_15px_rgba(255,215,0,0.1)]' 
-                                      : 'border border-transparent text-slate-400 hover:bg-white/5'
+                                      : 'border border-transparent text-slate-200 hover:bg-[#11151F]/5'
                                   }`}
                                 >
-                                  <div className={`p-2 rounded-xl transition-colors ${isSelected ? 'bg-[#FFD700] text-[#0B0E14]' : 'bg-white/5 text-slate-500'}`}>
+                                  <div className={`p-2 rounded-xl transition-colors ${isSelected ? 'bg-[#FFD700] text-[#0B0E14]' : 'bg-[#11151F]/5 text-slate-300'}`}>
                                      <Icon className="w-4 h-4" />
                                   </div>
                                   <div className="flex flex-col items-start flex-1 overflow-hidden">
                                     <span className="font-bold text-sm tracking-tight truncate w-full text-left">{item.title}</span>
-                                    {item.subtitle && <span className="text-[11px] font-semibold text-slate-500 truncate w-full text-left mt-0.5">{item.subtitle}</span>}
+                                    {item.subtitle && <span className="text-[11px] font-semibold text-slate-300 truncate w-full text-left mt-0.5">{item.subtitle}</span>}
                                   </div>
                                   
                                   {isSelected && <ArrowRight className="w-4 h-4 ml-auto text-[#FFD700] shrink-0 pointer-events-none" />}
@@ -216,8 +216,8 @@ export default function CommandK() {
               
               {/* Footer Tooltip */}
               <div className="flex items-center justify-between px-6 py-3 border-t border-[#FFD700]/20 bg-black/40 backdrop-blur-md shrink-0">
-                <span className="text-[10px] text-slate-500 flex items-center gap-1.5 font-bold uppercase tracking-wider">
-                  Navigate <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">&uarr;</span> <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">&darr;</span>
+                <span className="text-[10px] text-slate-300 flex items-center gap-1.5 font-bold uppercase tracking-wider">
+                  Navigate <span className="px-1.5 py-0.5 rounded bg-[#11151F]/5 border border-white/10 text-slate-300">&uarr;</span> <span className="px-1.5 py-0.5 rounded bg-[#11151F]/5 border border-white/10 text-slate-300">&darr;</span>
                 </span>
                 <span className="text-[10px] text-[#FFD700]/70 flex items-center gap-1.5 font-bold uppercase tracking-wider">
                   Open Selected <span className="px-2 py-0.5 rounded bg-[#FFD700]/10 border border-[#FFD700]/30 text-[#FFD700]">Enter</span>

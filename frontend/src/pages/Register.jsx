@@ -60,7 +60,7 @@ export default function Register() {
       <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-center pl-24 pr-16 z-10 border-r border-white/5 bg-[#11151F]/40 backdrop-blur-md">
         <div className="absolute top-12 left-12">
            <Link to="/" className="inline-flex items-center gap-2 bg-[#11151F] border border-white/10 px-4 py-2 rounded-xl hover:border-[#FFD700]/30 transition-all group backdrop-blur">
-              <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-[#FFD700] transition-colors" />
+              <ChevronLeft className="w-5 h-5 text-slate-200 group-hover:text-[#FFD700] transition-colors" />
               <span className="text-slate-300 font-black tracking-widest text-[10px] uppercase group-hover:text-white transition-colors">Back to Home</span>
            </Link>
         </div>
@@ -72,7 +72,7 @@ export default function Register() {
         <h1 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mb-8">
           Join The <br/> <span className="text-white">Community.</span>
         </h1>
-        <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-lg mb-12">
+        <p className="text-lg text-slate-200 font-medium leading-relaxed max-w-lg mb-12">
           Start your journey with EDOT today. Empower yourself with structured curriculums and high-end enterprise tools.
         </p>
 
@@ -101,11 +101,11 @@ export default function Register() {
 
              <div className="mb-8 text-center relative z-10">
                 <h3 className="text-2xl font-black text-white tracking-tight mb-2">Register</h3>
-                <p className="text-slate-400 text-sm font-medium">Please enter your details below.</p>
+                <p className="text-slate-200 text-sm font-medium">Please enter your details below.</p>
              </div>
 
              {error && (
-               <div className="mb-8 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start gap-3 text-rose-500 shadow-sm animate-in fade-in slide-in-from-top-2 relative z-10">
+               <div className="mb-8 p-4 bg-rose-500/100/10 border border-rose-500/20 rounded-xl flex items-start gap-3 text-rose-500 shadow-sm animate-in fade-in slide-in-from-top-2 relative z-10">
                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                  <p className="text-sm font-bold tracking-wide">{error}</p>
                </div>
@@ -122,7 +122,7 @@ export default function Register() {
 
              <div className="relative mb-8 text-center flex items-center z-10">
                <div className="flex-1 border-t border-white/10"></div>
-               <span className="px-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-500">Or Register Manually</span>
+               <span className="px-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-300">Or Register Manually</span>
                <div className="flex-1 border-t border-white/10"></div>
              </div>
 
@@ -130,16 +130,17 @@ export default function Register() {
                
                {/* ROLE SELECTION */}
                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-2">I am signing up as a...</label>
-                  <div className="grid grid-cols-3 gap-3">
-                     <button type="button" onClick={() => setRole('student')} className={`py-3 rounded-xl border font-black text-[10px] uppercase tracking-widest transition-all ${formData.role === 'student' ? 'bg-[#008A32]/20 border-[#008A32] text-white shadow-[0_0_15px_rgba(0,138,50,0.15)]' : 'bg-[#0B0E14] border-white/10 text-slate-500 hover:border-white/30'}`}>Student</button>
-                     <button type="button" onClick={() => setRole('parent')} className={`py-3 rounded-xl border font-black text-[10px] uppercase tracking-widest transition-all ${formData.role === 'parent' ? 'bg-[#FFD700]/20 border-[#FFD700] text-white shadow-[0_0_15px_rgba(255,215,0,0.15)]' : 'bg-[#0B0E14] border-white/10 text-slate-500 hover:border-white/30'}`}>Parent</button>
-                     <button type="button" onClick={() => setRole('instructor')} className={`py-3 rounded-xl border font-black text-[10px] uppercase tracking-widest transition-all ${formData.role === 'instructor' ? 'bg-white/10 border-white/50 text-white' : 'bg-[#0B0E14] border-white/10 text-slate-500 hover:border-white/30'}`}>Instructor</button>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-200 mb-3 ml-2">I am signing up as a...</label>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                     <button type="button" onClick={() => setRole('student')} className={`py-3 rounded-xl border font-black text-[10px] uppercase tracking-widest transition-all ${formData.role === 'student' ? 'bg-[#008A32]/20 border-[#008A32] text-white shadow-[0_0_15px_rgba(0,138,50,0.15)]' : 'bg-[#0B0E14] border-white/10 text-slate-300 hover:border-white/30'}`}>Student</button>
+                     <button type="button" onClick={() => setRole('parent')} className={`py-3 rounded-xl border font-black text-[10px] uppercase tracking-widest transition-all ${formData.role === 'parent' ? 'bg-[#FFD700]/20 border-[#FFD700] text-white shadow-[0_0_15px_rgba(255,215,0,0.15)]' : 'bg-[#0B0E14] border-white/10 text-slate-300 hover:border-white/30'}`}>Parent</button>
+                     <button type="button" onClick={() => setRole('instructor')} className={`py-3 rounded-xl border font-black text-[10px] uppercase tracking-widest transition-all ${formData.role === 'instructor' ? 'bg-[#11151F]/10 border-white/50 text-white' : 'bg-[#0B0E14] border-white/10 text-slate-300 hover:border-white/30'}`}>Instructor</button>
+                     <button type="button" onClick={() => setRole('sponsor')} className={`py-3 rounded-xl border font-black text-[10px] uppercase tracking-widest transition-all ${formData.role === 'sponsor' ? 'bg-indigo-500/20 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.15)]' : 'bg-[#0B0E14] border-white/10 text-slate-300 hover:border-white/30'}`}>Sponsor</button>
                   </div>
                </div>
 
                <div>
-                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-2">Full Name</label>
+                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-200 mb-3 ml-2">Full Name</label>
                  <input 
                    type="text" 
                    name="name" 
@@ -152,7 +153,7 @@ export default function Register() {
                </div>
 
                <div>
-                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-2">Email Address</label>
+                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-200 mb-3 ml-2">Email Address</label>
                  <input 
                    type="email" 
                    name="email" 
@@ -165,7 +166,7 @@ export default function Register() {
                </div>
 
                <div>
-                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-2">Password</label>
+                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-200 mb-3 ml-2">Password</label>
                  <div className="relative">
                     <input 
                       type={showPassword ? "text" : "password"} 
@@ -179,7 +180,7 @@ export default function Register() {
                     <button 
                       type="button" 
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors focus:outline-none"
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-white transition-colors focus:outline-none"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -195,7 +196,7 @@ export default function Register() {
                    onChange={handleChange}
                    className="mt-0.5 shrink-0 w-4 h-4 rounded border-white/20 bg-[#0B0E14] text-[#008A32] cursor-pointer"
                  />
-                 <label htmlFor="agreeTerms" className="ml-3 block text-xs font-medium text-slate-400 cursor-pointer border-transparent">
+                 <label htmlFor="agreeTerms" className="ml-3 block text-xs font-medium text-slate-200 cursor-pointer border-transparent">
                    I agree to the <Link to="/terms" className="text-[#008A32] hover:text-[#005e22] font-black tracking-wide transition-colors">Terms of Service</Link>
                  </label>
                </div>
@@ -215,7 +216,7 @@ export default function Register() {
              </form>
 
              <div className="mt-8 pt-6 border-t border-white/5 text-center relative z-10">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-200">
                   Already have an account? <Link to="/login" className="text-[#FFD700] hover:text-[#e5c100] ml-2 transition-colors">Sign in</Link>
                 </p>
              </div>

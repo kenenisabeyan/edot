@@ -79,14 +79,19 @@ export default function StudentCourses() {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-6">
-        <div>
-           <h2 className="text-3xl font-black bg-gradient-to-r from-[#FFD700] to-[#008A32] text-transparent bg-clip-text tracking-tight uppercase">My Learning</h2>
-           <p className="text-slate-400 font-medium mt-1 text-sm">Continue executing your curriculums.</p>
-        </div>
-        <Link to="/courses" className="inline-flex items-center gap-3 px-6 py-3 rounded-xl border border-white/10 bg-[#11151F] text-slate-300 font-black tracking-widest text-xs uppercase hover:border-[#FFD700]/50 hover:bg-[#FFD700]/5 hover:text-[#FFD700] transition-all shadow-inner backdrop-blur-md">
-          <Search className="w-4 h-4" /> Find Curriculums
-        </Link>
+      {/* Top Banner (Wabi Style but EDOT Branded) */}
+      <div className="mb-10 w-full relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#008A32]/10 via-[#0B0E14] to-[#11151F] border border-white/10 p-10 flex flex-col items-center justify-center text-center shadow-lg">
+        <div className="absolute top-0 right-[-10%] w-[300px] h-[300px] bg-[#FFD700]/5 rounded-full blur-[80px] pointer-events-none"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-[#008A32]/5 rounded-full blur-[80px] pointer-events-none"></div>
+        
+        <h2 className="text-2xl sm:text-4xl font-display font-medium text-white mb-2 relative z-10 transition-transform">
+          Explore Personalized Courses <br className="hidden sm:block" />
+          <span className="font-black text-[#FFD700]">Designed to Match Your Goals</span>
+        </h2>
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-6 hidden">
+        {/* Hidden original header to keep structure if needed */}
       </div>
       
       {enrolledCourses.length === 0 ? (
@@ -97,65 +102,62 @@ export default function StudentCourses() {
               <BookOpen className="w-12 h-12" />
             </div>
             <h3 className="text-3xl font-black text-white mb-3 tracking-tight relative z-10">Library Empty</h3>
-            <p className="text-slate-400 max-w-md mx-auto mb-8 text-lg relative z-10 font-medium">You haven't enrolled in any curriculums yet. Empower yourself and start your journey today.</p>
+            <p className="text-slate-200 max-w-md mx-auto mb-8 text-lg relative z-10 font-medium">You haven't enrolled in any curriculums yet. Empower yourself and start your journey today.</p>
             <Link to="/courses" className="px-8 py-4 bg-[#FFD700] text-[#0B0E14] font-black tracking-widest text-xs uppercase rounded-xl hover:bg-[#e5c100] transition-colors shadow-[0_0_20px_rgba(255,215,0,0.2)] relative z-10">
               Browse Catalog
             </Link>
           </div>
       ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="flex flex-col gap-6">
             {enrolledCourses.map((enrolled) => (
               <div 
-                key={enrolled._id || enrolled.course?._id} 
-                className="rounded-3xl border border-white/5 bg-[#11151F]/80 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] backdrop-blur-xl overflow-hidden flex flex-col md:flex-row p-6 items-start md:items-center gap-8 hover:border-[#008A32]/30 hover:bg-[#11151F] transition-all group relative"
+                key={enrolled.id || enrolled.course?.id} 
+                className="w-full bg-[#11151F] border border-white/10 rounded-2xl p-6 shadow-md hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all hover:bg-[#151a26] flex flex-col md:flex-row gap-6 items-start md:items-center group"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#008A32]/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none"></div>
+                {/* Left: Square Icon/Image */}
+                <div className="shrink-0 w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-[#0B0E14] border border-white/5 flex items-center justify-center p-3 shadow-inner relative overflow-hidden group-hover:border-[#FFD700]/30 transition-colors">
+                   <img 
+                      src={enrolled.course?.thumbnail === 'default-course.jpg' ? 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=400&q=80' : enrolled.course?.thumbnail} 
+                      alt={enrolled.course?.title}
+                      className="w-full h-full object-cover rounded-xl"
+                   />
+                </div>
 
-                <div className="relative w-full md:w-64 shrink-0 overflow-hidden rounded-2xl aspect-video md:aspect-auto md:h-36 border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-                  <img 
-                    src={enrolled.course?.thumbnail === 'default-course.jpg' ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80' : enrolled.course?.thumbnail} 
-                    alt={enrolled.course?.title} 
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
-                  />
-                  <div className="absolute inset-0 bg-[#0B0E14]/40 pointer-events-none group-hover:bg-transparent transition-colors duration-500" />
-                </div>
-                
-                <div className="flex-1 w-full min-w-0 relative z-10 mt-2 md:mt-0">
-                  <div className="flex items-start justify-between gap-4 mb-2">
-                    <h3 className="text-2xl font-black text-white leading-snug truncate group-hover:text-[#FFD700] transition-colors tracking-tight">{enrolled.course?.title || 'Unknown Course'}</h3>
-                  </div>
-                  <p className="text-slate-400 text-sm mb-6 font-bold uppercase tracking-widest text-[10px]">
-                    Instructor: <span className="text-[#008A32] ml-1">{enrolled.course?.instructor?.name || 'Assigned Agent'}</span>
-                  </p>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 h-3 bg-[#0B0E14] rounded-full overflow-hidden shadow-inner border border-white/5 relative">
-                      <div 
-                        className="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(0,138,50,0.6)] relative overflow-hidden bg-gradient-to-r from-[#008A32] to-[#FFD700]" 
-                        style={{ width: `${enrolled.progress || 0}%` }}
-                      >
-                         <div className="absolute top-0 right-0 bottom-0 w-8 bg-white/20 skew-x-[-20deg] translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>
+                {/* Middle: Title & Description */}
+                <div className="flex-1 min-w-0">
+                   <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 group-hover:text-[#FFD700] transition-colors">{enrolled.course?.title || 'Course Details'}</h3>
+                   <p className="text-slate-200 text-sm line-clamp-2 md:line-clamp-3 mb-4 max-w-3xl leading-relaxed">
+                      {enrolled.course?.description || 'Continue your learning journey with this comprehensive curriculum designed to build your skills and complete your personalized goals.'}
+                   </p>
+                   
+                   {/* Progress Indicator */}
+                   <div className="max-w-md flex items-center gap-4">
+                      <div className="flex-1 h-2 bg-[#0B0E14] rounded-full overflow-hidden border border-white/5 relative">
+                        <div 
+                          className="h-full rounded-full transition-all duration-1000 bg-gradient-to-r from-[#008A32] to-[#FFD700]" 
+                          style={{ width: `${enrolled.progress || 0}%` }}
+                        ></div>
                       </div>
-                    </div>
-                    <span className="text-xs font-black text-[#FFD700] shrink-0 min-w-[3ch] text-right tracking-widest">{enrolled.progress || 0}%</span>
-                  </div>
+                      <span className="text-xs font-bold text-[#FFD700] w-10">{enrolled.progress || 0}%</span>
+                   </div>
                 </div>
-                
-                <div className="w-full md:w-auto md:pl-8 md:border-l md:border-white/5 shrink-0 pt-6 md:pt-0 flex flex-col gap-3 relative z-10">
-                  {enrolled.progress === 100 && (
-                    <button 
-                      onClick={() => handleDownloadCertificate(enrolled.course?.title)}
-                      className="w-full inline-flex justify-center items-center gap-2 px-6 py-3 bg-[#FFD700]/10 text-[#FFD700] uppercase tracking-widest text-[10px] font-black rounded-xl border border-[#FFD700]/30 hover:bg-[#FFD700] hover:text-[#0B0E14] transition-all shadow-sm min-w-[160px] hover:shadow-[0_0_20px_rgba(255,215,0,0.3)]"
-                    >
-                      <Download className="w-4 h-4" /> Certificate
-                    </button>
-                  )}
-                  <Link 
-                    to={`/course/${enrolled.course?._id}`} 
-                    className={`w-full inline-flex justify-center items-center gap-2 px-6 py-3 uppercase tracking-widest text-[10px] font-black rounded-xl transition-all shadow-[0_0_20px_rgba(0,0,0,0.4)] min-w-[160px] ${enrolled.progress === 100 ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white' : 'bg-[#008A32] text-white hover:bg-[#007028] hover:shadow-[0_0_20px_rgba(0,138,50,0.4)] border border-[#008A32]'}`}
-                  >
-                    <PlayCircle className="w-4 h-4" /> {enrolled.progress === 100 ? 'Review' : 'Continue'}
-                  </Link>
+
+                {/* Right: Actions */}
+                <div className="w-full md:w-auto shrink-0 flex flex-row md:flex-col gap-3 justify-end items-end md:items-center mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-white/5">
+                   {enrolled.progress === 100 && (
+                     <button 
+                       onClick={() => handleDownloadCertificate(enrolled.course?.title)}
+                       className="w-full md:w-40 flex items-center justify-center gap-2 px-4 py-3 border border-[#FFD700]/50 text-[#FFD700] rounded-xl hover:bg-[#FFD700] hover:text-[#0B0E14] font-bold text-xs uppercase tracking-wider transition-colors"
+                     >
+                       <Download className="w-4 h-4" /> Certificate
+                     </button>
+                   )}
+                   <Link 
+                     to={`/course/${enrolled.course?.id}`} 
+                     className={`w-full md:w-40 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors border ${enrolled.progress === 100 ? 'bg-[#11151F]/5 text-slate-300 border-white/10 hover:bg-[#11151F]/10 hover:text-white' : 'bg-[#008A32] text-white border-[#008A32] hover:bg-[#007028]'}`}
+                   >
+                     {enrolled.progress === 100 ? 'Review' : 'Continue Course'}
+                   </Link>
                 </div>
               </div>
             ))}

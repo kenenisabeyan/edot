@@ -3,12 +3,17 @@ import api from '../utils/api';
 import { Check, X, ShieldAlert, BadgeCheck, UserPlus, GraduationCap } from 'lucide-react';
 import UserAvatar from '../components/UserAvatar';
 import CustomDropdown from '../components/CustomDropdown';
+import { useAuth } from '../context/AuthContext';
 
 export default function StudentsList() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const rolePrefix = isAdmin ? '/admin' : '/instructor';
+
   const [students, setStudents] = useState([]);
   const [instructors, setInstructors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('pending'); // 'pending' or 'approved'
+  const [tab, setTab] = useState('approved'); // Default to approved
 
   useEffect(() => {
     fetchData();
@@ -17,11 +22,11 @@ export default function StudentsList() {
   const fetchData = async () => {
     try {
       const [stuRes, instRes] = await Promise.all([
-         api.get('/admin/students'),
-         api.get('/admin/instructors')
+         api.get(`${rolePrefix}/students`),
+         isAdmin ? api.get('/admin/instructors') : Promise.resolve({ data: { success: false } })
       ]);
       if (stuRes.data.success) setStudents(stuRes.data.data);
-      if (instRes.data.success) setInstructors(instRes.data.data.filter(i => i.status === 'approved' || !i.status)); // Only approved instructors
+      if (instRes.data.success) setInstructors(instRes.data.data.filter(i => i.status === 'approved' || !i.status));
     } catch (error) {
       console.error('Failed to fetch data', error);
     } finally {
@@ -65,50 +70,52 @@ export default function StudentsList() {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-display font-bold text-white">Student Management</h1>
-          <p className="text-sm text-slate-300">Approve registrations and assign instructors</p>
+          <h1 className="text-2xl font-display font-bold text-white">{isAdmin ? 'Student Management' : 'My Students'}</h1>
+          <p className="text-sm text-slate-300">{isAdmin ? 'Approve registrations and assign instructors' : 'View students assigned to your classes'}</p>
         </div>
       </div>
 
-      <div className="flex gap-4 border-b border-white/5 pb-2">
-        <button 
-          onClick={() => setTab('pending')}
-          className={`px-4 py-2 font-bold text-sm rounded-t-lg transition ${tab === 'pending' ? 'text-[#FFD700] border-b-2 border-[#FFD700]' : 'text-slate-400 hover:text-white'}`}
-        >
-          Pending Approval ({students.filter(s => s.status === 'pending').length})
-        </button>
-        <button 
-          onClick={() => setTab('approved')}
-          className={`px-4 py-2 font-bold text-sm rounded-t-lg transition ${tab === 'approved' ? 'text-[#008A32] border-b-2 border-[#008A32]' : 'text-slate-400 hover:text-white'}`}
-        >
-          Approved Students ({students.filter(s => s.status === 'approved' || !s.status).length})
-        </button>
-      </div>
+      {isAdmin && (
+        <div className="flex gap-4 border-b border-white/5 pb-2">
+          <button 
+            onClick={() => setTab('pending')}
+            className={`px-4 py-2 font-bold text-sm rounded-t-lg transition ${tab === 'pending' ? 'text-[#FFD700] border-b-2 border-[#FFD700]' : 'text-slate-200 hover:text-white'}`}
+          >
+            Pending Approval ({students.filter(s => s.status === 'pending').length})
+          </button>
+          <button 
+            onClick={() => setTab('approved')}
+            className={`px-4 py-2 font-bold text-sm rounded-t-lg transition ${tab === 'approved' ? 'text-[#008A32] border-b-2 border-[#008A32]' : 'text-slate-200 hover:text-white'}`}
+          >
+            Approved ({students.filter(s => s.status === 'approved' || !s.status).length})
+          </button>
+        </div>
+      )}
 
-      <div className="rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
+      <div className="rounded-2xl border border-white/5 bg-[#11151F]/5 backdrop-blur-xl shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-white/5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="bg-[#11151F]/5 text-xs font-bold text-slate-200 uppercase tracking-wider">
                 <th className="p-4">Student</th>
                 <th className="p-4">Email</th>
                 <th className="p-4">Status</th>
-                <th className="p-4">Instructor Assignment</th>
-                {tab === 'pending' && <th className="p-4">Actions</th>}
+                {isAdmin && <th className="p-4">Instructor Assignment</th>}
+                {isAdmin && tab === 'pending' && <th className="p-4">Actions</th>}
               </tr>
             </thead>
             <tbody className="text-sm font-medium text-white">
               {filteredStudents.length === 0 ? (
                 <tr>
-                   <td colSpan="5" className="p-8 text-center text-slate-400 font-medium">No {tab} students found.</td>
+                   <td colSpan="5" className="p-8 text-center text-slate-200 font-medium">No {tab} students found.</td>
                 </tr>
               ) : filteredStudents.map(stu => (
-                <tr key={stu._id} className="border-b border-white/5 hover:bg-white/5 transition">
+                <tr key={stu.id} className="border-b border-white/5 hover:bg-[#11151F]/5 transition">
                   <td className="p-4 flex items-center gap-3 font-semibold text-white">
                     <UserAvatar user={stu} className="w-10 h-10 text-sm" />
                     {stu.name}
                   </td>
-                  <td className="p-4 text-slate-400">{stu.email}</td>
+                  <td className="p-4 text-slate-200">{stu.email}</td>
                   <td className="p-4">
                      {stu.status === 'pending' ? (
                         <span className="px-3 py-1 bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 font-bold rounded-full text-xs flex items-center gap-1 w-max"><ShieldAlert className="w-3 h-3"/> Pending</span>
@@ -116,41 +123,43 @@ export default function StudentsList() {
                         <span className="px-3 py-1 bg-[#008A32]/10 text-[#008A32] border border-[#008A32]/20 font-bold rounded-full text-xs flex items-center gap-1 w-max"><BadgeCheck className="w-3 h-3"/> Approved</span>
                      )}
                   </td>
-                  <td className="p-4">
-                    {tab === 'approved' ? (
-                      <div className="flex items-center gap-2">
-                        <CustomDropdown
-                           value={stu.assignedInstructor?._id || ''}
-                           onChange={(val) => handleAssign(stu._id, val)}
-                           options={instructors.map(inst => ({ 
-                             label: inst.name, 
-                             value: inst._id,
-                             render: (
-                               <div className="flex items-center gap-3 w-full py-0.5">
-                                 <div className="w-8 h-8 rounded-full bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold text-xs shrink-0 border border-[#008A32]/30 shadow-sm uppercase">
-                                    {inst.name.charAt(0)}
+                  {isAdmin && (
+                    <td className="p-4">
+                      {tab === 'approved' ? (
+                        <div className="flex items-center gap-2">
+                          <CustomDropdown
+                             value={stu.assignedInstructor?.id || ''}
+                             onChange={(val) => handleAssign(stu.id, val)}
+                             options={instructors.map(inst => ({ 
+                               label: inst.name, 
+                               value: inst.id,
+                               render: (
+                                 <div className="flex items-center gap-3 w-full py-0.5">
+                                   <div className="w-8 h-8 rounded-full bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold text-xs shrink-0 border border-[#008A32]/30 shadow-sm uppercase">
+                                      {inst.name.charAt(0)}
+                                   </div>
+                                   <div className="flex flex-col text-left flex-1 min-w-0">
+                                     <span className="font-bold text-white text-xs truncate">{inst.name}</span>
+                                     <span className="text-[10px] text-slate-200 truncate mt-0.5">{inst.email}</span>
+                                   </div>
                                  </div>
-                                 <div className="flex flex-col text-left flex-1 min-w-0">
-                                   <span className="font-bold text-white text-xs truncate">{inst.name}</span>
-                                   <span className="text-[10px] text-slate-400 truncate mt-0.5">{inst.email}</span>
-                                 </div>
-                               </div>
-                             )
-                           }))}
-                           placeholder="Assign Instructor..."
-                           searchable={true}
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-slate-500 italic text-xs">Approve first to assign</span>
-                    )}
-                  </td>
-                  {tab === 'pending' && (
+                               )
+                             }))}
+                             placeholder="Assign Instructor..."
+                             searchable={true}
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-slate-300 italic text-xs">Approve first to assign</span>
+                      )}
+                    </td>
+                  )}
+                  {isAdmin && tab === 'pending' && (
                     <td className="p-4 flex gap-2">
-                      <button onClick={() => handleApprove(stu._id)} className="p-2 bg-[#008A32]/10 text-[#008A32] hover:bg-[#008A32]/20 border border-[#008A32]/20 rounded-lg transition" title="Approve">
+                      <button onClick={() => handleApprove(stu.id)} className="p-2 bg-[#008A32]/10 text-[#008A32] hover:bg-[#008A32]/20 border border-[#008A32]/20 rounded-lg transition" title="Approve">
                         <Check className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleReject(stu._id)} className="p-2 bg-[#E30A17]/10 text-[#E30A17] hover:bg-[#E30A17]/20 border border-[#E30A17]/20 rounded-lg transition" title="Reject">
+                      <button onClick={() => handleReject(stu.id)} className="p-2 bg-[#E30A17]/10 text-[#E30A17] hover:bg-[#E30A17]/20 border border-[#E30A17]/20 rounded-lg transition" title="Reject">
                         <X className="w-4 h-4" />
                       </button>
                     </td>

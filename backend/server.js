@@ -1,41 +1,78 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const dotenv = require('dotenv');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 dotenv.config();
 
-const authRoutes = require('./routes/authRoutes');
-const courseRoutes = require('./routes/courseRoutes');
-const userRoutes = require('./routes/userRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const instructorRoutes = require('./routes/instructorRoutes');
-const studentRoutes = require('./routes/studentRoutes');
-const noticeRoutes = require('./routes/noticeRoutes');
-const libraryRoutes = require('./routes/libraryRoutes');
-const calendarRoutes = require('./routes/calendarRoutes');
-const uploadRoutes = require('./routes/uploadRoutes');
-const progressRoutes = require('./routes/progressRoutes');
-const messageRoutes = require('./routes/messageRoutes');
-const parentRoutes = require('./routes/parentRoutes');
-const attendanceRoutes = require('./routes/attendanceRoutes');
-const activityRoutes = require('./routes/activityRoutes');
-const settingsRoutes = require('./routes/settingsRoutes');
-const achievementRoutes = require('./routes/achievementRoutes');
-const searchRoutes = require('./routes/searchRoutes');
-const sectionRoutes = require('./routes/sectionRoutes');
+import authRoutes from './routes/authRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import instructorRoutes from './routes/instructorRoutes.js';
+import studentRoutes from './routes/studentRoutes.js';
+import noticeRoutes from './routes/noticeRoutes.js';
+import libraryRoutes from './routes/libraryRoutes.js';
+import calendarRoutes from './routes/calendarRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
+import progressRoutes from './routes/progressRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
+import parentRoutes from './routes/parentRoutes.js';
+import attendanceRoutes from './routes/attendanceRoutes.js';
+import activityRoutes from './routes/activityRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
+import achievementRoutes from './routes/achievementRoutes.js';
+import searchRoutes from './routes/searchRoutes.js';
+import sectionRoutes from './routes/sectionRoutes.js';
+import supportRoutes from './routes/supportRoutes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+const httpServer = createServer(app);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["http://127.0.0.1:5500", "http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log(`🔌 Socket connected: ${socket.id}`);
+  
+  socket.on('join_room', (roomId) => {
+    socket.join(roomId);
+  });
+
+  socket.on('send_message', (data) => {
+    // Expected data: { roomId: string, senderId: string, text: string, timestamp: number }
+    io.to(data.roomId).emit('receive_message', data);
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`🔌 Socket disconnected: ${socket.id}`);
+  });
+});
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({
-    origin: ["http://127.0.0.1:5500", "http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"], 
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true
+  origin: ["http://127.0.0.1:5500", "http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
 }));
 
 app.use('/api/auth', authRoutes);
@@ -57,6 +94,8 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/achievements', achievementRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/sections', sectionRoutes);
+app.use('/api/support', supportRoutes);
+
 // Static file serving for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -85,12 +124,5 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('✅ MongoDB connected');
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-  })
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
-  });
+
+httpServer.listen(PORT, () => console.log(`🚀 Server running on port ${PORT} with WebSockets`));

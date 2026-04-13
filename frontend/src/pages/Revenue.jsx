@@ -122,14 +122,14 @@ export default function Revenue() {
       </div>
 
       <div className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-        <div className="p-6 border-b border-white/10 bg-white/5">
+        <div className="p-6 border-b border-white/10 bg-[#11151F]/5">
           <h3 className="text-xl font-bold text-white">Recent Transactions</h3>
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Based on computed active course enrollments</p>
+          <p className="text-[10px] text-slate-200 font-bold uppercase tracking-widest mt-1">Based on computed active course enrollments</p>
         </div>
         <div className="p-0 overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#11151F] text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <tr className="bg-[#11151F] text-[10px] font-black text-slate-200 uppercase tracking-widest">
                 <th className="p-5 border-b border-white/5">Date</th>
                 <th className="p-5 border-b border-white/5">Course Allocation</th>
                 <th className="p-5 border-b border-white/5">Amount Computed</th>
@@ -139,8 +139,8 @@ export default function Revenue() {
             <tbody className="text-sm font-medium text-white">
               {realCourses.length > 0 && realCourses.some(c => c.price > 0 && c.totalStudents > 0) ? (
                  realCourses.filter(c => c.price > 0 && c.totalStudents > 0).map((course, idx) => (
-                    <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                      <td className="p-5 text-slate-400">{new Date(course.createdAt).toLocaleDateString()}</td>
+                    <tr key={idx} className="border-b border-white/5 hover:bg-[#11151F]/5 transition-colors">
+                      <td className="p-5 text-slate-200">{new Date(course.createdAt).toLocaleDateString()}</td>
                       <td className="p-5 font-bold">{course.title}</td>
                       <td className="p-5 text-[#FFD700] tracking-wider">${(course.price * course.totalStudents).toLocaleString()}</td>
                       <td className="p-5"><span className="bg-[#008A32]/20 text-[#008A32] border border-[#008A32]/30 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">Settled</span></td>
@@ -150,8 +150,8 @@ export default function Revenue() {
                  <tr className="border-b border-white/5">
                    <td colSpan="4" className="p-12 text-center">
                       <div className="flex flex-col items-center justify-center opacity-50">
-                         <CreditCard className="w-10 h-10 text-slate-500 mb-4" />
-                         <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">No monetized enrollments found.</span>
+                         <CreditCard className="w-10 h-10 text-slate-300 mb-4" />
+                         <span className="text-slate-200 font-bold uppercase tracking-widest text-xs">No monetized enrollments found.</span>
                       </div>
                    </td>
                  </tr>

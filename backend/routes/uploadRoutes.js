@@ -1,9 +1,14 @@
-const express = require('express');
+import express from 'express';
+import multer from 'multer';
+import { protect } from '../middleware/auth.js';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const router = express.Router();
-const multer = require('multer');
-const { protect } = require('../middleware/auth');
-const path = require('path');
-const fs = require('fs');
 
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, '../uploads');
@@ -44,4 +49,4 @@ router.post('/', protect, upload.single('image'), (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

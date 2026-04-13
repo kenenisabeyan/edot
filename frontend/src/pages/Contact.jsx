@@ -3,7 +3,7 @@ import { Mail, Phone, MapPin, Send, CheckCircle, Headphones, Building, ChevronDo
 import { Link } from 'react-router-dom';
 
 const ImagePlaceholder = ({ text, className = "h-48" }) => (
-  <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/10 flex flex-col items-center justify-center text-slate-500 relative overflow-hidden group ${className}`}>
+  <div className={`bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/10 flex flex-col items-center justify-center text-slate-300 relative overflow-hidden group ${className}`}>
     <div className="absolute inset-0 bg-[#008A32]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
     <span className="font-bold tracking-widest uppercase text-[10px] z-10 relative px-6 text-center group-hover:text-slate-300 transition-colors">[ Display: {text} ]</span>
   </div>
@@ -65,7 +65,7 @@ export default function Contact() {
             We are here to <br/>
             <span className="text-white">help you.</span>
           </h1>
-          <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-slate-200 font-medium leading-relaxed max-w-2xl mx-auto">
             Whether you have a simple question, need friendly guidance, or want to explore platform options, our warm support team is ready to assist you.
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function Contact() {
                  </div>
                  <div>
                     <h3 className="font-black text-white text-2xl mb-1">Friendly Support</h3>
-                    <p className="text-slate-400 text-sm mb-3">Answers to any questions you might have.</p>
+                    <p className="text-slate-200 text-sm mb-3">Answers to any questions you might have.</p>
                     <a href="mailto:support@edot.platform" className="text-[#FFD700] font-bold text-xs uppercase tracking-widest hover:underline">support@edot.platform</a>
                  </div>
                </div>
@@ -93,18 +93,18 @@ export default function Contact() {
                  </div>
                  <div>
                     <h3 className="font-black text-white text-2xl mb-1">Call Us Directly</h3>
-                    <p className="text-slate-400 text-sm mb-3">We are available Mon-Fri, 9AM-6PM.</p>
+                    <p className="text-slate-200 text-sm mb-3">We are available Mon-Fri, 9AM-6PM.</p>
                     <span className="text-emerald-500 font-black text-sm tracking-widest">+251 (0) 900 123 456</span>
                  </div>
                </div>
                
                <div className="bg-[#11151F]/60 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 flex items-start gap-6 hover:border-white/30 transition-all group">
-                 <div className="w-14 h-14 shrink-0 rounded-2xl bg-white/5 text-white flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+                 <div className="w-14 h-14 shrink-0 rounded-2xl bg-[#11151F]/5 text-white flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
                     <Building className="w-7 h-7" />
                  </div>
                  <div>
                     <h3 className="font-black text-white text-2xl mb-1">Partnerships</h3>
-                    <p className="text-slate-400 text-sm mb-3">For universities and school boards.</p>
+                    <p className="text-slate-200 text-sm mb-3">For universities and school boards.</p>
                     <a href="mailto:sales@edot.platform" className="text-white font-bold text-xs uppercase tracking-widest hover:underline">sales@edot.platform</a>
                  </div>
                </div>
@@ -133,7 +133,7 @@ export default function Contact() {
                     <CheckCircle className="w-12 h-12 text-[#008A32]" />
                   </div>
                   <h3 className="text-4xl font-black text-white mb-4 tracking-tight">Message Sent!</h3>
-                  <p className="text-slate-400 max-w-sm mx-auto leading-relaxed text-lg">
+                  <p className="text-slate-200 max-w-sm mx-auto leading-relaxed text-lg">
                     Thank you so much for reaching out! A friendly representative will reply to your email very soon.
                   </p>
                 </div>
@@ -141,12 +141,12 @@ export default function Contact() {
                 <form onSubmit={handleSubmit} className="space-y-6 relative z-10 w-full">
                   <div className="mb-10 border-b border-white/5 pb-8">
                      <h2 className="text-3xl md:text-4xl font-black text-white mb-3">Send A Text</h2>
-                     <p className="text-slate-400 font-medium">Fill out the fields below and we'll be right with you.</p>
+                     <p className="text-slate-200 font-medium">Fill out the fields below and we'll be right with you.</p>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-2">Full Name</label>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-300 mb-3 ml-2">Full Name</label>
                       <input 
                         type="text" 
                         value={formData.name} 
@@ -157,7 +157,7 @@ export default function Contact() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-2">Email Address</label>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-300 mb-3 ml-2">Email Address</label>
                       <input 
                         type="email" 
                         value={formData.email} 
@@ -170,7 +170,7 @@ export default function Contact() {
                   </div>
                   
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-2">Your Message</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-300 mb-3 ml-2">Your Message</label>
                     <textarea 
                       rows="5" 
                       value={formData.message} 
@@ -204,7 +204,7 @@ export default function Contact() {
         <section className="py-24 max-w-4xl mx-auto px-6 border-t border-white/5 relative z-20 mb-32">
            <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">Got Questions?</h2>
-              <p className="text-slate-400 font-medium mt-4 md:text-lg">Common questions from our learning community.</p>
+              <p className="text-slate-200 font-medium mt-4 md:text-lg">Common questions from our learning community.</p>
            </div>
            
            <div className="space-y-6">
@@ -216,9 +216,9 @@ export default function Contact() {
                  >
                    <div className="p-8 flex items-center justify-between">
                      <h4 className={`font-black text-xl md:text-2xl ${openFaq === i ? 'text-[#FFD700]' : 'text-white'}`}>{faq.q}</h4>
-                     {openFaq === i ? <ChevronUp className="w-6 h-6 text-[#FFD700] shrink-0" /> : <ChevronDown className="w-6 h-6 text-slate-500 shrink-0" />}
+                     {openFaq === i ? <ChevronUp className="w-6 h-6 text-[#FFD700] shrink-0" /> : <ChevronDown className="w-6 h-6 text-slate-300 shrink-0" />}
                    </div>
-                   <div className={`px-8 pb-8 text-slate-400 font-medium leading-[1.8] text-lg transition-all duration-300 ${openFaq === i ? 'block' : 'hidden'}`}>
+                   <div className={`px-8 pb-8 text-slate-200 font-medium leading-[1.8] text-lg transition-all duration-300 ${openFaq === i ? 'block' : 'hidden'}`}>
                      {faq.a}
                    </div>
                  </div>
@@ -234,7 +234,7 @@ export default function Contact() {
             <h2 className="text-4xl md:text-5xl font-black text-white leading-tight mb-6 tracking-tight relative z-10">
               Ready To Join <br className="md:hidden"/><span className="text-[#008A32]">Our Community?</span>
             </h2>
-            <p className="text-lg text-slate-400 font-medium max-w-2xl mx-auto mb-10 relative z-10">
+            <p className="text-lg text-slate-200 font-medium max-w-2xl mx-auto mb-10 relative z-10">
               We are so excited to welcome you. Create your free account today and start your learning journey with our full support.
             </p>
 

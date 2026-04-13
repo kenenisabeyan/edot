@@ -148,7 +148,7 @@ export default function InstructorDashboard() {
                     <p className="text-xs font-black uppercase tracking-widest text-[#FFD700] mb-2">Total Students</p>
                     <h3 className="text-4xl font-black text-white">{totalStudents}</h3>
                   </div>
-                  <div className="w-12 h-12 bg-white/5 border border-white/10 text-[#FFD700] rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-[#11151F]/5 border border-white/10 text-[#FFD700] rounded-xl flex items-center justify-center">
                     <Users className="w-6 h-6" />
                   </div>
                 </div>
@@ -161,20 +161,20 @@ export default function InstructorDashboard() {
                     <p className="text-xs font-black uppercase tracking-widest text-[#008A32] mb-2">Active Courses</p>
                     <h3 className="text-4xl font-black text-white">{activeCourses}</h3>
                   </div>
-                  <div className="w-12 h-12 bg-white/5 border border-white/10 text-[#008A32] rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-[#11151F]/5 border border-white/10 text-[#008A32] rounded-xl flex items-center justify-center">
                     <Radio className="w-6 h-6" />
                   </div>
                 </div>
               </div>
 
               <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500 rounded-bl-full opacity-5 group-hover:scale-110 transition-transform"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/100 rounded-bl-full opacity-5 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <p className="text-xs font-black uppercase tracking-widest text-amber-500 mb-2">Total Creations</p>
                     <h3 className="text-4xl font-black text-white">{courses.length}</h3>
                   </div>
-                  <div className="w-12 h-12 bg-white/5 border border-white/10 text-amber-500 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-[#11151F]/5 border border-white/10 text-amber-500 rounded-xl flex items-center justify-center">
                     <Layers className="w-6 h-6" />
                   </div>
                 </div>
@@ -224,26 +224,26 @@ export default function InstructorDashboard() {
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                  <button 
                   onClick={() => navigate('/instructor/builder')} 
-                  className="flex items-center gap-4 p-5 bg-[#11151F] rounded-2xl border border-white/5 hover:border-[#FFD700]/50 hover:bg-white/5 transition-all text-left group shadow-sm"
+                  className="flex items-center gap-4 p-5 bg-[#11151F] rounded-2xl border border-white/5 hover:border-[#FFD700]/50 hover:bg-[#11151F]/5 transition-all text-left group shadow-sm"
                  >
-                   <div className="w-12 h-12 rounded-xl bg-white/5 text-[#FFD700] border border-[#FFD700]/30 flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all">
+                   <div className="w-12 h-12 rounded-xl bg-[#11151F]/5 text-[#FFD700] border border-[#FFD700]/30 flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all">
                      <PlusCircle className="w-6 h-6" />
                    </div>
                    <div>
                      <span className="block font-bold text-white text-lg">Create New Course</span>
-                     <span className="text-xs text-slate-400 uppercase tracking-widest font-black mt-1 block">Start building curriculum</span>
+                     <span className="text-xs text-slate-200 uppercase tracking-widest font-black mt-1 block">Start building curriculum</span>
                    </div>
                  </button>
                  <button 
                   onClick={() => setActiveTab('courses')} 
-                  className="flex items-center gap-4 p-5 bg-[#11151F] rounded-2xl border border-white/5 hover:border-[#008A32]/50 hover:bg-white/5 transition-all text-left group shadow-sm"
+                  className="flex items-center gap-4 p-5 bg-[#11151F] rounded-2xl border border-white/5 hover:border-[#008A32]/50 hover:bg-[#11151F]/5 transition-all text-left group shadow-sm"
                  >
-                   <div className="w-12 h-12 rounded-xl bg-white/5 text-[#008A32] border border-[#008A32]/30 flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,138,50,0.3)] transition-all">
+                   <div className="w-12 h-12 rounded-xl bg-[#11151F]/5 text-[#008A32] border border-[#008A32]/30 flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,138,50,0.3)] transition-all">
                      <Edit3 className="w-6 h-6" />
                    </div>
                    <div>
                      <span className="block font-bold text-white text-lg">Manage Courses</span>
-                     <span className="text-xs text-slate-400 uppercase tracking-widest font-black mt-1 block">Edit content framework</span>
+                     <span className="text-xs text-slate-200 uppercase tracking-widest font-black mt-1 block">Edit content framework</span>
                    </div>
                  </button>
                </div>
@@ -271,11 +271,11 @@ export default function InstructorDashboard() {
             
             {courses.length === 0 ? (
                <div className="bg-[#0B0E14]/50 backdrop-blur-xl p-12 text-center rounded-2xl border-2 border-dashed border-white/10 shadow-sm flex flex-col items-center justify-center">
-                 <div className="w-20 h-20 bg-white/5 text-slate-500 rounded-full flex items-center justify-center mb-4">
+                 <div className="w-20 h-20 bg-[#11151F]/5 text-slate-300 rounded-full flex items-center justify-center mb-4">
                    <FolderOpen className="w-10 h-10" />
                  </div>
                  <h3 className="text-xl font-bold text-white mb-2">No courses created</h3>
-                 <p className="text-slate-400 max-w-sm mb-6">Share your knowledge with the world by creating your first complete course.</p>
+                 <p className="text-slate-200 max-w-sm mb-6">Share your knowledge with the world by creating your first complete course.</p>
                  <button 
                   onClick={() => navigate('/instructor/builder')} 
                   className="px-8 py-3.5 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-black uppercase tracking-widest text-xs rounded-xl hover:-translate-y-0.5 transition-transform shadow-[0_0_20px_rgba(255,215,0,0.3)]"
@@ -286,7 +286,7 @@ export default function InstructorDashboard() {
             ) : (
                 <div className="grid grid-cols-1 gap-6">
                   {courses.map(c => (
-                    <div key={c._id} className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col md:flex-row group transition-all hover:border-[#FFD700]/30 relative">
+                    <div key={c.id} className="bg-[#0B0E14]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col md:flex-row group transition-all hover:border-[#FFD700]/30 relative">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700] rounded-bl-full opacity-5 pointer-events-none group-hover:scale-110 transition-transform"></div>
                       <div className="w-full md:w-64 h-48 md:h-auto shrink-0 relative bg-[#11151F]">
                          <img 
@@ -305,25 +305,25 @@ export default function InstructorDashboard() {
                             <h3 className="text-xl font-bold text-white leading-snug">{c.title}</h3>
                             <span className={`shrink-0 inline-flex items-center px-3 py-1 rounded-sm text-[9px] font-black uppercase tracking-widest border ${
                               c.status === 'approved' ? 'bg-[#008A32]/20 text-[#008A32] border-[#008A32]/30' : 
-                              (c.status === 'pending' ? 'bg-amber-500/20 text-amber-500 border-amber-500/30' : 
+                              (c.status === 'pending' ? 'bg-amber-500/100/20 text-amber-500 border-amber-500/30' : 
                               (c.status === 'rejected' ? 'bg-red-500/20 text-red-500 border-red-500/30' : 
-                              'bg-white/5 text-slate-400 border-white/10'))
+                              'bg-[#11151F]/5 text-slate-200 border-white/10'))
                             }`}>
                               {c.status}
                             </span>
                           </div>
                           
-                          <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+                          <p className="text-slate-200 text-xs font-black uppercase tracking-widest mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
                             <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-[#FFD700]" /> {c.duration} hours</span>
                             <span className="flex items-center gap-1.5"><PlayCircle className="w-3.5 h-3.5 text-[#008A32]" /> {c.lessons?.length || 0} lessons</span>
                             <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-amber-500" /> {c.totalStudents || 0} students</span>
                           </p>
                           
-                          <p className="text-slate-500 text-sm line-clamp-2 md:line-clamp-3 mb-0 font-medium">{c.description}</p>
+                          <p className="text-slate-300 text-sm line-clamp-2 md:line-clamp-3 mb-0 font-medium">{c.description}</p>
                         </div>
                         
                         <div className="p-4 md:px-8 border-t border-white/10 bg-[#11151F]/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
                              Updated: {new Date(c.updatedAt).toLocaleDateString()}
                            </span>
                            
@@ -331,13 +331,13 @@ export default function InstructorDashboard() {
                              {(c.status === 'draft' || c.status === 'rejected') && (
                                <>
                                  <button 
-                                  onClick={() => navigate('/instructor/builder/' + c._id)} 
-                                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-white/5 text-white font-bold uppercase tracking-widest text-[10px] rounded-lg border border-white/10 hover:bg-[#FFD700] hover:text-[#0B0E14] hover:border-[#FFD700] transition-colors"
+                                  onClick={() => navigate('/instructor/builder/' + c.id)} 
+                                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#11151F]/5 text-white font-bold uppercase tracking-widest text-[10px] rounded-lg border border-white/10 hover:bg-[#FFD700] hover:text-[#0B0E14] hover:border-[#FFD700] transition-colors"
                                  >
                                    <PlusCircle className="w-4 h-4" /> Add Lesson
                                  </button>
                                  <button 
-                                  onClick={() => handleSubmitReview(c._id)} 
+                                  onClick={() => handleSubmitReview(c.id)} 
                                   className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#FFD700] to-yellow-600 text-[#0B0E14] font-bold uppercase tracking-widest text-[10px] rounded-lg hover:shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all"
                                  >
                                    <Send className="w-4 h-4" /> Submit for Review
@@ -350,7 +350,7 @@ export default function InstructorDashboard() {
                                  </span>
                              )}
                              {c.status === 'pending' && (
-                                 <span className="inline-flex items-center gap-2 text-amber-500 text-[10px] font-black uppercase tracking-widest bg-amber-500/10 px-4 py-2 rounded-lg border border-amber-500/20">
+                                 <span className="inline-flex items-center gap-2 text-amber-500 text-[10px] font-black uppercase tracking-widest bg-amber-500/100/10 px-4 py-2 rounded-lg border border-amber-500/20">
                                    <Clock className="w-4 h-4" /> Pending Admin Review
                                  </span>
                              )}
@@ -384,7 +384,7 @@ export default function InstructorDashboard() {
                     value={formData.title} 
                     onChange={e => setFormData({...formData, title: e.target.value})} 
                     required 
-                    className="w-full px-6 py-4 bg-[#11151F] text-white font-bold border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] focus:border-transparent outline-none transition-all placeholder:text-slate-600" 
+                    className="w-full px-6 py-4 bg-[#11151F] text-white font-bold border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] focus:border-transparent outline-none transition-all placeholder:text-slate-300" 
                     placeholder="E.g., Advanced JavaScript Patterns" 
                   />
                 </div>
@@ -395,7 +395,7 @@ export default function InstructorDashboard() {
                     value={formData.description} 
                     onChange={e => setFormData({...formData, description: e.target.value})} 
                     required 
-                    className="w-full px-6 py-4 bg-[#11151F] text-white font-medium border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] focus:border-transparent outline-none transition-all resize-y placeholder:text-slate-600" 
+                    className="w-full px-6 py-4 bg-[#11151F] text-white font-medium border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] focus:border-transparent outline-none transition-all resize-y placeholder:text-slate-300" 
                     rows="5" 
                     placeholder="Provide a comprehensive operational framework for this module."
                   ></textarea>
@@ -430,10 +430,10 @@ export default function InstructorDashboard() {
                     type="url" 
                     value={formData.thumbnail} 
                     onChange={e => setFormData({...formData, thumbnail: e.target.value})} 
-                    className="w-full px-6 py-4 bg-[#11151F] text-white font-medium border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] focus:border-transparent outline-none transition-all placeholder:text-slate-600" 
+                    className="w-full px-6 py-4 bg-[#11151F] text-white font-medium border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] focus:border-transparent outline-none transition-all placeholder:text-slate-300" 
                     placeholder="https://content-node.cloud/thumbnail.jpg" 
                   />
-                  <p className="mt-2 text-xs text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1">
+                  <p className="mt-2 text-xs text-slate-300 font-bold uppercase tracking-widest flex items-center gap-1">
                     <AlertCircle className="w-4 h-4 text-[#FFD700]" /> Will fallback to system default if empty.
                   </p>
                 </div>
@@ -442,7 +442,7 @@ export default function InstructorDashboard() {
                    <button 
                     type="button" 
                     onClick={() => setActiveTab('courses')} 
-                    className="px-8 py-3.5 bg-transparent text-slate-400 font-black uppercase tracking-widest text-[11px] rounded-xl border border-white/10 hover:bg-white/5 hover:text-white transition-all order-2 sm:order-1"
+                    className="px-8 py-3.5 bg-transparent text-slate-200 font-black uppercase tracking-widest text-[11px] rounded-xl border border-white/10 hover:bg-[#11151F]/5 hover:text-white transition-all order-2 sm:order-1"
                    >
                      Abort Setup
                    </button>
@@ -468,7 +468,7 @@ export default function InstructorDashboard() {
                 </div>
                 <div className="pt-2">
                   <h3 className="text-2xl font-black text-white mb-1">{user?.name}</h3>
-                  <p className="text-slate-400 font-bold mb-4">{user?.email}</p>
+                  <p className="text-slate-200 font-bold mb-4">{user?.email}</p>
                   <span className="inline-block px-4 py-2 bg-[#FFD700]/10 text-[#FFD700] text-[10px] font-black rounded-lg uppercase tracking-widest border border-[#FFD700]/30 shadow-[0_0_10px_rgba(255,215,0,0.1)]">
                     {user?.role} Authority
                   </span>
@@ -484,7 +484,7 @@ export default function InstructorDashboard() {
                     disabled 
                     className="w-full px-6 py-4 rounded-xl border border-white/10 bg-[#11151F] text-white font-bold opacity-70 cursor-not-allowed" 
                   />
-                  <p className="mt-2 text-xs font-bold text-slate-500">Contact admin node to reassign your designation.</p>
+                  <p className="mt-2 text-xs font-bold text-slate-300">Contact admin node to reassign your designation.</p>
                 </div>
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-widest text-[#FFD700] mb-2">Communication Link</label>
@@ -507,8 +507,8 @@ export default function InstructorDashboard() {
   const navItemClass = (tabName) => `
     w-full flex items-center gap-4 px-5 py-3.5 rounded-xl transition-all duration-200 font-bold uppercase tracking-widest text-[11px] text-left border
     ${activeTab === tabName 
-      ? 'bg-white/10 text-white border-white/20 shadow-md' 
-      : 'bg-transparent text-slate-500 border-transparent hover:bg-white/5 hover:text-white'
+      ? 'bg-[#11151F]/10 text-white border-white/20 shadow-md' 
+      : 'bg-transparent text-slate-300 border-transparent hover:bg-[#11151F]/5 hover:text-white'
     }
   `;
 
@@ -521,7 +521,7 @@ export default function InstructorDashboard() {
              <img src={edotLogo} alt="EDOT Logo" className="h-10 w-auto rounded-lg shadow-sm" />
            </div>
            
-           <div className="flex items-center gap-4 mb-8 bg-white/5 p-4 rounded-2xl border border-white/10">
+           <div className="flex items-center gap-4 mb-8 bg-[#11151F]/5 p-4 rounded-2xl border border-white/10">
              <div className="w-12 h-12 bg-gradient-to-br from-[#FFD700] to-yellow-600 text-[#0B0E14] rounded-xl flex items-center justify-center shrink-0 shadow-lg border border-[#FFD700] font-black text-xl uppercase">
                {user?.name?.charAt(0) || 'I'}
              </div>
@@ -550,7 +550,7 @@ export default function InstructorDashboard() {
         <div className="p-8 mt-auto">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl text-slate-400 hover:bg-[#E30A17]/10 hover:text-[#E30A17] hover:border-[#E30A17]/20 border border-transparent transition-all font-black uppercase tracking-widest text-[11px]"
+            className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl text-slate-200 hover:bg-[#E30A17]/10 hover:text-[#E30A17] hover:border-[#E30A17]/20 border border-transparent transition-all font-black uppercase tracking-widest text-[11px]"
           >
             <LogOut className="w-5 h-5 shrink-0" /> Terminate Link
           </button>
@@ -577,7 +577,7 @@ export default function InstructorDashboard() {
               </h2>
               <button 
                 onClick={() => setActiveCourseId(null)} 
-                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#11151F]/5 text-slate-200 hover:bg-[#11151F]/10 hover:text-white transition-colors"
               >
                 &times;
               </button>
@@ -591,7 +591,7 @@ export default function InstructorDashboard() {
                   value={lessonData.title} 
                   onChange={e => setLessonData({...lessonData, title: e.target.value})} 
                   required 
-                  className="w-full px-6 py-4 bg-[#0B0E14] text-white font-bold border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] outline-none transition-all placeholder:text-slate-600" 
+                  className="w-full px-6 py-4 bg-[#0B0E14] text-white font-bold border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] outline-none transition-all placeholder:text-slate-300" 
                   placeholder="E.g., Quantum Algorithm Analysis" 
                 />
               </div>
@@ -602,7 +602,7 @@ export default function InstructorDashboard() {
                   value={lessonData.description} 
                   onChange={e => setLessonData({...lessonData, description: e.target.value})} 
                   required 
-                  className="w-full px-6 py-4 bg-[#0B0E14] text-white font-medium border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] outline-none transition-all resize-none placeholder:text-slate-600" 
+                  className="w-full px-6 py-4 bg-[#0B0E14] text-white font-medium border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] outline-none transition-all resize-none placeholder:text-slate-300" 
                   rows="3" 
                   placeholder="Define operational expectations for this sector."
                 ></textarea>
@@ -616,7 +616,7 @@ export default function InstructorDashboard() {
                     value={lessonData.videoUrl} 
                     onChange={e => setLessonData({...lessonData, videoUrl: e.target.value})} 
                     required 
-                    className="w-full px-6 py-4 bg-[#0B0E14] text-white font-bold border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] outline-none transition-all placeholder:text-slate-600" 
+                    className="w-full px-6 py-4 bg-[#0B0E14] text-white font-bold border border-white/10 rounded-xl focus:ring-2 focus:ring-[#FFD700] outline-none transition-all placeholder:text-slate-300" 
                     placeholder="WSS:// or HTTP://" 
                   />
                 </div>
@@ -637,7 +637,7 @@ export default function InstructorDashboard() {
                 <button 
                   type="button" 
                   onClick={() => setActiveCourseId(null)}
-                  className="flex-1 py-4 px-6 bg-transparent text-slate-400 font-black uppercase tracking-widest text-[11px] rounded-xl border border-white/10 hover:bg-white/5 hover:text-white transition-all shadow-sm"
+                  className="flex-1 py-4 px-6 bg-transparent text-slate-200 font-black uppercase tracking-widest text-[11px] rounded-xl border border-white/10 hover:bg-[#11151F]/5 hover:text-white transition-all shadow-sm"
                 >
                   Terminate
                 </button>

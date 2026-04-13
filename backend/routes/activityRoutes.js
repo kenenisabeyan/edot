@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { getMyActivities, getAllActivities, getInsightsForParent, flagActivity, createActivity } from '../controllers/activityController.js';
+import { protect, authorize } from '../middleware/auth.js';
+
 const router = express.Router();
-const { getMyActivities, getAllActivities, getInsightsForParent, flagActivity, createActivity } = require('../controllers/activityController');
-const { protect, authorize } = require('../middleware/auth');
 
 router.get('/', protect, getMyActivities);
 router.post('/', protect, createActivity);
@@ -9,4 +10,4 @@ router.get('/insights', protect, authorize('parent', 'admin'), getInsightsForPar
 router.put('/:id/flag', protect, authorize('instructor', 'admin'), flagActivity);
 router.get('/all', protect, authorize('admin'), getAllActivities);
 
-module.exports = router;
+export default router;

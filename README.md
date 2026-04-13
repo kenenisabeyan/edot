@@ -7,6 +7,8 @@ A comprehensive Educational System for students, instructors, and parents.
 - **Role-Based Dashboards:** Unique views for Admin, Teacher, and Supporter.
 - **Agenda System:** Global calendar and task tracking.
 
-## 🛠️ Tech Stack
-- **Frontend:** React, Vite, Tailwind CSS
-- **Backend:** Node.js, Express, MongoDB
+## 🛠️ **Tech Stack:**
+- **Frontend:** React, Tailwind CSS
+- **Backend:** Node.js, Express, PostgreSQL, Prisma
+- **Real-time:** Socket.io (planned)
+- **Deployment:** Vercel (Frontend), Render (Backend)

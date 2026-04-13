@@ -65,7 +65,7 @@ export default function InstructorManageCourses() {
     setModalType('students');
     setLoadingStudents(true);
     try {
-      const { data } = await api.get(`/courses/${course._id}/students`);
+      const { data } = await api.get(`/courses/${course.id}/students`);
       if (data.success) {
          setCourseStudents(data.data);
       }
@@ -122,11 +122,11 @@ export default function InstructorManageCourses() {
       {courses.length === 0 ? (
           <div className="p-16 text-center rounded-3xl border border-white/10 bg-[#0B0E14]/90 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-t from-[#008A32]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-            <div className="w-24 h-24 bg-white/5 text-slate-400 border border-white/10 rounded-full flex items-center justify-center mb-6 relative group-hover:scale-110 transition-transform duration-500 group-hover:border-[#008A32]/30 group-hover:text-[#008A32]">
+            <div className="w-24 h-24 bg-[#11151F]/5 text-slate-200 border border-white/10 rounded-full flex items-center justify-center mb-6 relative group-hover:scale-110 transition-transform duration-500 group-hover:border-[#008A32]/30 group-hover:text-[#008A32]">
               <FolderOpen className="w-12 h-12" />
             </div>
             <h3 className="text-2xl font-display font-bold text-white mb-3">Your Digital Vault is Empty</h3>
-            <p className="text-slate-400 max-w-sm mb-8 text-lg">You have not created or managed any courses yet.</p>
+            <p className="text-slate-200 max-w-sm mb-8 text-lg">You have not created or managed any courses yet.</p>
             <button 
               onClick={() => navigate('/dashboard/builder')} 
               className="px-8 py-3.5 bg-gradient-to-r from-[#008A32] to-[#006622] text-white font-bold rounded-xl hover:shadow-[0_0_25px_rgba(0,138,50,0.4)] transition-all hover:-translate-y-1"
@@ -151,7 +151,7 @@ export default function InstructorManageCourses() {
                      <motion.div 
                        whileHover={{ y: -6 }}
                        transition={{ duration: 0.2 }}
-                       key={c._id} 
+                       key={c.id} 
                        className="rounded-3xl border border-white/10 bg-[#0B0E14]/90 shadow-2xl backdrop-blur-xl flex flex-col group transition-all h-full relative"
                      >
                        <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFD700] opacity-5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform"></div>
@@ -169,7 +169,7 @@ export default function InstructorManageCourses() {
                                c.status === 'approved' ? 'bg-[#008A32]/20 text-[#008A32] border-[#008A32]/30 shadow-[0_0_15px_rgba(0,138,50,0.2)]' : 
                                (c.status === 'pending' ? 'bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30 shadow-[0_0_15px_rgba(255,215,0,0.2)]' : 
                                (c.status === 'rejected' ? 'bg-[#E30A17]/20 text-[#E30A17] border-[#E30A17]/30 shadow-[0_0_15px_rgba(227,10,23,0.2)]' : 
-                               'bg-white/5 text-slate-300 border-white/10'))
+                               'bg-[#11151F]/5 text-slate-300 border-white/10'))
                              }`}>
                                {c.status}
                              </span>
@@ -179,7 +179,7 @@ export default function InstructorManageCourses() {
                        <div className="flex flex-col flex-1 relative z-10 -mt-8 px-6 pb-6">
                          <h3 className="text-xl font-bold text-white leading-snug mb-4 line-clamp-2 drop-shadow-md group-hover:text-[#FFD700] transition-colors">{c.title}</h3>
                          
-                         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-300 mb-5 bg-white/5 p-3 rounded-xl border border-white/10 shadow-inner">
+                         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-300 mb-5 bg-[#11151F]/5 p-3 rounded-xl border border-white/10 shadow-inner">
                            {(() => {
                              const totalMins = c.lessons?.reduce((acc, l) => acc + (l.duration || 0), 0) || 0;
                              const hasLessons = Array.isArray(c.lessons) && c.lessons.length > 0;
@@ -190,12 +190,12 @@ export default function InstructorManageCourses() {
                              return (
                                <>
                                  <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-[#FFD700]" /> {displayTime}</span>
-                                 <div className="w-1 h-1 rounded-full bg-white/20"></div>
+                                 <div className="w-1 h-1 rounded-full bg-[#11151F]/20"></div>
                                  
                                  <button onClick={() => openLessons(c)} className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer group/btn">
                                    <PlayCircle className="w-3.5 h-3.5 text-[#008A32] group-hover/btn:scale-110 transition-transform" /> {c.lessons?.length || 0} lessons
                                  </button>
-                                 <div className="w-1 h-1 rounded-full bg-white/20"></div>
+                                 <div className="w-1 h-1 rounded-full bg-[#11151F]/20"></div>
                                  
                                  <button onClick={() => openStudents(c)} className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer group/btn">
                                    <Users className="w-3.5 h-3.5 text-indigo-400 group-hover/btn:scale-110 transition-transform" /> {c.totalStudents || 0} students
@@ -208,7 +208,7 @@ export default function InstructorManageCourses() {
                          <div className="mt-auto flex flex-col gap-3 pt-4 border-t border-white/5">
                            {!isAdmin && (c.status === 'draft' || c.status === 'rejected') && (
                              <button 
-                               onClick={() => handleSubmitReview(c._id)} 
+                               onClick={() => handleSubmitReview(c.id)} 
                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#008A32] to-[#006622] text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(0,138,50,0.4)] transition-all text-xs uppercase tracking-widest"
                              >
                                <Send className="w-3.5 h-3.5" /> Submit for Review
@@ -217,16 +217,16 @@ export default function InstructorManageCourses() {
                            
                            {c.status !== 'pending' && (
                              <button 
-                               onClick={() => navigate('/dashboard/builder/' + c._id)} 
-                               className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 text-white font-bold rounded-xl border border-white/10 hover:bg-[#FFD700] hover:text-[#0B0E14] hover:border-[#FFD700] transition-colors shadow-sm text-xs uppercase tracking-widest"
+                               onClick={() => navigate('/dashboard/builder/' + c.id)} 
+                               className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#11151F]/5 text-white font-bold rounded-xl border border-white/10 hover:bg-[#FFD700] hover:text-[#0B0E14] hover:border-[#FFD700] transition-colors shadow-sm text-xs uppercase tracking-widest"
                              >
                                <Edit3 className="w-3.5 h-3.5" /> Edit Content
                              </button>
                            )}
                            
                            <button 
-                             onClick={() => navigate('/dashboard/library', { state: { courseId: c._id } })} 
-                             className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 text-cyan-400 font-bold rounded-xl border border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/30 transition-colors shadow-sm text-xs uppercase tracking-widest"
+                             onClick={() => navigate('/dashboard/library', { state: { courseId: c.id } })} 
+                             className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#11151F]/5 text-cyan-400 font-bold rounded-xl border border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/30 transition-colors shadow-sm text-xs uppercase tracking-widest"
                            >
                               <FolderOpen className="w-3.5 h-3.5" /> Course Resources
                            </button>
@@ -263,7 +263,7 @@ export default function InstructorManageCourses() {
                   </h3>
                   <p className="text-sm text-[#FFD700] font-semibold mt-1">{activeCourse.title}</p>
                 </div>
-                <button onClick={() => setModalType(null)} className="p-2 bg-white/5 hover:bg-[#E30A17]/20 text-slate-400 hover:text-[#E30A17] rounded-xl transition-colors">
+                <button onClick={() => setModalType(null)} className="p-2 bg-[#11151F]/5 hover:bg-[#E30A17]/20 text-slate-200 hover:text-[#E30A17] rounded-xl transition-colors">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -271,14 +271,14 @@ export default function InstructorManageCourses() {
               <div className="overflow-y-auto overflow-x-hidden pr-2 space-y-3 custom-scrollbar flex-1">
                 {modalType === 'lessons' && (
                   activeCourse.lessons?.length === 0 ? (
-                    <div className="text-center p-8 text-slate-400 italic bg-white/5 rounded-2xl border border-white/5">No lessons have been added to this course yet.</div>
+                    <div className="text-center p-8 text-slate-200 italic bg-[#11151F]/5 rounded-2xl border border-white/5">No lessons have been added to this course yet.</div>
                   ) : (
                     activeCourse.lessons.map((l, index) => (
-                      <div key={l._id || index} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-[#FFD700]/30 transition-colors group">
+                      <div key={l.id || index} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-2xl bg-[#11151F]/5 border border-white/10 hover:border-[#FFD700]/30 transition-colors group">
                         <div className="w-10 h-10 rounded-xl bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold font-display shrink-0 group-hover:scale-110 transition-transform">{index + 1}</div>
                         <div className="flex-1">
                           <h4 className="font-bold text-white text-lg leading-tight mb-1">{l.title}</h4>
-                          <p className="text-xs text-slate-400 flex items-center gap-2"><Clock className="w-3.5 h-3.5" /> {l.duration} min</p>
+                          <p className="text-xs text-slate-200 flex items-center gap-2"><Clock className="w-3.5 h-3.5" /> {l.duration} min</p>
                         </div>
                         <div className="shrink-0 text-xs px-3 py-1.5 rounded-lg font-bold uppercase tracking-wider bg-black/40 text-slate-300 border border-white/10">
                           {l.lesson_exam ? 'Has Quiz' : 'Video Only'}
@@ -292,16 +292,16 @@ export default function InstructorManageCourses() {
                   loadingStudents ? (
                     <div className="flex justify-center p-12"><div className="w-10 h-10 border-4 border-white/20 border-t-[#FFD700] rounded-full animate-spin"></div></div>
                   ) : courseStudents.length === 0 ? (
-                    <div className="text-center p-8 text-slate-400 italic bg-white/5 rounded-2xl border border-white/5">No students are currently enrolled in this course.</div>
+                    <div className="text-center p-8 text-slate-200 italic bg-[#11151F]/5 rounded-2xl border border-white/5">No students are currently enrolled in this course.</div>
                   ) : (
                     courseStudents.map((stu) => (
-                      <div key={stu._id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/30 transition-colors group">
-                        <div className="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-lg uppercase shadow-inner border border-indigo-500/20 group-hover:scale-110 transition-transform shrink-0">
+                      <div key={stu.id} className="flex items-center gap-4 p-4 rounded-2xl bg-[#11151F]/5 border border-white/10 hover:border-indigo-500/30 transition-colors group">
+                        <div className="w-12 h-12 rounded-full bg-indigo-500/100/20 text-indigo-400 flex items-center justify-center font-bold text-lg uppercase shadow-inner border border-indigo-500/20 group-hover:scale-110 transition-transform shrink-0">
                           {stu.name.charAt(0)}
                         </div>
                         <div className="flex-1">
                           <h4 className="font-bold text-white text-lg">{stu.name}</h4>
-                          <p className="text-sm text-slate-400">{stu.email}</p>
+                          <p className="text-sm text-slate-200">{stu.email}</p>
                         </div>
                       </div>
                     ))
