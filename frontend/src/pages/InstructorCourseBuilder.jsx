@@ -54,7 +54,7 @@ export default function InstructorCourseBuilder() {
         setFormData({
           title: data.course.title || '',
           description: data.course.description || '',
-          category: data.course.category || 'Social Science',
+          category: data.course.mainCategory || data.course.category || 'Social Science',
           level: data.course.level || 'Beginner',
           duration: data.course.duration || 1,
           thumbnail: data.course.thumbnail || '',

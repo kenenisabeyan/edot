@@ -48,7 +48,7 @@ export default function InstructorManageCourses() {
   const coursesByCategory = useMemo(() => {
     const grouped = {};
     courses.forEach(course => {
-      const category = course.category || 'General Overview';
+      const category = course.mainCategory || course.category || 'General Overview';
       if (!grouped[category]) grouped[category] = [];
       grouped[category].push(course);
     });
