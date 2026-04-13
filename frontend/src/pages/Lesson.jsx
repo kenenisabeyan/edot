@@ -18,9 +18,9 @@ export default function Lesson() {
   const [error, setError] = useState('');
   
   // Accordion State
-  const [expandedPhase, setExpandedPhase] = useState({ [id]: true }); 
-  const [expandedCategory, setExpandedCategory] = useState({ [`${id}-videos`]: true });
-  const [playingVideoId, setPlayingVideoId] = useState(id); 
+  const [expandedPhase, setExpandedPhase] = useState({}); 
+  const [expandedCategory, setExpandedCategory] = useState({});
+  const [playingVideoId, setPlayingVideoId] = useState(null); 
   
   // Modals for Docs and Quiz
   const [activeModal, setActiveModal] = useState(null); // { type: 'docs' | 'quiz', lessonId: '...' }
@@ -43,6 +43,8 @@ export default function Lesson() {
         const { data } = await api.get(`/courses/${courseId}`);
         setCourse(data.course);
 
+
+
         if (user) {
           try {
              const { data: statusData } = await api.get(`/student/courses/${courseId}/status`);
@@ -59,7 +61,7 @@ export default function Lesson() {
       }
     };
     fetchCourseData();
-  }, [courseId]);
+  }, [courseId, id, user]);
 
   const isActive = enrollmentStatus === 'active';
   const isBlocked = user?.status === 'blocked';
@@ -96,6 +98,12 @@ export default function Lesson() {
   const resolveUrl = (url) => {
     if (!url) return '';
     let cleanUrl = url.trim();
+    
+    // Extract src from iframe if present
+    const iframeMatch = cleanUrl.match(/<iframe.*?src=["'](.*?)["']/i);
+    if (iframeMatch) {
+       cleanUrl = iframeMatch[1];
+    }
     
     // Extract url if it is formatted as a markdown link [Title](url)
     const mdMatch = cleanUrl.match(/\]\((.*?)\)/);
@@ -184,6 +192,27 @@ export default function Lesson() {
                const lId = lesson.id;
                const isPhaseExp = expandedPhase[lId];
                const lCompleted = completedList.includes(lId);
+
+               const textContent = lesson.readingMaterials || '';
+               let linkUrl = '';
+               let linkTitle = '';
+               let pureText = textContent;
+
+               const mdMatch = textContent.match(/\[(.*?)\]\((.*?)\)/);
+               const rawMatch = textContent.match(/(https?:\/\/[^\s]+|\/uploads\/[^\s]+)/);
+
+               if (mdMatch) {
+                  linkTitle = mdMatch[1] || 'Attached File';
+                  linkUrl = resolveUrl(mdMatch[2]);
+                  pureText = textContent.replace(/\[(.*?)\]\((.*?)\)/g, '').trim();
+               } else if (rawMatch) {
+                  linkUrl = resolveUrl(rawMatch[1]);
+                  linkTitle = 'Attached Resource';
+                  pureText = textContent.replace(/(https?:\/\/[^\s]+|\/uploads\/[^\s]+)/g, '').trim();
+               }
+               
+               const isIframeable = linkUrl && !!linkUrl.match(/\.(pdf|png|jpg|jpeg|gif)$/i);
+               const isDownloadOnly = linkUrl && !isIframeable;
 
                return (
                   <div key={lId} className={`rounded-3xl border transition-all duration-500 overflow-hidden shadow-xl ${isPhaseExp ? 'border-white/20 bg-[#11151F] shadow-[0_10px_30px_rgba(0,0,0,0.5)] transform scale-[1.01]' : 'border-white/5 bg-[#11151F]/60'}`}>
@@ -297,28 +326,110 @@ export default function Lesson() {
                               )}
                            </div>
 
-                           {/* POPUP TRIGGER: Notes & Checklists */}
-                           {lesson.readingMaterials && (
-                           <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#11151F] shadow-sm">
-                              <button onClick={() => setActiveModal({ type: 'docs', lessonId: lId })} className="w-full p-5 flex justify-between items-center hover:bg-[#11151F]/5 transition-colors group">
-                                 <span className="font-bold flex items-center gap-4 text-slate-200 group-hover:text-white"><div className="w-8 h-8 rounded-full bg-emerald-500/100/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20"><FileText className="w-4 h-4" /></div> Notes & Checklists</span>
-                                 <span className="text-[10px] uppercase tracking-widest bg-[#FFC107]/10 text-[#FFC107] border border-[#FFC107]/20 px-4 py-2 rounded-xl flex items-center gap-2 font-black group-hover:bg-[#FFC107] group-hover:text-[#0B0E14] transition-colors shadow-sm">
-                                    Open Portal <ExternalLink className="w-3 h-3"/>
-                                 </span>
-                              </button>
-                           </div>
+                           {/* INLINE MODULE: Study Notes */}
+                           {pureText && (
+                              <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#11151F] shadow-sm">
+                                 <button onClick={() => toggleCat(lId, 'notes')} className="w-full p-5 flex justify-between items-center hover:bg-[#11151F]/5 transition-colors group">
+                                    <span className="font-bold flex items-center gap-4 text-slate-200 group-hover:text-white"><div className="w-8 h-8 rounded-full bg-indigo-500/100/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20"><FileText className="w-4 h-4" /></div> Study Notes</span>
+                                    <span className="text-[10px] uppercase tracking-widest text-slate-300 flex items-center gap-2 font-bold group-hover:text-[#FFC107]">
+                                       {expandedCategory[`${lId}-notes`] ? 'Collapse' : 'Expand'} {expandedCategory[`${lId}-notes`] ? <ChevronUp className="w-3 h-3"/> : <ChevronDown className="w-3 h-3"/>}
+                                    </span>
+                                 </button>
+                                 {expandedCategory[`${lId}-notes`] && (
+                                    <div className="p-6 sm:p-10 border-t border-white/5 bg-[#0B0E14] text-slate-300 font-sans whitespace-pre-wrap leading-[1.8] text-[16px] border-l-[3px] border-l-indigo-500/50">
+                                       {pureText}
+                                    </div>
+                                 )}
+                              </div>
                            )}
 
-                           {/* POPUP TRIGGER: Phase Assessment */}
+                           {/* INLINE MODULE: Attached Document */}
+                           {linkUrl && (
+                              <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#11151F] shadow-sm">
+                                 <button onClick={() => toggleCat(lId, 'docs')} className="w-full p-5 flex justify-between items-center hover:bg-[#11151F]/5 transition-colors group">
+                                    <span className="font-bold flex items-center gap-4 text-slate-200 group-hover:text-white"><div className="w-8 h-8 rounded-full bg-emerald-500/100/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20"><FileText className="w-4 h-4" /></div> Attached Document</span>
+                                    <span className="text-[10px] uppercase tracking-widest text-slate-300 flex items-center gap-2 font-bold group-hover:text-[#FFC107]">
+                                       {expandedCategory[`${lId}-docs`] ? 'Collapse' : 'Expand'} {expandedCategory[`${lId}-docs`] ? <ChevronUp className="w-3 h-3"/> : <ChevronDown className="w-3 h-3"/>}
+                                    </span>
+                                 </button>
+                                 {expandedCategory[`${lId}-docs`] && (
+                                    <div className="border-t border-white/5 bg-[#0B0E14] p-4 flex flex-col items-center">
+                                       {isIframeable ? (
+                                          <>
+                                             <iframe src={linkUrl} className="w-full h-[65vh] bg-white rounded-xl" title="Attached Document"/>
+                                             <a href={linkUrl} target="_blank" rel="noreferrer" className="mt-4 px-6 py-3 bg-[#11151F]/20 border border-emerald-500/30 hover:bg-emerald-500/100/20 text-emerald-400 hover:text-emerald-300 rounded-xl font-black uppercase tracking-widest text-[11px] transition-colors flex items-center gap-2"><ExternalLink className="w-4 h-4" /> Open Remotely</a>
+                                          </>
+                                       ) : (
+                                          <div className="py-12 px-6 text-center">
+                                             <FileText className="w-16 h-16 text-emerald-500 mb-6 mx-auto drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
+                                             <p className="text-slate-400 mb-8 max-w-sm">This presentation or document requires native desktop application access. Initiate extraction to view the files.</p>
+                                             <a href={linkUrl} download target="_blank" rel="noreferrer" className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white rounded-xl font-black uppercase tracking-widest text-[13px] flex items-center justify-center gap-3"><ExternalLink className="w-5 h-5" /> Download Resources</a>
+                                          </div>
+                                       )}
+                                    </div>
+                                 )}
+                              </div>
+                           )}
+
+                           {/* INLINE MODULE: Phase Assessment */}
                            {lesson.quiz?.length > 0 && (
-                           <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#11151F] shadow-sm">
-                              <button onClick={() => setActiveModal({ type: 'quiz', lessonId: lId })} className="w-full p-5 flex justify-between items-center hover:bg-[#11151F]/5 transition-colors group">
-                                 <span className="font-bold flex items-center gap-4 text-slate-200 group-hover:text-white"><div className="w-8 h-8 rounded-full bg-amber-500/100/10 text-amber-500 flex items-center justify-center border border-amber-500/20"><BadgeAlert className="w-4 h-4" /></div> Phase Assessment</span>
-                                 <span className="text-[10px] uppercase tracking-widest bg-[#FFC107]/10 text-[#FFC107] border border-[#FFC107]/20 px-4 py-2 rounded-xl flex items-center gap-2 font-black group-hover:bg-[#FFC107] group-hover:text-[#0B0E14] transition-colors shadow-sm">
-                                    Begin Audit <ExternalLink className="w-3 h-3"/>
-                                 </span>
-                              </button>
-                           </div>
+                              <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#11151F] shadow-sm">
+                                 <button onClick={() => toggleCat(lId, 'quiz')} className="w-full p-5 flex justify-between items-center hover:bg-[#11151F]/5 transition-colors group">
+                                    <span className="font-bold flex items-center gap-4 text-slate-200 group-hover:text-white"><div className="w-8 h-8 rounded-full bg-amber-500/100/10 text-amber-500 flex items-center justify-center border border-amber-500/20"><BadgeAlert className="w-4 h-4" /></div> Phase Assessment</span>
+                                    <span className="text-[10px] uppercase tracking-widest text-slate-300 flex items-center gap-2 font-bold group-hover:text-[#FFC107]">
+                                       {expandedCategory[`${lId}-quiz`] ? 'Collapse' : 'Expand'} {expandedCategory[`${lId}-quiz`] ? <ChevronUp className="w-3 h-3"/> : <ChevronDown className="w-3 h-3"/>}
+                                    </span>
+                                 </button>
+                                 {expandedCategory[`${lId}-quiz`] && (
+                                    <div className="border-t border-white/5 bg-[#0B0E14] p-6 sm:p-10">
+                                       {!quizState[lId]?.submitted ? (
+                                          <>
+                                             <div className="mb-8 border-l-[4px] border-l-amber-500/50 pl-4 bg-[#11151F]/40 p-4 rounded-r-xl">
+                                                <h4 className="text-white font-black text-xl mb-1">Finalize Evaluation</h4>
+                                                <p className="text-slate-400 text-sm font-medium">Complete this audit securely to unlock phase completion.</p>
+                                             </div>
+                                             {lesson.quiz.map((q, qIndex) => (
+                                                <div key={qIndex} className="mb-6 bg-[#11151F]/60 border border-white/5 p-6 rounded-2xl shadow-sm">
+                                                   <p className="font-black text-white mb-5 text-lg">Q{qIndex + 1}: {q.question}</p>
+                                                   <div className="space-y-3">
+                                                      {q.options.map((opt, oIndex) => {
+                                                         const isSelected = quizAnswers[`${lId}-${qIndex}`] === oIndex;
+                                                         return (
+                                                         <label key={oIndex} className={`w-full flex items-center p-4 rounded-xl border cursor-pointer transition-all ${isSelected ? 'bg-[#FFD700]/10 border-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.1)]' : 'bg-[#11151F]/60 border-white/5 hover:border-white/20'}`}>
+                                                            <input type="radio" checked={isSelected} onChange={() => setQuizAnswers(prev => ({...prev, [`${lId}-${qIndex}`]: oIndex}))} className="w-5 h-5 text-[#FFD700] rounded-full focus:ring-[#FFD700] bg-[#11151F]/10 border-none"/>
+                                                            <span className={`ml-4 text-[15px] font-bold ${isSelected ? 'text-[#FFD700]' : 'text-slate-300'}`}>{opt}</span>
+                                                         </label>
+                                                         );
+                                                      })}
+                                                   </div>
+                                                </div>
+                                             ))}
+                                             <button onClick={() => {
+                                                   let score = 0;
+                                                   lesson.quiz.forEach((q, i) => { if (quizAnswers[`${lId}-${i}`] === q.correctAnswer) score++; });
+                                                   setQuizState(prev => ({ ...prev, [lId]: { submitted: true, score } }));
+                                                }}
+                                                className="w-full bg-gradient-to-r from-[#FFD700] to-yellow-500 text-black font-black uppercase tracking-widest py-5 rounded-2xl hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all flex items-center justify-center gap-2 mt-2">
+                                                Submit Assessment
+                                             </button>
+                                          </>
+                                       ) : (
+                                          <div className={`p-8 rounded-3xl text-center shadow-lg border-2 ${quizState[lId].score === lesson.quiz.length ? 'bg-[#008A32]/10 border-[#008A32] text-white' : 'bg-red-500/10 border-red-500 text-white'}`}>
+                                             <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-6 border-2 ${quizState[lId].score === lesson.quiz.length ? 'bg-[#008A32] border-white/20' : 'bg-red-500 border-white/20'}`}>
+                                                {quizState[lId].score === lesson.quiz.length ? <CheckCircle2 className="w-8 h-8 text-white" /> : <BadgeAlert className="w-8 h-8 text-white" />}
+                                             </div>
+                                             <p className="font-black text-2xl tracking-widest uppercase mb-2">{quizState[lId].score === lesson.quiz.length ? 'Audit Passed!' : 'Audit Failed'}</p>
+                                             <p className="text-base font-bold opacity-80 mb-6">{quizState[lId].score} out of {lesson.quiz.length} correct</p>
+                                             {quizState[lId].score !== lesson.quiz.length && (
+                                                <button onClick={() => setQuizState(prev => ({ ...prev, [lId]: null }))} className="px-6 py-3 bg-[#11151F] text-white rounded-xl font-black hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs">
+                                                   Re-Attempt Protocol
+                                                </button>
+                                             )}
+                                          </div>
+                                       )}
+                                    </div>
+                                 )}
+                              </div>
                            )}
 
                            {/* Phase Completion Trigger (Bottom of expanded phase) */}
@@ -347,133 +458,7 @@ export default function Lesson() {
 
       </div>
 
-      {/* PORTAL MODALS */}
-      {activeModal && activeModal.type === 'docs' && (() => {
-         const lesson = course.lessons.find(l => l.id === activeModal.lessonId);
-         const isFile = lesson.readingMaterials.match(/\.(pdf|doc|docx|png|jpg|jpeg)$/i) || lesson.readingMaterials.includes('/uploads/');
-         
-         return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-[#0B0E14]/60 backdrop-blur-md">
-               <div className="w-full max-w-5xl max-h-[90vh] bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
-                  <div className="flex justify-between items-center p-6 border-b border-white/5 bg-transparent">
-                     <h3 className="text-2xl font-black text-white flex items-center gap-3 tracking-wide"><FileText className="w-6 h-6 text-emerald-500" /> Notes & Documents</h3>
-                     <button onClick={() => setActiveModal(null)} className="w-10 h-10 rounded-full bg-[#11151F]/5 border border-white/10 flex items-center justify-center hover:bg-[#11151F]/10 transition-colors group">
-                        <X className="w-5 h-5 text-slate-200 group-hover:text-white" />
-                     </button>
-                  </div>
-                  <div className="flex-1 overflow-y-auto p-2 sm:p-4 bg-transparent flex flex-col">
-                     {isFile ? (
-                        <>
-                           <iframe 
-                             src={resolveUrl(lesson.readingMaterials)} 
-                             className="w-full h-[65vh] rounded-2xl bg-[#11151F] shadow-inner mb-4" 
-                             title="Document Viewer" 
-                           />
-                           <a 
-                             href={resolveUrl(lesson.readingMaterials)} 
-                             target="_blank" 
-                             rel="noreferrer"
-                             className="mx-auto mt-2 px-6 py-3 bg-[#11151F]/5 border border-white/10 hover:bg-emerald-500/100/20 text-emerald-400 hover:text-emerald-300 rounded-xl font-black uppercase tracking-widest text-xs transition-colors flex items-center gap-2"
-                           >
-                              <ExternalLink className="w-4 h-4" /> Unreadable? Open PDF Externally
-                           </a>
-                        </>
-                     ) : (
-                        <div className="p-6 whitespace-pre-wrap text-base font-medium leading-relaxed text-slate-300 border-l-[4px] border-l-emerald-500/50 bg-[#11151F] rounded-xl m-4">
-                           {lesson.readingMaterials}
-                        </div>
-                     )}
-                  </div>
-               </div>
-            </div>
-         );
-      })()}
 
-      {activeModal && activeModal.type === 'quiz' && (() => {
-         const lId = activeModal.lessonId;
-         const lesson = course.lessons.find(l => l.id === lId);
-         
-         return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-[#0B0E14]/60 backdrop-blur-md">
-               <div className="w-full max-w-3xl max-h-[90vh] bg-[#11151F]/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
-                  <div className="flex justify-between items-center p-6 border-b border-white/5 bg-transparent">
-                     <h3 className="text-2xl font-black text-white flex items-center gap-3 tracking-wide"><Award className="w-6 h-6 text-amber-500" /> Phase Assessment</h3>
-                     <button onClick={() => setActiveModal(null)} className="w-10 h-10 rounded-full bg-[#11151F]/5 border border-white/10 flex items-center justify-center hover:bg-[#11151F]/10 transition-colors group">
-                     </button>
-                  </div>
-                  <div className="flex-1 overflow-y-auto p-6 sm:p-10 bg-transparent">
-                     {!quizState[lId]?.submitted ? (
-                        <>
-                           <div className="mb-8 border-l-[4px] border-l-amber-500/50 pl-4">
-                              <h4 className="text-white font-black text-xl mb-2">Finalize Evaluation</h4>
-                              <p className="text-slate-200 text-sm font-medium">Complete this audit securely to unlock phase completion.</p>
-                           </div>
-                           {lesson.quiz.map((q, qIndex) => (
-                              <div key={qIndex} className="mb-8 bg-[#11151F]/60 backdrop-blur-md p-8 rounded-2xl border border-white/5 shadow-sm">
-                                 <p className="font-black text-white mb-6 text-lg leading-snug">Q{qIndex + 1}: {q.question}</p>
-                                 <div className="space-y-4">
-                                    {q.options.map((opt, oIndex) => {
-                                       const isSelected = quizAnswers[`${lId}-${qIndex}`] === oIndex;
-                                       return (
-                                       <label key={oIndex} className={`w-full flex items-center p-5 rounded-xl border cursor-pointer transition-all ${isSelected ? 'bg-[#FFD700]/10 border-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.2)]' : 'bg-[#11151F]/60 border-white/5 hover:border-white/20'}`}>
-                                          <input 
-                                             type="radio" 
-                                             checked={isSelected}
-                                             onChange={() => setQuizAnswers(prev => ({...prev, [`${lId}-${qIndex}`]: oIndex}))}
-                                             className="w-5 h-5 text-[#FFD700] rounded-full focus:ring-[#FFD700] bg-[#11151F]/10 border-none"
-                                          />
-                                          <span className={`ml-4 text-base font-bold ${isSelected ? 'text-[#FFD700]' : 'text-slate-300'}`}>{opt}</span>
-                                       </label>
-                                       );
-                                    })}
-                                 </div>
-                              </div>
-                           ))}
-                           <button 
-                              onClick={() => {
-                                 let score = 0;
-                                 lesson.quiz.forEach((q, i) => { if (quizAnswers[`${lId}-${i}`] === q.correctAnswer) score++; });
-                                 setQuizState(prev => ({ ...prev, [lId]: { submitted: true, score } }));
-                              }}
-                              className="w-full bg-gradient-to-r from-[#FFD700] to-[#e5c100] text-[#0B0E14] font-black uppercase tracking-widest text-sm py-5 rounded-2xl hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all flex items-center justify-center gap-2 mt-4"
-                           >
-                              Submit Assessment
-                           </button>
-                        </>
-                     ) : (
-                        <div className={`p-10 rounded-3xl text-center shadow-lg transform transition-all ${quizState[lId].score === lesson.quiz.length ? 'bg-[#008A32]/20 border-2 border-[#008A32] text-white shadow-[0_0_30px_rgba(0,138,50,0.2)]' : 'bg-red-500/20 border-2 border-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.2)]'}`}>
-                           <div className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-6 border-2 ${quizState[lId].score === lesson.quiz.length ? 'bg-[#008A32] border-white/20' : 'bg-red-500 border-white/20'}`}>
-                             {quizState[lId].score === lesson.quiz.length ? <CheckCircle2 className="w-10 h-10 text-white" /> : <BadgeAlert className="w-10 h-10 text-white" />}
-                           </div>
-                           <p className="font-black text-3xl tracking-widest uppercase mb-3">
-                             {quizState[lId].score === lesson.quiz.length ? 'Audit Passed!' : 'Audit Failed'}
-                           </p>
-                           <p className="text-lg font-bold opacity-80 mb-8 bg-[#11151F]/10 inline-block px-5 py-2.5 rounded-xl">
-                             {quizState[lId].score} out of {lesson.quiz.length} correct
-                           </p>
-                           
-                           {quizState[lId].score !== lesson.quiz.length ? (
-                              <button 
-                               onClick={() => setQuizState(prev => ({ ...prev, [lId]: null }))} 
-                               className="block mx-auto px-8 py-4 bg-[#11151F]/10 text-white rounded-xl font-black hover:bg-[#11151F] hover:text-[#0B0E14] transition-colors uppercase tracking-widest text-xs"
-                              >
-                               Re-Attempt Protocol
-                              </button>
-                           ) : (
-                              <button 
-                               onClick={() => setActiveModal(null)} 
-                               className="block mx-auto px-8 py-4 bg-[#11151F] text-[#008A32] rounded-xl font-black transition-colors uppercase tracking-widest text-xs shadow-lg"
-                              >
-                               Confirm & Proceed
-                              </button>
-                           )}
-                        </div>
-                     )}
-                  </div>
-               </div>
-            </div>
-         );
-      })()}
 
     </div>
   );

@@ -600,7 +600,7 @@ export default function InstructorCourseBuilder() {
                                 {saving ? '...' : 'Upload'}
                                 <input 
                                   type="file" 
-                                  accept="video/mp4,video/x-m4v,video/*"
+                                  accept="video/mp4,video/webm,video/ogg"
                                   className="hidden" 
                                   onChange={(e) => handleFileUpload(e, 'videoUrl')} 
                                   disabled={saving}
@@ -627,7 +627,7 @@ export default function InstructorCourseBuilder() {
                               Upload Document
                               <input 
                                 type="file" 
-                                accept=".pdf,.doc,.docx,.zip"
+                                accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
                                 className="hidden" 
                                 onChange={(e) => handleFileUpload(e, 'readingMaterials')} 
                                 disabled={saving}
