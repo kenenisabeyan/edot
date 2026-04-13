@@ -165,8 +165,8 @@ const CourseCard = ({ course }) => {
 
         {/* Stats */}
         <div className="flex items-center gap-4 mb-4 text-[11px] text-slate-300 font-bold">
-           <span className="flex items-center gap-1.5"><PlayCircle className="w-3.5 h-3.5 text-slate-200"/> {Math.floor(Math.random() * 20) + 5} Modules</span>
-           <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-slate-200"/> {Math.floor(Math.random() * 10) + 2}h {Math.floor(Math.random() * 60)}m</span>
+           <span className="flex items-center gap-1.5"><PlayCircle className="w-3.5 h-3.5 text-slate-200"/> {course.lessons?.length || 12} Modules</span>
+           <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-slate-200"/> {((course.title?.length || 10) % 8) + 2}h {((course.title?.length || 10) * 5) % 60}m</span>
         </div>
 
         {/* Price & Action */}
