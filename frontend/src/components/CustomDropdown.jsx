@@ -20,10 +20,16 @@ export default function CustomDropdown({
   const updatePosition = () => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPos({
-        top: rect.bottom + 8,
-        left: rect.left,
-        width: rect.width
+      setDropdownPos(prev => {
+        const newTop = rect.bottom + 8;
+        if (prev.top === newTop && prev.left === rect.left && prev.width === rect.width) {
+          return prev;
+        }
+        return {
+          top: newTop,
+          left: rect.left,
+          width: rect.width
+        };
       });
     }
   };

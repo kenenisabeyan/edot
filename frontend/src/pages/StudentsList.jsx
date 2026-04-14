@@ -62,6 +62,24 @@ export default function StudentsList() {
     }
   };
 
+  const instructorOptions = React.useMemo(() => {
+    return instructors.map(inst => ({
+      label: inst.name,
+      value: inst.id,
+      render: (
+        <div className="flex items-center gap-3 w-full py-0.5">
+          <div className="w-8 h-8 rounded-full bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold text-xs shrink-0 border border-[#008A32]/30 shadow-sm uppercase">
+            {inst.name.charAt(0)}
+          </div>
+          <div className="flex flex-col text-left flex-1 min-w-0">
+            <span className="font-bold text-white text-xs truncate">{inst.name}</span>
+            <span className="text-[10px] text-slate-200 truncate mt-0.5">{inst.email}</span>
+          </div>
+        </div>
+      )
+    }));
+  }, [instructors]);
+
   if (loading) return <div className="p-8 text-center"><div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto"></div></div>;
 
   const filteredStudents = students.filter(s => s.status === tab || (tab === 'approved' && !s.status));
@@ -130,21 +148,7 @@ export default function StudentsList() {
                           <CustomDropdown
                              value={stu.assignedInstructor?.id || ''}
                              onChange={(val) => handleAssign(stu.id, val)}
-                             options={instructors.map(inst => ({ 
-                               label: inst.name, 
-                               value: inst.id,
-                               render: (
-                                 <div className="flex items-center gap-3 w-full py-0.5">
-                                   <div className="w-8 h-8 rounded-full bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold text-xs shrink-0 border border-[#008A32]/30 shadow-sm uppercase">
-                                      {inst.name.charAt(0)}
-                                   </div>
-                                   <div className="flex flex-col text-left flex-1 min-w-0">
-                                     <span className="font-bold text-white text-xs truncate">{inst.name}</span>
-                                     <span className="text-[10px] text-slate-200 truncate mt-0.5">{inst.email}</span>
-                                   </div>
-                                 </div>
-                               )
-                             }))}
+                             options={instructorOptions}
                              placeholder="Assign Instructor..."
                              searchable={true}
                           />

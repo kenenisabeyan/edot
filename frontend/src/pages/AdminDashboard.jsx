@@ -361,6 +361,24 @@ export default function AdminDashboard() {
 
   const instructorsCount = usersList.filter(u => u.role === 'instructor').length;
 
+  const instructorOptions = React.useMemo(() => {
+    return usersList.filter(user => user.role === 'instructor').map(inst => ({
+      label: inst.name,
+      value: inst.id,
+      render: (
+        <div className="flex items-center gap-3 w-full py-0.5">
+          <div className="w-8 h-8 rounded-full bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold text-xs shrink-0 border border-[#008A32]/30 shadow-sm uppercase">
+              {inst.name ? inst.name.charAt(0) : '?'}
+          </div>
+          <div className="flex flex-col text-left flex-1 min-w-0">
+            <span className="font-bold text-white text-xs truncate">{inst.name}</span>
+            <span className="text-[10px] text-slate-200 truncate mt-0.5">{inst.email}</span>
+          </div>
+        </div>
+      )
+    }));
+  }, [usersList]);
+
   const renderContent = () => {
     if (loading) {
       return (
@@ -645,21 +663,7 @@ export default function AdminDashboard() {
                               <CustomDropdown 
                                 value={u.assignedInstructor?.id || u.assignedInstructor || ''}
                                 onChange={(val) => assignInstructor(u.id, val)}
-                                options={usersList.filter(user => user.role === 'instructor').map(inst => ({ 
-                                  label: inst.name, 
-                                  value: inst.id,
-                                  render: (
-                                    <div className="flex items-center gap-3 w-full py-0.5">
-                                      <div className="w-8 h-8 rounded-full bg-[#008A32]/20 text-[#008A32] flex items-center justify-center font-bold text-xs shrink-0 border border-[#008A32]/30 shadow-sm uppercase">
-                                          {inst.name ? inst.name.charAt(0) : '?'}
-                                      </div>
-                                      <div className="flex flex-col text-left flex-1 min-w-0">
-                                        <span className="font-bold text-white text-xs truncate">{inst.name}</span>
-                                        <span className="text-[10px] text-slate-200 truncate mt-0.5">{inst.email}</span>
-                                      </div>
-                                    </div>
-                                  )
-                                }))}
+                                options={instructorOptions}
                                 placeholder="Select Inst..."
                                 searchable={true}
                                 className="w-44"
