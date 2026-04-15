@@ -6,7 +6,7 @@ import AgendaCreationModal from '../components/AgendaCreationModal';
 import CustomDropdown from '../components/CustomDropdown';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity, MessageSquare, UserPlus, Eye, ShieldOff, ArrowRightCircle, UserPlus as UserPlusIcon } from 'lucide-react';
+import { ShieldAlert, Users, BookOpen, Clock, Settings, LogOut, CheckCircle2, XCircle, UserCog, AlertTriangle, ShieldCheck, Check, Activity, MessageSquare, UserPlus, Eye, ShieldOff, ArrowRightCircle, UserPlus as UserPlusIcon, Search, Bell } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
 import ActivityFeed from '../components/ActivityFeed';
@@ -857,32 +857,23 @@ export default function AdminDashboard() {
   };
 
   const navItemClass = (tabName) => `
-    w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-left
+    w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm text-left
     ${activeTab === tabName 
-      ? 'bg-red-500 text-white shadow-md shadow-red-500/20' 
-      : 'text-slate-200 hover:bg-slate-800 hover:text-slate-200'
+      ? 'bg-[#1E293B] text-white shadow-sm' 
+      : 'bg-transparent text-slate-400 hover:bg-[#11151F] hover:text-white'
     }
   `;
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#0d0f12] flex flex-col md:flex-row font-sans text-slate-300">
       {/* Sidebar Layout */}
-      <aside className="w-full md:w-72 bg-slate-900 text-white shrink-0 flex flex-col md:h-screen">
-        <div className="p-6 border-b border-slate-800">
-           <div className="flex items-center gap-2 mb-6 w-full px-2">
-             <img src={edotLogo} alt="EDOT Logo" className="h-10 w-auto" />
-           </div>
-           
-           <div className="flex items-center gap-4 mb-8">
-             <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-red-500/20">
-               <ShieldAlert className="w-6 h-6 text-white" />
-             </div>
-             <div>
-               <h3 className="font-bold text-lg leading-tight truncate">{user?.name}</h3>
-               <p className="text-red-400 text-xs font-bold uppercase tracking-wider">{user?.role}</p>
-             </div>
-           </div>
-
+      <aside className="w-full md:w-64 bg-[#0d0f12] text-white shrink-0 flex flex-col md:h-screen border-r border-white/5 sticky top-0 font-sans">
+        <div className="p-6 border-b border-white/5">
+           <img src={edotLogo} alt="EDOT Logo" className="h-8 w-auto rounded opacity-90" />
+        </div>
+        
+        <div className="p-6">
+           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Menu</p>
            <nav className="space-y-2">
              <button onClick={() => setActiveTab('overview')} className={navItemClass('overview')}>
                <ShieldCheck className="w-5 h-5 shrink-0" /> Overview
@@ -906,8 +897,10 @@ export default function AdminDashboard() {
              <button onClick={() => setActiveTab('logs')} className={navItemClass('logs')}>
                <Activity className="w-5 h-5 shrink-0" /> System Logs
              </button>
+           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-8 mb-4">Preference</p>
+           <nav className="space-y-1">
              <button onClick={() => setActiveTab('settings')} className={navItemClass('settings')}>
-               <Settings className="w-5 h-5 shrink-0" /> Settings
+               <Settings className="w-4 h-4 shrink-0" /> Settings
              </button>
            </nav>
         </div>
@@ -915,16 +908,46 @@ export default function AdminDashboard() {
         <div className="p-6 mt-auto">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-200 hover:bg-red-500/10 hover:text-red-400 transition-colors font-semibold"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-400/10 border border-transparent transition-colors font-medium text-sm"
           >
-            <LogOut className="w-5 h-5 shrink-0" /> Logout
+            <LogOut className="w-4 h-4 shrink-0" /> Logout
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-x-hidden">
-        <div className="max-w-6xl mx-auto">
+      <main className="flex-1 p-6 md:p-8 lg:p-10 overflow-y-auto">
+        <div className="max-w-[1400px] mx-auto relative">
+          
+          {/* Top Header mapped from image requirements */}
+          <header className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 w-full">
+            <div className="relative w-full max-w-sm">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input type="text" placeholder="Global Search (Students, Courses, Messages)..." 
+                className="w-full pl-10 pr-20 py-2.5 bg-[#13161B] border border-white/5 rounded-xl text-xs outline-none text-white focus:ring-1 focus:ring-white/10 transition-all font-medium placeholder:text-slate-500 shadow-sm" />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#1A1E26] text-[9px] px-2 py-1 rounded text-slate-400 font-bold border border-white/5">
+                CTRL + K
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6 w-full sm:w-auto justify-end">
+              <div className="relative cursor-pointer hover:bg-white/5 p-2 rounded-full transition-colors">
+                <Bell className="w-5 h-5 text-slate-300" />
+                <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-[#E30A17] rounded-full border-2 border-[#0d0f12] text-[7px] flex items-center justify-center text-white font-bold">1</span>
+              </div>
+              
+              <div className="flex items-center gap-3 cursor-pointer p-1 pr-3 rounded-full hover:bg-white/5 transition-colors">
+                 <div className="w-9 h-9 rounded-full bg-white text-[#0B0E14] font-black flex items-center justify-center shadow-sm">
+                   {user?.name?.charAt(0) || 'A'}
+                 </div>
+                 <div className="text-left hidden sm:block">
+                   <div className="text-sm font-bold text-white leading-none mb-1">{user?.name || 'Administrator'}</div>
+                   <div className="text-[11px] font-medium text-slate-400 leading-none capitalize">{user?.role || 'Administrator'}</div>
+                 </div>
+              </div>
+            </div>
+          </header>
+
           {renderContent()}
         </div>
 

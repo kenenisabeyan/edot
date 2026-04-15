@@ -5,7 +5,7 @@ import api from '../utils/api';
 import { 
   Users, Layers, Radio, PlusCircle, Edit3, Settings, LogOut, 
   FolderOpen, LayoutDashboard, Clock, CheckCircle2, 
-  AlertCircle, XSquare, PlayCircle, Send
+  AlertCircle, XSquare, PlayCircle, Send, Search, Bell
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import edotLogo from '../assets/edot-logo.jpg';
@@ -141,112 +141,73 @@ export default function InstructorDashboard() {
             <h2 className="text-2xl font-display font-black text-white uppercase tracking-widest mb-6">Instructor Overview</h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-              <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700] rounded-bl-full opacity-5 group-hover:scale-110 transition-transform"></div>
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-[#FFD700] mb-2">Total Students</p>
-                    <h3 className="text-4xl font-black text-white">{totalStudents}</h3>
+              <div className="bg-[#13161B] border border-white/5 rounded-2xl p-6 shadow-sm hover:border-white/10 transition-colors">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded shrink-0 border border-white/10 flex items-center justify-center text-slate-400 bg-transparent">
+                    <Users className="w-4 h-4" />
                   </div>
-                  <div className="w-12 h-12 bg-[#11151F]/5 border border-white/10 text-[#FFD700] rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6" />
-                  </div>
+                  <span className="text-sm font-medium text-slate-300">Total Students</span>
                 </div>
+                <h3 className="text-3xl font-bold text-white">{totalStudents}</h3>
               </div>
 
-              <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#008A32] rounded-bl-full opacity-5 group-hover:scale-110 transition-transform"></div>
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-[#008A32] mb-2">Active Courses</p>
-                    <h3 className="text-4xl font-black text-white">{activeCourses}</h3>
+              <div className="bg-[#13161B] border border-white/5 rounded-2xl p-6 shadow-sm hover:border-white/10 transition-colors">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded shrink-0 border border-white/10 flex items-center justify-center text-slate-400 bg-transparent">
+                    <Radio className="w-4 h-4" />
                   </div>
-                  <div className="w-12 h-12 bg-[#11151F]/5 border border-white/10 text-[#008A32] rounded-xl flex items-center justify-center">
-                    <Radio className="w-6 h-6" />
-                  </div>
+                  <span className="text-sm font-medium text-slate-300">Active Courses</span>
                 </div>
+                <h3 className="text-3xl font-bold text-white">{activeCourses}</h3>
               </div>
 
-              <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/100 rounded-bl-full opacity-5 group-hover:scale-110 transition-transform"></div>
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-amber-500 mb-2">Total Creations</p>
-                    <h3 className="text-4xl font-black text-white">{courses.length}</h3>
+              <div className="bg-[#13161B] border border-white/5 rounded-2xl p-6 shadow-sm hover:border-white/10 transition-colors">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded shrink-0 border border-white/10 flex items-center justify-center text-slate-400 bg-transparent">
+                    <Layers className="w-4 h-4" />
                   </div>
-                  <div className="w-12 h-12 bg-[#11151F]/5 border border-white/10 text-amber-500 rounded-xl flex items-center justify-center">
-                    <Layers className="w-6 h-6" />
-                  </div>
+                  <span className="text-sm font-medium text-slate-300">Total Creations</span>
                 </div>
+                <h3 className="text-3xl font-bold text-white">{courses.length}</h3>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-2xl">
-                <h3 className="text-lg font-black uppercase tracking-widest text-white mb-6">Earnings (Last 6 Months)</h3>
-                <div className="h-[300px]">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+              <div className="bg-[#13161B] border border-white/5 rounded-2xl p-6 shadow-sm flex flex-col">
+                <h3 className="font-medium text-[13px] text-white mb-6">Earnings (Last 6 Months)</h3>
+                <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={revenueData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff" strokeOpacity={0.1} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 'bold'}} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 'bold'}} tickFormatter={(value) => `$${value}`} dx={-10} />
+                    <LineChart data={revenueData} margin={{ top: 5, right: 0, bottom: 0, left: -10 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff" strokeOpacity={0.05} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11, fontWeight: 500}} dy={15} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11, fontWeight: 500}} tickFormatter={(value) => `$${value}`} />
                       <RechartsTooltip 
-                        contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: '#0B0E14', color: '#fff', fontWeight: 'bold' }}
+                        contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: '#13161B', color: '#fff', fontWeight: 'bold' }}
                         formatter={(value) => [`$${value}`, 'Earnings']}
                       />
-                      <Line type="monotone" dataKey="revenue" stroke="#FFD700" strokeWidth={3} dot={{r: 4, fill: '#FFD700', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 6}} />
+                      <Line type="monotone" dataKey="revenue" stroke="#38bdf8" strokeWidth={2} dot={false} activeDot={{r: 4, fill: '#38bdf8'}} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-2xl">
-                <h3 className="text-lg font-black uppercase tracking-widest text-white mb-6">Student Engagement</h3>
-                <div className="h-[300px]">
+              <div className="bg-[#13161B] border border-white/5 rounded-2xl p-6 shadow-sm flex flex-col">
+                <h3 className="font-medium text-[13px] text-white mb-6">Student Engagement</h3>
+                <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={engagementData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff" strokeOpacity={0.1} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 'bold'}} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 'bold'}} dx={-10} />
+                    <BarChart data={engagementData} margin={{ top: 5, right: 0, bottom: 0, left: -25 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff" strokeOpacity={0.05} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11, fontWeight: 500}} dy={15} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11, fontWeight: 500}} />
                       <RechartsTooltip 
-                        contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: '#0B0E14', color: '#fff', fontWeight: 'bold' }}
+                        contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: '#13161B', color: '#fff', fontWeight: 'bold' }}
                         cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}
                       />
-                      <Bar dataKey="students" fill="#008A32" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="students" fill="#FFD700" radius={[4, 4, 0, 0]} maxBarSize={40} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-[#0B0E14]/90 backdrop-blur-xl p-6 lg:p-8 rounded-2xl border border-white/10 shadow-2xl">
-               <h3 className="text-xl font-black uppercase tracking-widest text-white mb-6">Quick Actions</h3>
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                 <button 
-                  onClick={() => navigate('/instructor/builder')} 
-                  className="flex items-center gap-4 p-5 bg-[#11151F] rounded-2xl border border-white/5 hover:border-[#FFD700]/50 hover:bg-[#11151F]/5 transition-all text-left group shadow-sm"
-                 >
-                   <div className="w-12 h-12 rounded-xl bg-[#11151F]/5 text-[#FFD700] border border-[#FFD700]/30 flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all">
-                     <PlusCircle className="w-6 h-6" />
-                   </div>
-                   <div>
-                     <span className="block font-bold text-white text-lg">Create New Course</span>
-                     <span className="text-xs text-slate-200 uppercase tracking-widest font-black mt-1 block">Start building curriculum</span>
-                   </div>
-                 </button>
-                 <button 
-                  onClick={() => setActiveTab('courses')} 
-                  className="flex items-center gap-4 p-5 bg-[#11151F] rounded-2xl border border-white/5 hover:border-[#008A32]/50 hover:bg-[#11151F]/5 transition-all text-left group shadow-sm"
-                 >
-                   <div className="w-12 h-12 rounded-xl bg-[#11151F]/5 text-[#008A32] border border-[#008A32]/30 flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,138,50,0.3)] transition-all">
-                     <Edit3 className="w-6 h-6" />
-                   </div>
-                   <div>
-                     <span className="block font-bold text-white text-lg">Manage Courses</span>
-                     <span className="text-xs text-slate-200 uppercase tracking-widest font-black mt-1 block">Edit content framework</span>
-                   </div>
-                 </button>
-               </div>
             </div>
 
             <div className="mt-8 bg-[#0B0E14]/90 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl">
@@ -505,61 +466,86 @@ export default function InstructorDashboard() {
   };
 
   const navItemClass = (tabName) => `
-    w-full flex items-center gap-4 px-5 py-3.5 rounded-xl transition-all duration-200 font-bold uppercase tracking-widest text-[11px] text-left border
+    w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm text-left
     ${activeTab === tabName 
-      ? 'bg-[#11151F]/10 text-white border-white/20 shadow-md' 
-      : 'bg-transparent text-slate-300 border-transparent hover:bg-[#11151F]/5 hover:text-white'
+      ? 'bg-[#1E293B] text-white shadow-sm' 
+      : 'bg-transparent text-slate-400 hover:bg-[#11151F] hover:text-white'
     }
   `;
 
   return (
-    <div className="min-h-screen bg-[#0B0E14] flex flex-col md:flex-row font-sans text-slate-300">
+    <div className="min-h-screen bg-[#0d0f12] flex flex-col md:flex-row font-sans text-slate-300">
       {/* Sidebar Layout */}
-      <aside className="w-full md:w-80 bg-[#11151F] text-white shrink-0 flex flex-col md:h-screen border-r border-white/10 sticky top-0">
-        <div className="p-8 border-b border-white/10">
-           <div className="flex items-center gap-2 mb-8 w-full">
-             <img src={edotLogo} alt="EDOT Logo" className="h-10 w-auto rounded-lg shadow-sm" />
-           </div>
-           
-           <div className="flex items-center gap-4 mb-8 bg-[#11151F]/5 p-4 rounded-2xl border border-white/10">
-             <div className="w-12 h-12 bg-gradient-to-br from-[#FFD700] to-yellow-600 text-[#0B0E14] rounded-xl flex items-center justify-center shrink-0 shadow-lg border border-[#FFD700] font-black text-xl uppercase">
-               {user?.name?.charAt(0) || 'I'}
-             </div>
-             <div className="overflow-hidden">
-               <h3 className="font-bold text-lg text-white leading-tight truncate">{user?.name}</h3>
-               <p className="text-[#FFD700] text-[10px] font-black uppercase tracking-widest mt-0.5">{user?.role}</p>
-             </div>
-           </div>
-
-           <nav className="space-y-3">
+      <aside className="w-full md:w-64 bg-[#0d0f12] text-white shrink-0 flex flex-col md:h-screen border-r border-white/5 sticky top-0 font-sans">
+        <div className="p-6 border-b border-white/5">
+           <img src={edotLogo} alt="EDOT Logo" className="h-8 w-auto rounded opacity-90" />
+        </div>
+        
+        <div className="p-6">
+           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Menu</p>
+           <nav className="space-y-1">
              <button onClick={() => setActiveTab('overview')} className={navItemClass('overview')}>
-               <LayoutDashboard className="w-5 h-5 shrink-0" /> Systems Overview
+               <LayoutDashboard className="w-4 h-4 shrink-0" /> Systems Overview
              </button>
              <button onClick={() => setActiveTab('courses')} className={navItemClass('courses')}>
-               <Layers className="w-5 h-5 shrink-0" /> Control Matrix
+               <Layers className="w-4 h-4 shrink-0" /> Control Matrix
              </button>
              <button onClick={() => navigate('/instructor/builder')} className={navItemClass('create')}>
-               <PlusCircle className="w-5 h-5 shrink-0" /> Generate Construct
+               <PlusCircle className="w-4 h-4 shrink-0" /> Generate Construct
              </button>
+           </nav>
+           
+           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-8 mb-4">Preference</p>
+           <nav className="space-y-1">
              <button onClick={() => setActiveTab('settings')} className={navItemClass('settings')}>
-               <Settings className="w-5 h-5 shrink-0" /> Authority Core
+               <Settings className="w-4 h-4 shrink-0" /> Authority Core
              </button>
            </nav>
         </div>
         
-        <div className="p-8 mt-auto">
+        <div className="p-6 mt-auto">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl text-slate-200 hover:bg-[#E30A17]/10 hover:text-[#E30A17] hover:border-[#E30A17]/20 border border-transparent transition-all font-black uppercase tracking-widest text-[11px]"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-400/10 border border-transparent transition-colors font-medium text-sm"
           >
-            <LogOut className="w-5 h-5 shrink-0" /> Terminate Link
+            <LogOut className="w-4 h-4 shrink-0" /> Terminate Link
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-10 lg:p-14 overflow-y-auto">
-        <div className="max-w-6xl mx-auto relative">
+      <main className="flex-1 p-6 md:p-8 lg:p-10 overflow-y-auto">
+        <div className="max-w-[1400px] mx-auto relative">
+          
+          {/* Top Header mapped from image requirements */}
+          <header className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 w-full">
+            <div className="relative w-full max-w-sm">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input type="text" placeholder="Global Search (Students, Courses, Messages)..." 
+                className="w-full pl-10 pr-20 py-2.5 bg-[#13161B] border border-white/5 rounded-xl text-xs outline-none text-white focus:ring-1 focus:ring-white/10 transition-all font-medium placeholder:text-slate-500 shadow-sm" />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#1A1E26] text-[9px] px-2 py-1 rounded text-slate-400 font-bold border border-white/5">
+                CTRL + K
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6 w-full sm:w-auto justify-end">
+              <div className="relative cursor-pointer hover:bg-white/5 p-2 rounded-full transition-colors">
+                <Bell className="w-5 h-5 text-slate-300" />
+                <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-[#E30A17] rounded-full border-2 border-[#0d0f12] text-[7px] flex items-center justify-center text-white font-bold">1</span>
+              </div>
+              
+              <div className="flex items-center gap-3 cursor-pointer p-1 pr-3 rounded-full hover:bg-white/5 transition-colors">
+                 <div className="w-9 h-9 rounded-full bg-white text-[#0B0E14] font-black flex items-center justify-center shadow-sm">
+                   {user?.name?.charAt(0) || 'I'}
+                 </div>
+                 <div className="text-left hidden sm:block">
+                   <div className="text-sm font-bold text-white leading-none mb-1">{user?.name || 'Instructor'}</div>
+                   <div className="text-[11px] font-medium text-slate-400 leading-none capitalize">{user?.role || 'Instructor'}</div>
+                 </div>
+              </div>
+            </div>
+          </header>
+
           {renderContent()}
         </div>
       </main>

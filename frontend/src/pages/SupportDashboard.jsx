@@ -40,26 +40,26 @@ export default function SupportDashboard() {
   }, []);
 
   const staticStatsConfigs = [
-    { label: 'Total Contributions', key: 'totalContributions', icon: Wallet, gradient: 'from-emerald-500/20 to-[#11151F]', color: 'text-emerald-400', format: (v) => `$${v.toLocaleString()}` },
-    { label: 'Active Sponsors', key: 'activeSponsors', icon: HeartHandshake, gradient: 'from-indigo-500/20 to-[#11151F]', color: 'text-indigo-400', format: (v) => v },
-    { label: 'Supported Students', key: 'supportedStudents', icon: GraduationCap, gradient: 'from-cyan-500/20 to-[#11151F]', color: 'text-cyan-400', format: (v) => v },
-    { label: 'Active Support Cycles', key: 'activeCycles', icon: RefreshCw, gradient: 'from-amber-500/20 to-[#11151F]', color: 'text-amber-400', format: (v) => v },
+    { label: 'Total Contributions', key: 'totalContributions', icon: Wallet, gradient: 'from-emerald-500/20 to-[#13161B]', color: 'text-emerald-400', format: (v) => `$${v.toLocaleString()}` },
+    { label: 'Active Sponsors', key: 'activeSponsors', icon: HeartHandshake, gradient: 'from-indigo-500/20 to-[#13161B]', color: 'text-indigo-400', format: (v) => v },
+    { label: 'Supported Students', key: 'supportedStudents', icon: GraduationCap, gradient: 'from-cyan-500/20 to-[#13161B]', color: 'text-cyan-400', format: (v) => v },
+    { label: 'Active Support Cycles', key: 'activeCycles', icon: RefreshCw, gradient: 'from-amber-500/20 to-[#13161B]', color: 'text-amber-400', format: (v) => v },
   ];
 
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
         <div className="flex justify-between items-center mb-4">
-          <div className="w-1/3 h-10 bg-[#11151F] rounded-lg animate-pulse" />
-          <div className="w-40 h-12 bg-[#11151F] rounded-xl animate-pulse" />
+          <div className="w-1/3 h-10 bg-[#13161B] rounded-lg animate-pulse" />
+          <div className="w-40 h-12 bg-[#13161B] rounded-xl animate-pulse" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-32 bg-[#11151F] rounded-3xl animate-pulse" />
+            <div key={i} className="h-32 bg-[#13161B] rounded-3xl animate-pulse" />
           ))}
         </div>
-        <div className="h-64 bg-[#11151F] rounded-3xl animate-pulse w-full" />
-        <div className="h-96 bg-[#11151F] rounded-3xl animate-pulse w-full" />
+        <div className="h-64 bg-[#13161B] rounded-3xl animate-pulse w-full" />
+        <div className="h-96 bg-[#13161B] rounded-3xl animate-pulse w-full" />
       </div>
     );
   }
@@ -100,7 +100,7 @@ export default function SupportDashboard() {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => fetchDashboardData(true)} 
-            className="p-3 rounded-xl bg-[#11151F] border border-white/5 text-slate-200 hover:text-white hover:bg-white/5 transition-all"
+            className="p-3 rounded-xl bg-[#13161B] border border-white/5 text-slate-200 hover:text-white hover:bg-white/5 transition-all"
           >
             <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin text-indigo-400' : ''}`} />
           </button>
@@ -131,7 +131,7 @@ export default function SupportDashboard() {
       </div>
 
       {currentCycle && (
-      <div className="bg-[#11151F] border-0 rounded-3xl p-8 shadow-2xl shadow-indigo-900/10 relative overflow-hidden group mb-8">
+      <div className="bg-[#13161B] border-0 rounded-3xl p-8 shadow-2xl shadow-indigo-900/10 relative overflow-hidden group mb-8">
         {/* SECTION 3 - SUPPORT CYCLE TRACKING */}
         {/* Soft immersive background flare */}
         <div className="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-indigo-500/20 transition-colors duration-700" />
@@ -151,7 +151,7 @@ export default function SupportDashboard() {
           </div>
         </div>
 
-        <div className="flex flex-col xl:flex-row gap-8 items-center bg-[#0B0E14] border-0 rounded-2xl p-6 relative z-10 shadow-lg">
+        <div className="flex flex-col xl:flex-row gap-8 items-center bg-[#0d0f12] border-0 rounded-2xl p-6 relative z-10 shadow-lg">
           {/* Student Focus */}
           <div className="flex items-center gap-5 min-w-[280px]">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500/20 to-indigo-600/20 flex items-center justify-center font-black text-2xl text-indigo-400 border-0 shadow-inner">
@@ -168,7 +168,7 @@ export default function SupportDashboard() {
           <div className="flex-1 w-full pt-6 pb-2 px-2 sm:px-8">
              <div className="relative flex justify-between items-center w-full">
                 {/* Background Track */}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1.5 bg-[#11151F] border border-white/5 rounded-full z-0"></div>
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1.5 bg-[#13161B] border border-white/5 rounded-full z-0"></div>
                 {/* Active Progress Track */}
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-indigo-500 rounded-full z-0 shadow-[0_0_15px_rgba(99,102,241,0.6)] transition-all duration-1000" style={{ width: `${Math.max(10, currentCycle.progress)}%` }}></div>
 
@@ -180,7 +180,7 @@ export default function SupportDashboard() {
                   { label: "Completed", completed: currentCycle.progress === 100, active: currentCycle.progress === 100 }
                 ].map((step, idx) => (
                   <div key={idx} className="relative z-10 flex flex-col items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 border-[#0B0E14] transition-all duration-500 ${step.completed ? 'bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)] scale-110' : 'bg-[#11151F]'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 border-[#0d0f12] transition-all duration-500 ${step.completed ? 'bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)] scale-110' : 'bg-[#13161B]'}`}>
                       {step.completed && <CheckCircle2 className="w-4 h-4 text-white" />}
                     </div>
                     {/* Node Text */}
@@ -200,7 +200,7 @@ export default function SupportDashboard() {
       )}
 
       {/* Content Tabs */}
-      <div className="bg-[#11151F] border border-white/5 rounded-3xl overflow-hidden shadow-lg">
+      <div className="bg-[#13161B] border border-white/5 rounded-3xl overflow-hidden shadow-lg">
         
         {/* Tab Navigation */}
         <div className="flex items-center gap-8 border-b border-white/5 px-8">
@@ -231,14 +231,14 @@ export default function SupportDashboard() {
                 <input 
                   type="text" 
                   placeholder="Search learners securely..."
-                  className="w-full pl-12 pr-4 py-3 bg-[#0B0E14] border border-white/5 rounded-xl text-white focus:outline-none focus:border-indigo-500/50 transition-colors"
+                  className="w-full pl-12 pr-4 py-3 bg-[#0d0f12] border border-white/5 rounded-xl text-white focus:outline-none focus:border-indigo-500/50 transition-colors"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {supportedStudents.map((student) => (
-                <div key={student.id} className="bg-[#0B0E14] p-6 rounded-[2rem] border-0 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_15px_40px_rgba(79,70,229,0.15)] hover:-translate-y-2 transition-all group duration-300 flex flex-col h-full bg-gradient-to-b from-[#11151F]/40 to-transparent">
+                <div key={student.id} className="bg-[#0d0f12] p-6 rounded-[2rem] border-0 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_15px_40px_rgba(79,70,229,0.15)] hover:-translate-y-2 transition-all group duration-300 flex flex-col h-full bg-gradient-to-b from-[#13161B]/40 to-transparent">
                   
                   {/* Top Row: Avatar & Metadata */}
                   <div className="flex justify-between items-start mb-6 w-full">
@@ -269,7 +269,7 @@ export default function SupportDashboard() {
                       <span className="text-slate-200 uppercase tracking-widest text-[10px]">Academic Progress</span>
                       <span className={`${student.progress === 100 ? 'text-cyan-500' : 'text-slate-300'}`}>{student.progress}%</span>
                     </div>
-                    <div className="h-3 w-full bg-[#11151F] border-0 rounded-full overflow-hidden shadow-inner">
+                    <div className="h-3 w-full bg-[#13161B] border-0 rounded-full overflow-hidden shadow-inner">
                       <div 
                         className={`h-full rounded-full transition-all duration-[1500ms] ease-out ${student.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : student.status === 'at-risk' ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]'}`} 
                         style={{ width: `${student.progress}%` }} 
@@ -287,7 +287,7 @@ export default function SupportDashboard() {
           <div className="p-8">
              <div className="space-y-4">
                {recentImpact.map((log) => (
-                 <div key={log.id} className="flex items-center justify-between p-5 bg-[#0B0E14] border border-white/5 rounded-2xl hover:border-emerald-500/30 transition-colors">
+                 <div key={log.id} className="flex items-center justify-between p-5 bg-[#0d0f12] border border-white/5 rounded-2xl hover:border-emerald-500/30 transition-colors">
                    <div className="flex items-center gap-5">
                      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                        <CheckCircle2 className="w-6 h-6 text-emerald-400" />
@@ -313,7 +313,7 @@ export default function SupportDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         
         {/* Trust & Transparency Banner */}
-        <div className="bg-gradient-to-r from-emerald-900/30 to-[#0B0E14] p-8 rounded-[2rem] border-0 shadow-2xl flex gap-6 relative overflow-hidden group">
+        <div className="bg-gradient-to-r from-emerald-900/30 to-[#0d0f12] p-8 rounded-[2rem] border-0 shadow-2xl flex gap-6 relative overflow-hidden group">
           <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-700" />
           
           <div className="w-16 h-16 shrink-0 rounded-2xl bg-emerald-500/10 flex items-center justify-center border-0 text-emerald-500 shadow-inner">
@@ -326,7 +326,7 @@ export default function SupportDashboard() {
         </div>
 
         {/* The Impact Panel (Secret Weapon 🔥) */}
-        <div className="bg-gradient-to-l from-indigo-900/30 to-[#0B0E14] p-8 rounded-[2rem] border-0 shadow-2xl relative overflow-hidden group">
+        <div className="bg-gradient-to-l from-indigo-900/30 to-[#0d0f12] p-8 rounded-[2rem] border-0 shadow-2xl relative overflow-hidden group">
           <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-700" />
           
           <div className="relative z-10">
@@ -336,19 +336,19 @@ export default function SupportDashboard() {
             </h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="p-5 bg-[#11151F] border-0 rounded-2xl flex flex-col items-center text-center shadow-lg hover:-translate-y-1 transition-transform">
+              <div className="p-5 bg-[#13161B] border-0 rounded-2xl flex flex-col items-center text-center shadow-lg hover:-translate-y-1 transition-transform">
                 <Users className="w-6 h-6 text-indigo-500 mb-2 opacity-80" />
                 <h4 className="text-3xl font-black text-white mb-1">{stats?.supportedStudents || 0}</h4>
                 <p className="text-[10px] font-bold text-slate-200 uppercase tracking-widest">Students Supported</p>
               </div>
 
-              <div className="p-5 bg-[#11151F] border-0 rounded-2xl flex flex-col items-center text-center shadow-lg hover:-translate-y-1 transition-transform">
+              <div className="p-5 bg-[#13161B] border-0 rounded-2xl flex flex-col items-center text-center shadow-lg hover:-translate-y-1 transition-transform">
                 <GraduationCap className="w-6 h-6 text-cyan-500 mb-2 opacity-80" />
                 <h4 className="text-3xl font-black text-white mb-1">{supportedStudents?.filter(s => s.status === 'completed').length || 0}</h4>
                 <p className="text-[10px] font-bold text-slate-200 uppercase tracking-widest leading-tight">Courses Completed</p>
               </div>
 
-              <div className="p-5 bg-[#11151F] border-0 rounded-2xl flex flex-col items-center text-center shadow-lg hover:-translate-y-1 transition-transform">
+              <div className="p-5 bg-[#13161B] border-0 rounded-2xl flex flex-col items-center text-center shadow-lg hover:-translate-y-1 transition-transform">
                 <RefreshCw className="w-6 h-6 text-emerald-500 mb-2 opacity-80" />
                 <h4 className="text-3xl font-black text-white mb-1">{stats?.activeCycles || 0}</h4>
                 <p className="text-[10px] font-bold text-slate-200 uppercase tracking-widest leading-tight">Lives In Progress</p>
