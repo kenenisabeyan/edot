@@ -32,6 +32,7 @@ import NotificationBell from './NotificationBell';
 import UserAvatar from './UserAvatar';
 import CommandK from './CommandK';
 import edotLogo from '../assets/edot-logo.jpg';
+import ThemeDropdown from './ThemeDropdown';
 
 function NavItem({ item, metrics, role, sidebarCollapsed, onLinkClick }) {
   let badgeCount = 0;
@@ -100,17 +101,6 @@ export default function EDOTLayout() {
     newCertificates: 0,
     pendingUsers: 0
   });
-
-  useEffect(() => {
-    // Check initial dark mode preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      // Force dark mode globally based on design system
-    }
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.add('dark');
-  }, []);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -446,6 +436,9 @@ export default function EDOTLayout() {
                 )}
               </div>
             )}
+
+            {/* Theme Toggle */}
+            <ThemeDropdown />
 
             {/* Notifications */}
             <NotificationBell />

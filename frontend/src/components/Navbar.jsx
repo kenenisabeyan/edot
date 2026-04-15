@@ -5,9 +5,10 @@ import {
   Menu, X, ChevronDown, User, LogOut, Settings, 
   Bell, BookOpen, Shield, Zap, Globe, Code, UserCheck, 
   GraduationCap, ArrowRight, BrainCircuit, LineChart, Target
-} from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, Settings, Bell, BookOpen, Shield, Zap, Globe, Code, UserCheck, GraduationCap, ArrowRight, BrainCircuit, LineChart, Target } from 'lucide-react';
 import edotLogo from '../assets/edot-logo.jpg';
 import { MAIN_CATEGORIES } from '../constants/courseCategories';
+import ThemeDropdown from './ThemeDropdown';
 
 // Link dynamic centralized categories to the generic UI Dropdown
 const foundationCategories = [
@@ -154,6 +155,7 @@ export default function Navbar() {
         
         {/* RIGHT: Actions */}
         <div className="hidden lg:flex items-center justify-end gap-4 min-w-[200px]">
+          <ThemeDropdown />
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
               <Link to="/dashboard/messages" className="text-slate-200 hover:text-[#FFD700] transition-colors relative bg-[#11151F] w-10 h-10 flex items-center justify-center rounded-full border border-white/5 group shadow-inner">
