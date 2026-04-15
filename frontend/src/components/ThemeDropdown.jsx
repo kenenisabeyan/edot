@@ -35,7 +35,7 @@ export default function ThemeDropdown() {
   }, []);
 
   const options = [
-    { value: 'default', label: '1. Default', icon: Monitor },
+    { value: 'default', label: '1. EDOT Default', icon: Monitor },
     { value: 'light', label: '2. Light/White', icon: Sun },
     { value: 'extra-dark', label: '3. Dark', icon: Moon }
   ];
@@ -60,6 +60,7 @@ export default function ThemeDropdown() {
             <button
               key={opt.value}
               onClick={() => {
+                localStorage.setItem('edot-theme', opt.value);
                 setTheme(opt.value);
                 setIsOpen(false);
                 window.dispatchEvent(new Event('theme-changed'));

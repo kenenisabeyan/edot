@@ -41,23 +41,51 @@
 [data-theme="light"] .text-slate-400 {
   color: #64748B !important;
 }
-[data-theme="light"] .bg-\\[\\#11151F\\]\\/40, [data-theme="light"] .bg-\\[\\#11151F\\]\\/50, [data-theme="light"] .bg-\\[\\#11151F\\]\\/60 {
+
+/* Force hide all hardcoded background wrapper meshes in alternate themes */
+[data-theme="light"] div[style*="radial-gradient"],
+[data-theme="extra-dark"] div[style*="radial-gradient"] {
+  background-image: none !important;
+  background-color: transparent !important;
+}
+[data-theme="light"] .bg-\[\#11151F\]\/40, [data-theme="light"] .bg-\[\#11151F\]\/50, [data-theme="light"] .bg-\[\#11151F\]\/60 {
   background-color: rgba(241, 245, 249, 0.8) !important;
 }
-[data-theme="light"] .bg-\\[\\#11151F\\] {
+[data-theme="light"] .bg-\[\#11151F\] {
   background-color: #F1F5F9 !important;
 }
-[data-theme="light"] .bg-\\[\\#0B0E14\\]\\/40 {
+[data-theme="light"] .bg-\[\#0B0E14\]\/40 {
   background-color: rgba(255, 255, 255, 0.8) !important;
 }
-[data-theme="light"] .bg-\\[\\#0B0E14\\] {
+[data-theme="light"] .bg-\[\#0B0E14\] {
   background-color: #FFFFFF !important;
 }
-[data-theme="light"] .bg-\\[\\#111827\\] {
+[data-theme="light"] .bg-\[\#111827\] {
   background-color: #F8FAFC !important;
 }
-[data-theme="light"] .border-white\\/5, [data-theme="light"] .border-white\\/10, [data-theme="light"] .border-white\\/20 {
+[data-theme="light"] .border-white\/5, [data-theme="light"] .border-white\/10, [data-theme="light"] .border-white\/20 {
   border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Exact UI morph to match screenshot 'image-1' for Light Mode */
+[data-theme="light"] header {
+  background-color: #1E3A8A !important; /* Deep Blue Header */
+  backdrop-filter: none !important;
+}
+[data-theme="light"] header .text-white,
+[data-theme="light"] header .text-slate-200,
+[data-theme="light"] header .text-slate-300,
+[data-theme="light"] header span {
+  color: #F8FAFC !important; /* Preserve bright text against the blue header */
+}
+[data-theme="light"] header .hover\:text-\[\#FFD700\]:hover {
+  color: #FFD700 !important;
+}
+[data-theme="light"] header .bg-\[\#11151F\] {
+  background-color: #1E3A8A !important;
+}
+[data-theme="light"] header .bg-\[\#11151F\]\/40 {
+  background-color: rgba(30, 58, 138, 0.5) !important;
 }
 [data-theme="light"] .glass-card {
   background: rgba(255, 255, 255, 0.9);
@@ -66,10 +94,84 @@
 }
 
 [data-theme="extra-dark"] {
-  --bg-base: #0A0F1C; 
-  --bg-sidebar: #060913;
-  --border-glass: rgba(255, 255, 255, 0.05);
-  --text-main: #FFFFFF;
+  --bg-base: #0B1120; /* Exact deep slate-900 background */
+  --bg-sidebar: #0F172A; /* Slate-800 pill background */
+  --border-glass: rgba(59, 130, 246, 0.15); 
+  --text-main: #F8FAFC;
+}
+
+/* Force override EDOT Green/Yellow/Red brands to match the Blue Portfolio in Dark Mode */
+[data-theme="extra-dark"] .text-\[\#008A32\], 
+[data-theme="extra-dark"] .text-\[\#FFD700\], 
+[data-theme="extra-dark"] .text-\[\#E30A17\] {
+  color: #3B82F6 !important;
+}
+[data-theme="extra-dark"] .bg-\[\#008A32\], 
+[data-theme="extra-dark"] .bg-\[\#FFD700\], 
+[data-theme="extra-dark"] .bg-\[\#E30A17\] {
+  background-color: #3B82F6 !important;
+}
+[data-theme="extra-dark"] .border-\[\#008A32\]\/20, 
+[data-theme="extra-dark"] .border-\[\#008A32\]\/30, 
+[data-theme="extra-dark"] .border-\[\#FFD700\]\/20, 
+[data-theme="extra-dark"] .border-\[\#FFD700\]\/30 {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+[data-theme="extra-dark"] .bg-\[\#008A32\]\/10,
+[data-theme="extra-dark"] .bg-\[\#FFD700\]\/10 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Card Solidification for Max Readability */
+[data-theme="extra-dark"] .bg-\[\#11151F\]\/40,
+[data-theme="extra-dark"] .bg-\[\#11151F\]\/50,
+[data-theme="extra-dark"] .bg-\[\#11151F\]\/60,
+[data-theme="extra-dark"] .bg-\[\#11151F\] {
+  background-color: #111827 !important; /* Solid gray-900 like Portfolio */
+  backdrop-filter: none !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+[data-theme="extra-dark"] .bg-\[\#0B0E14\]\/40,
+[data-theme="extra-dark"] .bg-\[\#0B0E14\] {
+  background-color: #1F2937 !important; /* Solid gray-800 padding */
+}
+
+/* Text Brightness Boost */
+[data-theme="extra-dark"] .text-slate-400,
+[data-theme="extra-dark"] .text-slate-500 {
+  color: #CBD5E1 !important; /* Boost text to slate-300 */
+}
+[data-theme="extra-dark"] .text-slate-300,
+[data-theme="extra-dark"] .text-slate-200 {
+  color: #F8FAFC !important; /* Boost primary readable text */
+}
+
+[data-theme="extra-dark"] .shadow-\[0_0_20px_rgba\(0\,138\,50\,0\.3\)\] {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Exact UI morph to match screenshot 'image-0' */
+[data-theme="extra-dark"] header {
+  width: 90% !important;
+  max-width: 1100px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  top: 24px !important;
+  border-radius: 9999px !important;
+  background-color: #0F172A !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 0 2rem !important;
+  height: 64px !important;
+  display: flex !important;
+  align-items: center !important;
+  backdrop-filter: blur(10px) !important;
+}
+[data-theme="extra-dark"] header > div {
+  width: 100% !important;
+  padding: 0 !important;
+}
+[data-theme="extra-dark"] div[class*="bg-gradient-to-"] {
+  background: none !important;
 }
 
 @layer base {

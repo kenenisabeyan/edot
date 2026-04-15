@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { 
-  Menu, X, ChevronDown, User, LogOut, Settings, 
-  Bell, BookOpen, Shield, Zap, Globe, Code, UserCheck, 
-  GraduationCap, ArrowRight, BrainCircuit, LineChart, Target
 import { Menu, X, ChevronDown, User, LogOut, Settings, Bell, BookOpen, Shield, Zap, Globe, Code, UserCheck, GraduationCap, ArrowRight, BrainCircuit, LineChart, Target } from 'lucide-react';
 import edotLogo from '../assets/edot-logo.jpg';
 import { MAIN_CATEGORIES } from '../constants/courseCategories';
