@@ -10,16 +10,13 @@ const router = express.Router();
 router.get('/public/recent', async (req, res) => {
     try {
         const users = await prisma.user.findMany({
-            where: { status: 'approved' },
             orderBy: { createdAt: 'desc' },
             take: 3,
-            select: { name: true, avatar: true }
+            select: { id: true, name: true, avatar: true }
         });
         
         // Also get total count approximately for the UI badge
-        const totalCount = await prisma.user.count({
-            where: { status: 'approved' }
-        });
+        const totalCount = await prisma.user.count();
 
         res.json({
             success: true,

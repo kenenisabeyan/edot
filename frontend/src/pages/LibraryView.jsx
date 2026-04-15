@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import api from '../utils/api';
-import { BookOpen, Search, Download, Plus, Trash2, FileText, Loader2, AlertCircle, Globe, Lock } from 'lucide-react';
+import { BookOpen, Search, Download, Plus, Trash2, FileText, Loader2, AlertCircle, Globe, Lock, GitMerge, Shield, FileSignature, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Markdown from 'markdown-to-jsx';
 import 'github-markdown-css';
@@ -650,21 +650,148 @@ export default function LibraryView() {
       )}
 
       {activeContainer === 'wiki' && (
-        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-4">
-          <aside className="rounded-3xl border border-white/10 p-4 bg-[#11151F]/5">
-            <h2 className="text-white font-bold mb-3">EDOT Wiki Navigation</h2>
-            <ul className="text-slate-200 space-y-2 text-sm">
-              <li><a className="hover:text-cyan-300" href="#overview">Overview</a></li>
-              <li><a className="hover:text-cyan-300" href="#workflows">Workflows</a></li>
-              <li><a className="hover:text-cyan-300" href="#roles">Role Permissions</a></li>
-              <li><a className="hover:text-cyan-300" href="#submission">Submission Rules</a></li>
-            </ul>
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          <aside className="w-full lg:w-72 shrink-0 rounded-3xl border border-white/10 bg-[#0B0E14] overflow-hidden shadow-2xl sticky top-24">
+            <div className="p-6 border-b border-white/5 bg-[#13161B]/50">
+              <h2 className="text-white font-bold text-lg flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#FFD700]" />
+                EDOT Wiki
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">Official Documentation</p>
+            </div>
+            <div className="p-4">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 px-3">Topics</p>
+              <ul className="space-y-1 text-sm font-medium">
+                <li>
+                  <a href="#overview" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-[#11151F]/60 hover:text-white transition-all group">
+                    <BookOpen className="w-4 h-4 text-slate-500 group-hover:text-cyan-400" /> 
+                    Overview
+                    <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                </li>
+                <li>
+                  <a href="#workflows" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-[#11151F]/60 hover:text-white transition-all group">
+                    <GitMerge className="w-4 h-4 text-slate-500 group-hover:text-[#008A32]" /> 
+                    Workflows
+                    <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                </li>
+                <li>
+                  <a href="#roles" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-[#11151F]/60 hover:text-white transition-all group">
+                    <Shield className="w-4 h-4 text-slate-500 group-hover:text-[#E30A17]" /> 
+                    Role Permissions
+                    <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                </li>
+                <li>
+                  <a href="#submission" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:bg-[#11151F]/60 hover:text-white transition-all group">
+                    <FileSignature className="w-4 h-4 text-slate-500 group-hover:text-[#FFD700]" /> 
+                    Submission Rules
+                    <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                </li>
+              </ul>
+            </div>
           </aside>
-          <section className="rounded-3xl border border-white/10 p-4 bg-[#11151F]/5 space-y-4 text-slate-200">
-            <article id="overview"><h3 className="text-lg font-semibold text-white">Overview</h3><p>The EDOT Library is a multi-container resource hub: </p></article>
-            <article id="workflows"><h3 className="text-lg font-semibold text-white">Workflows</h3><p>Instructors create and submit content, Admin reviews, Students consume with access gating.</p></article>
-            <article id="roles"><h3 className="text-lg font-semibold text-white">Role Permissions</h3><p>Admin: full CRUD, Instructor: own CRUD + submit; Student: read/download if permitted; Parent: summary-only.</p></article>
-            <article id="submission"><h3 className="text-lg font-semibold text-white">Submission</h3><p>New materials are staged as Draft/Pending. Admin can Approve or Request Corrections.</p></article>
+          
+          <section className="flex-1 rounded-3xl border border-white/10 bg-[#0B0E14] shadow-2xl overflow-hidden">
+            <div className="p-8 lg:p-14 max-w-4xl mx-auto space-y-16">
+              
+              {/* Header section */}
+              <div className="border-b border-white/10 pb-8">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-4 rounded-full bg-[#11151F]/50 border border-white/10 text-xs font-semibold text-slate-300">
+                  <Globe className="w-3.5 h-3.5" /> Documentation v2.1
+                </div>
+                <h1 className="text-4xl lg:text-5xl font-display font-bold text-white tracking-tight mb-4">Library & Wiki Architecture</h1>
+                <p className="text-lg text-slate-400 leading-relaxed max-w-2xl">
+                  Comprehensive guide on how content flows through the EDOT ecosystem, from creation to secure consumption.
+                </p>
+              </div>
+
+              {/* Overview */}
+              <article id="overview" className="scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shadow-sm">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">System Overview</h2>
+                </div>
+                <div className="prose-like text-slate-300 leading-relaxed space-y-4">
+                  <p>
+                    The EDOT Library is an advanced, multi-container digital resource hub engineered to safely host, distribute, and manage educational assets.
+                  </p>
+                  <p>
+                    Unlike standard file repositories, this system employs a segmented architecture allowing distinct access rules per container. Assets natively classify into one of three primary tiers:
+                  </p>
+                  <ul className="mt-4 space-y-3">
+                    <li className="flex items-start gap-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-2 shrink-0"></span>
+                      <span><strong className="text-white">Download Vault:</strong> Public or course-restricted assets that can be saved offline.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#008A32] mt-2 shrink-0"></span>
+                      <span><strong className="text-white">Secure Viewer:</strong> Encrypted, view-only documents that prevent downloading or right-clicking.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#FFD700] mt-2 shrink-0"></span>
+                      <span><strong className="text-white">Wiki Engine:</strong> Markdown-based internal documentation living natively inside the platform.</span>
+                    </li>
+                  </ul>
+                </div>
+              </article>
+
+              {/* Workflows */}
+              <article id="workflows" className="scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-[#008A32]/10 border border-[#008A32]/20 flex items-center justify-center text-[#008A32] shadow-sm">
+                    <GitMerge className="w-5 h-5" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">Content Workflows</h2>
+                </div>
+                <div className="p-6 rounded-2xl bg-[#11151F]/40 border border-white/5 text-slate-300 leading-relaxed mb-6">
+                  <div className="flex flex-col md:flex-row items-center gap-4 text-sm font-semibold">
+                    <div className="px-4 py-2 bg-slate-800 rounded-lg text-white border border-slate-600 w-full md:w-auto text-center">Instructor Upload</div>
+                    <ChevronRight className="w-5 h-5 text-slate-500 hidden md:block" />
+                    <div className="px-4 py-2 bg-amber-900/50 rounded-lg text-amber-200 border border-amber-500/30 w-full md:w-auto text-center">Admin Review</div>
+                    <ChevronRight className="w-5 h-5 text-slate-500 hidden md:block" />
+                    <div className="px-4 py-2 bg-[#008A32]/20 rounded-lg text-emerald-300 border border-[#008A32]/30 w-full md:w-auto text-center">Published Live</div>
+                  </div>
+                </div>
+                <p className="text-slate-300 leading-relaxed">
+                  Materials strictly move through a chronological pipeline to ensure educational standards are met. Instructors initialize the content stream by uploading materials which instantly route into the <strong>Pending Verification</strong> queue. System Administrators utilize their Master Dashboard to audit files before committing them live. 
+                </p>
+              </article>
+
+              {/* Roles */}
+              <article id="roles" className="scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-[#E30A17]/10 border border-[#E30A17]/20 flex items-center justify-center text-[#E30A17] shadow-sm">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">Role Definitions</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-5 rounded-2xl bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/5 hover:border-white/10 transition-colors">
+                    <h3 className="text-white font-bold mb-2 flex items-center gap-2"><Lock className="w-4 h-4 text-[#E30A17]" /> Administrators</h3>
+                    <p className="text-sm text-slate-400">Total system autonomy. Capabilities span across executing global overrides, approving cross-domain enrollments, and permanent deletion of system traces.</p>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/5 hover:border-white/10 transition-colors">
+                    <h3 className="text-white font-bold mb-2 flex items-center gap-2"><FileText className="w-4 h-4 text-cyan-400" /> Instructors</h3>
+                    <p className="text-sm text-slate-400">Content architects. Authorized to originate course materials and manipulate internal asset visibility rules prior to publishing.</p>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/5 hover:border-white/10 transition-colors">
+                    <h3 className="text-white font-bold mb-2 flex items-center gap-2"><BookOpen className="w-4 h-4 text-[#FFD700]" /> Students</h3>
+                    <p className="text-sm text-slate-400">Consumption layer. Bound by dynamic visibility parameters. Cannot access raw files if flagged entirely for Secure Display by instructors.</p>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-gradient-to-br from-[#11151F] to-[#0B0E14] border border-white/5 hover:border-white/10 transition-colors">
+                    <h3 className="text-white font-bold mb-2 flex items-center gap-2"><Eye className="w-4 h-4 text-[#008A32]" /> Parents</h3>
+                    <p className="text-sm text-slate-400">Telemetry observers. Possess read-only overview access to monitor the progression of connected student nodes in real-time.</p>
+                  </div>
+                </div>
+              </article>
+
+            </div>
           </section>
         </div>
       )}

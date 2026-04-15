@@ -76,12 +76,12 @@ export default function Home() {
                  Your complete learning journey in one place. From primary school fundamentals to advanced university careers, EDOT provides the structure to grow.
                </p>
                
-               <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
-                 <Link to="/register" className="w-full sm:w-auto px-8 py-5 rounded-2xl bg-[#008A32] text-white font-black text-xs uppercase tracking-widest hover:bg-[#007028] shadow-[0_0_20px_rgba(0,138,50,0.3)] transition-all flex items-center justify-center gap-3 group">
-                   Start Learning <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+               <div className="flex flex-col sm:flex-row w-full max-w-sm sm:max-w-xl gap-4 pt-4 relative z-50">
+                 <Link to="/register" className="flex-1 relative px-8 py-4 rounded-[1.1rem] font-black text-[13px] tracking-wider text-center border-b-4 outline-none focus:outline-none transition-all duration-300 ease-in-out active:border-b-0 active:translate-y-[4px] shadow-sm bg-[#1CB0F6] text-white border-[#1899D6] hover:bg-white hover:text-[#1CB0F6] hover:border-[#E5E5E5]">
+                   Get started
                  </Link>
-                 <Link to="/courses" className="w-full sm:w-auto px-8 py-5 rounded-2xl bg-[#11151F] border border-white/20 text-white font-black text-xs uppercase tracking-widest hover:border-[#FFD700]/50 hover:text-[#FFD700] hover:shadow-[0_0_15px_rgba(255,215,0,0.1)] transition-all flex items-center justify-center gap-2">
-                    Explore Courses
+                 <Link to="/courses" className="flex-1 relative px-8 py-4 rounded-[1.1rem] font-black text-[13px] tracking-wider text-center border-b-4 outline-none focus:outline-none transition-all duration-300 ease-in-out active:border-b-0 active:translate-y-[4px] shadow-sm bg-white text-[#1CB0F6] border-[#E5E5E5] hover:bg-[#1CB0F6] hover:text-white hover:border-[#1899D6]">
+                   Learn more
                  </Link>
                </div>
 
@@ -527,13 +527,13 @@ export default function Home() {
                     Your future <br/>starts <span className="text-[#008A32]">here.</span>
                  </h2>
 
-                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full px-4">
-                    <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#008A32] text-white font-black uppercase tracking-widest text-[11px] hover:bg-[#007028] transition-all">
-                       START LEARNING <ArrowRight className="w-4 h-4 text-white" />
-                    </Link>
-                    <Link to="/courses" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#16181d] border border-white/10 text-white font-black uppercase tracking-widest text-[11px] hover:bg-[#1a1c22] transition-all">
-                       EXPLORE COURSES
-                    </Link>
+                 <div className="flex flex-col sm:flex-row w-full max-w-sm sm:max-w-xl mx-auto gap-4 pt-2">
+                 <Link to="/register" className="flex-1 relative px-8 py-4 rounded-[1.1rem] font-black text-[13px] tracking-wider text-center border-b-4 outline-none focus:outline-none transition-all duration-300 ease-in-out active:border-b-0 active:translate-y-[4px] shadow-sm bg-[#1CB0F6] text-white border-[#1899D6] hover:bg-white hover:text-[#1CB0F6] hover:border-[#E5E5E5]">
+                   Get started
+                 </Link>
+                 <Link to="/courses" className="flex-1 relative px-8 py-4 rounded-[1.1rem] font-black text-[13px] tracking-wider text-center border-b-4 outline-none focus:outline-none transition-all duration-300 ease-in-out active:border-b-0 active:translate-y-[4px] shadow-sm bg-white text-[#1CB0F6] border-[#E5E5E5] hover:bg-[#1CB0F6] hover:text-white hover:border-[#1899D6]">
+                   Learn more
+                 </Link>
                  </div>
               </div>
 
