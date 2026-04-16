@@ -1,4 +1,4 @@
-import prisma from '../prisma/prismaClient.js';
+import { prisma } from '../lib/prisma.js';
 
 // @route   POST /api/connections
 // @desc    Initiates a connection request (Parent or Admin to Student)

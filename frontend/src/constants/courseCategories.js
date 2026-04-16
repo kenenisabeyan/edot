@@ -1,4 +1,4 @@
-export const COURSE_CATEGORIES = {
+const COURSE_CATEGORIES = {
   "Social Science": [
     "History",
     "Geography",
@@ -52,13 +52,20 @@ export const COURSE_CATEGORIES = {
   ]
 };
 
-export const MAIN_CATEGORIES = Object.keys(COURSE_CATEGORIES);
+const MAIN_CATEGORIES = Object.keys(COURSE_CATEGORIES);
 
-export const ALL_SUBCATEGORIES = Object.values(COURSE_CATEGORIES).flat();
+const ALL_SUBCATEGORIES = Object.values(COURSE_CATEGORIES).flat();
 
-export const courseDropdownOptions = MAIN_CATEGORIES.map(category => ({
+const courseDropdownOptions = MAIN_CATEGORIES.map(category => ({
   label: category,
   value: category
 }));
+
+export {
+  COURSE_CATEGORIES,
+  MAIN_CATEGORIES,
+  ALL_SUBCATEGORIES,
+  courseDropdownOptions
+};
 
 export default COURSE_CATEGORIES;
