@@ -70,6 +70,9 @@ model User {
 
   adminGroups          MessageGroup[]       @relation("GroupAdmin")
   memberGroups         MessageGroup[]       @relation("GroupMembers")
+
+  connectionRequestsSent     ConnectionRequest[] @relation("Requester")
+  connectionRequestsReceived ConnectionRequest[] @relation("Target")
 }
 
 model UserCourseProgress {
@@ -412,7 +415,10 @@ model Sponsorship {
   amount          Float
   targetStudentId String?
   targetStudent   User?    @relation("StudentSponsorships", fields: [targetStudentId], references: [id])
-  status          String   @default("active")
+  status          String   @default("pending_consent")
+  isAnonymous     Boolean  @default(false)
+  termsAccepted   Boolean  @default(false)
+  messageChannelId String? @unique
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -425,4 +431,19 @@ model ImpactLog {
   type            String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model ConnectionRequest {
+  id               String   @id @default(uuid())
+  requesterId      String
+  requester        User     @relation("Requester", fields: [requesterId], references: [id])
+  targetId         String
+  target           User     @relation("Target", fields: [targetId], references: [id])
+  type             String   @default("parent") // 'parent', 'admin_mentorship', etc.
+  status           String   @default("pending_consent")
+  termsAccepted    Boolean  @default(false)
+  messageChannelId String?  @unique
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

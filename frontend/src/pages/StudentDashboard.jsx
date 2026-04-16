@@ -5,7 +5,7 @@ import api from '../utils/api';
 import { 
   BookOpen, CheckCircle2, Award, Search, LayoutDashboard, 
   Settings, LogOut, Target, Plus, Bell, Monitor, TrendingUp, MoreHorizontal,
-  PlayCircle, Download
+  PlayCircle, Download, ShieldCheck
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
@@ -22,6 +22,8 @@ export default function StudentDashboard() {
   const [growthNote, setGrowthNote] = useState('');
   const [privateLogs, setPrivateLogs] = useState([]);
   const [achievements, setAchievements] = useState(null);
+  const [pendingSponsorships, setPendingSponsorships] = useState([]);
+  const [pendingConnections, setPendingConnections] = useState([]);
 
   useEffect(() => {
     const fetchEnrollments = async () => {
@@ -34,8 +36,52 @@ export default function StudentDashboard() {
         setLoading(false);
       }
     };
+    const fetchPendingSponsorships = async () => {
+      try {
+        const { data } = await api.get('/support/pending');
+        setPendingSponsorships(data.data || []);
+      } catch (err) {
+        console.error('Failed to fetch pending sponsorships', err);
+      }
+    };
+    
+    const fetchPendingConnections = async () => {
+      try {
+        const { data } = await api.get('/connections/pending');
+        setPendingConnections(data.data || []);
+      } catch (err) {
+        console.error('Failed to fetch pending connections', err);
+      }
+    };
+    
     fetchEnrollments();
+    fetchPendingSponsorships();
+    fetchPendingConnections();
   }, []);
+
+  const handleConnectionRequest = async (id, action) => {
+    if (window.confirm(`Are you sure you want to ${action} this explicit connection?`)) {
+      try {
+        await api.post(`/connections/${id}/${action}`);
+        alert(`Connection definitively ${action}ed.`);
+        setPendingConnections(pendingConnections.filter(c => c.id !== id));
+      } catch (err) {
+        alert("Action failed: " + (err.response?.data?.message || err.message));
+      }
+    }
+  };
+
+  const handleSponsorship = async (id, action) => {
+    if (window.confirm(`Are you sure you want to ${action} this proxy connection?`)) {
+      try {
+        await api.post(`/support/${id}/${action}`);
+        alert(`Sponsorship definitively ${action}ed.`);
+        setPendingSponsorships(pendingSponsorships.filter(s => s.id !== id));
+      } catch (err) {
+        alert("Authorization failed: " + (err.response?.data?.message || err.message));
+      }
+    }
+  };
 
   const fetchPrivateLogs = async () => {
     try {
@@ -173,6 +219,52 @@ export default function StudentDashboard() {
               </div>
               <div className="absolute right-0 top-0 bottom-0 w-2/3 bg-gradient-to-l from-[#FFD700]/5 to-transparent pointer-events-none"></div>
             </div>
+
+            {/* Pending Sponsorship Offers (Security & Privacy Gateway) */}
+            {pendingSponsorships.length > 0 && (
+                <div className="mb-6 space-y-4">
+                  {pendingSponsorships.map(offer => (
+                    <div key={offer.id} className="bg-indigo-900/20 border border-indigo-500/50 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-[0_10px_30px_rgba(79,70,229,0.15)] animate-in slide-in-from-top-2 duration-500">
+                       <div className="flex-1">
+                          <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                             <ShieldCheck className="w-6 h-6 text-indigo-400" /> Secure Support Request
+                          </h3>
+                          <p className="text-indigo-200/80 text-sm mt-2 leading-relaxed max-w-2xl">
+                             An encrypted proxy sponsorship request has been initiated by <strong>{offer.isAnonymous ? 'an Anonymous Benefactor' : offer.sponsorName}</strong>. 
+                             Accepting this connects them to your academic progress log via restricted metrics and establishes a secure, admin-moderated message group. Refusing permanently dismisses the connection request.
+                          </p>
+                       </div>
+                       <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
+                          <button onClick={() => handleSponsorship(offer.id, 'reject')} className="flex-1 sm:flex-none px-6 py-3 bg-[#13161B] border border-white/10 text-slate-300 font-bold text-sm rounded-xl hover:text-red-400 hover:border-red-400/50 hover:bg-red-400/10 transition-all text-center">Decline Block</button>
+                          <button onClick={() => handleSponsorship(offer.id, 'accept')} className="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 border border-indigo-500 text-white font-bold text-sm rounded-xl hover:bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] transition-all text-center">Formally Accept</button>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+            )}
+
+            {/* Pending Admin/Parent Connections (Oversight Delegation) */}
+            {pendingConnections.length > 0 && (
+                <div className="mb-6 space-y-4">
+                  {pendingConnections.map(conn => (
+                    <div key={conn.id} className="bg-amber-900/20 border border-amber-500/50 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-[0_10px_30px_rgba(245,158,11,0.15)] animate-in slide-in-from-top-2 duration-500">
+                       <div className="flex-1">
+                          <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                             <ShieldCheck className="w-6 h-6 text-amber-400" /> Secure Connection Request
+                          </h3>
+                          <p className="text-amber-200/80 text-sm mt-2 leading-relaxed max-w-2xl">
+                             An encrypted proxy connection request has been initiated by <strong>{conn.requester?.name || 'Administrator'} ({conn.type})</strong>. 
+                             Accepting this delegates oversight of your academic progress log to them via a restricted metrics dashboard and constructs an encrypted, moderated communication channel. Refusal is final.
+                          </p>
+                       </div>
+                       <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">
+                          <button onClick={() => handleConnectionRequest(conn.id, 'reject')} className="flex-1 sm:flex-none px-6 py-3 bg-[#13161B] border border-white/10 text-slate-300 font-bold text-sm rounded-xl hover:text-red-400 hover:border-red-400/50 hover:bg-red-400/10 transition-all text-center">Decline Oversight</button>
+                          <button onClick={() => handleConnectionRequest(conn.id, 'accept')} className="flex-1 sm:flex-none px-6 py-3 bg-amber-600 border border-amber-500 text-white font-bold text-sm rounded-xl hover:bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(245,158,11,0.6)] transition-all text-center">Delegate Connection</button>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+            )}
 
             {/* 4 Mini Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">

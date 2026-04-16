@@ -151,21 +151,20 @@ router.post('/certificate', protect, checkNotBlocked, guardActiveEnrollment, asy
             // Create Official Certificate Record
             certificate = await prisma.certificate.create({
                 data: {
-                    certificateId: `EDOT-${userId.toString().slice(-4)}-${courseId.toString().slice(-4)}-${Date.now().toString().slice(-4)}`,
                     userId,
                     courseId,
                     issueDate: new Date(),
-                    verifiedHash: 'placeholder_blockchain_hash_or_jwt' // Future-proofing
+                    verificationHash: `EDOT-${userId.toString().slice(-4)}-${courseId.toString().slice(-4)}-${Date.now().toString().slice(-4)}` // Unique tracking hash
                 }
             });
             
             // Note: Map to backward-compatible responses so frontend functions aren't broken initially
             certificate = {
                 ...certificate,
-                certificate_id: certificate.certificateId,
+                certificate_id: certificate.id,
                 user_id: certificate.userId,
                 course_id: certificate.courseId,
-                verified_hash: certificate.verifiedHash,
+                verified_hash: certificate.verificationHash,
                 issue_date: certificate.issueDate
             };
         }

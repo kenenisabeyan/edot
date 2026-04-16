@@ -2,37 +2,154 @@ import { prisma } from '../lib/prisma.js';
 
 export const supportStudent = async (req, res) => {
   try {
-    const { studentId, amount } = req.body;
+    const { studentId, amount, isAnonymous, termsAccepted } = req.body;
 
-    // Control: Limit only 1 active sponsor per student at a time
+    if (!termsAccepted) {
+      return res.status(400).json({ success: false, message: "Privacy and Security Terms must be accepted to initialize a connection." });
+    }
+
+    // Control: Limit only 1 active or pending sponsor per student at a time
     const existing = await prisma.sponsorship.findFirst({
       where: {
         targetStudentId: studentId,
-        status: "active"
+        status: { in: ["active", "pending_consent"] }
       }
     });
 
     if (existing) {
       return res.status(400).json({
         success: false,
-        message: "Student already has an active sponsor pipeline. Choose another student."
+        message: "Student already has an active or pending sponsor pipeline. Choose another student."
       });
     }
+
+    // Generate Secure Message Proxy Channel
+    // This allows sponsors and students to communicate directly through the platform WITHOUT exposing emails or real numbers.
+    const secureChannel = await prisma.messageGroup.create({
+      data: {
+        name: `Proxy-Channel-${Date.now().toString().slice(-6)}`,
+        description: "Encrypted direct communication channel. All interactions are moderated by EDOT Administration.",
+        isChannel: false,
+        adminId: req.user.id, // Sponsor initializes it
+        members: {
+          connect: [{ id: req.user.id }, { id: studentId }]
+        }
+      }
+    });
 
     const support = await prisma.sponsorship.create({
       data: {
         targetStudentId: studentId,
         sponsorId: req.user.id,
-        sponsorName: req.user.name,
+        sponsorName: isAnonymous ? "Anonymous Benefactor" : req.user.name,
         amount: Number(amount),
-        status: "active"
+        isAnonymous: Boolean(isAnonymous),
+        termsAccepted: Boolean(termsAccepted),
+        messageChannelId: secureChannel.id,
+        status: "pending_consent" // Mandates student approval to activate
       }
     });
 
-    res.status(201).json({ success: true, data: support });
+    res.status(201).json({ success: true, data: support, message: "Sponsorship offer sent. Awaiting student consent." });
   } catch (err) {
     console.error('Error creating support:', err);
     res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+// @route   POST /api/support/:sponsorshipId/accept
+// @desc    Student accepts a pending sponsorship and activates the connection constraints
+// @access  Private (Student)
+export const acceptSponsorship = async (req, res) => {
+  try {
+    const { sponsorshipId } = req.params;
+    const userId = req.user.id;
+
+    const sponsorship = await prisma.sponsorship.findFirst({
+      where: { id: sponsorshipId, targetStudentId: userId, status: 'pending_consent' }
+    });
+
+    if (!sponsorship) {
+      return res.status(404).json({ success: false, message: "Sponsorship offer not found or already processed." });
+    }
+
+    const updated = await prisma.sponsorship.update({
+      where: { id: sponsorshipId },
+      data: { status: 'active' }
+    });
+
+    // Notify the sponsor via the proxy channel
+    if (updated.messageChannelId) {
+       await prisma.message.create({
+          data: {
+            content: "SYSTEM ALERT: The student has formally consented to the sponsorship terms. The secure channel is now globally active.",
+            senderId: userId,
+            groupId: updated.messageChannelId
+          }
+       });
+    }
+
+    res.status(200).json({ success: true, message: "Sponsorship Activated. Secure proxy established." });
+  } catch (err) {
+    console.error('Accept Sponsorship Error:', err);
+    res.status(500).json({ success: false, error: "Server Protocol Initialization Failed" });
+  }
+};
+
+// @route   POST /api/support/:sponsorshipId/reject
+// @desc    Student declines a pending sponsorship keeping data isolated
+// @access  Private (Student)
+export const rejectSponsorship = async (req, res) => {
+  try {
+    const { sponsorshipId } = req.params;
+    const userId = req.user.id;
+
+    const sponsorship = await prisma.sponsorship.findFirst({
+      where: { id: sponsorshipId, targetStudentId: userId, status: 'pending_consent' }
+    });
+
+    if (!sponsorship) {
+      return res.status(404).json({ success: false, message: "Sponsorship offer not found." });
+    }
+
+    const updated = await prisma.sponsorship.update({
+      where: { id: sponsorshipId },
+      data: { status: 'rejected' }
+    });
+    
+    // Purge the message channel early to enforce privacy block
+    if (updated.messageChannelId) {
+       await prisma.messageGroup.delete({ where: { id: updated.messageChannelId } }).catch(() => null);
+    }
+
+    res.status(200).json({ success: true, message: "Sponsorship Declined. Contact constraints preserved." });
+  } catch (err) {
+    console.error('Reject Sponsorship Error:', err);
+    res.status(500).json({ success: false, error: "Server Protocol Rejection Failed" });
+  }
+};
+
+// @route   GET /api/support/pending
+// @desc    Student gets a list of their pending sponsorship offers
+// @access  Private (Student)
+export const getPendingSponsorships = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const pending = await prisma.sponsorship.findMany({
+      where: { targetStudentId: userId, status: 'pending_consent' },
+      select: {
+        id: true,
+        sponsorName: true,
+        amount: true,
+        isAnonymous: true,
+        createdAt: true
+      }
+    });
+
+    res.status(200).json({ success: true, data: pending });
+  } catch (err) {
+    console.error('Fetch Pending Sponsorship Error:', err);
+    res.status(500).json({ success: false, error: "Server Protocol Fetch Failed" });
   }
 };
 

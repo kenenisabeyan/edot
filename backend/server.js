@@ -29,6 +29,7 @@ import achievementRoutes from './routes/achievementRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
 import sectionRoutes from './routes/sectionRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
+import connectionRoutes from './routes/connectionRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -95,6 +96,7 @@ app.use('/api/achievements', achievementRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/sections', sectionRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/connections', connectionRoutes);
 
 // Static file serving for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

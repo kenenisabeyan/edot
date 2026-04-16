@@ -43,6 +43,9 @@ export default function Home() {
         setRecentUsers(data.users || []);
         if (data.totalCount > 10000) {
            setTotalUsers('10k+');
+        } else if (data.totalCount >= 15) {
+           const roundedFloor = Math.floor(data.totalCount / 5) * 5;
+           setTotalUsers(`${roundedFloor}+`);
         } else if (data.totalCount > 0) {
            setTotalUsers(data.totalCount.toString());
         }
@@ -64,10 +67,6 @@ export default function Home() {
         <section className="relative pt-24 pb-28 md:pt-32 md:pb-36 px-6 overflow-hidden border-b border-white/5">
            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
              <div className="space-y-8 pr-0 lg:pr-8">
-               <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 text-[#FFD700] font-black text-[10px] tracking-widest uppercase shadow-lg">
-                 <Sparkles className="w-4 h-4" /> The Complete Educational Hub
-               </div>
-               
                <h1 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">
                  Democratizing Quality <br /> Education for <span className="text-white">Ethiopia.</span>
                </h1>
@@ -109,7 +108,7 @@ export default function Home() {
                        <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-rose-500/100 overflow-hidden flex items-center justify-center shadow-lg shrink-0 relative z-10"><span className="text-white font-black text-xl">A</span></div>
                      </>
                    )}
-                   <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-gradient-to-br from-[#008A32] to-[#00A13B] flex items-center justify-center shadow-lg z-0 text-[10px] font-black text-white shrink-0 relative">
+                   <div className="w-12 h-12 rounded-full border-2 border-[#11151F] bg-gradient-to-br from-[#008A32] to-[#00A13B] flex items-center justify-center shadow-lg z-0 text-sm font-black text-white shrink-0 relative">
                      {totalUsers}
                    </div>
                  </div>
@@ -123,8 +122,8 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="relative rounded-[3rem] p-3 bg-[#11151F]/40 backdrop-blur-xl shadow-[0_0_50px_rgba(0,138,50,0.1)] border border-white/10 z-10">
-                <img src={homePageImg} alt="Young Learners Collaborating with University Students" className="h-auto w-full object-cover rounded-[2.5rem] shadow-lg border border-white/5" />
+              <div className="relative rounded-[3rem] p-0 bg-[#11151F]/40 backdrop-blur-xl shadow-[0_0_50px_rgba(0,138,50,0.1)] border border-white/10 z-10 overflow-hidden">
+                <img src={homePageImg} alt="Young Learners Collaborating with University Students" className="h-auto w-full object-cover rounded-[3rem] shadow-lg border-0" />
               </div>
               
               {/* Floating elements */}

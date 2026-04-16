@@ -30,6 +30,10 @@ export default function Lesson() {
   const [videoProgress, setVideoProgress] = useState({});
   const [quizState, setQuizState] = useState({});
   const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizAttempts, setQuizAttempts] = useState({});
+  const [preAssessmentScore, setPreAssessmentScore] = useState({});
+  const [generatingCertificate, setGeneratingCertificate] = useState(false);
+  const [certificateData, setCertificateData] = useState(null);
 
   useEffect(() => {
     if (!courseId) {
@@ -122,6 +126,21 @@ export default function Lesson() {
     
     // For local uploads
     return `http://localhost:5000${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
+  };
+
+  const handleClaimCertificate = async () => {
+    try {
+      setGeneratingCertificate(true);
+      const { data } = await api.post('/progress/certificate', { courseId });
+      if (data.success && data.data) {
+        setCertificateData(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to generate certificate:', err);
+      alert(err.response?.data?.message || 'Certificate generation failed. Make sure all requirements are met.');
+    } finally {
+      setGeneratingCertificate(false);
+    }
   };
 
   if (loading) {
@@ -302,7 +321,7 @@ export default function Lesson() {
                                                 }}
                                                 onError={(e) => console.error("ReactPlayer Error: ", e, resolveUrl(lesson.videoUrl))}
                                                 config={{ 
-                                                   file: { attributes: { controlsList: 'nodownload', crossOrigin: 'anonymous' } },
+                                                   file: { attributes: { controlsList: 'nodownload' } },
                                                    youtube: { playerVars: { modestbranding: 1, rel: 0, showinfo: 0, fs: 1, disablekb: 1 } }
                                                 }}
                                              />
@@ -372,81 +391,31 @@ export default function Lesson() {
                               </div>
                            )}
 
-                           {/* INLINE MODULE: Phase Assessment */}
-                           {lesson.quiz?.length > 0 && (
-                              <div className="rounded-2xl border border-white/10 overflow-hidden bg-[#11151F] shadow-sm">
-                                 <button onClick={() => toggleCat(lId, 'quiz')} className="w-full p-5 flex justify-between items-center hover:bg-[#11151F]/5 transition-colors group">
-                                    <span className="font-bold flex items-center gap-4 text-slate-200 group-hover:text-white"><div className="w-8 h-8 rounded-full bg-amber-500/100/10 text-amber-500 flex items-center justify-center border border-amber-500/20"><BadgeAlert className="w-4 h-4" /></div> Phase Assessment</span>
-                                    <span className="text-[10px] uppercase tracking-widest text-slate-300 flex items-center gap-2 font-bold group-hover:text-[#FFC107]">
-                                       {expandedCategory[`${lId}-quiz`] ? 'Collapse' : 'Expand'} {expandedCategory[`${lId}-quiz`] ? <ChevronUp className="w-3 h-3"/> : <ChevronDown className="w-3 h-3"/>}
-                                    </span>
-                                 </button>
-                                 {expandedCategory[`${lId}-quiz`] && (
-                                    <div className="border-t border-white/5 bg-[#0B0E14] p-6 sm:p-10">
-                                       {!quizState[lId]?.submitted ? (
-                                          <>
-                                             <div className="mb-8 border-l-[4px] border-l-amber-500/50 pl-4 bg-[#11151F]/40 p-4 rounded-r-xl">
-                                                <h4 className="text-white font-black text-xl mb-1">Finalize Evaluation</h4>
-                                                <p className="text-slate-400 text-sm font-medium">Complete this audit securely to unlock phase completion.</p>
-                                             </div>
-                                             {lesson.quiz.map((q, qIndex) => (
-                                                <div key={qIndex} className="mb-6 bg-[#11151F]/60 border border-white/5 p-6 rounded-2xl shadow-sm">
-                                                   <p className="font-black text-white mb-5 text-lg">Q{qIndex + 1}: {q.question}</p>
-                                                   <div className="space-y-3">
-                                                      {q.options.map((opt, oIndex) => {
-                                                         const isSelected = quizAnswers[`${lId}-${qIndex}`] === oIndex;
-                                                         return (
-                                                         <label key={oIndex} className={`w-full flex items-center p-4 rounded-xl border cursor-pointer transition-all ${isSelected ? 'bg-[#FFD700]/10 border-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.1)]' : 'bg-[#11151F]/60 border-white/5 hover:border-white/20'}`}>
-                                                            <input type="radio" checked={isSelected} onChange={() => setQuizAnswers(prev => ({...prev, [`${lId}-${qIndex}`]: oIndex}))} className="w-5 h-5 text-[#FFD700] rounded-full focus:ring-[#FFD700] bg-[#11151F]/10 border-none"/>
-                                                            <span className={`ml-4 text-[15px] font-bold ${isSelected ? 'text-[#FFD700]' : 'text-slate-300'}`}>{opt}</span>
-                                                         </label>
-                                                         );
-                                                      })}
-                                                   </div>
-                                                </div>
-                                             ))}
-                                             <button onClick={() => {
-                                                   let score = 0;
-                                                   lesson.quiz.forEach((q, i) => { if (quizAnswers[`${lId}-${i}`] === q.correctAnswer) score++; });
-                                                   setQuizState(prev => ({ ...prev, [lId]: { submitted: true, score } }));
-                                                }}
-                                                className="w-full bg-gradient-to-r from-[#FFD700] to-yellow-500 text-black font-black uppercase tracking-widest py-5 rounded-2xl hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all flex items-center justify-center gap-2 mt-2">
-                                                Submit Assessment
-                                             </button>
-                                          </>
-                                       ) : (
-                                          <div className={`p-8 rounded-3xl text-center shadow-lg border-2 ${quizState[lId].score === lesson.quiz.length ? 'bg-[#008A32]/10 border-[#008A32] text-white' : 'bg-red-500/10 border-red-500 text-white'}`}>
-                                             <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-6 border-2 ${quizState[lId].score === lesson.quiz.length ? 'bg-[#008A32] border-white/20' : 'bg-red-500 border-white/20'}`}>
-                                                {quizState[lId].score === lesson.quiz.length ? <CheckCircle2 className="w-8 h-8 text-white" /> : <BadgeAlert className="w-8 h-8 text-white" />}
-                                             </div>
-                                             <p className="font-black text-2xl tracking-widest uppercase mb-2">{quizState[lId].score === lesson.quiz.length ? 'Audit Passed!' : 'Audit Failed'}</p>
-                                             <p className="text-base font-bold opacity-80 mb-6">{quizState[lId].score} out of {lesson.quiz.length} correct</p>
-                                             {quizState[lId].score !== lesson.quiz.length && (
-                                                <button onClick={() => setQuizState(prev => ({ ...prev, [lId]: null }))} className="px-6 py-3 bg-[#11151F] text-white rounded-xl font-black hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs">
-                                                   Re-Attempt Protocol
-                                                </button>
-                                             )}
-                                          </div>
-                                       )}
-                                    </div>
-                                 )}
-                              </div>
-                           )}
-
                            {/* Phase Completion Trigger (Bottom of expanded phase) */}
                            <div className="pt-8 mt-6 border-t font-sans border-white/10 flex justify-center md:justify-end">
                               <button
-                                 onClick={() => verifyPhaseCompletion(lId)}
-                                 disabled={!isActive || lCompleted || completingPhase[lId] || (lesson.quiz?.length > 0 && quizState[lId]?.score !== lesson.quiz.length) || (!videoProgress[lId] && lesson.videoUrl)}
+                                 onClick={() => {
+                                    if (lesson.quiz?.length > 0 && !lCompleted) {
+                                       setActiveModal({ type: 'quiz', lessonId: lId, phaseIndex: idx + 1 });
+                                       if (!quizAttempts[lId]) setQuizAttempts(prev => ({ ...prev, [lId]: 1 }));
+                                    } else if (!lCompleted) {
+                                       verifyPhaseCompletion(lId);
+                                    }
+                                 }}
+                                 disabled={!isActive || lCompleted || completingPhase[lId] || (!videoProgress[lId] && lesson.videoUrl)}
                                  className={`w-full md:w-auto px-8 py-5 font-black uppercase tracking-widest text-xs rounded-2xl transition-all flex items-center justify-center gap-3 ${
-                                    lCompleted ? 'bg-gradient-to-r from-[#008A32] to-[#00A13B] text-white shadow-[0_0_20px_rgba(0,138,50,0.3)]' 
-                                    : (!isActive || (lesson.quiz?.length > 0 && quizState[lId]?.score !== lesson.quiz.length) || (!videoProgress[lId] && lesson.videoUrl)) ? 'bg-[#11151F] text-slate-300 border-2 border-white/5 cursor-not-allowed' 
-                                    : completingPhase[lId] ? 'bg-gradient-to-r from-[#295ce8] to-[#1e48bc] text-white animate-pulse'
-                                    : 'bg-gradient-to-r from-[#295ce8] to-[#1e48bc] text-white hover:shadow-[0_0_20px_rgba(41,92,232,0.4)] hover:-translate-y-0.5'
+                                    lCompleted ? 'bg-[#008A32] text-white shadow-[0_0_20px_rgba(0,138,50,0.3)]' 
+                                    : (!isActive || (!videoProgress[lId] && lesson.videoUrl)) ? 'bg-[#11151F] text-slate-300 border-2 border-white/5 cursor-not-allowed' 
+                                    : completingPhase[lId] ? 'bg-[#1e48bc] text-white animate-pulse'
+                                    : 'bg-[#1e48bc] hover:bg-[#295ce8] text-white shadow-lg'
                                  }`}
                               >
                                  <CheckCircle2 className="w-5 h-5" /> 
-                                 {lCompleted ? 'Phase Resolved' : completingPhase[lId] ? 'Synchronizing...' : 'Finalize Phase Approval'}
+                                 {lCompleted 
+                                    ? 'Phase Resolved' 
+                                    : completingPhase[lId] 
+                                       ? 'Synchronizing...' 
+                                       : (lesson.quiz?.length > 0 ? 'Complete Phase Assessment' : 'Finalize Phase Approval')}
                               </button>
                            </div>
 
@@ -457,9 +426,195 @@ export default function Lesson() {
             })}
          </div>
 
+         {/* Course Completion / Certificate Generation */}
+         {course.lessons?.length > 0 && completedList.length >= course.lessons.length && (
+            <div className="mt-12 bg-gradient-to-r from-[#008A32]/20 to-[#00A13B]/10 rounded-3xl border border-[#008A32]/30 p-8 sm:p-12 text-center animate-in zoom-in duration-500 shadow-[0_0_40px_rgba(0,138,50,0.15)] relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-64 h-64 bg-[#008A32]/20 rounded-full blur-[80px] pointer-events-none"></div>
+               <Award className={`w-20 h-20 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)] ${certificateData ? 'text-[#008A32]' : 'text-[#FFD700]'}`} />
+               <h2 className="text-3xl font-black text-white uppercase tracking-widest mb-4">
+                  {certificateData ? 'Certificate Secured' : 'Course Protocol Completed'}
+               </h2>
+               <p className="text-slate-300 font-medium mb-8 max-w-lg mx-auto">
+                  {certificateData 
+                     ? `Verification Code: ${certificateData.verificationHash || certificateData.verified_hash}\nYour certificate is permanently recorded in the system.` 
+                     : 'You have successfully finalized all phase assessments. Your clearance is fully upgraded.'}
+               </p>
+               {!certificateData ? (
+                  <button 
+                     onClick={handleClaimCertificate}
+                     disabled={generatingCertificate}
+                     className={`px-10 py-5 font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-3 mx-auto shadow-xl ${generatingCertificate ? 'bg-[#FFD700]/50 text-black/50 cursor-not-allowed' : 'bg-gradient-to-r from-[#FFD700] to-yellow-500 text-black hover:scale-105'}`}
+                  >
+                     <Award className={`w-6 h-6 ${generatingCertificate ? 'animate-pulse' : ''}`} /> 
+                     {generatingCertificate ? 'Synthesizing...' : 'Claim Official Certificate'}
+                  </button>
+               ) : (
+                  <Link to="/student/profile" className="px-10 py-5 bg-[#11151F] border-2 border-[#008A32] text-white font-black uppercase tracking-widest rounded-xl hover:bg-[#008A32] transition-colors flex items-center justify-center gap-3 mx-auto shadow-xl max-w-xs cursor-pointer inline-flex">
+                     <CheckCircle2 className="w-5 h-5 text-[#008A32] group-hover:text-white" /> View Certificate
+                  </Link>
+               )}
+            </div>
+         )}
+
       </div>
 
+      {/* Modal Overlay for Assessment */}
+      {activeModal?.type === 'quiz' && (
+         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh] overflow-hidden text-slate-800 font-sans border-2 border-slate-200">
+               
+               {/* Modal Header */}
+               <div className="flex justify-between items-center p-4 border-b border-slate-200 shadow-sm relative z-10 bg-white">
+                  <h3 className="font-bold text-lg">{quizState[activeModal.lessonId]?.submitted ? 'Result' : 'Assessment'}</h3>
+                  <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-black transition-colors rounded-full p-1 hover:bg-slate-100">
+                     <X className="w-5 h-5" />
+                  </button>
+               </div>
+               
+               {/* Modal Body */}
+               <div className="overflow-y-auto p-6 md:p-8 flex-1 bg-slate-50 relative">
+                  {(() => {
+                     const lId = activeModal.lessonId;
+                     const targetLesson = course.lessons.find(l => l.id === lId);
+                     const qsState = quizState[lId];
+                     
+                     if (!qsState?.submitted) {
+                        return (
+                           <div className="space-y-8">
+                              {targetLesson.quiz.map((q, qIndex) => (
+                                 <div key={qIndex} className="bg-white border border-slate-200 rounded-xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                                    <p className="font-bold text-slate-800 mb-5 text-[15px]">{qIndex + 1}. {q.question}</p>
+                                    <div className="space-y-4">
+                                       {q.options.map((opt, oIndex) => {
+                                          const isSelected = quizAnswers[`${lId}-${qIndex}`] === oIndex;
+                                          return (
+                                          <label key={oIndex} className="w-full flex items-center cursor-pointer group">
+                                             <input 
+                                                type="radio" 
+                                                checked={isSelected} 
+                                                onChange={() => setQuizAnswers(prev => ({...prev, [`${lId}-${qIndex}`]: oIndex}))} 
+                                                className="w-4 h-4 text-[#ea580c] bg-white border-slate-300 focus:ring-[#ea580c] focus:ring-2 focus:ring-offset-1 transition-all"
+                                             />
+                                             <span className={`ml-3 text-[14px] transition-colors ${isSelected ? 'text-slate-900 font-medium' : 'text-slate-600 group-hover:text-slate-900'}`}>{opt}</span>
+                                          </label>
+                                          );
+                                       })}
+                                    </div>
+                                 </div>
+                              ))}
+                           </div>
+                        );
+                     } else {
+                        // Result View
+                        const { score, total, grade, passed } = qsState;
+                        const percentage = Math.round((score / total) * 100);
+                        const attemptNum = quizAttempts[lId] || 1;
+                        const preScore = preAssessmentScore[lId] || Math.max(0, percentage - 10);
+                        
+                        return (
+                           <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] text-center max-w-xl mx-auto">
+                              <h2 className="text-xl font-bold text-slate-800 mb-4">Post-Assessment Results</h2>
+                              <div className="text-[3.5rem] font-black text-[#2563eb] leading-none mb-3 tracking-tighter">
+                                 {score} / {total}
+                              </div>
+                              <p className="text-slate-700 font-bold mb-1 text-sm">Grade: <span className={passed ? "text-emerald-500" : "text-amber-500"}>{grade}</span></p>
+                              <p className="text-slate-400 text-xs mb-8 font-medium">Attempt #{attemptNum}</p>
+                              
+                              {passed ? (
+                                 <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl text-left -mx-2 bg-gradient-to-b from-white to-emerald-50/30 overflow-hidden">
+                                     <div className="px-6 py-4 border-b border-emerald-50 text-center">
+                                         <p className="text-emerald-600 font-bold text-[15px]">Assessment Completed Successfully!</p>
+                                     </div>
+                                    <div className="p-6">
+                                        <p className="text-[11px] text-emerald-600/80 font-bold mb-4">Your Progress Improvement:</p>
+                                        <div className="flex gap-4">
+                                           <div className="flex-1 bg-white border border-emerald-100 rounded-lg p-5 shadow-sm text-left">
+                                              <p className="text-[9px] text-slate-400 font-black uppercase mb-1 tracking-wider">PRE-ASSESSMENT</p>
+                                              <p className="text-[#2563eb] font-black text-xl">{preScore}%</p>
+                                           </div>
+                                           <div className="flex-1 bg-white border border-emerald-100 rounded-lg p-5 shadow-sm text-left">
+                                              <p className="text-[9px] text-slate-400 font-black uppercase mb-1 tracking-wider">POST-ASSESSMENT</p>
+                                              <p className="text-emerald-500 font-black text-xl">{percentage}%</p>
+                                           </div>
+                                        </div>
+                                    </div>
+                                 </div>
+                              ) : (
+                                 <div className="bg-red-50/50 border border-red-100 rounded-xl p-6 mb-8 text-center -mx-2">
+                                    <p className="text-red-600 font-bold mb-2">Assessment Failed</p>
+                                    <p className="text-sm text-slate-600">You need a score of 50% or higher to pass. Please review the material and try again.</p>
+                                 </div>
+                              )}
+                           </div>
+                        );
+                     }
+                  })()}
+               </div>
 
+               {/* Modal Footer */}
+               <div className="p-4 md:px-6 md:py-4 border-t border-slate-200 bg-slate-50 flex justify-start gap-3">
+                  {(() => {
+                     const lId = activeModal.lessonId;
+                     const targetLesson = course.lessons.find(l => l.id === lId);
+                     const qsState = quizState[lId];
+
+                     if (!qsState?.submitted) {
+                        return (
+                           <>
+                              <button 
+                                 onClick={() => {
+                                    let score = 0;
+                                    targetLesson.quiz.forEach((q, i) => { if (quizAnswers[`${lId}-${i}`] === q.correctAnswer) score++; });
+                                    const total = targetLesson.quiz.length;
+                                    const percentage = (score / total) * 100;
+                                    let grade = 'F';
+                                    if (percentage >= 90) grade = 'A';
+                                    else if (percentage >= 80) grade = 'B';
+                                    else if (percentage >= 70) grade = 'C';
+                                    else if (percentage >= 50) grade = 'D';
+
+                                    const passed = percentage >= 50;
+
+                                    if (!preAssessmentScore[lId]) {
+                                       setPreAssessmentScore(prev => ({ ...prev, [lId]: percentage }));
+                                    }
+
+                                    setQuizState(prev => ({ ...prev, [lId]: { submitted: true, score, total, grade, passed } }));
+                                 }}
+                                 className="px-6 py-2.5 bg-[#1e48bc] text-white font-bold rounded-md hover:bg-blue-700 shadow-sm text-sm"
+                              >
+                                 Submit
+                              </button>
+                              <button onClick={() => setActiveModal(null)} className="px-6 py-2.5 bg-slate-500 hover:bg-slate-600 text-white font-bold rounded-md shadow-sm text-sm transition-colors">
+                                 Cancel
+                              </button>
+                           </>
+                        );
+                     } else {
+                        return (
+                           <div className="w-full flex justify-center pb-2">
+                              <button 
+                                 onClick={() => {
+                                    if (qsState.passed) {
+                                       verifyPhaseCompletion(lId);
+                                    } else {
+                                       setQuizState(prev => ({ ...prev, [lId]: null }));
+                                       setQuizAttempts(prev => ({ ...prev, [lId]: (prev[lId] || 1) + 1 }));
+                                    }
+                                    setActiveModal(null);
+                                 }}
+                                 className="px-10 py-3 bg-[#2563eb] hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all sm:min-w-[200px]"
+                              >
+                                 {qsState.passed ? 'Continue' : 'Try Again'}
+                              </button>
+                           </div>
+                        );
+                     }
+                  })()}
+               </div>
+            </div>
+         </div>
+      )}
 
     </div>
   );

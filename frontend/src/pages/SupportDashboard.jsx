@@ -10,6 +10,11 @@ export default function SupportDashboard() {
   const [lastUpdated, setLastUpdated] = useState('just now');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Secure Sponsorship Modal State
+  const [showSponsorModal, setShowSponsorModal] = useState(false);
+  const [sponsorForm, setSponsorForm] = useState({ studentId: '', amount: 100, isAnonymous: false, termsAccepted: false });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const fetchDashboardData = async (refresh = false) => {
     if (refresh) setIsRefreshing(true);
     try {
@@ -38,6 +43,29 @@ export default function SupportDashboard() {
     }, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleSponsorSubmit = async (e) => {
+    e.preventDefault();
+    if (!sponsorForm.termsAccepted) {
+       alert("You must accept the strict privacy and security protocol terms.");
+       return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+       const response = await api.post('/support', sponsorForm);
+       if (response.data.success) {
+          alert('Secure connection request sent. Awaiting student consent.');
+          setShowSponsorModal(false);
+          setSponsorForm({ studentId: '', amount: 100, isAnonymous: false, termsAccepted: false });
+          fetchDashboardData(true);
+       }
+    } catch (err) {
+       alert(err.response?.data?.message || 'Transaction failed. Ensure Student ID is correct and there are no overlapping active constraints.');
+    } finally {
+       setIsSubmitting(false);
+    }
+  };
 
   const staticStatsConfigs = [
     { label: 'Total Contributions', key: 'totalContributions', icon: Wallet, gradient: 'from-emerald-500/20 to-[#13161B]', color: 'text-emerald-400', format: (v) => `$${v.toLocaleString()}` },
@@ -104,7 +132,10 @@ export default function SupportDashboard() {
           >
             <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin text-indigo-400' : ''}`} />
           </button>
-          <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] flex items-center gap-2 border-0">
+          <button 
+             onClick={() => setShowSponsorModal(true)}
+             className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] flex items-center gap-2 border-0"
+          >
             <HandCoins className="w-5 h-5" />
             Become a Sponsor
           </button>
@@ -358,6 +389,92 @@ export default function SupportDashboard() {
         </div>
 
       </div>
+
+      {/* Advanced Connection Secure Modal */}
+      {showSponsorModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+           <div className="bg-[#13161B] rounded-[2rem] border border-white/10 shadow-2xl w-full max-w-lg p-8 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl pointer-events-none rounded-full" />
+              
+              <div className="flex justify-between items-center mb-6">
+                 <div>
+                    <h3 className="text-2xl font-black text-white flex items-center gap-3">
+                       <ShieldCheck className="w-6 h-6 text-indigo-500" />
+                       Establish Connection
+                    </h3>
+                    <p className="text-sm text-slate-400 mt-1">Initialize secure proxy sponsorship for a student.</p>
+                 </div>
+                 <button onClick={() => setShowSponsorModal(false)} className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300">✕</button>
+              </div>
+
+              <form onSubmit={handleSponsorSubmit} className="space-y-5">
+                 <div>
+                    <label className="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Student System ID</label>
+                    <input 
+                       required 
+                       type="text" 
+                       value={sponsorForm.studentId}
+                       onChange={e => setSponsorForm({...sponsorForm, studentId: e.target.value})}
+                       className="w-full bg-[#0d0f12] border border-white/10 px-4 py-3 rounded-xl text-white focus:outline-none focus:border-indigo-500/50"
+                       placeholder="Enter the UUID of the student..."
+                    />
+                 </div>
+                 
+                 <div>
+                    <label className="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Sponsorship Amount ($/Cycle)</label>
+                    <input 
+                       required 
+                       type="number" 
+                       min="1"
+                       value={sponsorForm.amount}
+                       onChange={e => setSponsorForm({...sponsorForm, amount: e.target.value})}
+                       className="w-full bg-[#0d0f12] border border-white/10 px-4 py-3 rounded-xl text-white focus:outline-none focus:border-indigo-500/50"
+                    />
+                 </div>
+                 
+                 <div className="border border-white/5 bg-[#0d0f12] rounded-xl p-4 space-y-3">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                       <input 
+                          type="checkbox" 
+                          checked={sponsorForm.isAnonymous}
+                          onChange={e => setSponsorForm({...sponsorForm, isAnonymous: e.target.checked})}
+                          className="mt-1 w-4 h-4 rounded border-white/20 bg-[#13161B] text-indigo-500 focus:ring-0 focus:ring-offset-0"
+                       />
+                       <div>
+                          <span className="block text-sm font-bold text-slate-200 group-hover:text-white transition-colors">Ghost Protocol (Anonymous)</span>
+                          <span className="block text-[11px] text-slate-400 mt-0.5 leading-relaxed">Sponsor identity will be completely masked from the student. The secure communication channel will anonymize your real metadata.</span>
+                       </div>
+                    </label>
+                 </div>
+
+                 <div className="border border-indigo-500/20 bg-indigo-500/5 rounded-xl p-4">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                       <input 
+                          required
+                          type="checkbox" 
+                          checked={sponsorForm.termsAccepted}
+                          onChange={e => setSponsorForm({...sponsorForm, termsAccepted: e.target.checked})}
+                          className="mt-1 w-4 h-4 rounded border-indigo-500/50 bg-[#13161B] text-indigo-500 focus:ring-0 focus:ring-offset-0"
+                       />
+                       <div>
+                          <span className="block text-sm font-bold text-indigo-300 group-hover:text-indigo-200 transition-colors">Legal & Privacy Acknowledgment</span>
+                          <span className="block text-[11px] text-indigo-400/80 mt-0.5 leading-relaxed">I consent to creating a restricted, monitored communication channel. Direct out-of-band communication attempts will result in immediate protocol termination.</span>
+                       </div>
+                    </label>
+                 </div>
+
+                 <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-sm flex justify-center items-center gap-2 ${isSubmitting ? 'bg-indigo-600/50 text-white/50 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all hover:scale-[1.02]'}`}
+                 >
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ShieldCheck className="w-5 h-5" /> Initialize Secure Link</>}
+                 </button>
+              </form>
+           </div>
+        </div>
+      )}
+
     </div>
   );
 }
