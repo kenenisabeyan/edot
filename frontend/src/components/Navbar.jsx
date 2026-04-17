@@ -68,10 +68,10 @@ export default function Navbar() {
   };
 
   const navLinkClass = ({ isActive }) => 
-    `text-xs font-black uppercase tracking-widest transition-colors py-2 ${
+    `text-sm font-semibold tracking-wide transition-all py-2 px-1 ${
       isActive 
-        ? 'text-[#FFD700]'
-        : 'text-slate-200 hover:text-white'
+        ? 'text-white' 
+        : 'text-slate-300 hover:text-white'
     }`;
 
   return (

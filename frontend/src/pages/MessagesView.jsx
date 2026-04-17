@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Edit, MoreVertical, Paperclip, Send, Smile, Phone, Video, Loader2, ArrowLeft, Mic, Menu, Settings, Users, PhoneCall, Ban, Upload, X } from 'lucide-react';
+import { Search, Edit, MoreVertical, Trash2, Paperclip, Send, Smile, Phone, Video, Loader2, ArrowLeft, Mic, Menu, Settings, Users, PhoneCall, Ban, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import io from 'socket.io-client';
 import AgendaCreationModal from '../components/AgendaCreationModal';
 
-const socket = io('http://localhost:5000');
+const SOCKET_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'
+  : `${window.location.protocol}//${window.location.hostname}`;
+
+const socket = io(SOCKET_BASE_URL, {
+  withCredentials: true
+});
 
 export default function MessagesView() {
   const { user } = useAuth();
@@ -25,6 +31,9 @@ export default function MessagesView() {
   const [showCallModal, setShowCallModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showLeftMenu, setShowLeftMenu] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [callType, setCallType] = useState('video'); // 'video' or 'audio'
   const [isCalling, setIsCalling] = useState(false);
   
@@ -33,6 +42,12 @@ export default function MessagesView() {
   
   // Block State
   const [isBlocked, setIsBlocked] = useState(false);
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  
+  // Message edit/delete state
+  const [editMessageId, setEditMessageId] = useState(null);
+  const [editMessageContent, setEditMessageContent] = useState('');
+  const [messageMenuOpenId, setMessageMenuOpenId] = useState(null);
 
   // Auto-scroll to bottom of chat
   const scrollToBottom = () => {
@@ -49,16 +64,16 @@ export default function MessagesView() {
       try {
         const { data } = await api.get('/messages/contacts');
         if (data.success) {
-          setContacts(() => {
-            // If active contact exists, ensure its unread count is zeroed out during active view
-            return data.data.map(contact => {
-               // checking both conditions if it's the currently active contact or not
-               if (activeContact && contact.id === activeContact.id) {
-                 return { ...contact, unreadCount: 0 };
-               }
-               return contact;
-            });
+          const mappedContacts = data.data.map(contact => {
+            if (activeContact && contact.id === activeContact.id) {
+              return { ...contact, unreadCount: 0, isOnline: true };
+            }
+            return { ...contact, unreadCount: contact.unreadCount || 0, isOnline: true };
           });
+          setContacts(mappedContacts);
+          if (!activeContact && mappedContacts.length > 0) {
+            setActiveContact(mappedContacts[0]);
+          }
         }
       } catch (err) {
         console.error('Failed to fetch contacts:', err);
@@ -208,17 +223,81 @@ export default function MessagesView() {
     }
   };
 
-  const handleBlockUser = async () => {
-    if (!activeContact) return;
+  const loadBlockedUsers = async () => {
     try {
-      const res = await api.post(`/messages/block/${activeContact.id}`);
+      const res = await api.get('/messages/blocked');
+      if (res.data.success) {
+        setBlockedUsers(res.data.data || []);
+      }
+    } catch (err) {
+      console.error('Failed to load blocked users', err);
+    }
+  };
+
+  useEffect(() => {
+    if (activeContact) {
+      setIsBlocked(blockedUsers.some(blocked => blocked.id === activeContact.id));
+    }
+  }, [activeContact, blockedUsers]);
+
+  const handleBlockUser = async (targetId = null) => {
+    const userId = targetId || activeContact?.id;
+    if (!userId) return;
+    try {
+      const res = await api.post(`/messages/block/${userId}`);
       if (res.data.success) {
         setIsBlocked(res.data.isBlocked);
+        if (showBlockedModal) await loadBlockedUsers();
         alert(res.data.message);
       }
     } catch (err) {
       console.error(err);
       alert("Error updating block status");
+    }
+  };
+
+  const handleEditMessage = (message) => {
+    setEditMessageId(message.id);
+    setEditMessageContent(message.content);
+    setMessageMenuOpenId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditMessageId(null);
+    setEditMessageContent('');
+  };
+
+  const handleUpdateMessage = async (e) => {
+    e.preventDefault();
+    if (!editMessageId || !editMessageContent.trim()) return;
+    try {
+      const res = await api.put(`/messages/${editMessageId}`, {
+        content: editMessageContent.trim()
+      });
+      if (res.data.success) {
+        setMessages(prev => prev.map(msg => msg.id === editMessageId ? { ...msg, content: editMessageContent.trim() } : msg));
+        setEditMessageId(null);
+        setEditMessageContent('');
+      }
+    } catch (err) {
+      console.error('Failed to update message', err);
+      alert('Unable to edit message');
+    }
+  };
+
+  const handleDeleteMessage = async (messageId) => {
+    if (!messageId) return;
+    const confirmed = window.confirm('Delete this message for everyone?');
+    if (!confirmed) return;
+    try {
+      const res = await api.delete(`/messages/${messageId}`);
+      if (res.data.success) {
+        setMessages(prev => prev.filter(message => message.id !== messageId));
+        setMessageMenuOpenId(null);
+      }
+    } catch (err) {
+      console.error('Failed to delete message', err);
+      alert('Unable to delete message');
     }
   };
 
@@ -237,19 +316,25 @@ export default function MessagesView() {
          <div className={`w-full md:w-[320px] lg:w-[350px] border-r border-white/5 flex-col shrink-0 bg-[#0B0E14]/60 backdrop-blur-2xl z-10 ${activeContact ? 'hidden md:flex' : 'flex'}`}>
            {/* Sidebar Header */}
            <div className="p-4 flex items-center gap-4 border-b border-white/5 shrink-0 bg-transparent">
-             <div className="relative group">
-               <button className="w-10 h-10 bg-[#11151F]/40 border border-white/10 rounded-xl flex items-center justify-center text-slate-300 group-hover:text-[#FFD700] group-hover:border-[#FFD700]/50 transition-all shadow-sm">
+             <div className="relative">
+               <button onClick={() => setShowLeftMenu(prev => !prev)} className="w-10 h-10 bg-[#11151F]/40 border border-white/10 rounded-xl flex items-center justify-center text-slate-300 hover:text-[#FFD700] hover:border-[#FFD700]/50 transition-all shadow-sm">
                   <Menu className="w-5 h-5" />
                </button>
                {/* Elite EDOT Dropdown Menu */}
-               <div className="absolute left-0 top-full mt-2 w-64 bg-[#11151F]/90 backdrop-blur-2xl rounded-2xl shadow-2xl py-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 z-50 border border-white/10 transform origin-top-left group-hover:scale-100 scale-95">
-                 <div className="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-white/5 mb-1">Collaboration</div>
-                 <button onClick={() => setShowGroupModal(true)} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-[#FFD700]/10 hover:text-[#FFD700] flex items-center gap-3 text-[14px] font-medium transition-colors"><Users className="w-4 h-4" /> New Study Group</button>
-                 <button className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-[#008A32]/10 hover:text-[#008A32] flex items-center gap-3 text-[14px] font-medium transition-colors"><Users className="w-4 h-4" /> Parent-Teacher Thread</button>
-                 <div className="h-px bg-white/5 my-1"></div>
-                 <button onClick={() => setShowAgendaModal(true)} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-white/5 flex items-center gap-3 text-[14px] font-medium transition-colors"><PhoneCall className="w-4 h-4" /> Meetings & Calls</button>
-                 <button onClick={() => setShowPrivacyModal(true)} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-red-500/10 hover:text-red-400 flex items-center gap-3 text-[14px] font-medium transition-colors"><Ban className="w-4 h-4" /> Block Active User</button>
-               </div>
+               {showLeftMenu && (
+                 <div className="absolute left-0 top-full mt-2 w-64 bg-[#11151F]/90 backdrop-blur-2xl rounded-2xl shadow-2xl py-2 z-50 border border-white/10">
+                   <div className="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-white/5 mb-1">Collaboration</div>
+                   <button onClick={() => { setShowGroupModal(true); setShowLeftMenu(false); }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-[#FFD700]/10 hover:text-[#FFD700] flex items-center gap-3 text-[14px] font-medium transition-colors"><Users className="w-4 h-4" /> New Study Group</button>
+                   <button onClick={() => {
+                      setNewGroupName(activeContact ? `Parent-Teacher Thread — ${activeContact.name}` : 'Parent-Teacher Thread');
+                      setShowGroupModal(true);
+                      setShowLeftMenu(false);
+                   }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-[#008A32]/10 hover:text-[#008A32] flex items-center gap-3 text-[14px] font-medium transition-colors"><Users className="w-4 h-4" /> Parent-Teacher Thread</button>
+                   <div className="h-px bg-white/5 my-1"></div>
+                   <button onClick={() => { setShowAgendaModal(true); setShowLeftMenu(false); }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-white/5 flex items-center gap-3 text-[14px] font-medium transition-colors"><PhoneCall className="w-4 h-4" /> Meetings & Calls</button>
+                   <button onClick={() => { setShowPrivacyModal(true); setShowLeftMenu(false); }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-red-500/10 hover:text-red-400 flex items-center gap-3 text-[14px] font-medium transition-colors"><Ban className="w-4 h-4" /> Block Active User</button>
+                 </div>
+               )}
              </div>
              <div className="relative flex-1">
                <input 
@@ -362,7 +447,19 @@ export default function MessagesView() {
                        <Ban className="w-[18px] h-[18px]" />
                     </button>
                     <button className="w-9 h-9 flex items-center justify-center hover:bg-[#11151F] hover:text-[#FFD700] rounded-lg transition-colors border border-transparent hover:border-white/10 hidden sm:flex"><Search className="w-[18px] h-[18px]" /></button>
-                    <button className="w-9 h-9 flex items-center justify-center hover:bg-[#11151F] text-slate-400 rounded-lg transition-colors border border-transparent hover:border-white/10 hidden sm:flex"><MoreVertical className="w-[18px] h-[18px]" /></button>
+                    <div className="relative hidden sm:flex">
+                      <button onClick={() => setShowMoreMenu(prev => !prev)} className="w-9 h-9 flex items-center justify-center hover:bg-[#11151F] text-slate-400 rounded-lg transition-colors border border-transparent hover:border-white/10">
+                        <MoreVertical className="w-[18px] h-[18px]" />
+                      </button>
+                      {showMoreMenu && (
+                        <div className="absolute right-0 mt-2 w-56 bg-[#11151F]/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden z-[100]">
+                          <button onClick={() => { setShowAgendaModal(true); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Schedule Meet</button>
+                          <button onClick={() => { handleStartCall('audio'); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Start Audio</button>
+                          <button onClick={() => { handleStartCall('video'); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Start Video</button>
+                          <button onClick={() => { setShowBlockedModal(true); loadBlockedUsers(); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Blocked Users</button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -380,7 +477,7 @@ export default function MessagesView() {
                     </div>
                   ) : (
                     messages.map((msg, idx) => {
-                      const isMine = msg.senderId === user?.id || msg.senderId === user?.id; // fallback logic
+                      const isMine = msg.senderId === user?.id || msg.receiverId === user?.id;
                       const timeString = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                       return (
@@ -400,6 +497,15 @@ export default function MessagesView() {
                           <div className={`flex flex-col max-w-[85%] md:max-w-[65%] ${isMine ? 'items-end' : 'items-start'}`}>
                             {/* Message Bubble Glassmorphic */}
                             <div className={`p-4 shadow-lg text-[15px] leading-relaxed relative border backdrop-blur-xl ${isMine ? 'bg-gradient-to-br from-[#008A32]/80 to-[#006622]/90 border-[#008A32] text-white rounded-2xl rounded-br-sm' : 'bg-[#11151F]/80 border-white/10 text-slate-200 rounded-2xl rounded-bl-sm'} `} style={{ wordBreak: 'break-word' }}>
+                              <button onClick={() => setMessageMenuOpenId(prev => prev === msg.id ? null : msg.id)} className="absolute top-3 right-3 w-8 h-8 text-slate-300 hover:text-white rounded-full bg-black/20 flex items-center justify-center transition-colors">
+                                <MoreVertical className="w-4 h-4" />
+                              </button>
+                              {messageMenuOpenId === msg.id && (
+                                <div className="absolute top-12 right-3 w-36 bg-[#0B0E14]/95 border border-white/10 rounded-2xl shadow-xl z-40 overflow-hidden">
+                                  <button onClick={() => handleEditMessage(msg)} className="w-full text-left px-3 py-2 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2 text-[13px]"> <Edit className="w-4 h-4" /> Edit</button>
+                                  <button onClick={() => handleDeleteMessage(msg.id)} className="w-full text-left px-3 py-2 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2 text-[13px]"> <Trash2 className="w-4 h-4" /> Delete</button>
+                                </div>
+                              )}
                               
                               {/* Attachment Rendering */}
                               {msg.attachmentUrl && msg.attachmentType === 'image' && (
@@ -419,16 +525,31 @@ export default function MessagesView() {
                                 </a>
                               )}
 
-                              <span className="whitespace-pre-wrap block font-medium">{msg.content}</span>
-                              
-                              <div className={`text-[10px] uppercase tracking-widest font-bold mt-2 flex items-center justify-end gap-1.5 ${isMine ? 'text-[#FFD700]' : 'text-slate-400'}`}>
-                                <span>{timeString}</span>
-                                {isMine && (
-                                  <span className={`text-[12px] ${msg.isRead ? 'text-white' : 'opacity-70'}`}>
-                                    {msg.isRead ? '✓✓' : '✓'}
-                                  </span>
-                                )}
-                              </div>
+                              {editMessageId === msg.id ? (
+                                <form onSubmit={handleUpdateMessage} className="space-y-3">
+                                  <textarea
+                                    value={editMessageContent}
+                                    onChange={(e) => setEditMessageContent(e.target.value)}
+                                    className="w-full min-h-[120px] resize-none rounded-2xl bg-[#0B0E14] border border-white/10 p-3 text-sm text-white focus:outline-none focus:border-[#FFD700]/50"
+                                  />
+                                  <div className="flex justify-end gap-2">
+                                    <button type="button" onClick={handleCancelEdit} className="px-3 py-2 text-sm font-semibold text-slate-300 hover:text-white">Cancel</button>
+                                    <button type="submit" className="px-3 py-2 rounded-xl bg-[#008A32] hover:bg-[#00983e] text-white text-sm font-semibold">Save</button>
+                                  </div>
+                                </form>
+                              ) : (
+                                <>
+                                  <span className="whitespace-pre-wrap block font-medium">{msg.content}</span>
+                                  <div className={`text-[10px] uppercase tracking-widest font-bold mt-2 flex items-center justify-end gap-1.5 ${isMine ? 'text-[#FFD700]' : 'text-slate-400'}`}>
+                                    <span>{timeString}</span>
+                                    {isMine && (
+                                      <span className={`text-[12px] ${msg.isRead ? 'text-white' : 'opacity-70'}`}>
+                                        {msg.isRead ? '✓✓' : '✓'}
+                                      </span>
+                                    )}
+                                  </div>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -502,7 +623,7 @@ export default function MessagesView() {
            onClose={() => setShowAgendaModal(false)}
            onAgendaCreated={(evt) => {
               setShowAgendaModal(false);
-              // Send a system message in this chat
+              if (!activeContact) return;
               api.post('/messages', {
                  receiverId: activeContact.id,
                  content: `📅 I have scheduled a meet: "${evt.title}". Please check your calendar.`
@@ -606,6 +727,42 @@ export default function MessagesView() {
                  <button onClick={() => setShowPrivacyModal(false)} className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 font-bold rounded-xl transition-all">Cancel</button>
               </div>
            </div>
+        </div>
+      )}
+
+      {showBlockedModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl bg-[#11151F] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-[#0B0E14]/80">
+              <div>
+                <h2 className="text-xl font-bold text-white">Blocked Users</h2>
+                <p className="text-slate-400 text-sm">Manage people you have blocked from sending messages.</p>
+              </div>
+              <button onClick={() => setShowBlockedModal(false)} className="text-slate-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              {blockedUsers.length === 0 ? (
+                <div className="text-center py-14 text-slate-400">
+                  No blocked users yet. Use the block action on a chat to add someone.
+                </div>
+              ) : (
+                blockedUsers.map(user => (
+                  <div key={user.id} className="flex items-center justify-between gap-3 p-4 rounded-3xl bg-[#0B0E14]/70 border border-white/10">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-[#11151F] border border-white/10 flex items-center justify-center text-slate-200 font-bold text-lg">
+                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">{user.name}</p>
+                        <p className="text-sm text-slate-400">{user.role || 'User'}</p>
+                      </div>
+                    </div>
+                    <button onClick={() => handleBlockUser(user.id)} className="px-4 py-2 rounded-2xl border border-white/10 text-sm font-semibold text-slate-100 bg-white/5 hover:bg-red-600/15 transition-colors">Unblock</button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

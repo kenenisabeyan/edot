@@ -125,7 +125,8 @@ export const getContacts = async (req, res) => {
           .map(contact => {
             return {
                 ...contact,
-                unreadCount: unreadMap[contact.id] || 0
+                unreadCount: unreadMap[contact.id] || 0,
+                isOnline: true
             };
         });
 
@@ -142,6 +143,33 @@ export const getContacts = async (req, res) => {
         });
     } catch (err) {
         console.error('Get contacts error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+// @desc    Get blocked users for current user
+// @route   GET /api/messages/blocked
+// @access  Private
+export const getBlockedUsers = async (req, res) => {
+    try {
+        const currentUserId = req.user.id;
+        const userSettings = await prisma.userSetting.findUnique({
+            where: { userId: currentUserId }
+        });
+        const blockedUsers = userSettings?.blockedUsers || [];
+
+        if (blockedUsers.length === 0) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+
+        const users = await prisma.user.findMany({
+            where: { id: { in: blockedUsers } },
+            select: { id: true, name: true, role: true, avatar: true }
+        });
+
+        res.status(200).json({ success: true, data: users });
+    } catch (err) {
+        console.error('Get blocked users error:', err);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
@@ -178,6 +206,72 @@ export const createGroup = async (req, res) => {
         });
     } catch (err) {
         console.error('Create group error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+// @desc    Update a message content
+// @route   PUT /api/messages/:messageId
+// @access  Private
+export const updateMessage = async (req, res) => {
+    try {
+        const { messageId } = req.params;
+        const { content } = req.body;
+        const currentUserId = req.user.id;
+
+        if (!content || !content.trim()) {
+            return res.status(400).json({ success: false, message: 'Message content is required' });
+        }
+
+        const message = await prisma.message.findUnique({
+            where: { id: messageId }
+        });
+
+        if (!message) {
+            return res.status(404).json({ success: false, message: 'Message not found' });
+        }
+
+        if (message.senderId !== currentUserId) {
+            return res.status(403).json({ success: false, message: 'Only the sender can edit this message' });
+        }
+
+        const updated = await prisma.message.update({
+            where: { id: messageId },
+            data: { content: content.trim() }
+        });
+
+        res.status(200).json({ success: true, data: updated });
+    } catch (err) {
+        console.error('Update message error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+// @desc    Delete a message for the conversation
+// @route   DELETE /api/messages/:messageId
+// @access  Private
+export const deleteMessage = async (req, res) => {
+    try {
+        const { messageId } = req.params;
+        const currentUserId = req.user.id;
+
+        const message = await prisma.message.findUnique({
+            where: { id: messageId }
+        });
+
+        if (!message) {
+            return res.status(404).json({ success: false, message: 'Message not found' });
+        }
+
+        if (message.senderId !== currentUserId && message.receiverId !== currentUserId) {
+            return res.status(403).json({ success: false, message: 'Not authorized to delete this message' });
+        }
+
+        await prisma.message.delete({ where: { id: messageId } });
+
+        res.status(200).json({ success: true, message: 'Message deleted successfully' });
+    } catch (err) {
+        console.error('Delete message error:', err);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
