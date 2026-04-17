@@ -34,11 +34,19 @@ export default function MessagesView() {
   const [showLeftMenu, setShowLeftMenu] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showBlockedModal, setShowBlockedModal] = useState(false);
+  const [showMembersModal, setShowMembersModal] = useState(false);
   const [callType, setCallType] = useState('video'); // 'video' or 'audio'
   const [isCalling, setIsCalling] = useState(false);
+  const [agendaDefaults, setAgendaDefaults] = useState({});
+  const [groupActionLoading, setGroupActionLoading] = useState(false);
+  const [activeGroupDetails, setActiveGroupDetails] = useState(null);
   
   // Group Create State
   const [newGroupName, setNewGroupName] = useState('');
+  const [newGroupDescription, setNewGroupDescription] = useState('');
+  const [selectedGroupMembers, setSelectedGroupMembers] = useState([]);
+  const [groupSearch, setGroupSearch] = useState('');
+  const [groupType, setGroupType] = useState('group'); // group or channel
   
   // Block State
   const [isBlocked, setIsBlocked] = useState(false);
@@ -49,6 +57,8 @@ export default function MessagesView() {
   const [editMessageContent, setEditMessageContent] = useState('');
   const [messageMenuOpenId, setMessageMenuOpenId] = useState(null);
 
+  const isChannelReadOnly = activeContact?.type === 'channel' && activeContact.adminId !== user?.id;
+
   // Auto-scroll to bottom of chat
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -58,32 +68,44 @@ export default function MessagesView() {
     scrollToBottom();
   }, [messages]);
 
-  // Fetch Contacts
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const { data } = await api.get('/messages/contacts');
-        if (data.success) {
-          const mappedContacts = data.data.map(contact => {
-            if (activeContact && contact.id === activeContact.id) {
-              return { ...contact, unreadCount: 0, isOnline: true };
-            }
-            return { ...contact, unreadCount: contact.unreadCount || 0, isOnline: true };
-          });
-          setContacts(mappedContacts);
-          if (!activeContact && mappedContacts.length > 0) {
-            setActiveContact(mappedContacts[0]);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch contacts:', err);
-      } finally {
-        setLoadingContacts(false);
+  const loadContacts = async () => {
+    try {
+      const [contactRes, groupRes] = await Promise.all([
+        api.get('/messages/contacts'),
+        api.get('/messages/groups')
+      ]);
+
+      const users = contactRes.data.success ? contactRes.data.data.map(contact => ({
+        ...contact,
+        type: 'user',
+        unreadCount: contact.unreadCount || 0,
+        isOnline: true,
+      })) : [];
+
+      const groups = groupRes.data.success ? groupRes.data.data.map(group => ({
+        ...group,
+        unreadCount: 0,
+        isOnline: true,
+        type: group.type || (group.isChannel ? 'channel' : 'group'),
+        role: group.type === 'channel' ? 'Channel' : 'Group',
+      })) : [];
+
+      const allItems = [...groups, ...users];
+      setContacts(allItems);
+      if (!activeContact && allItems.length > 0) {
+        setActiveContact(allItems[0]);
       }
-    };
-    
-    fetchContacts();
-    const intervalId = setInterval(fetchContacts, 5000);
+    } catch (err) {
+      console.error('Failed to load contacts and groups:', err);
+    } finally {
+      setLoadingContacts(false);
+    }
+  };
+
+  // Fetch Contacts and Groups
+  useEffect(() => {
+    loadContacts();
+    const intervalId = setInterval(loadContacts, 5000);
     return () => clearInterval(intervalId);
   }, [activeContact]);
 
@@ -112,14 +134,13 @@ export default function MessagesView() {
       
       fetchMessages(activeContact.id);
 
-      // Create a unique conversation room based on sorted IDs
-      const roomId = [user.id, activeContact.id].sort().join('_');
+      const roomId = activeContact.type === 'group' || activeContact.type === 'channel'
+        ? `group_${activeContact.id}`
+        : [user.id, activeContact.id].sort().join('_');
       socket.emit('join_room', roomId);
 
-      // Listen for incoming live real-time messages!
       const receiveMessageHandler = (liveMsg) => {
         setMessages(prev => {
-          // Avoid duplicating via API load mapping
           if (prev.some(m => m.id === liveMsg.id)) return prev;
           return [...prev, liveMsg];
         });
@@ -134,10 +155,18 @@ export default function MessagesView() {
     }
   }, [activeContact, user]);
 
+  useEffect(() => {
+    if (activeContact?.type === 'group' || activeContact?.type === 'channel') {
+      fetchGroupDetails(activeContact.id);
+    } else {
+      setActiveGroupDetails(null);
+    }
+  }, [activeContact]);
+
   // Send Message & Optional File
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if ((!newMessage.trim() && !selectedFile) || !activeContact) return;
+    if ((!newMessage.trim() && !selectedFile) || !activeContact || isChannelReadOnly) return;
 
     const messageText = newMessage;
     const fileToUpload = selectedFile;
@@ -163,34 +192,36 @@ export default function MessagesView() {
          }
       }
 
-      const { data } = await api.post('/messages', {
-        receiverId: activeContact.id,
+      const payload = {
         content: messageText,
-        attachmentUrl: attachmentUrl,
-        attachmentType: attachmentType
-      });
+        attachmentUrl,
+        attachmentType
+      };
 
+      if (activeContact?.type === 'group' || activeContact?.type === 'channel') {
+        payload.groupId = activeContact.id;
+      } else {
+        payload.receiverId = activeContact.id;
+      }
+
+      const { data } = await api.post('/messages', payload);
       if (data.success) {
         setMessages(prev => [...prev, data.data]);
-        
-        // Broadcast via WebSockets
-        const roomId = [user.id, activeContact.id].sort().join('_');
-        socket.emit('send_message', {
-          ...data.data,
-          roomId
-        });
+        const roomId = activeContact?.type === 'group' || activeContact?.type === 'channel'
+          ? `group_${activeContact.id}`
+          : [user.id, activeContact.id].sort().join('_');
+        socket.emit('send_message', { ...data.data, roomId });
         scrollToBottom();
       }
     } catch (err) {
       console.error('Failed to send message:', err);
-      // Restore state if failed
       setNewMessage(messageText);
       setSelectedFile(fileToUpload);
     }
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
     }
@@ -204,17 +235,124 @@ export default function MessagesView() {
      setTimeout(() => setIsCalling(false), 8000); 
   };
 
+  const handleOpenScheduleMeet = () => {
+    setAgendaDefaults({
+      defaultType: 'meeting',
+      defaultTitle: activeContact ? `Meeting with ${activeContact.name}` : 'Schedule Meet',
+      contextName: activeContact ? activeContact.name : 'Workspace'
+    });
+    setShowAgendaModal(true);
+  };
+
+  const fetchGroupDetails = async (groupId) => {
+    if (!groupId) {
+      setActiveGroupDetails(null);
+      return;
+    }
+
+    try {
+      const { data } = await api.get(`/messages/groups/${groupId}`);
+      if (data.success) {
+        setActiveGroupDetails(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load group details:', err);
+      setActiveGroupDetails(null);
+    }
+  };
+
+  const handleLeaveGroup = async () => {
+    if (!activeContact) return;
+    const confirmText = activeContact.type === 'channel' ? 'Leave this channel?' : 'Leave this group?';
+    const confirmed = window.confirm(confirmText);
+    if (!confirmed) return;
+
+    setGroupActionLoading(true);
+    try {
+      const res = await api.post(`/messages/groups/${activeContact.id}/leave`);
+      if (res.data.success) {
+        alert(res.data.message);
+        await loadContacts();
+        setActiveContact(null);
+        setActiveGroupDetails(null);
+      }
+    } catch (err) {
+      console.error('Failed to leave group:', err);
+      alert('Unable to leave the group/channel.');
+    } finally {
+      setGroupActionLoading(false);
+    }
+  };
+
+  const handleRemoveGroupMember = async (memberId) => {
+    if (!activeContact || !memberId) return;
+    const confirmed = window.confirm('Remove this participant from the group?');
+    if (!confirmed) return;
+
+    setGroupActionLoading(true);
+    try {
+      const res = await api.delete(`/messages/groups/${activeContact.id}/members/${memberId}`);
+      if (res.data.success) {
+        alert(res.data.message);
+        await fetchGroupDetails(activeContact.id);
+      }
+    } catch (err) {
+      console.error('Failed to remove member:', err);
+      alert('Unable to remove member from this chat.');
+    } finally {
+      setGroupActionLoading(false);
+    }
+  };
+
+  const handleToggleGroupMember = (contact) => {
+    setSelectedGroupMembers(prev => {
+      if (prev.some(member => member.id === contact.id)) {
+        return prev.filter(member => member.id !== contact.id);
+      }
+      return [...prev, contact];
+    });
+  };
+
+  const resetGroupForm = () => {
+    setNewGroupName('');
+    setNewGroupDescription('');
+    setSelectedGroupMembers([]);
+    setGroupSearch('');
+    setGroupType('group');
+  };
+
   const handleCreateGroup = async (e) => {
     e.preventDefault();
-    if (!newGroupName.trim()) return;
+    if (!newGroupName.trim()) {
+      alert('Group name is required');
+      return;
+    }
+
+    if (groupType === 'group' && selectedGroupMembers.length === 0) {
+      alert('Please select at least one participant for the group.');
+      return;
+    }
+
     try {
       const res = await api.post('/messages/groups', {
-        name: newGroupName,
-        memberIds: activeContact ? [activeContact.id] : []
+        name: newGroupName.trim(),
+        description: newGroupDescription.trim(),
+        isChannel: groupType === 'channel',
+        memberIds: selectedGroupMembers.map(member => member.id)
       });
       if (res.data.success) {
+        const createdGroup = res.data.data;
+        await loadContacts();
         setShowGroupModal(false);
-        setNewGroupName('');
+        resetGroupForm();
+        setActiveContact({
+          id: createdGroup.id,
+          name: createdGroup.name,
+          type: createdGroup.isChannel ? 'channel' : 'group',
+          isChannel: createdGroup.isChannel,
+          adminId: createdGroup.adminId,
+          role: createdGroup.isChannel ? 'Channel' : 'Group'
+        });
         alert("Group Successfully Created!");
       }
     } catch (err) {
@@ -301,6 +439,7 @@ export default function MessagesView() {
     }
   };
 
+  const groupableContacts = contacts.filter(contact => contact.type === 'user' && contact.id !== user?.id);
   const filteredContacts = contacts.filter(c => 
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -324,14 +463,30 @@ export default function MessagesView() {
                {showLeftMenu && (
                  <div className="absolute left-0 top-full mt-2 w-64 bg-[#11151F]/90 backdrop-blur-2xl rounded-2xl shadow-2xl py-2 z-50 border border-white/10">
                    <div className="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-white/5 mb-1">Collaboration</div>
-                   <button onClick={() => { setShowGroupModal(true); setShowLeftMenu(false); }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-[#FFD700]/10 hover:text-[#FFD700] flex items-center gap-3 text-[14px] font-medium transition-colors"><Users className="w-4 h-4" /> New Study Group</button>
                    <button onClick={() => {
-                      setNewGroupName(activeContact ? `Parent-Teacher Thread — ${activeContact.name}` : 'Parent-Teacher Thread');
+                      resetGroupForm();
+                      setGroupType('group');
+                      setNewGroupName('New Study Group');
+                      setShowGroupModal(true);
+                      setShowLeftMenu(false);
+                   }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-[#FFD700]/10 hover:text-[#FFD700] flex items-center gap-3 text-[14px] font-medium transition-colors"><Users className="w-4 h-4" /> New Study Group</button>
+                   <button onClick={() => {
+                      resetGroupForm();
+                      setGroupType('channel');
+                      setNewGroupName('New Announcement Channel');
+                      setShowGroupModal(true);
+                      setShowLeftMenu(false);
+                   }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-[#008A32]/10 hover:text-[#008A32] flex items-center gap-3 text-[14px] font-medium transition-colors"><Users className="w-4 h-4" /> New Channel</button>
+                   <button onClick={() => {
+                      resetGroupForm();
+                      setGroupType('group');
+                      setNewGroupName(activeContact && activeContact.type === 'user' ? `Parent-Teacher Thread — ${activeContact.name}` : 'Parent-Teacher Thread');
+                      setSelectedGroupMembers(activeContact && activeContact.type === 'user' ? [activeContact] : []);
                       setShowGroupModal(true);
                       setShowLeftMenu(false);
                    }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-[#008A32]/10 hover:text-[#008A32] flex items-center gap-3 text-[14px] font-medium transition-colors"><Users className="w-4 h-4" /> Parent-Teacher Thread</button>
                    <div className="h-px bg-white/5 my-1"></div>
-                   <button onClick={() => { setShowAgendaModal(true); setShowLeftMenu(false); }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-white/5 flex items-center gap-3 text-[14px] font-medium transition-colors"><PhoneCall className="w-4 h-4" /> Meetings & Calls</button>
+                   <button onClick={() => { handleOpenScheduleMeet(); setShowLeftMenu(false); }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-white/5 flex items-center gap-3 text-[14px] font-medium transition-colors"><PhoneCall className="w-4 h-4" /> Meetings & Calls</button>
                    <button onClick={() => { setShowPrivacyModal(true); setShowLeftMenu(false); }} className="w-full text-left px-4 py-2.5 text-slate-200 hover:bg-red-500/10 hover:text-red-400 flex items-center gap-3 text-[14px] font-medium transition-colors"><Ban className="w-4 h-4" /> Block Active User</button>
                  </div>
                )}
@@ -432,20 +587,22 @@ export default function MessagesView() {
                       <h3 className="font-bold text-[16px] text-white tracking-wide">{activeContact.name}</h3>
                       <div className="flex items-center gap-2 mt-0.5">
                          <span className="w-1.5 h-1.5 rounded-full bg-[#008A32] shadow-[0_0_5px_rgba(0,138,50,0.8)]"></span>
-                         <p className="text-[12px] text-slate-400 font-medium">Online</p>
+                         <p className="text-[12px] text-slate-400 font-medium">{activeContact.type === 'channel' ? 'Channel' : activeContact.type === 'group' ? 'Group' : 'Online'}</p>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-slate-300">
-                    <button onClick={() => setShowAgendaModal(true)} className="px-3 py-1.5 hidden lg:flex items-center gap-2 bg-[#FFD700]/10 hover:bg-[#FFD700]/20 text-[#FFD700] rounded-lg text-xs font-bold uppercase transition-colors border border-[#FFD700]/20 max-h-9 mr-1">
+                    <button onClick={handleOpenScheduleMeet} className="px-3 py-1.5 hidden lg:flex items-center gap-2 bg-[#FFD700]/10 hover:bg-[#FFD700]/20 text-[#FFD700] rounded-lg text-xs font-bold uppercase transition-colors border border-[#FFD700]/20 max-h-9 mr-1">
                       <span>Schedule Meet</span>
                     </button>
                     <button onClick={() => handleStartCall('audio')} className="w-9 h-9 flex items-center justify-center hover:bg-[#11151F] hover:text-[#008A32] rounded-lg transition-colors border border-transparent hover:border-white/10"><Phone className="w-[18px] h-[18px]" /></button>
                     <button onClick={() => handleStartCall('video')} className="w-9 h-9 flex items-center justify-center hover:bg-[#11151F] hover:text-[#008A32] rounded-lg transition-colors border border-transparent hover:border-white/10"><Video className="w-[18px] h-[18px]" /></button>
                     <div className="w-px h-5 bg-white/10 mx-1"></div>
-                    <button onClick={handleBlockUser} className={`w-9 h-9 flex items-center justify-center hover:bg-[#11151F] ${isBlocked ? 'text-red-500 hover:text-red-400' : 'text-slate-400 hover:text-red-500'} rounded-lg transition-colors border border-transparent hover:border-white/10 hidden sm:flex`} title="Block User">
-                       <Ban className="w-[18px] h-[18px]" />
-                    </button>
+                    {activeContact?.type === 'user' && (
+                      <button onClick={handleBlockUser} className={`w-9 h-9 flex items-center justify-center hover:bg-[#11151F] ${isBlocked ? 'text-red-500 hover:text-red-400' : 'text-slate-400 hover:text-red-500'} rounded-lg transition-colors border border-transparent hover:border-white/10 hidden sm:flex`} title="Block User">
+                         <Ban className="w-[18px] h-[18px]" />
+                      </button>
+                    )}
                     <button className="w-9 h-9 flex items-center justify-center hover:bg-[#11151F] hover:text-[#FFD700] rounded-lg transition-colors border border-transparent hover:border-white/10 hidden sm:flex"><Search className="w-[18px] h-[18px]" /></button>
                     <div className="relative hidden sm:flex">
                       <button onClick={() => setShowMoreMenu(prev => !prev)} className="w-9 h-9 flex items-center justify-center hover:bg-[#11151F] text-slate-400 rounded-lg transition-colors border border-transparent hover:border-white/10">
@@ -453,9 +610,15 @@ export default function MessagesView() {
                       </button>
                       {showMoreMenu && (
                         <div className="absolute right-0 mt-2 w-56 bg-[#11151F]/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden z-[100]">
-                          <button onClick={() => { setShowAgendaModal(true); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Schedule Meet</button>
+                          <button onClick={() => { handleOpenScheduleMeet(); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Schedule Meet</button>
                           <button onClick={() => { handleStartCall('audio'); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Start Audio</button>
                           <button onClick={() => { handleStartCall('video'); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Start Video</button>
+                          {activeContact?.type !== 'user' && activeContact?.type !== undefined && (
+                            <>
+                              <button onClick={() => { setShowMembersModal(true); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Manage Members</button>
+                              <button onClick={() => { handleLeaveGroup(); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">{activeContact?.adminId === user?.id ? 'Leave or Transfer' : 'Leave Chat'}</button>
+                            </>
+                          )}
                           <button onClick={() => { setShowBlockedModal(true); loadBlockedUsers(); setShowMoreMenu(false); }} className="w-full text-left px-4 py-3 text-slate-200 hover:bg-white/5 transition-colors flex items-center gap-2">Blocked Users</button>
                         </div>
                       )}
@@ -590,17 +753,21 @@ export default function MessagesView() {
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(e); } }}
-                        placeholder={selectedFile ? "Add a descriptive caption..." : "Draft your message or paste code/links here..."} 
+                        placeholder={isChannelReadOnly ? "Only channel admins may post here." : selectedFile ? "Add a descriptive caption..." : "Draft your message or paste code/links here..."} 
                         rows={1}
-                        className="flex-1 bg-transparent border-none focus:outline-none text-[15px] font-medium text-white py-3.5 px-2 placeholder-slate-500 min-w-0 resize-none max-h-36 overflow-auto custom-scrollbar leading-[1.4]"
+                        disabled={isChannelReadOnly}
+                        className="flex-1 bg-transparent border-none focus:outline-none text-[15px] font-medium text-white py-3.5 px-2 placeholder-slate-500 min-w-0 resize-none max-h-36 overflow-auto custom-scrollbar leading-[1.4] disabled:cursor-not-allowed disabled:text-slate-500"
                       />
                       <div className="flex items-center self-end mb-1 mr-1">
-                        <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-slate-400 hover:text-[#008A32] rounded-xl hover:bg-[#008A32]/10 transition-colors shrink-0 outline-none">
+                        <button type="button" disabled={isChannelReadOnly} onClick={() => fileInputRef.current?.click()} className="p-3 text-slate-400 hover:text-[#008A32] rounded-xl hover:bg-[#008A32]/10 transition-colors shrink-0 outline-none disabled:cursor-not-allowed disabled:opacity-40">
                            <Paperclip className="w-6 h-6" />
                         </button>
                         <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-                        
-                        {(newMessage.trim() || selectedFile) ? (
+                        {isChannelReadOnly ? (
+                          <button type="button" disabled className="w-[46px] h-[46px] text-slate-500 bg-white/5 rounded-xl transition-all flex items-center justify-center shrink-0 outline-none ml-2 border border-white/10">
+                            <span className="text-[11px] uppercase tracking-[0.08em] font-semibold">Read-only</span>
+                          </button>
+                        ) : (newMessage.trim() || selectedFile) ? (
                           <button type="submit" className="w-[46px] h-[46px] bg-gradient-to-br from-[#008A32] to-[#006622] text-white rounded-xl shadow-[0_0_15px_rgba(0,138,50,0.4)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center shrink-0 border border-[#008A32] outline-none ml-2">
                             <Send className="w-[20px] h-[20px] ml-1" />
                           </button>
@@ -620,17 +787,29 @@ export default function MessagesView() {
       {/* Dynamic Render Modals */}
       {showAgendaModal && (
         <AgendaCreationModal 
+           isOpen={showAgendaModal}
+           defaultType={agendaDefaults.defaultType}
+           defaultTitle={agendaDefaults.defaultTitle}
+           contextName={agendaDefaults.contextName}
            onClose={() => setShowAgendaModal(false)}
            onAgendaCreated={(evt) => {
               setShowAgendaModal(false);
               if (!activeContact) return;
-              api.post('/messages', {
-                 receiverId: activeContact.id,
+              const payload = {
                  content: `📅 I have scheduled a meet: "${evt.title}". Please check your calendar.`
-              }).then(res => {
+              };
+              if (activeContact?.type === 'group' || activeContact?.type === 'channel') {
+                 payload.groupId = activeContact.id;
+              } else {
+                 payload.receiverId = activeContact.id;
+              }
+              api.post('/messages', payload).then(res => {
                  if (res.data.success) {
                     setMessages(prev => [...prev, res.data.data]);
-                    socket.emit('send_message', { ...res.data.data, roomId: [user.id, activeContact.id].sort().join('_') });
+                    const roomId = activeContact?.type === 'group' || activeContact?.type === 'channel'
+                      ? `group_${activeContact.id}`
+                      : [user.id, activeContact.id].sort().join('_');
+                    socket.emit('send_message', { ...res.data.data, roomId });
                     scrollToBottom();
                  }
               });
@@ -673,41 +852,155 @@ export default function MessagesView() {
 
       {/* Group Creation Inline Modal */}
       {showGroupModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-           <div className="bg-[#11151F] border border-white/10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden font-sans">
-              <div className="flex justify-between items-center p-6 border-b border-white/5">
-                 <h2 className="text-xl font-bold text-white flex items-center gap-2"><Users className="text-[#FFD700]" /> New Study Group</h2>
-                 <button onClick={() => setShowGroupModal(false)} className="text-slate-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-2xl z-[100] flex items-center justify-center p-4">
+          <div className="w-full max-w-6xl rounded-[32px] border border-[#FFD700]/20 bg-[#09121A]/95 shadow-[0_30px_90px_rgba(0,0,0,0.55)] overflow-hidden text-white">
+            <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 px-8 py-6 border-b border-white/10 bg-[#08111A]/90">
+              <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-[28px] bg-gradient-to-br from-[#FFD700] to-[#008A32] p-[2px] shadow-lg shadow-[#008A32]/25">
+                    <div className="w-full h-full rounded-[26px] bg-[#11151F] flex items-center justify-center text-2xl font-black text-white"><Users className="w-7 h-7" /></div>
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold tracking-tight">{groupType === 'channel' ? 'Create Channel' : 'Create Group'}</h2>
+                    <p className="text-slate-400 text-sm mt-1 max-w-2xl">Build a new chat space. Start with a name, add a description, and select who can join.</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.22em] text-slate-400">
+                  <span className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">{groupType === 'channel' ? 'Channel' : 'Group'}</span>
+                  <span className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">Owner: You</span>
+                  <span className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">{selectedGroupMembers.length} members</span>
+                </div>
               </div>
-              <form onSubmit={handleCreateGroup} className="p-6">
-                 <div className="mb-6">
-                    <label className="block text-sm font-medium text-slate-400 mb-2 uppercase tracking-wider">Group Name</label>
-                    <input 
-                       type="text"
-                       required
-                       value={newGroupName}
-                       onChange={(e) => setNewGroupName(e.target.value)}
-                       className="w-full bg-[#0B0E14] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#FFD700]/50 focus:ring-1 focus:ring-[#FFD700]/50 transition-all font-medium"
-                       placeholder="e.g. Computer Science Cohort A"
-                    />
-                 </div>
-                 {activeContact && (
-                    <div className="mb-6 bg-white/5 rounded-xl p-4 border border-white/5 flex items-center gap-3">
-                       <div className="w-8 h-8 rounded-full bg-[#FFD700]/20 text-[#FFD700] flex items-center justify-center font-bold text-sm">
-                          {activeContact.name.charAt(0)}
-                       </div>
-                       <div>
-                          <p className="text-white text-sm font-bold">Auto-adding Participant:</p>
-                          <p className="text-slate-400 text-xs">{activeContact.name}</p>
-                       </div>
+              <div className="flex items-center gap-3">
+                <button type="button" onClick={() => setGroupType('group')} className={`rounded-full px-5 py-3 text-sm font-semibold transition ${groupType === 'group' ? 'bg-[#FFD700]/15 border border-[#FFD700] text-[#FFD700]' : 'bg-[#111922] border border-white/10 text-slate-300 hover:border-[#FFD700]/40'}`}>
+                  Group
+                </button>
+                <button type="button" onClick={() => setGroupType('channel')} className={`rounded-full px-5 py-3 text-sm font-semibold transition ${groupType === 'channel' ? 'bg-[#008A32]/15 border border-[#008A32] text-[#8CFFB3]' : 'bg-[#111922] border border-white/10 text-slate-300 hover:border-[#008A32]/40'}`}>
+                  Channel
+                </button>
+                <button onClick={() => { resetGroupForm(); setShowGroupModal(false); }} className="text-slate-300 hover:text-white text-sm font-semibold">Close</button>
+              </div>
+            </div>
+
+            <form onSubmit={handleCreateGroup} className="grid gap-6 xl:grid-cols-[1.2fr_0.85fr] px-8 py-8">
+              <div className="space-y-6">
+                <div className="rounded-[28px] border border-white/10 bg-[#0B121C]/80 p-6 shadow-sm">
+                  <div className="text-sm uppercase tracking-[0.18em] text-slate-400 mb-5">Chat Settings</div>
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-200 mb-2">Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={newGroupName}
+                        onChange={(e) => setNewGroupName(e.target.value)}
+                        className="w-full rounded-3xl border border-white/10 bg-[#111922] px-4 py-3 text-white outline-none transition focus:border-[#FFD700]/40 focus:ring-1 focus:ring-[#FFD700]/10"
+                        placeholder="e.g. Computer Science Cohort A"
+                      />
                     </div>
-                 )}
-                 <div className="flex justify-end gap-3 mt-8">
-                    <button type="button" onClick={() => setShowGroupModal(false)} className="px-5 py-2.5 text-sm font-bold text-slate-300 hover:text-white transition-colors">Cancel</button>
-                    <button type="submit" className="px-5 py-2.5 bg-gradient-to-r from-[#008A32] to-[#006622] hover:from-[#009933] hover:to-[#007722] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#008A32]/20 transition-all transform hover:-translate-y-0.5">Create Group</button>
-                 </div>
-              </form>
-           </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-200 mb-2">Description</label>
+                      <textarea
+                        value={newGroupDescription}
+                        onChange={(e) => setNewGroupDescription(e.target.value)}
+                        className="w-full min-h-[120px] rounded-3xl border border-white/10 bg-[#111922] px-4 py-3 text-white outline-none transition focus:border-[#FFD700]/40 focus:ring-1 focus:ring-[#FFD700]/10 resize-none"
+                        placeholder="Optional group description"
+                      />
+                    </div>
+                    <div className={
+                      `rounded-3xl px-4 py-3 text-sm ${groupType === 'channel' ? 'border border-[#008A32] bg-[#008A32]/10 text-[#C8FFDE]' : 'border border-[#FFD700] bg-[#FFD700]/10 text-[#FFF5C3]'}`
+                    }>
+                      {groupType === 'channel'
+                        ? 'Channel members are read-only by default. Only the owner can post announcements and updates.'
+                        : 'Group members can all participate in the chat once added.'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[28px] border border-white/10 bg-[#0B121C]/80 p-6 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <div className="text-sm uppercase tracking-[0.18em] text-slate-400">Add Participants</div>
+                      <div className="text-xs text-slate-500">Search your contacts and add them to this chat.</div>
+                    </div>
+                    <div className="text-xs text-slate-400">{selectedGroupMembers.length} selected</div>
+                  </div>
+                  <input
+                    type="text"
+                    value={groupSearch}
+                    onChange={(e) => setGroupSearch(e.target.value)}
+                    placeholder="Search contacts to add"
+                    className="w-full rounded-3xl border border-white/10 bg-[#111922] px-4 py-3 text-white outline-none transition focus:border-[#FFD700]/40 focus:ring-1 focus:ring-[#FFD700]/10"
+                  />
+                  <div className="max-h-[300px] overflow-y-auto mt-5 space-y-3 pr-1 custom-scrollbar">
+                    {groupableContacts.filter(contact => contact.name.toLowerCase().includes(groupSearch.toLowerCase())).map(contact => (
+                      <button
+                        type="button"
+                        key={contact.id}
+                        onClick={() => handleToggleGroupMember(contact)}
+                        className={`w-full text-left rounded-[24px] border px-4 py-3 flex items-center justify-between transition ${selectedGroupMembers.some(member => member.id === contact.id) ? 'border-[#FFD700] bg-[#FFD700]/10 text-[#FFD700]' : 'border-white/10 bg-[#111922] text-slate-200 hover:border-[#FFD700]/30'}`}
+                      >
+                        <div>
+                          <div className="font-semibold">{contact.name}</div>
+                          <div className="text-[11px] text-slate-500 uppercase tracking-[0.16em]">{contact.role || 'User'}</div>
+                        </div>
+                        <span className="text-[11px] uppercase tracking-[0.12em] font-semibold">{selectedGroupMembers.some(member => member.id === contact.id) ? 'Added' : 'Add'}</span>
+                      </button>
+                    ))}
+                    {groupableContacts.filter(contact => contact.name.toLowerCase().includes(groupSearch.toLowerCase())).length === 0 && (
+                      <div className="rounded-[24px] border border-white/10 bg-[#111922] p-4 text-slate-500 text-sm">No contacts found.</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="rounded-[28px] border border-white/10 bg-[#0B121C]/80 p-6 shadow-sm">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-3xl bg-[#111922] border border-white/10 flex items-center justify-center text-2xl font-bold text-white">{user?.name?.charAt(0).toUpperCase()}</div>
+                    <div>
+                      <div className="text-sm uppercase tracking-[0.18em] text-slate-400">Creator</div>
+                      <div className="text-lg font-semibold text-white mt-1">{user?.name || 'You'}</div>
+                      <div className="text-xs text-slate-500 mt-1">Current owner and administrator of this chat.</div>
+                    </div>
+                  </div>
+                  <div className="grid gap-4 text-sm text-slate-300">
+                    <div className="rounded-[24px] border border-white/10 bg-[#111922] p-4">
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400 mb-2">Group Type</div>
+                      <div>{groupType === 'channel' ? 'Channel — owner-only posts' : 'Group — everyone can chat'}</div>
+                    </div>
+                    <div className="rounded-[24px] border border-white/10 bg-[#111922] p-4">
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400 mb-2">Visibility</div>
+                      <div>Members are added by you. Invitations are managed by the owner.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[28px] border border-white/10 bg-[#0B121C]/80 p-6 shadow-sm">
+                  <div className="text-sm uppercase tracking-[0.18em] text-slate-400 mb-4">Summary</div>
+                  <div className="grid gap-4">
+                    <div className="rounded-[24px] border border-white/10 bg-[#111922] p-4">
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400 mb-2">Name</div>
+                      <div className="text-white font-semibold truncate">{newGroupName || 'Untitled group'}</div>
+                    </div>
+                    <div className="rounded-[24px] border border-white/10 bg-[#111922] p-4">
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400 mb-2">Participants</div>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedGroupMembers.length > 0 ? selectedGroupMembers.map(member => (
+                          <span key={member.id} className="rounded-2xl bg-white/5 px-3 py-2 text-slate-200 text-xs">{member.name}</span>
+                        )) : <span className="text-slate-500 text-sm">No participants selected yet.</span>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button type="button" onClick={() => { resetGroupForm(); setShowGroupModal(false); }} className="rounded-3xl border border-white/10 bg-[#111922] px-6 py-3 text-sm font-semibold text-slate-300 hover:text-white transition">Cancel</button>
+                  <button type="submit" className="rounded-3xl bg-gradient-to-r from-[#008A32] to-[#006622] px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-[#008A32]/25">Create {groupType === 'channel' ? 'Channel' : 'Group'}</button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

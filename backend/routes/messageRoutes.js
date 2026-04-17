@@ -1,5 +1,5 @@
 import express from 'express';
-import { sendMessage, getConversation, getContacts, createGroup, toggleBlockUser, getBlockedUsers, updateMessage, deleteMessage } from '../controllers/messageController.js';
+import { sendMessage, getConversation, getContacts, getUserGroups, createGroup, getGroupDetails, leaveGroup, removeGroupMember, toggleBlockUser, getBlockedUsers, updateMessage, deleteMessage } from '../controllers/messageController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -11,7 +11,11 @@ router.post('/', sendMessage);
 router.put('/:messageId', updateMessage);
 router.delete('/:messageId', deleteMessage);
 router.post('/groups', createGroup);
+router.get('/groups/:groupId', getGroupDetails);
+router.post('/groups/:groupId/leave', leaveGroup);
+router.delete('/groups/:groupId/members/:memberId', removeGroupMember);
 router.post('/block/:userId', toggleBlockUser);
+router.get('/groups', getUserGroups);
 router.get('/blocked', getBlockedUsers);
 router.get('/conversation/:userId', getConversation);
 router.get('/contacts', getContacts);

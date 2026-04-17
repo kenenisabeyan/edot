@@ -5,31 +5,56 @@ import { prisma } from '../lib/prisma.js';
 // @access  Private
 export const sendMessage = async (req, res) => {
     try {
-        const { receiverId, content, attachmentUrl, attachmentType } = req.body;
+        const { receiverId, groupId, content, attachmentUrl, attachmentType } = req.body;
         const senderId = req.user.id;
 
-        // If it's just a file upload, content could be empty, so we must allow one or the other
-        if (!receiverId || (!content && !attachmentUrl)) {
-            return res.status(400).json({ success: false, message: 'Receiver and content/attachment are required' });
+        if (!groupId && !receiverId) {
+            return res.status(400).json({ success: false, message: 'Receiver or group is required' });
         }
 
-        // Check if receiver has blocked sender
-        const receiverSettings = await prisma.userSetting.findUnique({
-            where: { userId: receiverId }
-        });
-        
-        if (receiverSettings?.blockedUsers?.includes(senderId)) {
-            return res.status(403).json({ success: false, message: 'You have been blocked by this user.' });
+        if (!content && !attachmentUrl) {
+            return res.status(400).json({ success: false, message: 'Message content or attachment is required' });
+        }
+
+        let messageData = {
+            senderId,
+            content: content || "",
+            attachmentUrl,
+            attachmentType
+        };
+
+        if (groupId) {
+            const group = await prisma.messageGroup.findUnique({
+                where: { id: groupId },
+                include: { members: { select: { id: true } } }
+            });
+
+            if (!group) {
+                return res.status(404).json({ success: false, message: 'Group not found' });
+            }
+
+            const isMember = group.adminId === senderId || group.members.some(member => member.id === senderId);
+            if (!isMember) {
+                return res.status(403).json({ success: false, message: 'You must be a member to post in this group.' });
+            }
+
+            if (group.isChannel && group.adminId !== senderId) {
+                return res.status(403).json({ success: false, message: 'Only channel admins can post messages.' });
+            }
+
+            messageData.groupId = groupId;
+        } else {
+            const receiverSettings = await prisma.userSetting.findUnique({
+                where: { userId: receiverId }
+            });
+            if (receiverSettings?.blockedUsers?.includes(senderId)) {
+                return res.status(403).json({ success: false, message: 'You have been blocked by this user.' });
+            }
+            messageData.receiverId = receiverId;
         }
 
         const message = await prisma.message.create({
-            data: {
-                senderId,
-                receiverId,
-                content: content || "",
-                attachmentUrl,
-                attachmentType
-            }
+            data: messageData
         });
 
         res.status(201).json({
@@ -42,13 +67,32 @@ export const sendMessage = async (req, res) => {
     }
 };
 
-// @desc    Get conversation between current user and specified user
+// @desc    Get conversation between current user and specified user or group
 // @route   GET /api/messages/conversation/:userId
 // @access  Private
 export const getConversation = async (req, res) => {
     try {
         const { userId } = req.params;
         const currentUserId = req.user.id;
+
+        const group = await prisma.messageGroup.findUnique({
+            where: { id: userId },
+            include: { members: { select: { id: true } } }
+        });
+
+        if (group) {
+            const isMember = group.adminId === currentUserId || group.members.some(member => member.id === currentUserId);
+            if (!isMember) {
+                return res.status(403).json({ success: false, message: 'Not authorized to view this group.' });
+            }
+
+            const messages = await prisma.message.findMany({
+                where: { groupId: userId },
+                orderBy: { createdAt: 'asc' }
+            });
+
+            return res.status(200).json({ success: true, data: messages });
+        }
 
         const messages = await prisma.message.findMany({
             where: {
@@ -60,7 +104,6 @@ export const getConversation = async (req, res) => {
             orderBy: { createdAt: 'asc' }
         });
 
-        // Mark messages as read if receiver is current user
         await prisma.message.updateMany({
             where: {
                 senderId: userId,
@@ -143,6 +186,200 @@ export const getContacts = async (req, res) => {
         });
     } catch (err) {
         console.error('Get contacts error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+// @desc    Get groups and channels for the current user
+// @route   GET /api/messages/groups
+// @access  Private
+export const getUserGroups = async (req, res) => {
+    try {
+        const currentUserId = req.user.id;
+        const groups = await prisma.messageGroup.findMany({
+            where: {
+                OR: [
+                    { adminId: currentUserId },
+                    { members: { some: { id: currentUserId } } }
+                ]
+            },
+            include: {
+                admin: { select: { id: true, name: true } },
+                members: { select: { id: true, name: true } }
+            },
+            orderBy: { updatedAt: 'desc' }
+        });
+
+        const groupsResult = groups.map(group => ({
+            id: group.id,
+            name: group.name,
+            description: group.description,
+            avatar: group.avatar,
+            type: group.isChannel ? 'channel' : 'group',
+            isChannel: group.isChannel,
+            adminId: group.adminId,
+            adminName: group.admin?.name,
+            memberCount: group.members.length,
+            createdAt: group.createdAt,
+            updatedAt: group.updatedAt
+        }));
+
+        res.status(200).json({ success: true, data: groupsResult });
+    } catch (err) {
+        console.error('Get user groups error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+// @desc    Get details for a group or channel
+// @route   GET /api/messages/groups/:groupId
+// @access  Private
+export const getGroupDetails = async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const currentUserId = req.user.id;
+
+        const group = await prisma.messageGroup.findUnique({
+            where: { id: groupId },
+            include: {
+                admin: { select: { id: true, name: true, avatar: true, role: true } },
+                members: { select: { id: true, name: true, avatar: true, role: true } }
+            }
+        });
+
+        if (!group) {
+            return res.status(404).json({ success: false, message: 'Group not found' });
+        }
+
+        const isMember = group.adminId === currentUserId || group.members.some(member => member.id === currentUserId);
+        if (!isMember) {
+            return res.status(403).json({ success: false, message: 'Not authorized to view this group.' });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                id: group.id,
+                name: group.name,
+                description: group.description,
+                isChannel: group.isChannel,
+                adminId: group.adminId,
+                admin: group.admin,
+                members: group.members,
+                memberCount: group.members.length,
+                avatar: group.avatar,
+                createdAt: group.createdAt,
+                updatedAt: group.updatedAt
+            }
+        });
+    } catch (err) {
+        console.error('Get group details error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+// @desc    Leave a group or channel
+// @route   POST /api/messages/groups/:groupId/leave
+// @access  Private
+export const leaveGroup = async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const currentUserId = req.user.id;
+
+        const group = await prisma.messageGroup.findUnique({
+            where: { id: groupId },
+            include: { members: { select: { id: true } } }
+        });
+
+        if (!group) {
+            return res.status(404).json({ success: false, message: 'Group not found' });
+        }
+
+        const isAdmin = group.adminId === currentUserId;
+        const isMember = group.members.some(member => member.id === currentUserId) || isAdmin;
+        if (!isMember) {
+            return res.status(403).json({ success: false, message: 'Not a member of this group.' });
+        }
+
+        if (isAdmin) {
+            const remainingMembers = group.members.filter(member => member.id !== currentUserId);
+            if (remainingMembers.length === 0) {
+                await prisma.messageGroup.delete({ where: { id: groupId } });
+                return res.status(200).json({ success: true, message: 'Group deleted as the last member left.' });
+            }
+
+            const newAdmin = remainingMembers[0];
+            await prisma.messageGroup.update({
+                where: { id: groupId },
+                data: {
+                    adminId: newAdmin.id,
+                    members: {
+                        disconnect: { id: currentUserId }
+                    }
+                }
+            });
+
+            return res.status(200).json({ success: true, message: 'You have left the group. Ownership transferred to the next member.' });
+        }
+
+        await prisma.messageGroup.update({
+            where: { id: groupId },
+            data: {
+                members: {
+                    disconnect: { id: currentUserId }
+                }
+            }
+        });
+
+        res.status(200).json({ success: true, message: 'You have left the group.' });
+    } catch (err) {
+        console.error('Leave group error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+// @desc    Remove a member from a group or channel
+// @route   DELETE /api/messages/groups/:groupId/members/:memberId
+// @access  Private
+export const removeGroupMember = async (req, res) => {
+    try {
+        const { groupId, memberId } = req.params;
+        const currentUserId = req.user.id;
+
+        const group = await prisma.messageGroup.findUnique({
+            where: { id: groupId },
+            include: { members: { select: { id: true } } }
+        });
+
+        if (!group) {
+            return res.status(404).json({ success: false, message: 'Group not found' });
+        }
+
+        if (group.adminId !== currentUserId) {
+            return res.status(403).json({ success: false, message: 'Only the owner can remove members.' });
+        }
+
+        if (memberId === currentUserId) {
+            return res.status(400).json({ success: false, message: 'Use leave group to exit as the owner.' });
+        }
+
+        const isMember = group.members.some(member => member.id === memberId);
+        if (!isMember) {
+            return res.status(404).json({ success: false, message: 'Member not found in this group.' });
+        }
+
+        await prisma.messageGroup.update({
+            where: { id: groupId },
+            data: {
+                members: {
+                    disconnect: { id: memberId }
+                }
+            }
+        });
+
+        res.status(200).json({ success: true, message: 'Member removed successfully.' });
+    } catch (err) {
+        console.error('Remove group member error:', err);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };

@@ -4,16 +4,16 @@ import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import CustomDropdown from './CustomDropdown';
 
-export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated }) {
+export default function AgendaCreationModal({ isOpen, onClose, onAgendaCreated, defaultType, defaultTitle, defaultTargetAudiences, contextName }) {
   const { user } = useAuth();
   
   const [formData, setFormData] = useState({
-    title: '',
+    title: defaultTitle || '',
     description: '',
     date: '',
     time: '',
-    type: 'announcement',
-    targetAudiences: []
+    type: defaultType || 'announcement',
+    targetAudiences: defaultTargetAudiences || []
   });
 
   const [loading, setLoading] = useState(false);

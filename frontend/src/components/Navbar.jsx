@@ -1,28 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, ChevronDown, User, LogOut, Settings, Bell, BookOpen, Shield, Zap, Globe, Code, UserCheck, GraduationCap, ArrowRight, BrainCircuit, LineChart, Target } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, Settings, Bell, BookOpen, Shield, ArrowRight } from 'lucide-react';
 import edotLogo from '../assets/edot-logo.jpg';
-import { MAIN_CATEGORIES } from '../constants/courseCategories';
 import ThemeDropdown from './ThemeDropdown';
-
-// Link dynamic centralized categories to the generic UI Dropdown
-const foundationCategories = [
-  { name: MAIN_CATEGORIES[0] || 'Social Science', path: '/courses?mainCategory=Social%20Science', iconSmall: <Globe className="w-4 h-4 text-[#008A32]" /> },
-  { name: MAIN_CATEGORIES[1] || 'Mathematics & Natural Science', path: '/courses?mainCategory=Mathematics%20%26%20Natural%20Science', iconSmall: <BrainCircuit className="w-4 h-4 text-[#008A32]" /> },
-  { name: MAIN_CATEGORIES[2] || 'Natural Language', path: '/courses?mainCategory=Natural%20Language', iconSmall: <BookOpen className="w-4 h-4 text-[#008A32]" /> }
-];
-
-const advancedCategories = [
-  { name: MAIN_CATEGORIES[3] || 'Programming & Technology', path: '/courses?mainCategory=Programming%20%26%20Technology', iconSmall: <Code className="w-4 h-4 text-[#FFD700]" /> },
-  { name: MAIN_CATEGORIES[4] || 'Business & Entrepreneurship', path: '/courses?mainCategory=Business%20%26%20Entrepreneurship', iconSmall: <LineChart className="w-4 h-4 text-[#FFD700]" /> },
-  { name: MAIN_CATEGORIES[5] || 'Personal Development', path: '/courses?mainCategory=Personal%20Development', iconSmall: <Target className="w-4 h-4 text-[#FFD700]" /> }
-];
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [catDropdownOpen, setCatDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   
   const { user, isAuthenticated, logout } = useAuth();
@@ -30,7 +15,6 @@ export default function Navbar() {
   const location = useLocation();
 
   const userDropdownRef = useRef(null);
-  const catDropdownRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,9 +29,6 @@ export default function Navbar() {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
         setUserDropdownOpen(false);
       }
-      if (catDropdownRef.current && !catDropdownRef.current.contains(event.target)) {
-        setCatDropdownOpen(false);
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -55,7 +36,6 @@ export default function Navbar() {
 
   useEffect(() => {
     setMobileMenuOpen(false);
-    setCatDropdownOpen(false);
     setUserDropdownOpen(false);
   }, [location.pathname]);
 
@@ -92,59 +72,6 @@ export default function Navbar() {
         <nav className="hidden lg:flex items-center gap-8 bg-[#11151F]/40 backdrop-blur-md border border-white/5 px-8 py-3 rounded-full shadow-inner">
           <NavLink to="/" className={navLinkClass} end>Home</NavLink>
           <NavLink to="/courses" className={navLinkClass}>Courses</NavLink>
-          
-          <div className="relative" ref={catDropdownRef}>
-            <button 
-              onClick={() => setCatDropdownOpen(!catDropdownOpen)}
-              className={`text-xs font-black uppercase tracking-widest transition-colors py-2 flex items-center gap-1.5 ${catDropdownOpen ? 'text-white' : 'text-slate-200 hover:text-white'}`}
-            >
-              Categories <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${catDropdownOpen ? 'rotate-180 text-[#FFD700]' : 'text-slate-300'}`} />
-            </button>
-            
-            <div className={`absolute top-[calc(100%+1.5rem)] left-1/2 -translate-x-1/2 w-[600px] bg-[#11151F] border border-white/10 rounded-3xl p-6 shadow-2xl transition-all duration-200 origin-top ${catDropdownOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
-               
-               <div className="grid grid-cols-2 gap-8">
-                  {/* Foundation */}
-                  <div>
-                     <h5 className="text-[#008A32] font-black text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-[#008A32]/20 pb-3">
-                        Foundation
-                     </h5>
-                     <div className="flex flex-col gap-2">
-                       {foundationCategories.map((cat, idx) => (
-                         <Link key={idx} to={cat.path} className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#0B0E14] border border-transparent hover:border-white/5 transition-all group">
-                           <div className="w-8 h-8 rounded-lg bg-[#008A32]/5 flex items-center justify-center group-hover:bg-[#008A32]/10 transition-colors shrink-0">
-                               {cat.iconSmall}
-                           </div>
-                           <h4 className="text-slate-300 text-xs font-bold group-hover:text-white transition-colors">{cat.name}</h4>
-                         </Link>
-                       ))}
-                     </div>
-                  </div>
-
-                  {/* Advanced */}
-                  <div>
-                     <h5 className="text-[#FFD700] font-black text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-[#FFD700]/20 pb-3">
-                        Advanced
-                     </h5>
-                     <div className="flex flex-col gap-2">
-                       {advancedCategories.map((cat, idx) => (
-                         <Link key={idx} to={cat.path} className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#0B0E14] border border-transparent hover:border-white/5 transition-all group">
-                           <div className="w-8 h-8 rounded-lg bg-[#FFD700]/5 flex items-center justify-center group-hover:bg-[#FFD700]/10 transition-colors shrink-0">
-                               {cat.iconSmall}
-                           </div>
-                           <h4 className="text-slate-300 text-xs font-bold group-hover:text-white transition-colors">{cat.name}</h4>
-                         </Link>
-                       ))}
-                     </div>
-                  </div>
-               </div>
-               
-               <div className="mt-6 pt-4 border-t border-white/5 text-center">
-                 <Link to="/courses" className="text-[10px] font-black uppercase tracking-widest text-[#FFD700] hover:text-[#e5c100] flex items-center justify-center gap-2">Browse Full Catalog <ArrowRight className="w-3 h-3" /></Link>
-               </div>
-            </div>
-          </div>
-
           <NavLink to="/about" className={navLinkClass}>About</NavLink>
           <NavLink to="/contact" className={navLinkClass}>Contact</NavLink>
         </nav>
@@ -216,19 +143,6 @@ export default function Navbar() {
           <div className="p-6 flex flex-col space-y-2">
             <NavLink to="/" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-200 hover:text-white hover:bg-[#11151F]'}`}>Home</NavLink>
             <NavLink to="/courses" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-200 hover:text-white hover:bg-[#11151F]'}`}>Courses</NavLink>
-            
-            {/* Mobile Categories Accordion Simplified */}
-            <div className="px-5 py-4 bg-[#11151F]/50 rounded-2xl border border-white/5 my-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#008A32] mb-3 block">Foundation</span>
-              <div className="flex flex-col gap-2 pl-2 border-l border-[#008A32]/20 mb-5">
-                 {foundationCategories.map(cat => <Link key={cat.name} to={cat.path} className="text-xs uppercase tracking-widest text-slate-200 py-1.5 hover:text-white">{cat.name}</Link>)}
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#FFD700] mb-3 block">Advanced</span>
-              <div className="flex flex-col gap-2 pl-2 border-l border-[#FFD700]/20">
-                 {advancedCategories.map(cat => <Link key={cat.name} to={cat.path} className="text-xs uppercase tracking-widest text-slate-200 py-1.5 hover:text-white">{cat.name}</Link>)}
-              </div>
-            </div>
-
             <NavLink to="/about" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-200 hover:text-white hover:bg-[#11151F]'}`}>About</NavLink>
             <NavLink to="/contact" className={({isActive}) => `px-5 py-4 rounded-xl text-xs uppercase tracking-widest font-black ${isActive ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'text-slate-200 hover:text-white hover:bg-[#11151F]'}`}>Contact</NavLink>
             
