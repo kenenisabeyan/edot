@@ -1,29 +1,26 @@
 import express from 'express';
 import multer from 'multer';
 import { protect } from '../middleware/auth.js';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
 const router = express.Router();
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Configure Cloudinary using env variables
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-// Init upload
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'uploads/');
+// Configure Multer to use Cloudinary Storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'edot_uploads',
+    resource_type: 'auto', // Important for allowing videos (mp4, etc.)
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'mp4', 'mov', 'avi', 'mkv', 'pdf'], 
   },
-  filename(req, file, cb) {
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-  }
 });
 
 const upload = multer({ 
@@ -32,7 +29,7 @@ const upload = multer({
 });
 
 // @route   POST /api/upload
-// @desc    Upload an image or video locally
+// @desc    Upload an image or video to Cloudinary
 // @access  Private
 router.post('/', protect, upload.single('image'), (req, res) => {
     try {
@@ -41,7 +38,7 @@ router.post('/', protect, upload.single('image'), (req, res) => {
         }
         res.json({
             success: true,
-            filePath: `/${req.file.destination}${req.file.filename}` // Local URL e.g. /uploads/image-123.png
+            filePath: req.file.path // Cloudinary returns the secure URL in req.file.path
         });
     } catch (error) {
         console.error('Upload error:', error);

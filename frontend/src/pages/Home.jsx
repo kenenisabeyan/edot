@@ -207,33 +207,153 @@ export default function Home() {
            </div>
         </section>
 
-        {/* 4. LEARNING PATH SECTION */}
+        {/* 4. LEARNING JOURNEY SECTION */}
         <section className="py-24 px-6 max-w-7xl mx-auto relative z-20">
            <div className="text-center mb-12">
-             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Start Your Learning Journey from Foundation to Career</h2>
-             <p className="text-lg text-slate-300 mt-4 max-w-2xl mx-auto">EDOT guides your progress with simple phases so you always know what to do next.</p>
+             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#11151F]/70 border border-white/10 text-xs uppercase tracking-[0.25em] text-slate-300 mb-6">
+               <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#008A32]/15 text-[#008A32]">01</span>
+               Phase 01
+             </span>
+             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Start Your Learning Journey From Foundation to Career</h2>
+             <p className="text-lg text-slate-300 mt-4 max-w-2xl mx-auto">Visually guiding you through EDOT’s intelligently structured system, step by step.</p>
+
+             <div className="mt-10 max-w-3xl mx-auto rounded-3xl border border-white/10 bg-[#11151F]/70 p-5 text-sm text-slate-300 shadow-lg">
+               <div className="inline-flex items-center gap-3 font-black text-slate-100 mb-2">
+                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#FFD700]/15 text-[#FFD700]">!</span>
+                 Note:
+               </div>
+               <p>All learners are welcome to explore any course based on their interest — start where you are and grow at your own pace.</p>
+             </div>
            </div>
 
-           <div className="grid gap-6 md:grid-cols-3">
-             {[{
-                step: '01',
-                title: 'Choose your path',
-                description: 'Pick the subject or skill you want to learn and begin with the right starting point.'
-             },{
-                step: '02',
-                title: 'Follow the steps',
-                description: 'Use clear, bite-sized lessons and easy progress markers to keep moving forward.'
-             },{
-                step: '03',
-                title: 'Build real skills',
-                description: 'Complete projects, earn certificates, and prepare for the next stage of your learning journey.'
-             }].map((item, idx) => (
-               <div key={idx} className="bg-[#11151F]/80 border border-white/10 rounded-[2rem] p-8 shadow-sm hover:border-white/20 transition-all duration-300">
-                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#008A32]/10 text-[#008A32] font-black mb-5">{item.step}</div>
-                  <h3 className="text-2xl font-black text-white mb-3">{item.title}</h3>
-                  <p className="text-slate-300 leading-relaxed">{item.description}</p>
+           <div className="grid gap-6 lg:grid-cols-3 lg:grid-rows-[auto_auto]">
+             <div className="lg:col-span-3 bg-[#11151F]/80 border border-white/10 rounded-[2rem] p-8 shadow-xl overflow-hidden relative">
+               <div className="absolute inset-0 bg-gradient-to-br from-[#FF7A18]/10 via-transparent to-[#11151F]/50 pointer-events-none"></div>
+               <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
+                 <div className="flex items-center justify-center w-20 h-20 rounded-3xl bg-[#FF7A18]/10 text-[#FF7A18] border border-[#FF7A18]/20 shadow-lg">
+                   <Globe className="w-8 h-8" />
+                 </div>
+                 <div className="flex-1">
+                   <div className="flex items-center justify-between gap-4 mb-4">
+                     <div>
+                       <h3 className="text-3xl font-black text-white">Social Science</h3>
+                       <p className="text-slate-300 mt-3 max-w-2xl">Learn how human societies work from the ground up — histories, geographies, and cultures made simple and practical.</p>
+                     </div>
+                     <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-300 text-xs uppercase tracking-widest font-black">Free</span>
+                   </div>
+                   <div className="mt-6 flex flex-wrap items-center gap-3">
+                     <span className="inline-flex items-center gap-2 bg-[#0D1220] border border-white/10 rounded-full px-4 py-2 text-xs text-slate-300"><Clock className="w-4 h-4 text-[#FF7A18]" /> 15 Hours</span>
+                     <span className="inline-flex items-center gap-2 bg-[#0D1220] border border-white/10 rounded-full px-4 py-2 text-xs text-slate-300"><Users className="w-4 h-4 text-slate-300" /> Beginner Friendly</span>
+                   </div>
+                   <div className="mt-8">
+                     <Link to="/courses" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#FF7A18] px-6 py-3 text-sm font-black text-slate-950 shadow-[0_20px_60px_rgba(255,122,24,0.25)] hover:bg-[#ff8300] transition-all">
+                       Start Learning <ArrowRight className="w-4 h-4" />
+                     </Link>
+                   </div>
+                 </div>
                </div>
-             ))}
+             </div>
+
+             <div className="bg-[#11151F]/80 border border-white/10 rounded-[2rem] p-8 shadow-sm transition-all duration-300 hover:border-white/20">
+               <div className="flex items-center justify-between mb-5">
+                 <div className="flex items-center gap-3 text-[#6366F1]">
+                   <span className="w-12 h-12 rounded-3xl bg-[#6366F1]/10 flex items-center justify-center"><LineChart className="w-6 h-6" /></span>
+                 </div>
+                 <span className="inline-flex px-3 py-1 rounded-full bg-slate-950/60 text-slate-300 text-[10px] uppercase tracking-widest">Coming Soon</span>
+               </div>
+               <h3 className="text-2xl font-black text-white mb-4">Mathematics & Natural Science</h3>
+               <p className="text-slate-300 leading-relaxed">Master arithmetic, logical reasoning, and basic physics through visually clear, exciting examples.</p>
+               <div className="mt-6 flex flex-wrap items-center gap-3">
+                 <span className="inline-flex items-center gap-2 bg-[#0D1220] border border-white/10 rounded-full px-4 py-2 text-xs text-slate-300"><Clock className="w-4 h-4 text-[#6366F1]" /> 20 Hours</span>
+                 <span className="inline-flex items-center gap-2 bg-[#0D1220] border border-white/10 rounded-full px-4 py-2 text-xs text-slate-300"><Users className="w-4 h-4 text-slate-300" /> Beginner Friendly</span>
+               </div>
+               <button className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-black text-slate-300 border border-white/10 hover:bg-slate-800 transition-all">Notify Me</button>
+             </div>
+
+             <div className="bg-[#11151F]/80 border border-white/10 rounded-[2rem] p-8 shadow-sm transition-all duration-300 hover:border-white/20">
+               <div className="flex items-center justify-between mb-5">
+                 <div className="flex items-center gap-3 text-[#A855F7]">
+                   <span className="w-12 h-12 rounded-3xl bg-[#A855F7]/10 flex items-center justify-center"><BookOpen className="w-6 h-6" /></span>
+                 </div>
+                 <span className="inline-flex px-3 py-1 rounded-full bg-slate-950/60 text-slate-300 text-[10px] uppercase tracking-widest">Most Popular</span>
+               </div>
+               <h3 className="text-2xl font-black text-white mb-4">Natural Language</h3>
+               <p className="text-slate-300 leading-relaxed">Develop strong communication skills by learning fundamental linguistics and clear expression strategies.</p>
+               <div className="mt-6 flex flex-wrap items-center gap-3">
+                 <span className="inline-flex items-center gap-2 bg-[#0D1220] border border-white/10 rounded-full px-4 py-2 text-xs text-slate-300"><Clock className="w-4 h-4 text-[#A855F7]" /> 18 Hours</span>
+                 <span className="inline-flex items-center gap-2 bg-[#0D1220] border border-white/10 rounded-full px-4 py-2 text-xs text-slate-300"><Users className="w-4 h-4 text-slate-300" /> Beginner Friendly</span>
+               </div>
+               <Link to="/courses" className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#7C3AED] px-6 py-3 text-sm font-black text-white shadow-[0_20px_60px_rgba(124,58,237,0.25)] hover:bg-[#8b5cf6] transition-all">Start Learning</Link>
+             </div>
+           </div>
+
+           <div className="mt-16">
+             <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+               <div>
+                 <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#11151F]/70 border border-white/10 text-xs uppercase tracking-[0.25em] text-slate-300">Phase 02</span>
+                 <h2 className="mt-5 text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">Advanced & Career</h2>
+                 <p className="text-lg text-slate-300 mt-4 max-w-3xl">Develop skills for university and beyond.</p>
+               </div>
+             </div>
+
+             <div className="space-y-6">
+               {[
+                 {
+                   title: 'Programming & Technology',
+                   description: 'Learn how websites and applications work from the ground up — dive into algorithms, web frameworks, and cloud systems.',
+                   icon: Code,
+                   accent: 'from-sky-500 to-blue-500',
+                   label: 'Hot Skill',
+                   button: 'Explore Now',
+                   buttonClass: 'bg-blue-500 hover:bg-blue-600 text-white'
+                 },
+                 {
+                   title: 'Business & Entrepreneurship',
+                   description: 'Understand markets, financial scaling, and effective leadership tactics to build organizations that last.',
+                   icon: BarChart,
+                   accent: 'from-yellow-500 to-orange-500',
+                   label: '% Discounted',
+                   button: 'Explore Now',
+                   buttonClass: 'bg-yellow-500 hover:bg-yellow-600 text-slate-950'
+                 },
+                 {
+                   title: 'Personal Development',
+                   description: 'Develop high-value habits, public speaking confidence, and strong decision-making tools for life and career.',
+                   icon: Target,
+                   accent: 'from-emerald-500 to-teal-500',
+                   label: '% Discounted',
+                   button: 'Explore Now',
+                   buttonClass: 'bg-emerald-500 hover:bg-emerald-600 text-slate-950'
+                 }
+               ].map((item, idx) => {
+                 const Icon = item.icon;
+                 return (
+                   <div key={idx} className="bg-[#11151F]/80 border border-white/10 rounded-[2rem] p-8 shadow-sm hover:border-white/20 transition-all duration-300">
+                     <div className="flex items-center justify-between mb-5 gap-4">
+                       <div className="flex items-center gap-4">
+                         <span className={`w-14 h-14 rounded-3xl bg-gradient-to-br ${item.accent} text-white flex items-center justify-center shadow-lg`}>
+                           <Icon className="w-6 h-6" />
+                         </span>
+                         <div>
+                           <h3 className="text-2xl font-black text-white">{item.title}</h3>
+                         </div>
+                       </div>
+                       <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-950/60 text-slate-300 text-[10px] uppercase tracking-[0.25em] font-black">{item.label}</span>
+                     </div>
+                     <p className="text-slate-300 leading-relaxed mb-6">{item.description}</p>
+                     <div className="flex flex-wrap items-center gap-3">
+                       <span className="inline-flex items-center gap-2 bg-[#0D1220] border border-white/10 rounded-full px-4 py-2 text-xs text-slate-300"><Clock className="w-4 h-4" /> {idx === 0 ? '40 Hours' : idx === 1 ? '35 Hours' : '12 Hours'}</span>
+                       <span className="inline-flex items-center gap-2 bg-[#0D1220] border border-white/10 rounded-full px-4 py-2 text-xs text-slate-300"><Users className="w-4 h-4" /> Intermediate / Advanced</span>
+                     </div>
+                     <div className="mt-8">
+                       <button className={`inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-black transition-all ${item.buttonClass}`}>
+                         {item.button} <ArrowRight className="w-4 h-4" />
+                       </button>
+                     </div>
+                   </div>
+                 );
+               })}
+             </div>
            </div>
         </section>
 
