@@ -90,3 +90,72 @@ EDOT/
     │   └── utils/            # Axios API interceptors
     ├── index.html            # Vite entrypoint
     └── package.json
+⚙️ Prerequisites
+Ensure you have the following installed on your machine:
+
+Node.js: v18.0.0 or higher
+npm or yarn
+PostgreSQL: Running locally or a cloud URI
+🚀 Installation & Setup
+Clone the repository:
+
+bash
+git clone https://github.com/kenenisabeyan/edot.git
+cd edot
+Install Backend Dependencies:
+
+bash
+cd backend
+npm install
+Install Frontend Dependencies:
+
+bash
+cd ../frontend
+npm install
+🔐 Environment Variables
+Create .env files in both the backend and frontend directories using the reference keys below:
+
+/backend/.env
+
+env
+PORT=5000
+DATABASE_URL="postgresql://user:password@localhost:5432/edot_db?schema=public"
+JWT_SECRET="your_highly_secure_crypto_string_here"
+/frontend/.env
+
+env
+VITE_API_BASE_URL="http://localhost:5000/api"
+💻 Running Locally
+To fire up the entire stack, you'll need two terminal instances.
+
+Terminal 1 (Backend Server):
+
+bash
+cd backend
+npx prisma generate
+npx prisma migrate dev  # Only if database is fresh
+npm run dev
+Terminal 2 (Frontend Client):
+
+bash
+cd frontend
+npm run dev
+The application client will now be accessible at http://localhost:5173/.
+
+🤝 Contributing
+Contributions are always welcome. Keep code clean and adhere to the repository's ESLint rules.
+
+Fork the Project
+Create your Feature Branch (git checkout -b feature/AmazingFeature)
+Commit your Changes (git commit -m 'Add some AmazingFeature')
+Push to the Branch (git push origin feature/AmazingFeature)
+Open a Pull Request
+📄 License
+Distributed under the MIT License. See LICENSE for more information.
+
+📬 Contact
+Kenenisa Beyan - 
+
+kenenisab05@gmail.com
+
+Project Link: https://github.com/kenenisabeyan/edot
